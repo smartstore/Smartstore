@@ -1,4 +1,4 @@
-﻿/*
+/*
 *  Project: Smartstore tree.
 *  Author: Marcus Gesing, SmartStore AG.
 */
@@ -59,6 +59,8 @@
         destroy: function () {
             return this.each(function () {
                 var root = $(this);
+
+                root.data('tree-options')?._drag?.destroy();
 
                 root.off()
                     .removeData('tree-options')
@@ -625,12 +627,22 @@
     function initializeDragAndDrop(root, opt) {
         opt._drag = {
             active: false,
-            lineIndicator: $('<div class="tree-line-indicator"></div>').appendTo(document.body).get(0),
-            overIndicator: $('<div class="tree-over-indicator"></div>').appendTo(document.body).get(0),
+            lineIndicator: $('<div class="tree-line-indicator"></div>').appendTo(document.body),
+            overIndicator: $('<div class="tree-over-indicator"></div>').appendTo(document.body),
         };
 
         var d = opt._drag;
         const lineWidth = 160;
+        const scrollEdge = 48;
+        let scrollParent;
+        let scrollTimer;
+        let pointer;
+
+        d.destroy = function () {
+            startDragging(false);
+            d.lineIndicator.remove();
+            d.overIndicator.remove();
+        };
 
         root.on('dragstart', '.tree-node-content', function (e) {
             var content = $(this);
@@ -651,90 +663,77 @@
             //console.log('dragstart ' + content.find('.tree-name').text());
         });
 
-        root.on('dragend', '.tree-node-content', function () {
+        function clearIndicator() {
+            d.position = '';
+            d.targetId = 0;
+            d.lineIndicator.add(d.overIndicator).css('top', -100);
+        }
+
+        function indicate(content, clientY) {
+            clearIndicator();
+            if (!content || !root[0].contains(content)) {
+                return;
+            }
+
+            const rc = content.getBoundingClientRect();
+            const top = rc.top + window.scrollY;
+            d.targetId = $(content).closest('.tree-node').data('id');
+            d.position = clientY < rc.top + 8 ? 'before' : clientY > rc.bottom - 8 ? 'after' : 'over';
+            d.lineIndicator.css({
+                left: (opt.rtl ? rc.right - lineWidth - 10 : rc.left + 10) + window.scrollX,
+                width: lineWidth,
+                top: d.position === 'over' ? -100 : d.position === 'before' ? top : top + rc.height
+            });
+            d.overIndicator.css({
+                left: rc.left + window.scrollX,
+                width: rc.width,
+                height: rc.height,
+                top: d.position === 'over' ? top : -100
+            });
+        }
+
+        // Track the drag outside the tree too, including sticky headers above it.
+        function trackDrag(e) {
+            pointer = e;
+            indicate(document.elementFromPoint(e.clientX, e.clientY)?.closest('.droppable'), e.clientY);
+            if (d.position) {
+                e.preventDefault(); // Allow dropping only on eligible tree nodes.
+            }
+        }
+
+        function autoScroll() {
+            if (!pointer || !root[0].isConnected) {
+                return;
+            }
+
+            const rc = scrollParent === document.scrollingElement
+                ? { top: 0, bottom: window.innerHeight, left: 0, right: window.innerWidth }
+                : scrollParent.getBoundingClientRect();
+            const x = pointer.clientX, y = pointer.clientY;
+            const edge = Math.min(scrollEdge, (rc.bottom - rc.top) / 2);
+            if (x >= rc.left && x <= rc.right && y >= rc.top && y <= rc.bottom) {
+                const speed = y < rc.top + edge ? (y - rc.top - edge) / edge
+                    : y > rc.bottom - edge ? (y - rc.bottom + edge) / edge : 0;
+                scrollParent.scrollTop += speed * 12;
+            }
+            indicate(document.elementFromPoint(x, y)?.closest('.droppable'), y);
+        }
+
+        function leaveDocument(e) {
+            if (!e.relatedTarget) {
+                pointer = null;
+                clearIndicator();
+            }
+        }
+
+        function endDrag() {
             startDragging(false);
-        });
-
-        root.on('dragenter', '.droppable', function (e) {
-            e.preventDefault();
-
-            if (d.active) {
-                d.nodeContent = this;
-
-                var nodeId = $(this).closest('.tree-node').data('id');
-                if (nodeId !== d.targetId) {
-                    d.targetId = nodeId;
-                    d.position = '';
-
-                    // Current target node rect.
-                    var rc = this.getBoundingClientRect();
-                    var scrollY = window.scrollY;
-
-                    // Mouse position thresholds.
-                    d.beforeThreshold = rc.top + scrollY + 8;
-                    d.afterThreshold = rc.bottom + scrollY - 8;
-
-                    // Calculate new vertical position of both indicators.
-                    d.lineTop = (rc.top + scrollY) + 'px';
-                    d.lineBottom = (rc.bottom + scrollY) + 'px';
-                    d.overTop = (rc.top + scrollY) + 'px';
-
-                    // Update size and left position of both indicators.
-                    if (opt.rtl) {
-                        d.lineIndicator.style.left = (rc.right - lineWidth - 10) + 'px';
-                    }
-                    else {
-                        d.lineIndicator.style.left = (rc.left + 10) + 'px';
-                    }
-                    d.lineIndicator.style.width = lineWidth + 'px';
-
-                    d.overIndicator.style.left = rc.left + 'px';
-                    d.overIndicator.style.width = rc.width + 'px';
-                    d.overIndicator.style.height = rc.height + 'px';
-                }
-            }
-        });
-
-        root.on('dragleave', '.droppable', function (e) {
-            if (d.active && this === d.nodeContent) {
-                e.preventDefault();
-                d.lineIndicator.style.top = '-100px';
-                d.overIndicator.style.top = '-100px';
-            }
-        });
-
-        root.on('dragover', '.droppable', function (e) {
-            e.preventDefault();  // Allow dropping.
-
-            // Indicate.
-            if (d.active) {
-                if (e.pageY < d.beforeThreshold) {
-                    d.position = 'before';
-                    d.lineIndicator.style.top = d.lineTop;
-                    d.overIndicator.style.top = '-100px';
-                }
-                else if (e.pageY > d.afterThreshold) {
-                    d.position = 'after';
-                    d.lineIndicator.style.top = d.lineBottom;
-                    d.overIndicator.style.top = '-100px';
-                }
-                else if (e.pageY >= d.beforeThreshold && e.pageY <= d.afterThreshold) {
-                    d.position = 'over';
-                    d.lineIndicator.style.top = '-100px';
-                    d.overIndicator.style.top = d.overTop;
-                }
-                else {
-                    d.position = '';
-                    d.lineIndicator.style.top = '-100px';
-                    d.overIndicator.style.top = '-100px';
-                }
-            }
-        });
+        }
 
         root.on('drop', '.droppable', function (e) {
             e.preventDefault();
 
-            if (d.position.length > 0) {
+            if (d.active && d.position.length > 0) {
                 var data = {
                     id: d.sourceId || 0,
                     targetId: d.targetId || 0,
@@ -776,15 +775,28 @@
             d.position = '';
             d.sourceId = 0;
             d.targetId = 0;
-            d.nodeContent = null;
+            pointer = null;
+            clearInterval(scrollTimer);
 
             if (active) {
+                scrollParent = root[0];
+                while (scrollParent !== document.scrollingElement) {
+                    if (/^(auto|scroll|overlay)$/.test($(scrollParent).css('overflow-y'))
+                        && scrollParent.scrollHeight > scrollParent.clientHeight) {
+                        break;
+                    }
+                    scrollParent = scrollParent.parentElement || document.scrollingElement;
+                }
+                $(document).on('dragover', trackDrag).on('dragleave', leaveDocument).on('drop dragend', endDrag);
+                $(window).on('blur', endDrag);
+                scrollTimer = setInterval(autoScroll, 20);
                 root.removeClass('tree-highlight');
             }
             else {
+                $(document).off('dragover', trackDrag).off('dragleave', leaveDocument).off('drop dragend', endDrag);
+                $(window).off('blur', endDrag);
                 root.find('.tree-node-content').removeClass('dragging droppable');
-                d.lineIndicator.style.top = '-100px';
-                d.overIndicator.style.top = '-100px';
+                clearIndicator();
 
                 if (opt.highlightNodes) {
                     root.addClass('tree-highlight');
