@@ -108,6 +108,19 @@ public class SmartDbContextDataSeeder : IDataSeeder<SmartDbContext>
 
     public void MigrateLocaleResources(LocaleResourcesBuilder builder)
     {
+        builder.AddOrUpdate("Permissions.DisplayName.Dashboard", "Dashboard", "Dashboard");
+        builder.AddOrUpdate("Permissions.DisplayName.Widgets", "Widgets", "Widgets");
+        builder.AddOrUpdate("Permissions.DisplayName.Sales", "Sales", "Verkäufe");
+        builder.AddOrUpdate("Permissions.DisplayName.Customers", "Customers", "Kunden");
+        builder.AddOrUpdate("Permissions.DisplayName.IncompleteOrders", "Incomplete orders", "Unvollständige Bestellungen");
+        builder.AddOrUpdate("Permissions.DisplayName.Orders", "Order statistics", "Bestellstatistik");
+        builder.AddOrUpdate("Permissions.DisplayName.Bestsellers", "Bestsellers", "Bestseller");
+        builder.AddOrUpdate("Permissions.DisplayName.LatestOrders", "Latest orders", "Neueste Bestellungen");
+        builder.AddOrUpdate("Permissions.DisplayName.RegisteredCustomers", "Customer registrations", "Kundenregistrierungen");
+        builder.AddOrUpdate("Permissions.DisplayName.TopCustomers", "Top customers", "Top Kunden");
+        builder.AddOrUpdate("Permissions.DisplayName.StoreReport", "Store statistics", "Shop-Statistiken");
+        builder.AddOrUpdate("Permissions.DisplayName.NewsFeed", "News", "News");
+
         builder.AddOrUpdate("Admin.Dashboard", "Dashboard", "Dashboard");
         builder.AddOrUpdate("Admin.Dashboard.Customize", "Customize dashboard", "Dashboard anpassen");
         builder.AddOrUpdate("Admin.Header.Account", "Account", "Konto");

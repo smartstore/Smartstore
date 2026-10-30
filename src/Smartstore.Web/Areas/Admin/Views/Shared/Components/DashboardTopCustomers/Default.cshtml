@@ -1,6 +1,11 @@
-﻿@using Smartstore.Admin.Models.Customers 
+﻿@using Smartstore.Core.Security
+@using Smartstore.Admin.Models.Customers
 
 @model DashboardTopCustomersModel
+
+@{
+    bool canReadCustomers = await CommonServices.Permissions.AuthorizeAsync(Permissions.Customer.Read);
+}
 
 <div class="report">
     <div class="report-title-row flex-wrap">
@@ -28,7 +33,8 @@
                         {
                             <tr>
                                 <td class="display-row" title="@customer.CustomerDisplayName">
-                                    <a asp-action="Edit" asp-controller="Customer" asp-route-id="@customer.CustomerId">@customer.CustomerDisplayName</a>
+                                    <a sm-if="canReadCustomers" asp-action="Edit" asp-controller="Customer" asp-route-id="@customer.CustomerId">@customer.CustomerDisplayName</a>
+                                    <span sm-if="!canReadCustomers">@customer.CustomerDisplayName</span>
                                 </td>
                                 <td class="display-row text-center font-weight-medium" title="@customer.OrderCount">@customer.OrderCount</td>
                                 <td class="display-row text-right" title="@customer.OrderTotal @T("Tax.InclVAT")">@customer.OrderTotal</td>
@@ -53,7 +59,8 @@
                         {
                             <tr>
                                 <td class="display-row" title="@customer.CustomerDisplayName">
-                                    <a asp-action="Edit" asp-controller="Customer" asp-route-id="@customer.CustomerId">@customer.CustomerDisplayName</a>
+                                    <a sm-if="canReadCustomers" asp-action="Edit" asp-controller="Customer" asp-route-id="@customer.CustomerId">@customer.CustomerDisplayName</a>
+                                    <span sm-if="!canReadCustomers">@customer.CustomerDisplayName</span>
                                 </td>
                                 <td class="display-row text-center" title="@customer.OrderCount">@customer.OrderCount</td>
                                 <td class="display-row text-right font-weight-medium" title="@customer.OrderTotal @T("Tax.InclVAT")">@customer.OrderTotal</td>

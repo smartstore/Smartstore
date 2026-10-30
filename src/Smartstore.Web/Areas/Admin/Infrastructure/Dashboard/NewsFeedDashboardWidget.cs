@@ -2,6 +2,7 @@
 
 using Smartstore.Admin.Components;
 using Smartstore.Core.Localization;
+using Smartstore.Core.Security;
 using Smartstore.Core.Widgets.Dashboard;
 using Smartstore.Engine.Modularity;
 
@@ -11,7 +12,8 @@ namespace Smartstore.Admin.Infrastructure.Dashboard;
 /// Describes and creates the dashboard widget that renders the Smartstore news feed.
 /// </summary>
 [SystemName(SystemName)]
-public sealed class NewsFeedDashboardWidget : DashboardViewComponentWidget<NewsFeedViewComponent>
+public sealed class NewsFeedDashboardWidget(IPermissionService permissions)
+    : DashboardViewComponentWidget<NewsFeedViewComponent>(permissions, NewsFeedViewComponent.RequiredPermission)
 {
     /// <summary>
     /// Identifies the news feed dashboard widget type.

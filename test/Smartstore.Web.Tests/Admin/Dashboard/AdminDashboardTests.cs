@@ -1,6 +1,8 @@
 #nullable enable
 
 using System.Linq;
+using Moq;
+using Smartstore.Core.Security;
 using System.Text.Json;
 using NUnit.Framework;
 using Smartstore.Admin.Infrastructure.Dashboard;
@@ -116,7 +118,7 @@ public sealed class AdminDashboardTests
     {
         var layout = new AdminDashboardLayoutProvider().GetDefaultLayout();
         var instance = GetInstance(layout, StoreReportDashboardWidget.SystemName);
-        var dashboardWidget = new StoreReportDashboardWidget();
+        var dashboardWidget = new StoreReportDashboardWidget(Mock.Of<IPermissionService>());
         var context = new DashboardWidgetContext
         {
             DashboardId = layout.Id,
@@ -141,7 +143,7 @@ public sealed class AdminDashboardTests
     {
         var layout = new AdminDashboardLayoutProvider().GetDefaultLayout();
         var instance = GetInstance(layout, LatestOrdersDashboardWidget.SystemName);
-        var dashboardWidget = new LatestOrdersDashboardWidget();
+        var dashboardWidget = new LatestOrdersDashboardWidget(Mock.Of<IPermissionService>());
         var context = new DashboardWidgetContext
         {
             DashboardId = layout.Id,

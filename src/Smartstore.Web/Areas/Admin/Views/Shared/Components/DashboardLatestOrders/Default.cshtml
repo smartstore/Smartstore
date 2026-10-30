@@ -1,7 +1,13 @@
-﻿@using Smartstore.Admin.Models.Orders
+﻿@using Smartstore.Core.Security
+@using Smartstore.Admin.Models.Orders
 @using Smartstore.Core.Checkout.Orders
 
 @model DashboardLatestOrdersModel
+
+@{
+    bool canReadCustomers = await CommonServices.Permissions.AuthorizeAsync(Permissions.Customer.Read);
+    bool canReadOrders = await CommonServices.Permissions.AuthorizeAsync(Permissions.Order.Read);
+}
 
 <div class="report">
     <div class="report-title-row">
@@ -24,34 +30,39 @@
                 {
                     <tr class="order-row" index="@x.OrderId">
                         <td class="display-row" title="@x.OrderId">
-                            <a asp-action="Edit" asp-controller="Order" asp-route-id="@x.OrderId">@x.OrderNumber</a>
+                            <a sm-if="canReadOrders" asp-action="Edit" asp-controller="Order" asp-route-id="@x.OrderId">@x.OrderNumber</a>
+                            <span sm-if="!canReadOrders">@x.OrderNumber</span>
                         </td>
                         @if (x.OrderState == OrderStatus.Pending)
                         {
                             <td class="display-row hstack" title="@T("Enums.OrderStatus.Pending")">
                                 <div class="bg-warning indicator"></div>
-                                <a asp-action="Edit" asp-controller="Order" asp-route-id="@x.OrderId" class="pl-2 text-truncate">@T("Enums.OrderStatus.Pending")</a>
+                                <a sm-if="canReadOrders" asp-action="Edit" asp-controller="Order" asp-route-id="@x.OrderId" class="pl-2 text-truncate">@T("Enums.OrderStatus.Pending")</a>
+                                <span sm-if="!canReadOrders" class="pl-2 text-truncate">@T("Enums.OrderStatus.Pending")</span>
                             </td>
                         }
                         else if (x.OrderState == OrderStatus.Processing)
                         {
                             <td class="display-row hstack" title="@T("Enums.OrderStatus.Processing")">
                                 <div class="bg-success indicator"></div>
-                                <a asp-action="Edit" asp-controller="Order" asp-route-id="@x.OrderId" class="pl-2 text-truncate">@T("Enums.OrderStatus.Processing")</a>
+                                <a sm-if="canReadOrders" asp-action="Edit" asp-controller="Order" asp-route-id="@x.OrderId" class="pl-2 text-truncate">@T("Enums.OrderStatus.Processing")</a>
+                                <span sm-if="!canReadOrders" class="pl-2 text-truncate">@T("Enums.OrderStatus.Processing")</span>
                             </td>
                         }
                         else if (x.OrderState == OrderStatus.Complete)
                         {
                             <td class="display-row hstack" title="@T("Enums.OrderStatus.Complete")">
                                 <div class="bg-primary indicator"></div>
-                                <a asp-action="Edit" asp-controller="Order" asp-route-id="@x.OrderId" class="pl-2 text-truncate">@T("Enums.OrderStatus.Complete")</a>
+                                <a sm-if="canReadOrders" asp-action="Edit" asp-controller="Order" asp-route-id="@x.OrderId" class="pl-2 text-truncate">@T("Enums.OrderStatus.Complete")</a>
+                                <span sm-if="!canReadOrders" class="pl-2 text-truncate">@T("Enums.OrderStatus.Complete")</span>
                             </td>
                         }
                         else if (x.OrderState == OrderStatus.Cancelled)
                         {
                             <td class="display-row hstack" title="@T("Enums.OrderStatus.Cancelled")">
                                 <div class="bg-danger indicator"></div>
-                                <a asp-action="Edit" asp-controller="Order" asp-route-id="@x.OrderId" class="pl-2 text-truncate">@T("Enums.OrderStatus.Cancelled")</a>
+                                <a sm-if="canReadOrders" asp-action="Edit" asp-controller="Order" asp-route-id="@x.OrderId" class="pl-2 text-truncate">@T("Enums.OrderStatus.Cancelled")</a>
+                                <span sm-if="!canReadOrders" class="pl-2 text-truncate">@T("Enums.OrderStatus.Cancelled")</span>
                             </td>
                         }
 
@@ -60,7 +71,8 @@
                         <td class="display-row d-none d-sm-table-cell" title="@x.Created">@x.Created</td>
 
                         <td class="display-row" title="@x.CustomerDisplayName">
-                            <a asp-action="Edit" asp-controller="Customer" asp-route-id="@x.CustomerId">@x.CustomerDisplayName</a>
+                            <a sm-if="canReadCustomers" asp-action="Edit" asp-controller="Customer" asp-route-id="@x.CustomerId">@x.CustomerDisplayName</a>
+                            <span sm-if="!canReadCustomers">@x.CustomerDisplayName</span>
                         </td>
                     </tr>
                 }

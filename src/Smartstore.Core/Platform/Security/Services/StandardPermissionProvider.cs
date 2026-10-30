@@ -33,7 +33,8 @@ public partial class StandardPermissionProvider : IPermissionProvider
                     new PermissionRecord { SystemName = Permissions.Configuration.CollectionGroup.Self },
                     new PermissionRecord { SystemName = Permissions.System.Self },
                     new PermissionRecord { SystemName = Permissions.Cart.Self },
-                    new PermissionRecord { SystemName = Permissions.Media.Self }
+                    new PermissionRecord { SystemName = Permissions.Media.Self },
+                    new PermissionRecord { SystemName = Permissions.Dashboard.Self }
                 }
             },
             new DefaultPermissionRecord

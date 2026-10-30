@@ -6,6 +6,11 @@ namespace Smartstore.Admin.Components;
 
 public class DashboardTopCustomersViewComponent : DashboardWidgetViewComponentBase
 {
+    /// <summary>
+    /// Gets the widget permission required to display this report.
+    /// </summary>
+    public const string RequiredPermission = Permissions.Dashboard.Widgets.Customers.TopCustomers;
+
     private const int NUM_REPORT_LINES = 7;
 
     private readonly SmartDbContext _db;
@@ -17,7 +22,7 @@ public class DashboardTopCustomersViewComponent : DashboardWidgetViewComponentBa
 
     public override async Task<IViewComponentResult> InvokeAsync()
     {
-        if (!await Services.Permissions.AuthorizeAsync(Permissions.Customer.Read))
+        if (!await Services.Permissions.AuthorizeAsync(RequiredPermission))
         {
             return Empty();
         }

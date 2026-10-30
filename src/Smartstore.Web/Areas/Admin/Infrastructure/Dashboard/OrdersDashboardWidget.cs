@@ -2,6 +2,7 @@
 
 using Smartstore.Admin.Components;
 using Smartstore.Core.Localization;
+using Smartstore.Core.Security;
 using Smartstore.Core.Widgets.Dashboard;
 using Smartstore.Engine.Modularity;
 
@@ -11,7 +12,8 @@ namespace Smartstore.Admin.Infrastructure.Dashboard;
 /// Describes and creates the dashboard widget that renders the orders report.
 /// </summary>
 [SystemName(SystemName)]
-public sealed class OrdersDashboardWidget : DashboardViewComponentWidget<DashboardOrdersViewComponent>
+public sealed class OrdersDashboardWidget(IPermissionService permissions)
+    : DashboardViewComponentWidget<DashboardOrdersViewComponent>(permissions, DashboardOrdersViewComponent.RequiredPermission)
 {
     /// <summary>
     /// Identifies the orders dashboard widget type.

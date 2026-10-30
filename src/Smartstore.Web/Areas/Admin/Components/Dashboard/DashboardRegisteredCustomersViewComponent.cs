@@ -6,6 +6,11 @@ namespace Smartstore.Admin.Components;
 
 public class DashboardRegisteredCustomersViewComponent : DashboardWidgetViewComponentBase
 {
+    /// <summary>
+    /// Gets the widget permission required to display this report.
+    /// </summary>
+    public const string RequiredPermission = Permissions.Dashboard.Widgets.Customers.RegisteredCustomers;
+
     private readonly SmartDbContext _db;
 
     public DashboardRegisteredCustomersViewComponent(SmartDbContext db)
@@ -15,7 +20,7 @@ public class DashboardRegisteredCustomersViewComponent : DashboardWidgetViewComp
 
     public override async Task<IViewComponentResult> InvokeAsync()
     {
-        if (!await Services.Permissions.AuthorizeAsync(Permissions.Customer.Read))
+        if (!await Services.Permissions.AuthorizeAsync(RequiredPermission))
         {
             return Empty();
         }

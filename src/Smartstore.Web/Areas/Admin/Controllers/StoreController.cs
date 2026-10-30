@@ -206,9 +206,14 @@ public class StoreController : AdminController
     }
 
     [SaveChanges<SmartDbContext>(false)]
-    [Permission(Permissions.Configuration.Store.ReadStats, false)]
     public async Task<JsonResult> StoreDashboardReportAsync()
     {
+        if (!await Services.Permissions.AuthorizeAsync(Permissions.Configuration.Store.ReadStats)
+            && !await Services.Permissions.AuthorizeAsync(Permissions.Dashboard.Widgets.System.StoreReport))
+        {
+            throw new AccessDeniedException();
+        }
+
         var primaryCurrency = Services.CurrencyService.PrimaryCurrency;
 
         var customer = Services.WorkContext.CurrentCustomer;

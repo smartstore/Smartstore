@@ -1,6 +1,11 @@
-﻿@using Smartstore.Admin.Models.Orders
+﻿@using Smartstore.Core.Security
+@using Smartstore.Admin.Models.Orders
 
 @model DashboardBestsellersModel
+
+@{
+    bool canReadProducts = await CommonServices.Permissions.AuthorizeAsync(Permissions.Catalog.Product.Read);
+}
 
 <div class="report">
     <div class="report-title-row flex-wrap">
@@ -28,7 +33,7 @@
                         {
                             <tr>
                                 <td class="display-row" title="@x.Name">
-                                    @Html.BadgedProductName(x.Id, x.Name, x.ProductTypeName, x.ProductTypeLabelHint)
+                                    @Html.BadgedProductName(canReadProducts ? x.Id : 0, x.Name, x.ProductTypeName, x.ProductTypeLabelHint)
                                 </td>
                                 <td class="display-row text-center font-weight-medium" title="@x.TotalQuantity">@x.TotalQuantity</td>
                                 <td class="display-row text-right" title="@x.TotalAmount @T("Tax.ExclVAT")">@x.TotalAmount</td>
@@ -53,7 +58,7 @@
                         {
                             <tr>
                                 <td class="display-row" title="@x.Name">
-                                    @Html.BadgedProductName(x.Id, x.Name, x.ProductTypeName, x.ProductTypeLabelHint)
+                                    @Html.BadgedProductName(canReadProducts ? x.Id : 0, x.Name, x.ProductTypeName, x.ProductTypeLabelHint)
                                 </td>
                                 <td class="display-row text-center" title="@x.TotalQuantity">@x.TotalQuantity</td>
                                 <td class="display-row text-right font-weight-medium" title="@x.TotalAmount @T("Tax.ExclVAT")">@x.TotalAmount</td>
