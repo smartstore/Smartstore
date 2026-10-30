@@ -4,15 +4,9 @@
 
 <script src="@Html.Raw(_settings.GetCheckoutScriptUrl())"></script>
 
-<a id="amazonpay-change-payment" href="javascript:;" class="amazonpay-hidden-link hide"></a>
 <a id="amazonpay-change-address" href="javascript:;" class="amazonpay-hidden-link hide"></a>
 
 <script data-origin="amazonpay-navigation">
-    amazon.Pay.bindChangeAction('#amazonpay-change-payment', {
-        amazonCheckoutSessionId: '@Html.Raw(Model.SessionId)',
-        changeAction: 'changePayment'
-    });
-
     amazon.Pay.bindChangeAction('#amazonpay-change-address', {
         amazonCheckoutSessionId: '@Html.Raw(Model.SessionId)',
         changeAction: 'changeAddress'
@@ -28,14 +22,12 @@
             var target = self.attr('href');
             var billingUrl = '@Url.Action("BillingAddress", "Checkout")';
             var shippingUrl = '@Url.Action("ShippingAddress", "Checkout")';
-            var paymentUrl = '@Url.Action("PaymentMethod", "Checkout")';
 
-            if (target.startsWith(billingUrl) || target.startsWith(shippingUrl) || target.startsWith(paymentUrl)) {
+            if (target.startsWith(billingUrl) || target.startsWith(shippingUrl)) {
                 e.preventDefault();
 
                 // .trigger('click'), .click()... nothing works here.
-                var buttonId = target.startsWith(paymentUrl) ? 'amazonpay-change-payment' : 'amazonpay-change-address';
-                document.getElementById(buttonId).click();
+                document.getElementById('amazonpay-change-address').click();
 
                 return false;
             }

@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Smartstore.Core;
 using Smartstore.Core.Checkout.Orders;
@@ -17,7 +16,6 @@ public class CheckoutFilter : IAsyncActionFilter
     private readonly IWorkContext _workContext;
     private readonly INotifier _notifier;
     private readonly Lazy<IPaymentService> _paymentService;
-    private readonly Lazy<IUrlHelper> _urlHelper;
     private readonly Lazy<IWidgetProvider> _widgetProvider;
     private readonly ICheckoutStateAccessor _checkoutStateAccessor;
     private readonly OrderSettings _orderSettings;
@@ -28,7 +26,6 @@ public class CheckoutFilter : IAsyncActionFilter
         IWorkContext workContext,
         INotifier notifier,
         Lazy<IPaymentService> paymentService,
-        Lazy<IUrlHelper> urlHelper,
         Lazy<IWidgetProvider> widgetProvider,
         ICheckoutStateAccessor checkoutStateAccessor,
         OrderSettings orderSettings,
@@ -38,7 +35,6 @@ public class CheckoutFilter : IAsyncActionFilter
         _workContext = workContext;
         _notifier = notifier;
         _paymentService = paymentService;
-        _urlHelper = urlHelper;
         _widgetProvider = widgetProvider;
         _checkoutStateAccessor = checkoutStateAccessor;
         _orderSettings = orderSettings;
@@ -83,18 +79,10 @@ public class CheckoutFilter : IAsyncActionFilter
         if (IsAmazonPaySelected() && await IsAmazonPayActive())
         {
             var state = _checkoutStateAccessor.CheckoutState.GetCustomState<AmazonPayCheckoutState>();
-            if (state.SessionId.HasValue())
+            if (state.Flow == AmazonPayCheckoutFlow.Express && state.SessionId.HasValue())
             {
-                if (action.EqualsNoCase(nameof(CheckoutController.PaymentMethod)))
-                {
-                    context.Result = new RedirectResult(_urlHelper.Value.Action(nameof(CheckoutController.Confirm), "Checkout"));
-                    return;
-                }
-                else
-                {
-                    _widgetProvider.Value.RegisterWidget("end",
-                        new PartialViewWidget("_CheckoutNavigation", state, "Smartstore.AmazonPay"));
-                }
+                _widgetProvider.Value.RegisterWidget("end",
+                    new PartialViewWidget("_CheckoutNavigation", state, "Smartstore.AmazonPay"));
             }
         }
 
