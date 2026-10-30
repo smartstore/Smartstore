@@ -107,8 +107,11 @@
     <LocaleResource Name="MissingBillingAddress">
         <Value>Missing Amazon billing address of the customer. Please enter a billing address at Amazon or choose another payment method.</Value>
     </LocaleResource>
-    <LocaleResource Name="Layout">
-        <Value>Layout</Value>
+    <LocaleResource Name="ShowInPaymentMethodList">
+        <Value>Show in payment method list</Value>
+    </LocaleResource>
+    <LocaleResource Name="ShowInPaymentMethodList.Hint">
+        <Value>Specifies whether Amazon Pay is offered in the payment method list during checkout.</Value>
     </LocaleResource>
     <LocaleResource Name="CloseChargeReason">
         <Value>No more charges required.</Value>

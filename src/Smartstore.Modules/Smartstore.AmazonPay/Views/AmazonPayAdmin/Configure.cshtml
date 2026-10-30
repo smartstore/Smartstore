@@ -230,7 +230,7 @@
         <div class="adminRow">
             <div class="adminTitle">&nbsp;</div>
             <div class="adminData">
-                <div class="alert alert-warning">
+                <div class="alert alert-warning mb-0">
                     @Html.Raw(T("Plugins.Payments.AmazonPay.DataFetching.Warning"))
                 </div>
             </div>
@@ -238,9 +238,46 @@
 
         <div class="adminRow">
             <div class="admin-config-group">
-                <div class="title">@T("Plugins.Payments.AmazonPay.Layout")</div>
+                <div class="title">@T("Common.Misc")</div>
             </div>
         </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="ShowInPaymentMethodList" />
+            </div>
+            <div class="adminData">
+                <setting-editor asp-for="ShowInPaymentMethodList"></setting-editor>
+                <span asp-validation-for="ShowInPaymentMethodList"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="ShowButtonInMiniShoppingCart" />
+            </div>
+            <div class="adminData">
+                <setting-editor asp-for="ShowButtonInMiniShoppingCart"></setting-editor>
+                <span asp-validation-for="ShowButtonInMiniShoppingCart"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="ShowSignoutButton" />
+            </div>
+            <div class="adminData">
+                <setting-editor asp-for="ShowSignoutButton"></setting-editor>
+                <span asp-validation-for="ShowSignoutButton"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="ShowPayButtonForAdminOnly" />
+            </div>
+            <div class="adminData">
+                <setting-editor asp-for="ShowPayButtonForAdminOnly"></setting-editor>
+                <span asp-validation-for="ShowPayButtonForAdminOnly"></span>
+            </div>
+        </div>
+
         <div class="adminRow">
             <div class="adminTitle">
                 <smart-label asp-for="PayButtonColor" />
@@ -261,39 +298,6 @@
                     <select asp-for="AuthButtonColor" asp-items="buttonColors"></select>
                 </setting-editor>
                 <span asp-validation-for="AuthButtonColor"></span>
-            </div>
-        </div>
-
-        <div class="adminRow">
-            <div class="admin-config-group">
-                <div class="title">@T("Common.Misc")</div>
-            </div>
-        </div>
-        <div class="adminRow">
-            <div class="adminTitle">
-                <smart-label asp-for="ShowPayButtonForAdminOnly" />
-            </div>
-            <div class="adminData">
-                <setting-editor asp-for="ShowPayButtonForAdminOnly"></setting-editor>
-                <span asp-validation-for="ShowPayButtonForAdminOnly"></span>
-            </div>
-        </div>
-        <div class="adminRow">
-            <div class="adminTitle">
-                <smart-label asp-for="ShowButtonInMiniShoppingCart" />
-            </div>
-            <div class="adminData">
-                <setting-editor asp-for="ShowButtonInMiniShoppingCart"></setting-editor>
-                <span asp-validation-for="ShowButtonInMiniShoppingCart"></span>
-            </div>
-        </div>
-        <div class="adminRow">
-            <div class="adminTitle">
-                <smart-label asp-for="ShowSignoutButton" />
-            </div>
-            <div class="adminData">
-                <setting-editor asp-for="ShowSignoutButton"></setting-editor>
-                <span asp-validation-for="ShowSignoutButton"></span>
             </div>
         </div>
         <div class="adminRow">

@@ -33,6 +33,9 @@ public class ConfigurationModel : ModelBase
     [LocalizedDisplay("*SaveEmailAndPhone")]
     public AmazonPaySaveDataType? SaveEmailAndPhone { get; set; }
 
+    [LocalizedDisplay("*ShowInPaymentMethodList")]
+    public bool ShowInPaymentMethodList { get; set; }
+
     [LocalizedDisplay("*ShowPayButtonForAdminOnly")]
     public bool ShowPayButtonForAdminOnly { get; set; }
 

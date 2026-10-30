@@ -45,6 +45,8 @@ public class AmazonPaySettings : ISettings
     public AmazonPayTransactionType TransactionType { get; set; } = AmazonPayTransactionType.Authorize;
 
     public AmazonPaySaveDataType? SaveEmailAndPhone { get; set; } = AmazonPaySaveDataType.OnlyIfEmpty;
+
+    public bool ShowInPaymentMethodList { get; set; } = true;
     public bool ShowPayButtonForAdminOnly { get; set; }
     public bool ShowButtonInMiniShoppingCart { get; set; }
     public bool ShowSignoutButton { get; set; } = true;
