@@ -9,7 +9,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 using Smartstore.AmazonPay.Services;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Checkout.Cart;
@@ -99,9 +98,10 @@ public class AmazonPayController : PublicController
                         .Select(x => x.TwoLetterIsoCode)
                         .ToListAsync();
 
-                    if (allowedCountryCodes.Any())
+                    if (allowedCountryCodes.Count > 0)
                     {
                         request.DeliverySpecifications.AddressRestrictions.Type = RestrictionType.Allowed;
+
                         allowedCountryCodes
                             .Distinct()
                             .Each(countryCode => request.DeliverySpecifications.AddressRestrictions.AddCountryRestriction(countryCode));
@@ -110,6 +110,12 @@ public class AmazonPayController : PublicController
 
                 payload = request.ToJson();
                 signature = client.GenerateButtonSignature(payload);
+
+                if (signature.HasValue())
+                {
+                    var state = _checkoutStateAccessor.CheckoutState.GetCustomState<AmazonPayCheckoutState>();
+                    state.Flow = AmazonPayCheckoutFlow.Express;
+                }
             }
             else
             {
@@ -295,6 +301,12 @@ public class AmazonPayController : PublicController
         result.Success = true;
 
         var state = _checkoutStateAccessor.CheckoutState.GetCustomState<AmazonPayCheckoutState>();
+        if (state.Flow == AmazonPayCheckoutFlow.None)
+        {
+            // Backward compatibility for checkout sessions created before the flow was stored.
+            state.Flow = AmazonPayCheckoutFlow.Express;
+        }
+
         state.SessionId = checkoutSessionId;
 
         if (session.PaymentPreferences != null)
