@@ -1,0 +1,57 @@
+@using Smartstore.Core.Security
+@using Smartstore.Admin.Models.Customers
+@model IReadOnlyList<DashboardContactRequestModel>
+
+<div class="report">
+    <div class="report-title-row">
+        <div class="report-title">@T("Admin.Dashboard.ContactRequests")</div>
+    </div>
+    @if (Model.Count == 0)
+    {
+        <p class="p-3 mb-0">@T("Admin.Dashboard.ContactRequests.Empty")</p>
+    }
+    else
+    {
+        bool canReadMessages = await CommonServices.Permissions.AuthorizeAsync(Permissions.System.Message.Read);
+
+        <div class="table-responsive table-dashboard">
+            <table class="table small table-hover table-prevent-overflow">
+                <thead>
+                    <tr>
+                        <th class="display-row">#</th>
+                        <th>@T("Common.Email")</th>
+                        <th>@T("Common.Date")</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var request in Model)
+                    {
+                        <tr>
+                            <td class="display-row" title="@request.MessageId">
+                                @if (canReadMessages)
+                                {
+                                    <a asp-area="Admin" asp-controller="QueuedEmail" asp-action="Edit" asp-route-id="@request.MessageId">@request.MessageId</a>
+                                }
+                                else
+                                {
+                                    <span>@request.MessageId</span>
+                                }
+                            </td>
+                            <td class="display-row">
+                                @if (!string.IsNullOrEmpty(request.Email))
+                                {
+                                    <a href="mailto:@request.Email" title="@request.Email">@request.Email</a>
+                                }
+                                else
+                                {
+                                    <span>—</span>
+                                }
+                            </td>
+                            <td class="text-nowrap">@request.CreatedOn</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

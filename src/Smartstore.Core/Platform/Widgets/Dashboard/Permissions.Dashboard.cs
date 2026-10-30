@@ -77,6 +77,11 @@ public static partial class Permissions
                 /// Allows displaying the TopCustomers widget and its data.
                 /// </summary>
                 public const string TopCustomers = Self + ".topcustomers";
+
+                /// <summary>
+                /// Allows displaying the ContactRequests widget and its data.
+                /// </summary>
+                public const string ContactRequests = Self + ".contactrequests";
             }
 
             /// <summary>
