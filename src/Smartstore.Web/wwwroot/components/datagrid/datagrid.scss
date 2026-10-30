@@ -227,6 +227,12 @@ input.form-control-plaintext {
     }
 }
 
+// Match edit-cell spacing without increasing row height for display buttons.
+.dg-tbody .dg-cell:has(> .btn, > .dg-cell-value > .btn) {
+    --dg-cell-padding-x: 4px;
+    --dg-cell-padding-y: 0px;
+}
+
 .dg-cell-spacer {
     padding-inline: 0;
 }

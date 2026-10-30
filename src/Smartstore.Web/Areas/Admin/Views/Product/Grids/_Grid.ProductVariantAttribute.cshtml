@@ -50,16 +50,16 @@
         </column>
         <column for="AttributeControlTypeId" width="2fr">
             <display-template>
-                <div class="dg-cell-value">
+                <div class="dg-cell-value w-100">
                     <a v-if="item.row.IsSwatch"
                        href="javascript:;" 
-                       class="grid-edit-attribute-swatch hstack-inline gap-1 mw-100"
+                       class="grid-edit-attribute-swatch btn btn-sm btn-plain btn-block fwn justify-content-start"
                        :data-key="item.row.Id"
                        :title="item.row.SwatchOverridesInfo">
+                        <icon name="swatch" v-if="item.row.HasSwatchOverrides" class="text-gray-650 flex-shrink-0" />
                         <span class="text-truncate">
                             {{ item.row.AttributeControlTypeStr }}
                         </span>
-                        <icon name="sliders" v-if="item.row.HasSwatchOverrides" class="text-muted flex-shrink-0" />
                     </a>
                     <div v-if="!item.row.IsSwatch" class="text-truncate">{{ item.row.AttributeControlTypeStr }}</div>
                 </div>
@@ -71,7 +71,7 @@
         <column for="DisplayOrder" entity-member="DisplayOrder" halign="center" />
         <column for="EditUrl" width="1fr" sortable="false">
             <display-template>
-                <a :href="item.row.EditUrl" v-html="item.row.EditLinkText"></a>
+                <a :href="item.row.EditUrl" class="btn btn-sm btn-plain btn-block fwn justify-content-start" v-html="item.row.EditLinkText"></a>
             </display-template>
             <edit-template>
                 <div v-if="item.row.OptionSets.length > 0" :id="'OptionsSetsContainer' + item.row.Id">
