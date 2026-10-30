@@ -16,45 +16,46 @@
 
 <script src="~/admin/js/admin.taxcalculator.js" sm-target-zone="scripts" sm-key="tax-calculator"></script>
 
-<form asp-action="Edit" method="post">
+<form id="order-actions-form" asp-action="Edit" method="post">
     <input type="hidden" asp-for="Id" />
-    <div class="section-header">
-        <div class="title">
-            <a sm-backto asp-action="List"></a>
-            <icon name="chart-bar" />
-            <span>@ViewBag.Title</span>
-        </div>
-        <div class="options">
-            <zone name="admin_button_toolbar_before" />
-
-            <a asp-action="Print" asp-route-orderId="@Model.Id" asp-route-pdf="false" target="print" class="btn btn-secondary print-order-button">
-                <icon name="printer" />
-                <span>@T("Order.Print")</span>
-            </a>
-            @if (displayPdfInvoice)
-            {
-                <a asp-action="Print" asp-route-orderId="@Model.Id" asp-route-pdf="true" class="btn btn-secondary">
-                    <icon name="file-pdf" />
-                    <span>@T("Admin.Orders.PdfInvoice")</span>
-                </a>
-            }
-
-            <button type="submit" id="order-delete" name="order-delete" class="btn btn-secondary btn-destructive">
-                <icon name="trash" />
-                <span>@T("Admin.Common.Delete")</span>
-            </button>
-            <confirm button-id="order-delete" />
-
-            <input type="submit" id="btnRefreshPage" name="btnRefreshPage" class="d-none" />
-
-            <zone name="admin_button_toolbar_after" />
-        </div>
-    </div>
 </form>
+
+<div class="section-header">
+    <div class="title">
+        <a sm-backto asp-action="List"></a>
+        <icon name="chart-bar" />
+        <span>@ViewBag.Title</span>
+    </div>
+    <div class="options">
+        <zone name="admin_button_toolbar_before" />
+
+        <a asp-action="Print" asp-route-orderId="@Model.Id" asp-route-pdf="false" target="print" class="btn btn-secondary print-order-button">
+            <icon name="printer" />
+            <span>@T("Order.Print")</span>
+        </a>
+        @if (displayPdfInvoice)
+        {
+            <a asp-action="Print" asp-route-orderId="@Model.Id" asp-route-pdf="true" class="btn btn-secondary">
+                <icon name="file-pdf" />
+                <span>@T("Admin.Orders.PdfInvoice")</span>
+            </a>
+        }
+
+        <button type="submit" id="order-delete" form="order-actions-form" name="order-delete" class="btn btn-secondary btn-destructive">
+            <icon name="trash" />
+            <span>@T("Admin.Common.Delete")</span>
+        </button>
+        <confirm button-id="order-delete" />
+
+        <input type="submit" id="btnRefreshPage" form="order-actions-form" name="btnRefreshPage" class="d-none" />
+
+        <zone name="admin_button_toolbar_after" />
+    </div>
+</div>
 
 <div asp-validation-summary="All"></div>
 
-<tabstrip id="order-edit" sm-nav-style="Material" sm-nav-position="Left" sm-onajaxsuccess="orderEditTab_onAjaxSuccess">
+<tabstrip id="order-edit" sm-nav-style="Material" sm-nav-position="Left" sm-nav-sticky="true" sm-onajaxsuccess="orderEditTab_onAjaxSuccess">
     <tab sm-title="@T("Admin.Common.General")" sm-selected="true" sm-icon="pen">
         <form id="order-form" asp-action="Edit" method="post">
             <input type="hidden" asp-for="Id" />

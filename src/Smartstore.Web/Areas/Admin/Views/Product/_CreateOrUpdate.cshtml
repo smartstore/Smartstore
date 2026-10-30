@@ -4,7 +4,7 @@
 
 <div asp-validation-summary="All"></div>
 
-<tabstrip id="product-edit" sm-nav-style="Material" sm-onajaxsuccess="productEditTab_onAjaxSuccess" data-product-id="@Model.Id" sm-nav-position="Left">
+<tabstrip id="product-edit" sm-nav-style="Material" sm-onajaxsuccess="productEditTab_onAjaxSuccess" data-product-id="@Model.Id" sm-nav-position="Left" sm-nav-sticky="true">
     <tab sm-title="@T("Admin.Catalog.Products.Info")"
          sm-selected="true"
          sm-icon="pen"

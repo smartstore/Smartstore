@@ -1,16 +1,13 @@
 $(function () {
-    // Responsive section-header actions: at SM and smaller, move eligible buttons into a single More menu
-    // to leave room for the page title. At MD and larger, restore their original toolbar positions and styles.
-    // Up to two icon buttons stay visible in button-only toolbars; input groups and existing dropdowns stay intact.
+    // Fit header actions to the available space, retaining Save labels and buttons as long as possible.
     const sectionHeader = $('.section-header');
-    // The toolkit reads Sass-generated breakpoint variables; CSS and behavior must use the same tiers.
     const viewport = ResponsiveBootstrapToolkit;
-    const compactHeader = () => !viewport.is('>=md');
 
     // Collect header actions centrally so individual Razor views do not need responsive markup.
     sectionHeader.each(function () {
         const options = this.querySelector('.options');
-        if (!options) return;
+        const title = this.querySelector('.title');
+        if (!options || !title) return;
 
         // Input groups and existing dropdowns own their buttons and must remain intact.
         const actions = Array.from(options.querySelectorAll('button.btn, a.btn, .vr'))
@@ -19,18 +16,27 @@ $(function () {
                 // Retain each original position, including separators and nested toolbar containers.
                 const placeholder = document.createComment('Header action');
                 const divider = button.classList.contains('vr');
+                const priority = button.matches('[value="save"], [value="save-continue"], [name="save"], [name="save-continue"]');
+                const label = button.textContent.trim();
+                if (!divider && label && !button.hasAttribute('aria-label')) button.setAttribute('aria-label', label);
+                // Legacy Save/Continue buttons may contain bare text instead of a label span.
+                if (priority) $(button).contents().filter(function () {
+                    return this.nodeType === Node.TEXT_NODE && this.textContent.trim();
+                }).wrapAll('<span></span>');
                 const icons = Array.from(button.children).filter(child => child.matches('.icon, .icon-stack, sm-icon, sm-icon-stack'));
                 // Reserve the same icon column for every menu item, including actions without artwork.
                 const fixedWidthIcons = icons.filter(icon => !icon.classList.contains('icon-fw'));
+                const compactIcon = priority && !icons.length
+                    ? $('<sm-icon class="d-none"></sm-icon>').attr('name', button.value === 'save-continue' || button.name === 'save-continue' ? 'disk' : 'check').prependTo(button)[0]
+                    : null;
                 const spacer = divider || icons.length ? null : Object.assign(document.createElement('span'), { className: 'icon icon-fw' });
                 spacer?.setAttribute('aria-hidden', 'true');
-                return { button, placeholder, divider, fixedWidthIcons, spacer, classes: Array.from(button.classList).filter(name => name === 'vr' || name === 'btn' || name.startsWith('btn-')) };
+                return { button, placeholder, divider, priority, compactIcon, fixedWidthIcons, spacer, classes: Array.from(button.classList).filter(name => name === 'vr' || name === 'btn' || name.startsWith('btn-')) };
             });
         const buttons = actions.filter(action => !action.divider);
-        // Other controls also need space, so the two-icon exception only applies to button-only toolbars.
-        // Separators do not count toward the overflow threshold.
-        const hasOtherControls = options.querySelector('.input-group, input:not([type="hidden"]), select, textarea, [data-toggle="dropdown"]') !== null;
-        if (!buttons.length || (!hasOtherControls && buttons.length <= 2 && buttons.every(action => !action.spacer))) return;
+        if (!buttons.length) return;
+        const overflowActions = actions.filter(action => !action.priority);
+        const secondaryButtons = buttons.filter(action => !action.priority);
 
         actions.forEach(({ button, placeholder }) => button.before(placeholder));
         const dropdown = $('<div class="dropdown section-header-actions" hidden></div>').appendTo(options);
@@ -40,18 +46,19 @@ $(function () {
             .appendTo(dropdown);
         const menu = $('<div class="dropdown-menu dropdown-menu-right"></div>').appendTo(dropdown)[0];
 
-        function updateHeaderActions() {
-            const compact = compactHeader();
-            // Close Bootstrap's dropdown before moving its contents across a breakpoint.
-            toggle.dropdown('hide');
-            dropdown.prop('hidden', !compact);
-            actions.forEach(({ button, placeholder, divider, fixedWidthIcons, spacer, classes }) => {
+        let compactState = false;
+        function setCompact(compact) {
+            // Only move actions when their menu presentation changes.
+            if (compact === compactState) return;
+            compactState = compact;
+            dropdown.prop('hidden', !compact || !secondaryButtons.length);
+            overflowActions.forEach(({ button, placeholder, divider, fixedWidthIcons, spacer, classes }) => {
                 // Apply and undo menu presentation in one place; retain functional classes and existing icons.
                 button.classList.toggle(divider ? 'dropdown-divider' : 'dropdown-item', compact);
                 classes.forEach(name => button.classList.toggle(name, !compact));
                 fixedWidthIcons.forEach(icon => icon.classList.toggle('icon-fw', compact));
                 if (compact) {
-                    // Move the original nodes within the same form to preserve handlers and submit values.
+                    // Move the original nodes to preserve handlers, form ownership and submit values.
                     if (spacer) button.prepend(spacer);
                     menu.append(button);
                 }
@@ -62,8 +69,41 @@ $(function () {
             });
         }
 
-        EventBroker.subscribe('page.gridtierchanged', updateHeaderActions);
-        updateHeaderActions();
+        const fits = () => title.scrollWidth <= title.clientWidth + 1
+            && options.getBoundingClientRect().right <= this.getBoundingClientRect().right;
+
+        function updateHeaderActions() {
+            if (!options.getClientRects().length) return;
+            // Close Bootstrap's dropdown before moving its contents.
+            toggle.dropdown('hide');
+            setCompact(false);
+            buttons.forEach(action => {
+                action.button.classList.toggle('label-hidden', false);
+                action.compactIcon?.classList.toggle('d-none', true);
+            });
+            if (fits()) return;
+            secondaryButtons.forEach(action => action.button.classList.toggle('label-hidden', true));
+            if (fits()) return;
+            buttons.forEach(action => {
+                action.button.classList.toggle('label-hidden', true);
+                action.compactIcon?.classList.toggle('d-none', false);
+            });
+            if (!fits()) setCompact(true);
+        }
+
+        let resizeFrame = 0;
+        const scheduleUpdate = () => {
+            if (!resizeFrame) resizeFrame = requestAnimationFrame(() => {
+                resizeFrame = 0;
+                updateHeaderActions();
+            });
+        };
+        const observer = new ResizeObserver(scheduleUpdate);
+        observer.observe(this);
+        observer.observe(title);
+        $(window).on('resize', scheduleUpdate);
+        document.fonts.ready.then(scheduleUpdate);
+        scheduleUpdate();
     });
     // Mark a scrolled page only when it has a CSS-sticky header. Pages without one need no fade effect.
     // Inspect the actual header and scrollports instead of maintaining a list of excluded page types.

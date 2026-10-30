@@ -50,6 +50,7 @@
 
             // Toolbar buttons can increase the selection height; keep its icon and text centered together.
             align-items: center;
+            align-self: center;
             padding-inline-end: 0.5em;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -66,6 +67,9 @@
     }
 }
 .select2-selection-with-toolbar {
+    display: flex;
+    align-items: center;
+
     .select2-selection__rendered {
         overflow: visible;
     }

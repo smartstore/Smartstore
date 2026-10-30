@@ -10,7 +10,7 @@
 <div asp-validation-summary="All"></div>
 <input type="hidden" asp-for="Id" />
 
-<tabstrip id="manufacturer-edit" sm-nav-style="Material" sm-nav-position="Left" sm-onajaxsuccess="manufacturerEditTab_onAjaxSuccess">
+<tabstrip id="manufacturer-edit" sm-nav-style="Material" sm-nav-position="Left" sm-nav-sticky="true" sm-onajaxsuccess="manufacturerEditTab_onAjaxSuccess">
 	<tab sm-title="@T("Admin.Common.General")" sm-icon="pen" sm-selected="true">
 		<div class="adminContent">
             <div sm-if="Model.Id != 0" class="adminRow">

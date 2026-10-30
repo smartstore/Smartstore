@@ -57,6 +57,7 @@ public class TabStripTagHelper : SmartTagHelper
     const string HideSingleItemAttributeName = "sm-hide-single-item";
     const string ResponsiveAttributeName = "sm-responsive";
     const string PositionAttributeName = "sm-nav-position";
+    const string NavStickyAttributeName = "sm-nav-sticky";
     const string StyleAttributeName = "sm-nav-style";
     const string FadeAttributeName = "sm-fade";
     const string SmartTabSelectionAttributeName = "sm-smart-tab-selection";
@@ -94,6 +95,12 @@ public class TabStripTagHelper : SmartTagHelper
     /// </summary>
     [HtmlAttributeName(PositionAttributeName)]
     public TabsPosition Position { get; set; } = TabsPosition.Top;
+
+    /// <summary>
+    /// Whether to keep the navigation sticky for left or right tab positions. Default = false.
+    /// </summary>
+    [HtmlAttributeName(NavStickyAttributeName)]
+    public bool NavSticky { get; set; }
 
     /// <summary>
     /// Tab nav style
@@ -303,6 +310,12 @@ public class TabStripTagHelper : SmartTagHelper
         if (isStacked)
         {
             classList.Add("nav-stacked", "flex-row", "flex-lg-column");
+            classList.Add("scroll-fade", "scroll-fade-x", "scroll-fade-lg-none", "scroll-fade-touch", "scroll-fade-observable");
+
+            if (NavSticky)
+            {
+                classList.Add("nav-sticky");
+            }
         }
 
         if (Position != TabsPosition.Top)

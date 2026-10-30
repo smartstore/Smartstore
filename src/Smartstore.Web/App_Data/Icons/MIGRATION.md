@@ -899,6 +899,8 @@ their command initializers to Icon; legacy CSS-class properties have been remove
 
 ## Backend navigation
 
+The Backend kit overrides `discount` with `hi:percent!/sr`; the Public kit keeps its existing mapping.
+
 Admin sitemap root nodes now use home, catalog, chart-up, customers, marketing,
 cms, sliders-v, database and puzzle. The temporary template mapping
 has been removed. Main navigation and right-hand toolbar icons render at 24px

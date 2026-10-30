@@ -14,7 +14,7 @@ body {
     background-color: var(--page-bg);
 
     --sidebar-icon-size: 20px;
-    --sidebar-padding-x: 8px;
+    --sidebar-padding-x: 6px;
     --sidebar-item-padding-y: 9px;
     --sidebar-item-padding-x: 12px;
     --sidebar-item-margin-x: 2px;
@@ -211,6 +211,10 @@ body {
             margin: 0;
         }
 
+        .btn.label-hidden > span:not(:only-child) {
+            display: none;
+        }
+
         .section-header-actions .dropdown-divider {
             display: block;
         }
@@ -238,10 +242,6 @@ body {
                 }
             }
 
-            // hide action button labels on small screens
-            .btn > span:not(:only-child) {
-                display: none;
-            }
         }
     }
 }
@@ -323,7 +323,7 @@ body.sticky-header #content .section-header::after {
 
 // Adjacent sticky panels use this offset; the header itself occupies normal layout space.
 #content:has(.section-header) {
-    --sticky-offset: var(--section-header-height);
+    --sticky-offset: calc(var(--section-header-height) + var(--section-header-spacing));
 }
 
 #navbar.navbar-sidebar {
@@ -775,7 +775,7 @@ body.sticky-header #content .section-header::after {
 
         // An in-flow header needs space above the menu; a header rendered before the shell does not.
         &:has(.section-header) {
-            --settings-navigation-top: calc(var(--sticky-offset) + var(--section-header-spacing));
+            --settings-navigation-top: var(--sticky-offset);
         }
     }
 

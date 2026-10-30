@@ -32,9 +32,9 @@
 
     <hr sm-if="Model.UpdateOrderItemInfo.HasValue() && hasDiscountLinks" />
 
-    <div sm-if="hasDiscountLinks" class="hstack">
-        <span class="badge badge-danger badge-shift-0 mr-2">
-            <icon name="discount" font-scale="0.8f" />
+    <div sm-if="hasDiscountLinks" class="hstack gap-2">
+        <span class="badge badge-danger badge-outline">
+            <icon name="discount" />
         </span>
         <span>
             @Html.Raw(T("Admin.Orders.Products.AppliedDiscounts", string.Join(", ", discountLinks)))

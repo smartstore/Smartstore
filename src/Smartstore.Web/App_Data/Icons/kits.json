@@ -283,6 +283,7 @@
       "wrench"
     ],
     "sources": {
+      "discount": "hi:percent!/sr",
       "float-right": "hi:text-firstline-left!",
       "float-left": "hi:text-firstline-right!",
       "catalog": "hi:delivery-box-01!/sr",

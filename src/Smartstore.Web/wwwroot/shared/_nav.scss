@@ -173,6 +173,17 @@
                 margin: 0 0.75rem;
             }
         }
+
+        @include media-breakpoint-down(md) {
+            &.nav-stacked {
+                --nav-link-padding-x: 0;
+                margin-inline-start: -0.75rem;
+
+                .nav-link {
+                    margin: 0 0.75rem;
+                }
+            }
+        }
     }
 
     &.nav-inverse {
@@ -196,7 +207,8 @@
 	.nav-link:not(.disabled):before {
 		position: absolute;
 		content: '';
-		bottom: 0;
+        // Compensate for the link's 1px overhang so scrolling tabs do not clip the underline.
+		bottom: 1px;
 		left: 50%;
 		right: 50%;
 		height: var(--nav-underline-width);
@@ -223,6 +235,24 @@
 // Stacked Material tabs (strip on the sides)
 // ==============================================================
 
+@include media-breakpoint-down(md) {
+    .tabs-stacked > .nav-content > .tab-content {
+        margin-top: 1rem;
+    }
+
+    .touchevents .nav-stacked {
+        flex-wrap: nowrap;
+        white-space: nowrap;
+        overflow-x: auto;
+        overflow-y: hidden;
+        scrollbar-width: none;
+
+        > .nav-item {
+            flex-shrink: 0;
+        }
+    }
+}
+
 @include media-breakpoint-up(lg) {
     // The main layout grid: Nav + Content
     .tabs-stacked {
@@ -232,6 +262,10 @@
 
         &.tabs-left {
             grid-template-columns: auto minmax(0, 1fr);
+
+            > .nav-aside:has(> .nav-tabs) {
+                border-inline-end: 1px solid var(--nav-tabs-border-color, #{$nav-tabs-border-color});
+            }
         }
 
         &.tabs-right {
@@ -240,6 +274,10 @@
 
             > .nav-aside {
                 grid-column: 2;
+
+                &:has(> .nav-tabs) {
+                    border-inline-start: 1px solid var(--nav-tabs-border-color, #{$nav-tabs-border-color});
+                }
             }
 
             > .nav-content {
@@ -258,6 +296,13 @@
         max-width: 250px;
         min-height: 100%;
 
+        &.nav-sticky {
+            flex-wrap: nowrap;
+            position: sticky;
+            top: var(--sticky-offset, 0px);
+            min-height: 0;
+        }
+
         .nav-link > :is(.icon, .icon-stack) {
             // Move icon slightly away from label if tabs are placed on left or right
             //inset-inline-start: -0.25em;
@@ -274,13 +319,11 @@
             &.nav-left {
                 --nav-tabs-link-hover-border-color: #{$gray-200 $nav-tabs-border-color $gray-200 $gray-200};
                 --nav-tabs-link-active-border-color: #{$gray-200 $nav-tabs-link-active-bg $gray-300 $gray-300};
-                border-inline-end: 1px solid var(--nav-tabs-border-color);
             }
             
             &.nav-right {
                 --nav-tabs-link-hover-border-color: #{$gray-200 $gray-200 $gray-200 $nav-tabs-border-color};
                 --nav-tabs-link-active-border-color: #{$gray-200 $gray-300 $gray-300 $nav-tabs-link-active-bg};
-                border-inline-start: 1px solid var(--nav-tabs-border-color);
             }
 
             &:not(.nav-tabs-line) {

@@ -11,7 +11,7 @@
     }
 
     .report.sticky-report {
-        top: calc(var(--sticky-offset) + var(--section-header-spacing));
+        top: var(--sticky-offset);
     }
 }
 

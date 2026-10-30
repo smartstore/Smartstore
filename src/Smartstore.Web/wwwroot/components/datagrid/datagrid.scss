@@ -283,7 +283,6 @@ input.form-control-plaintext {
 @include media-breakpoint-down(sm) {
     .touchevents .dg-toolbar {
         overflow-x: auto;
-        min-height: 54px;
     }
 
     .dg-toolbar .btn > :is(.icon, .icon-stack) + span {
