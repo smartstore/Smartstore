@@ -1,0 +1,54 @@
+@using Smartstore.Admin.Models.Orders
+@model IReadOnlyList<DashboardPaymentMethodModel>
+
+@{
+    var rankings = new[]
+    {
+        Model.OrderByDescending(x => x.OrderCount).Take(10),
+        Model.OrderByDescending(x => x.TotalAmount.Amount).Take(10)
+    };
+    var tabNames = new[] { "quantity", "amount" };
+}
+
+<div class="report">
+    <div class="report-title-row flex-wrap">
+        <div class="report-title flex-grow-1 mr-3">@T("Admin.Dashboard.PaymentMethods")</div>
+        <nav>
+            <div class="nav btn-group" role="tablist">
+                <a class="btn btn-secondary btn-dashboard nav-item active" id="paymentmethods-quantity-tab" data-toggle="tab" href="#paymentmethods-quantity" role="tab" aria-controls="paymentmethods-quantity" aria-selected="true">@T("Admin.SalesReport.ByQuantity")</a>
+                <a class="btn btn-secondary btn-dashboard nav-item" id="paymentmethods-amount-tab" data-toggle="tab" href="#paymentmethods-amount" role="tab" aria-controls="paymentmethods-amount" aria-selected="false">@T("Admin.SalesReport.ByAmount")</a>
+            </div>
+        </nav>
+    </div>
+    <div class="tab-content" id="paymentmethods-tabcontent">
+        @for (int i = 0; i < rankings.Length; i++)
+        {
+            <div class="tab-pane fade @(i == 0 ? "show active" : null)" id="paymentmethods-@tabNames[i]" role="tabpanel" aria-labelledby="paymentmethods-@tabNames[i]-tab">
+                <div class="table-responsive table-dashboard">
+                    <table class="table table-3 small table-hover table-prevent-overflow">
+                        <thead>
+                            <tr>
+                                <th class="display-row">@T("Admin.Dashboard.PaymentMethods.Name")</th>
+                                <th class="display-row text-center">@T("Admin.Dashboard.PaymentMethods.OrderCount")</th>
+                                <th class="display-row text-right">@T("Common.Amount")</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in rankings[i])
+                            {
+                                <tr>
+                                    <td class="display-row" title="@item.Name">@item.Name</td>
+                                    <td class="display-row text-center @(i == 0 ? "font-weight-medium" : null)">@item.OrderCount.ToString("N0")</td>
+                                    <td class="display-row text-right @(i == 1 ? "font-weight-medium" : null)">@item.TotalAmount</td>
+                                </tr>
+                            }
+                            <tr sm-if="Model.Count == 0">
+                                <td colspan="3" class="text-muted text-center">@T("Admin.DataGrid.NoData")</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        }
+    </div>
+</div>

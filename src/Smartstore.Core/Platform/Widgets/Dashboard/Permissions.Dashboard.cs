@@ -51,6 +51,11 @@ public static partial class Permissions
                 /// Allows displaying the LatestOrders widget and its data.
                 /// </summary>
                 public const string LatestOrders = Self + ".latestorders";
+
+                /// <summary>
+                /// Allows displaying the PaymentMethods widget and its data.
+                /// </summary>
+                public const string PaymentMethods = Self + ".paymentmethods";
             }
 
             /// <summary>

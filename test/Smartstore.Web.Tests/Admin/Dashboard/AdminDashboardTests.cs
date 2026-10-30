@@ -1,12 +1,19 @@
 #nullable enable
 
 using System.Linq;
-using Moq;
-using Smartstore.Core.Security;
 using System.Text.Json;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.Mvc.ViewComponents;
+using Microsoft.Extensions.DependencyInjection;
+using Moq;
 using NUnit.Framework;
+using Smartstore.Admin.Components;
 using Smartstore.Admin.Infrastructure.Dashboard;
+using Smartstore.Core;
 using Smartstore.Core.Identity;
+using Smartstore.Core.Security;
 using Smartstore.Core.Widgets;
 using Smartstore.Core.Widgets.Dashboard;
 using Smartstore.Json;
@@ -19,6 +26,34 @@ namespace Smartstore.Web.Tests.Admin.Dashboard;
 [TestFixture]
 public sealed class AdminDashboardTests
 {
+    /// <summary>
+    /// Rejects direct invocation of the payment report before any data or payment provider is accessed.
+    /// </summary>
+    [Test]
+    public async Task Payment_Method_Report_Requires_Widget_Permission()
+    {
+        var permissions = new Mock<IPermissionService>(MockBehavior.Strict);
+        permissions.Setup(x => x.AuthorizeAsync(Permissions.Dashboard.Widgets.Sales.PaymentMethods, null, false)).ReturnsAsync(false);
+        var services = new Mock<ICommonServices>(MockBehavior.Strict);
+        services.SetupGet(x => x.Permissions).Returns(permissions.Object);
+        using var provider = new ServiceCollection().AddSingleton(services.Object).BuildServiceProvider();
+        var component = new DashboardPaymentMethodsViewComponent(null!, null!, null!)
+        {
+            ViewComponentContext = new ViewComponentContext
+            {
+                ViewContext = new ViewContext { HttpContext = new DefaultHttpContext { RequestServices = provider } }
+            }
+        };
+
+        var result = await component.InvokeAsync();
+
+        Assert.That(result, Is.TypeOf<ContentViewComponentResult>());
+        Assert.That(((ContentViewComponentResult)result).Content, Is.Empty);
+        permissions.Verify(x => x.AuthorizeAsync(Permissions.Dashboard.Widgets.Sales.PaymentMethods, null, false), Times.Once);
+        services.VerifyGet(x => x.Permissions, Times.Once);
+        services.VerifyNoOtherCalls();
+    }
+
     /// <summary>
     /// Verifies that the system fallback reproduces the legacy widget placements at every breakpoint.
     /// </summary>
