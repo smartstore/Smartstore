@@ -40,8 +40,8 @@ public class DashboardPaymentMethodsViewComponent : SmartViewComponent
             return Empty();
         }
 
-        var authorizedStoreIds = await Services.StoreMappingService.GetAuthorizedStoreIdsAsync(
-            nameof(Customer), Services.WorkContext.CurrentCustomer.Id);
+        var authorizedStoreIds = await Services.StoreMappingService.GetAuthorizedStoreIdsAsync(nameof(Customer), Services.WorkContext.CurrentCustomer.Id);
+
         var paymentMethodTotals = await _db.Orders
             .AsNoTracking()
             .ApplyCustomerFilter(authorizedStoreIds)

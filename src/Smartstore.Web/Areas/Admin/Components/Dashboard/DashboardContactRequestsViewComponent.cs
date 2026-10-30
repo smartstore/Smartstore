@@ -32,15 +32,21 @@ public class DashboardContactRequestsViewComponent : SmartViewComponent
         if (!await Services.Permissions.AuthorizeAsync(RequiredPermission))
             return Empty();
 
-        var authorizedStoreIds = await Services.StoreMappingService.GetAuthorizedStoreIdsAsync(
-            nameof(Customer), Services.WorkContext.CurrentCustomer.Id);
+        var authorizedStoreIds = await Services.StoreMappingService.GetAuthorizedStoreIdsAsync(nameof(Customer), Services.WorkContext.CurrentCustomer.Id);
         var storeIds = _db.Stores.Select(store => store.Id);
-        var query = _db.GenericAttributes.AsNoTracking()
-            .Where(attribute => attribute.KeyGroup == nameof(QueuedEmail) && attribute.Key == ContactRequestsDashboardHook.AttributeKey
+        var query = _db.GenericAttributes
+            .AsNoTracking()
+            .Where(attribute => attribute.KeyGroup == nameof(QueuedEmail) 
+                && attribute.Key == ContactRequestsDashboardHook.AttributeKey
                 && storeIds.Contains(attribute.StoreId));
+
         if (authorizedStoreIds.Length > 0)
+        {
             query = query.Where(attribute => authorizedStoreIds.Contains(attribute.StoreId));
-        var messages = await _db.QueuedEmails.AsNoTracking()
+        }
+            
+        var messages = await _db.QueuedEmails
+            .AsNoTracking()
             .Join(query,
                 message => message.Id,
                 attribute => attribute.EntityId,
@@ -49,11 +55,11 @@ public class DashboardContactRequestsViewComponent : SmartViewComponent
             .ThenByDescending(message => message.Id)
             .Take(ContactRequestsDashboardHook.MaxEntries)
             .ToListAsync();
+
         var model = messages.Select(message => new DashboardContactRequestModel
         {
             MessageId = message.Id,
-            Email = MailAddress.TryCreate(message.Email, out var sender)
-                ? sender.Address : string.Empty,
+            Email = MailAddress.TryCreate(message.Email, out var sender) ? sender.Address : string.Empty,
             CreatedOn = Services.DateTimeHelper.ConvertToUserTime(message.CreatedOnUtc, DateTimeKind.Utc).ToString("g")
         }).ToList();
 
