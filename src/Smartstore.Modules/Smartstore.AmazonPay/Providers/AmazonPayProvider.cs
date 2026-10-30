@@ -9,12 +9,12 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging.Abstractions;
 using Smartstore.AmazonPay.Components;
 using Smartstore.AmazonPay.Services;
+using Smartstore.Core;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Common;
 using Smartstore.Core.Common.Services;
-using Smartstore.Core.Configuration;
 using Smartstore.Core.Data;
 using Smartstore.Core.Stores;
 using Smartstore.Core.Web;
@@ -27,42 +27,45 @@ namespace Smartstore.AmazonPay.Providers;
 [SystemName("Payments.AmazonPay")]
 [FriendlyName("Amazon Pay")]
 [Order(-1)]
-[PaymentMethod(PaymentMethodType.Button)]
+[PaymentMethod(PaymentMethodType.Standard | PaymentMethodType.Button)]
 public class AmazonPayProvider : PaymentMethodBase, IConfigurable
 {
     private readonly SmartDbContext _db;
     private readonly IStoreContext _storeContext;
+    private readonly IWorkContext _workContext;
     private readonly IWebHelper _webHelper;
     private readonly ICurrencyService _currencyService;
     private readonly IOrderCalculationService _orderCalculationService;
-    private readonly ISettingFactory _settingFactory;
     private readonly IAmazonPayService _amazonPayService;
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly ICheckoutStateAccessor _checkoutStateAccessor;
     private readonly IRoundingHelper _roundingHelper;
+    private readonly AmazonPaySettings _settings;
 
     public AmazonPayProvider(
         SmartDbContext db,
         IStoreContext storeContext,
+        IWorkContext workContext,
         IWebHelper webHelper,
         ICurrencyService currencyService,
         IOrderCalculationService orderCalculationService,
-        ISettingFactory settingFactory,
         IAmazonPayService amazonPayService,
         IHttpContextAccessor httpContextAccessor,
         ICheckoutStateAccessor checkoutStateAccessor,
-        IRoundingHelper roundingHelper)
+        IRoundingHelper roundingHelper,
+        AmazonPaySettings settings)
     {
         _db = db;
         _storeContext = storeContext;
+        _workContext = workContext;
         _webHelper = webHelper;
         _currencyService = currencyService;
         _orderCalculationService = orderCalculationService;
-        _settingFactory = settingFactory;
         _amazonPayService = amazonPayService;
         _httpContextAccessor = httpContextAccessor;
         _checkoutStateAccessor = checkoutStateAccessor;
         _roundingHelper = roundingHelper;
+        _settings = settings;
     }
 
     public ILogger Logger { get; set; } = NullLogger.Instance;
@@ -86,17 +89,16 @@ public class AmazonPayProvider : PaymentMethodBase, IConfigurable
     public RouteInfo GetConfigurationRoute()
         => new("Configure", "AmazonPayAdmin", new { area = "Admin" });
 
-    public override async Task<(decimal FixedFeeOrPercentage, bool UsePercentage)> GetPaymentFeeInfoAsync(ShoppingCart cart)
-    {
-        var settings = await _settingFactory.LoadSettingsAsync<AmazonPaySettings>(_storeContext.CurrentStore.Id);
-
-        return (settings.AdditionalFee, settings.AdditionalFeePercentage);
-    }
+    public override Task<(decimal FixedFeeOrPercentage, bool UsePercentage)> GetPaymentFeeInfoAsync(ShoppingCart cart)
+        => Task.FromResult((_settings.AdditionalFee, _settings.AdditionalFeePercentage));
 
     #endregion
 
 
     #region Checkout integration
+
+    public override bool DisplayInPaymentMethodList
+        => _settings.ShowInPaymentMethodList && (!_settings.ShowPayButtonForAdminOnly || _workContext.CurrentCustomer.IsAdmin());
 
     public override Widget GetPaymentInfoWidget()
         => new ComponentWidget(typeof(PayButtonViewComponent));
@@ -113,7 +115,6 @@ public class AmazonPayProvider : PaymentMethodBase, IConfigurable
         var cart = context.Cart;
         var store = _storeContext.GetStoreById(cart.StoreId);
         var protocol = _webHelper.IsCurrentConnectionSecured() ? "https" : "http";
-        var settings = await _settingFactory.LoadSettingsAsync<AmazonPaySettings>(cart.StoreId);
         var amazonState = _checkoutStateAccessor.CheckoutState.GetCustomState<AmazonPayCheckoutState>();
         var cartTotal = (Money?)await _orderCalculationService.GetShoppingCartTotalAsync(cart, ShoppingCartTotalOptions.Default);
         var updateRequest = new UpdateCheckoutSessionRequest();
@@ -121,8 +122,8 @@ public class AmazonPayProvider : PaymentMethodBase, IConfigurable
         updateRequest.PaymentDetails.ChargeAmount.Amount = _roundingHelper.Round(cartTotal.Value);
         updateRequest.PaymentDetails.ChargeAmount.CurrencyCode = _amazonPayService.GetAmazonPayCurrency();
         // INFO: cannot be 'true' if transaction type is 'AuthorizeWithCapture'.
-        updateRequest.PaymentDetails.CanHandlePendingAuthorization = settings.TransactionType == AmazonPayTransactionType.Authorize;
-        updateRequest.PaymentDetails.PaymentIntent = settings.TransactionType == AmazonPayTransactionType.AuthorizeAndCapture
+        updateRequest.PaymentDetails.CanHandlePendingAuthorization = _settings.TransactionType == AmazonPayTransactionType.Authorize;
+        updateRequest.PaymentDetails.PaymentIntent = _settings.TransactionType == AmazonPayTransactionType.AuthorizeAndCapture
             ? PaymentIntent.AuthorizeWithCapture
             : PaymentIntent.Authorize;
 
@@ -146,7 +147,7 @@ public class AmazonPayProvider : PaymentMethodBase, IConfigurable
 
     #region Payment processing (called during order placement)
 
-    public override async Task<ProcessPaymentResult> ProcessPaymentAsync(ProcessPaymentRequest processPaymentRequest)
+    public override Task<ProcessPaymentResult> ProcessPaymentAsync(ProcessPaymentRequest processPaymentRequest)
     {
         var result = new ProcessPaymentResult();
         var state = _checkoutStateAccessor.CheckoutState.GetCustomState<AmazonPayCheckoutState>();
@@ -182,9 +183,7 @@ public class AmazonPayProvider : PaymentMethodBase, IConfigurable
             if (completeResponse.Status == 200)
             {
                 // 200 (OK): authorization succeeded.
-                var settings = await _settingFactory.LoadSettingsAsync<AmazonPaySettings>(processPaymentRequest.StoreId);
-
-                result.NewPaymentStatus = settings.TransactionType == AmazonPayTransactionType.AuthorizeAndCapture
+                result.NewPaymentStatus = _settings.TransactionType == AmazonPayTransactionType.AuthorizeAndCapture
                     ? PaymentStatus.Paid
                     : PaymentStatus.Authorized;
             }
@@ -214,7 +213,7 @@ public class AmazonPayProvider : PaymentMethodBase, IConfigurable
             throw new AmazonPayException(message, completeResponse);
         }
 
-        return result;
+        return Task.FromResult(result);
     }
 
     public override Task PostProcessPaymentAsync(PostProcessPaymentRequest postProcessPaymentRequest)

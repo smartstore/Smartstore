@@ -198,7 +198,12 @@ public class PaymentMethodHandler : CheckoutHandlerBase
 
     private async Task<List<Provider<IPaymentMethod>>> GetPaymentMethods(ShoppingCart cart)
     {
-        var providers = await _paymentService.LoadActivePaymentProvidersAsync(cart, cart.StoreId);
+        var providers = await _paymentService.LoadActivePaymentProvidersAsync(
+            cart,
+            cart.StoreId,
+            PaymentMethodType.Standard | PaymentMethodType.Redirection);
+
+        providers = providers.Where(x => x.Value.DisplayInPaymentMethodList);
 
         if (cart.ContainsRecurringItem())
         {

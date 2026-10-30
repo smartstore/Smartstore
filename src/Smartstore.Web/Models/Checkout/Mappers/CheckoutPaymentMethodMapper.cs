@@ -60,6 +60,7 @@ public class CheckoutPaymentMethodMapper : Mapper<CheckoutContext, CheckoutPayme
         var ga = cart.Customer.GenericAttributes;
         var allPaymentMethods = await _paymentService.GetAllPaymentMethodsAsync();
         var providers = await _paymentService.LoadActivePaymentProvidersAsync(cart, cart.StoreId, PaymentMethodType.Standard | PaymentMethodType.Redirection);
+        providers = providers.Where(x => x.Value.DisplayInPaymentMethodList);
 
         if (cart.ContainsRecurringItem())
         {
