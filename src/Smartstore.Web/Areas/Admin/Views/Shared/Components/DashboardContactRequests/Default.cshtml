@@ -38,7 +38,7 @@
                                 }
                             </td>
                             <td class="display-row">
-                                @if (!string.IsNullOrEmpty(request.Email))
+                                @if (request.Email.HasValue())
                                 {
                                     <a href="mailto:@request.Email" title="@request.Email">@request.Email</a>
                                 }
