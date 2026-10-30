@@ -108,6 +108,15 @@ public class SmartDbContextDataSeeder : IDataSeeder<SmartDbContext>
 
     public void MigrateLocaleResources(LocaleResourcesBuilder builder)
     {
+        builder.AddOrUpdate("Admin.Dashboard.Labels.ByQuantity", "By quantity", "Nach Anzahl");
+        builder.AddOrUpdate("Admin.Dashboard.Labels.ByAmount", "By amount", "Nach Betrag");
+        builder.AddOrUpdate("Admin.Dashboard.Labels.OrderCount", "Orders", "Bestellungen");
+        builder.AddOrUpdate("Admin.Dashboard.Labels.Customer", "Customer", "Kunde");
+        builder.Delete(
+            "Admin.SalesReport.ByQuantity",
+            "Admin.SalesReport.ByAmount",
+            "Admin.Customers.Reports.BestBy.Fields.Customer");
+
         builder.AddOrUpdate("Permissions.DisplayName.PaymentMethods", "Payment methods", "Zahlungsarten");
         builder.AddOrUpdate("Admin.Dashboard.PaymentMethods", "Payment methods", "Zahlungsarten");
         builder.AddOrUpdate("Admin.Dashboard.PaymentMethods.Description", "The top ten payment methods by order count or order total, including tax and shipping, across all order dates and statuses.", "Die zehn führenden Zahlungsarten nach Bestellanzahl oder Bestellgesamtbetrag einschließlich Steuer und Versand über alle Bestellzeiträume und Bestellstatus hinweg.");
