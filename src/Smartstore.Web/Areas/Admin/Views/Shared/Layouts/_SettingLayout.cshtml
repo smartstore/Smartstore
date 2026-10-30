@@ -1,10 +1,10 @@
 ﻿@{
     Layout = "_AdminLayout";
-    Assets.BodyAttributes.AppendCssClass("admin-settings-layout");
+    Assets.BodyAttributes.AppendCssClass("settings-layout");
 }
 
 <div class="settings-shell">
-    <nav class="settings-navigation d-none d-md-flex" aria-label="@T("Admin.Configuration.Settings")">
+    <nav class="settings-navigation d-none d-md-flex flex-column py-2 rounded-lg bg-surface mh-100 overflow-hidden" aria-label="@T("Admin.Configuration.Settings")">
         <menu name="Settings" template="Settings" />
     </nav>
     <div class="settings-content spa-stretch">

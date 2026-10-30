@@ -2,13 +2,13 @@
 
 @{
     ViewBag.Title = T("Admin.Catalog.Categories.Manage").Value;
+    Assets.BodyAttributes.AppendCssClass("category-tree-page");
 
     var isSingleStoreMode = (bool)ViewBag.IsSingleStoreMode;
     var canEdit = (bool)ViewBag.CanEdit;
 }
 
-@*INFO: please no sticky header here ('nofix'). It blocks the browser from auto scrolling during drag and drop.*@
-<div class="section-header nofix">
+<div class="section-header">
     <div class="title">
         <icon name="nodes" />
         <span>@ViewBag.Title</span>

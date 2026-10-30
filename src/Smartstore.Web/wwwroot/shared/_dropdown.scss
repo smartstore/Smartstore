@@ -108,6 +108,19 @@
 }
 
 
+// Dropdown item add-on
+// ==============================================================
+
+.dropdown-item-addon {
+    display: block;
+    min-width: 0;
+    max-width: var(--dropdown-item-addon-max-width, 8rem);
+    margin-inline-start: auto;
+    color: var(--#{$prefix}secondary-color);
+    @include text-truncate();
+}
+
+
 // Dropdown Classic
 // ==============================================================
 

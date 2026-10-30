@@ -1,7 +1,8 @@
-﻿using System.Xml;
+using System.Xml;
 using Smartstore.Caching;
 using Smartstore.Collections;
 using Smartstore.Core.Content.Menus;
+using Smartstore.Web.Rendering;
 
 namespace Smartstore.Admin.Infrastructure.Menus;
 
@@ -46,6 +47,14 @@ public partial class AdminMenu : MenuBase
         if (manageNode != null)
         {
             modulesNode.Append(manageNode);
+        }
+
+        foreach (var item in modulesNode.Flatten(false))
+        {
+            if (item != manageNode?.Value)
+            {
+                item.LinkHtmlAttributes.AppendCssClass("font-weight-normal");
+            }
         }
 
         return Task.CompletedTask;

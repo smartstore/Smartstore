@@ -2,6 +2,7 @@
 
 :root {
     --iceblue: oklch(from color-mix(in srgb, var(--primary-bg-subtle) 35%, var(--white)) l calc(c * 0.7) h);
+    --surface-bg: var(--iceblue);
     --section-header-spacing: 24px;
     --section-header-padding-y: 10px;
     --section-header-padding-bottom: 0px;
@@ -43,8 +44,8 @@ b, strong {
 }
 
 
-.bg-iceblue {
-    background-color: var(--iceblue) !important;
+.bg-surface {
+    background-color: var(--surface-bg) !important;
 }
 
 
@@ -66,6 +67,12 @@ b, strong {
 // Balance the visual spacing of dropdown items with a leading icon.
 .dropdown-item:has(> :is(.icon, .icon-stack)):not(.dropdown-group > .dropdown-item) {
     padding-inline-end: calc(var(--dropdown-item-padding-x) + var(--dropdown-icon-item-gap, 10px));
+}
+
+
+// Avoid doubled spacing between borderless modal headers and their bodies.
+.modal-header + .modal-body {
+    padding-top: 0;
 }
 
 
@@ -207,11 +214,6 @@ legend {
     z-index: $zindex-sticky + 1;
     background-color: #ffab40;
     transition: opacity .05s ease-in;
-
-    .sticky-header & {
-        left: var(--content-padding-x);
-        right: var(--content-padding-x);
-    }
 
     body.note-fullscreen-body & {
         z-index: $zindex-tooltip + 10;
@@ -383,6 +385,8 @@ legend {
     }
 }
 
+// Remove leading row spacing in nested editors and modal forms.
+.modal-body :nth-child(1 of .adminContent) > .adminRow:first-child,
 .adminData .adminRow:first-child,
 .collapsible > .adminRow:first-child {
     margin-top: 0;
@@ -1139,7 +1143,7 @@ a.editable {
 // --------------------------------------------------------------
 
 .resizer,
-.is-resizing {
+.resizing {
     cursor: col-resize;
 }
 
@@ -1316,7 +1320,7 @@ a.editable {
 
 .stacktrace-header {
     position: sticky;
-    top: var(--content-offset, 0px);
+    top: var(--sticky-offset, 0px);
     background-color: var(--st-bg-color);
     border-bottom: 1px solid #fff;
     @include border-top-radius(var(--border-radius-lg));

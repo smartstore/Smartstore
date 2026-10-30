@@ -109,7 +109,7 @@
     }
 
     .circle {
-        stroke: $primary;
+        stroke: var(--primary);
     }
 
     .circle, svg {

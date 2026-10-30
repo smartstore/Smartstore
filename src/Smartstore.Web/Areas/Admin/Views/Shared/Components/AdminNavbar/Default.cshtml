@@ -18,7 +18,7 @@
 
 <link sm-target-zone="head_links" as="image" rel="preload" href="~/images/smartstore.svg" />
 
-<nav id="navbar" class="navbar navbar-slide navbar-dark navbar-expand navbar-sidebar" data-submenu-back-label="@T("Common.Back")" data-expand-label="@expandSidebarLabel" data-collapse-label="@collapseSidebarLabel">
+<nav id="navbar" class="navbar navbar-slide navbar-expand navbar-sidebar" data-submenu-back-label="@T("Common.Back")" data-expand-label="@expandSidebarLabel" data-collapse-label="@collapseSidebarLabel">
     <a class="navbar-brand" asp-action="Index" asp-controller="Home" asp-area="Admin">
         <span class="navbar-brand-symbol">
             <img src="~/images/smartstore.svg" alt="Smartstore" width="140" height="25" />
@@ -103,7 +103,7 @@
                         <a class="dropdown-item" asp-action="Edit" asp-controller="Customer" asp-route-id="@currentCustomer.Id">
                             <icon name="user-circle" class="icon-fw" />
                             <span>@T("Admin.Header.Account")</span>
-                            <small class="navbar-account-name text-muted text-truncate ml-auto" title="@currentCustomer.Username">@currentCustomer.Username</small>
+                            <small class="dropdown-item-addon" title="@currentCustomer.Username">@currentCustomer.Username</small>
                         </a>
                     }
                     <div class="dropdown-divider"></div>

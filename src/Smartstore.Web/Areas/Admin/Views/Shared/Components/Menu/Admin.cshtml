@@ -91,7 +91,7 @@
                 }
 
                 <li data-id="@item.Id" attr-class='(node.HasChildren, "dropdown-group")'>
-                    <a class="dropdown-item" href="@GetNodeLink(node)">
+                    <a class="dropdown-item" href="@GetNodeLink(node)" attrs="item.LinkHtmlAttributes">
                         @if (hasIcons)
                         {
                             if (item.Icon.HasValue())

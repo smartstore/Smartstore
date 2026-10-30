@@ -1,65 +1,95 @@
 /// <reference path="references.scss" />
 
-//
-// Layout
-// -----------------------------------------------------
-
+// The admin uses one full-height shell: a fixed sidebar and a content scrollport.
+// SPA pages manage scrolling inside their content; popups omit the navigation inset.
 html {
     height: 100%;
 }
 
 body {
-    background-color: $gray-150;
+    --page-bg: var(--surface-bg);
+    --content-bg: #fff;
+    height: 100dvh;
+    overflow: hidden;
+    background-color: var(--page-bg);
 
-    &.popup {
-        background-color: #fff;
+    --sidebar-icon-size: 20px;
+    --sidebar-padding-x: 8px;
+    --sidebar-item-padding-y: 9px;
+    --sidebar-item-padding-x: 12px;
+    --sidebar-item-margin-x: 2px;
+    // The compact width follows the icon plus the symmetric inner and outer spacing.
+    --sidebar-width: calc(var(--sidebar-icon-size) + 2 * (var(--sidebar-item-padding-x) + var(--sidebar-item-margin-x) + var(--sidebar-padding-x)));
+    --sidebar-label-gap: 0px;
+    --sidebar-label-width: 0px;
+    --sidebar-label-opacity: 0;
+    --sidebar-label-shift: -8px;
+    --sidebar-brand-width: 140px;
+    --sidebar-wordmark-width: 0px;
+    --sidebar-chevron-display: none;
+    --sidebar-motion: 0s;
+
+    &.sidebar-ready:not(.popup) {
+        --sidebar-motion: 200ms;
     }
 
-    &.popup .dispensable {
-        display: none !important;
+    @include media-breakpoint-up(lg) {
+        &.sidebar-expanded:not(.popup) {
+            --sidebar-width: 180px;
+            --sidebar-label-width: 120px;
+            --sidebar-label-gap: 10px;
+            --sidebar-label-opacity: 1;
+            --sidebar-label-shift: 0px;
+            --sidebar-wordmark-width: calc(var(--sidebar-brand-width) * 0.8);
+            --sidebar-chevron-display: inline-block;
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        &.sidebar-ready:not(.popup) {
+            --sidebar-motion: 0s;
+        }
+    }
+
+    &.popup {
+        --sidebar-width: 0px;
+        --content-padding-x: #{$content-padding-x};
+
+        .dispensable {
+            display: none !important;
+        }
     }
 }
 
 #page {
     position: relative;
+    height: 100%;
     margin: 0;
     padding: 0;
 }
 
 .page-main {
-    --sticky-header-left: 0;
-    --sticky-header-right: 0;
-    --navbar-height: 72px;
-    --header-height: 72px;
     --section-header-height: calc(var(--section-header-size) + var(--section-header-padding-y) + var(--section-header-padding-bottom));
-    --device-height: 100dvh;
-    --content-top: calc(var(--navbar-height) + var(--header-height));
-    --content-height: calc(var(--device-height) - var(--content-top) - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
-    --content-row: minmax(var(--content-height), auto);
     position: relative;
     display: grid;
+    height: 100%;
+    min-height: 0;
     grid-template-columns: 100%;
-    grid-template-rows: var(--navbar-height) var(--header-height) var(--content-row);
-
-    @include media-breakpoint-up(sm) {
-        --sticky-header-left: var(--content-padding-x);
-        --sticky-header-right: var(--content-padding-x);
-    }
+    grid-template-rows: minmax(0, 1fr);
+    margin-left: var(--sidebar-width);
+    background-color: var(--page-bg);
+    transition: margin-left var(--sidebar-motion) ease,
+                opacity $offcanvas-duration $offcanvas-easing,
+                transform $offcanvas-duration $offcanvas-easing;
 }
 
 #header {
-    @include gradient-bg($indigo);
     grid-column: 1 / -1;
-    grid-row: 1 / span 2;
+    grid-row: 1;
 }
 
 .sidebar-left {
     grid-column: 1 / 2;
-}
-
-.popup {
-    // Larger padding-x in popups
-    --content-padding-x: #{$content-padding-x};
 }
 
 .popup:not(.bare) {
@@ -68,41 +98,39 @@ body {
 
 #content {
     position: relative;
+    min-height: 0;
+    overflow-y: auto;
     margin: 0;
-    padding-left: var(--content-padding-x);
-    padding-right: var(--content-padding-x);
-    padding-top: calc(var(--section-header-height) + var(--section-header-spacing));
-    padding-bottom: var(--content-padding-x);
-    box-shadow: $box-shadow-sm;
-    border-radius: 0;
-    background-color: #fff;
+    padding: 0 0 var(--content-padding-x);
+    background-color: var(--content-bg);
     grid-column: 1 / -1;
-    grid-row: 2 / -1;
+    grid-row: 1;
     z-index: 9;
 
-    @include media-breakpoint-up(sm) {
-        margin: 0 var(--content-padding-x);
-        border-radius: 0.75rem 0.75rem 0 0;
-    }
-
     .popup & {
-        margin: 0;
+        padding-inline: var(--content-padding-x);
         border: 0;
-        box-shadow: none;
-        border-radius: 0;
-        grid-row: 1 / -1;
     }
 }
 
 .cph {
     display: flex;
     flex-flow: column;
+    padding-inline: var(--admin-content-padding-x, var(--content-padding-x));
+
+    .popup & {
+        padding-inline: 0;
+    }
 }
 
 .popup.bare {
     height: 100%;
     overflow-y: auto;
     overflow-x: hidden;
+
+    #content {
+        overflow-y: visible;
+    }
 
     #page,
     #content,
@@ -113,17 +141,16 @@ body {
 }
 
 .section-header {
-    position: absolute;
-    inset-inline-start: 0;
-    inset-inline-end: 0;
+    position: sticky;
     top: 0;
+    z-index: $zindex-sticky;
+    flex-shrink: 0;
     padding-inline: var(--content-padding-x);
     padding-block: var(--section-header-padding-y) var(--section-header-padding-bottom);
-    transition: box-shadow 0.25s ease;
 
     @include make-row();
     flex-wrap: nowrap;
-    margin-inline: 0;
+    margin-inline: calc(-1 * var(--admin-content-padding-x, var(--content-padding-x)));
     margin-block-end: var(--section-header-spacing);
 
     .title, .options {
@@ -152,7 +179,7 @@ body {
             display: none; // Turn off for now, seems to look nicer
             --icon-size: 28px;
             vertical-align: text-top;
-            color: $text-muted;
+            color: inherit;
         }
 
         > img {
@@ -195,7 +222,7 @@ body {
                 min-width: 0;
                 max-width: 75%;
 
-                > :is(.input-group, .has-icon, .form-control, .form-select) {
+                > :is(.input-group, .has-icon, .form-control) {
                     flex-shrink: 1;
                     min-width: 0;
                     max-width: 100%;
@@ -217,122 +244,62 @@ body {
             }
         }
     }
-
-    &.sticky {
-        position: fixed;
-        z-index: $zindex-sticky;
-        inset-inline-start: var(--sticky-header-left);
-        inset-inline-end: var(--sticky-header-right);
-        background: #fff;
-        box-shadow: 0 10px 30px 0 rgba($black, .05);
-
-        .modal-open & {
-            // add the killed scrollbar width
-            margin-inline-end: 17px !important;
-        }
-    }
 }
 
 #content .section-header {
-    background: var(--section-header-background, #fff);
+    background: var(--section-header-bg, var(--content-bg));
     box-shadow: none;
     border-bottom: 0;
     transition: none;
 }
 
-// The mask is anchored to the scrollport; the content scrolls beneath it.
-.admin-sidebar-layout:not(.spa-layout):not(.bare) {
-    height: 100dvh;
-    overflow: hidden;
-
-    #page {
-        height: 100%;
-    }
-
-    .page-main {
-        --navbar-height: 0px;
-        --header-height: 0px;
-        height: 100%;
-        min-height: 0;
-        grid-template-rows: minmax(0, 1fr);
-        background-color: var(--admin-content-background, #fff);
-    }
-
-    #header {
-        grid-row: 1;
-    }
-
-    #content {
-        grid-row: 1;
-        min-height: 0;
-        overflow-y: auto;
-    }
-
-    &.section-header-scrolled #content {
-        mask-image: linear-gradient(to bottom,
-            #000 var(--content-offset),
-            transparent var(--content-offset),
-            #000 calc(var(--content-offset) + var(--section-header-spacing))), linear-gradient(#000, #000);
-        mask-size: 100% 100%, var(--content-scrollbar-width, 0px) 100%;
-        mask-position: 0 0, 100% 0;
-        mask-repeat: no-repeat;
-        mask-composite: add;
-    }
-
-    &:dir(rtl).section-header-scrolled #content {
-        mask-position: 0 0, 0 0;
-    }
+// Fade into the header's own color without making the content background transparent.
+// The overlay follows the header width, so it never covers the native scrollbar.
+body.sticky-header #content .section-header::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    inset-inline: 0;
+    height: var(--section-header-spacing);
+    background: linear-gradient(to bottom, var(--section-header-bg, var(--content-bg)), transparent);
+    pointer-events: none;
 }
 
 @include media-breakpoint-up(md) {
-    .has-left-sidebar {
+    .left-sidebar {
         .page-main {
             grid-template-columns: 206px 1fr;
-            --sticky-header-left: 206px;
-            --sticky-header-right: 0;
         }
 
         #content {
             grid-column: 2 / -1;
-            margin-inline: 0;
-            border-start-end-radius: 0;
         }
 
         .locale-editor {
-            max-width: calc(100dvw - var(--sticky-header-left) - (var(--content-padding-x) * 2));
+            max-width: calc(100dvw - var(--sidebar-width) - 206px - (var(--content-padding-x) * 2));
         }
-    }
-}
-
-// Content geometry is independent of viewport sizing and internal scrolling.
-.admin-content-canvas {
-    --admin-content-padding-x: 0px;
-    --admin-content-radius: 0px;
-
-    #content {
-        margin-inline: 0;
-        padding: 0;
-        border-radius: var(--admin-content-radius);
     }
 }
 
 .spa-layout {
     --section-header-spacing: var(--section-header-padding-y);
-    height: 100%;
-    overflow: hidden;
 
-    #page {
-        height: 100%;
+    #content {
+        overflow-y: visible;
     }
 
     .page-main {
-        height: 100%;
         grid-template-columns: 1fr minmax(380px, 20%);
-        --content-row: var(--content-height);
     }
 
     .cph {
         height: 100%;
+        min-height: 0;
+
+        // The header takes its natural height; a direct grid fills only the remaining space.
+        > .datagrid-root {
+            flex-basis: 0;
+        }
     }
 
     .spa-stretch {
@@ -349,144 +316,39 @@ body {
 }
 
 @include media-breakpoint-up(md) {
-    .spa-layout.has-left-sidebar .page-main {
+    .spa-layout.left-sidebar .page-main {
         grid-template-columns: 206px minmax(100px, 1fr) !important;
     }
 }
 
-//
-// Minimal admin layout
-// --------------------------------------------------------------
-
-.minimal-admin {
-    #content {
-        background-color: transparent;
-        box-shadow: none;
-        margin: 0;
-        padding-top: 0;
-
-        .section-header {
-            display: none;
-        }
-    }
-}
-
-
-// Sidebar page geometry and CSS-sticky headers.
-.admin-sidebar-layout:not(.popup) {
-    .page-main {
-        --navbar-height: 0px;
-        --sticky-header-left: var(--admin-sidebar-width);
-        --sticky-header-right: 0;
-        margin-left: var(--admin-sidebar-width);
-        transition: margin-left var(--admin-sidebar-motion) ease,
-                    opacity $offcanvas-duration $offcanvas-easing,
-                    transform $offcanvas-duration $offcanvas-easing;
-    }
-
-    #content {
-        margin-inline: 0;
-        padding-inline: 0;
-        border-radius: 0;
-
-        > .cph {
-            padding-inline: var(--admin-content-padding-x, var(--content-padding-x));
-        }
-    }
-
-    #header {
-        background: transparent;
-    }
-
-    @include media-breakpoint-up(md) {
-        &.has-left-sidebar .page-main {
-            --sticky-header-left: calc(var(--admin-sidebar-width) + 206px);
-        }
-    }
-}
-
-.admin-sidebar-layout:not(.popup):not(.spa-layout),
-.popup:not(.bare) {
-    #content:has(.section-header:not(.nofix)) {
-        padding-top: 0;
-        --content-offset: var(--section-header-height);
-    }
-
-    // A header-only wrapper must stick with its header, otherwise its short box
-    // prevents the header from following the rest of the page during scrolling.
-    #content > .cph > :has(> .section-header:not(.nofix)):not(:has(> :not(.section-header, input[type="hidden"], script))),
-    #content .settings-content > :has(> .section-header:not(.nofix)):not(:has(> :not(.section-header, input[type="hidden"], script))) {
-        position: sticky;
-        top: 0;
-        z-index: $zindex-sticky;
-    }
-
-    .section-header:not(.nofix) {
-        position: sticky;
-        top: 0;
-        inset-inline: auto;
-        z-index: $zindex-sticky;
-        margin-inline: calc(-1 * var(--content-padding-x));
-        margin-block-end: var(--section-header-spacing);
-    }
-}
-
-.admin-sidebar-layout:not(.popup) {
-    --admin-sidebar-width: 64px;
-    --admin-sidebar-icon-size: 20px;
-    --admin-sidebar-item-padding-y: 9px;
-    --admin-sidebar-item-padding-x: 12px;
-    --admin-sidebar-label-gap: 0px;
-    --admin-sidebar-label-width: 0px;
-    --admin-sidebar-label-opacity: 0;
-    --admin-sidebar-label-shift: -8px;
-    --admin-sidebar-brand-width: 140px;
-    --admin-sidebar-wordmark-width: 0px;
-    --admin-sidebar-chevron-display: none;
-    --admin-sidebar-motion: 0s;
-
-    &.admin-sidebar-ready {
-        --admin-sidebar-motion: 200ms;
-    }
-
-    @include media-breakpoint-up(lg) {
-        &.admin-sidebar-expanded {
-            --admin-sidebar-width: 180px;
-            --admin-sidebar-label-width: 120px;
-            --admin-sidebar-label-gap: 10px;
-            --admin-sidebar-label-opacity: 1;
-            --admin-sidebar-label-shift: 0px;
-            --admin-sidebar-wordmark-width: calc(var(--admin-sidebar-brand-width) * 0.8);
-            --admin-sidebar-chevron-display: inline-block;
-        }
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-        &.admin-sidebar-ready {
-            --admin-sidebar-motion: 0s;
-        }
-    }
-
+// Adjacent sticky panels use this offset; the header itself occupies normal layout space.
+#content:has(.section-header) {
+    --sticky-offset: var(--section-header-height);
 }
 
 #navbar.navbar-sidebar {
+    --nav-link-padding-x: var(--sidebar-item-padding-x);
+    --nav-link-padding-y: var(--sidebar-item-padding-y);
+    --navbar-nav-link-padding-x: var(--nav-link-padding-x);
+    --nav-link-color: #{mix($indigo, #fff, 22%)};
+    --nav-link-disabled-color: #{$navbar-dark-disabled-color};
+    --nav-link-hover-color: #fff;
+    --nav-link-hover-bg: #{rgba(#fff, 0.09)};
+    --nav-link-active-color: var(--nav-link-hover-color);
+    --nav-link-active-bg: #{rgba(#fff, 0.15)};
+
     position: fixed;
     top: 0;
     bottom: 0;
     left: 0;
     z-index: $zindex-fixed;
-    width: var(--admin-sidebar-width, 64px);
-    transition: width var(--admin-sidebar-motion) ease;
-    padding: 12px 8px;
+    width: var(--sidebar-width);
+    transition: width var(--sidebar-motion) ease;
+    padding: 12px var(--sidebar-padding-x);
     flex-direction: column;
     flex-wrap: nowrap;
     gap: 12px;
-    background: $indigo;
-
-    #navbar-menu {
-        --dropdown-icon-item-padding-x: 1rem;
-        --dropdown-icon-item-gap: 10px;
-    }
+    background: var(--indigo);
 
     .dropdown-toggle::after {
         display: none;
@@ -494,7 +356,7 @@ body {
 
     #navbar-menu .nav-item > .dropdown-toggle::after {
         @include icon-mask(var(--icon-mask-chevron-right), 1rem);
-        display: var(--admin-sidebar-chevron-display);
+        display: var(--sidebar-chevron-display);
         flex: 0 0 auto;
         margin-inline: auto -4px;
         border: 0;
@@ -502,32 +364,16 @@ body {
     }
 
     .dropdown-menu {
-        --dropdown-padding-x: 0.5rem;
-        --dropdown-padding-y: 0.5rem;
-        --dropdown-item-padding-x: 1rem;
-        --dropdown-item-padding-y: 0.5rem;
-        --dropdown-divider-margin-y: 0.5rem;
-        --dropdown-border-radius: var(--border-radius-lg);
-        --shadow-intensity: 0.7;
-        --dropdown-box-shadow: #{$box-shadow-lg};
-    }
+        will-change: auto;
+        transform: translateX(var(--sidebar-menu-slide-x, calc(-1 * var(--sidebar-menu-slide-distance, 16px))));
+        transition: transform 0.2s ease, opacity 0.275s ease-out, visibility 0s 0.275s;
+        pointer-events: none;
 
-    [data-id="nav-modules"] li:not([data-id="modules-manage"]) .dropdown-item {
-        font-weight: $font-weight-normal;
-    }
-
-    .dropdown-item {
-        font-weight: $font-weight-medium;
-        gap: 1rem;
-    }
-
-    .dropdown-header {
-        font-size: $font-size-xs;
-        text-transform: uppercase;
-    }
-
-    .dropdown-divider {
-        margin-block: 0.5rem;
+        &.show {
+            transform: none;
+            transition-delay: 0s;
+            pointer-events: auto;
+        }
     }
 
     .reddot {
@@ -551,42 +397,41 @@ body {
     .navbar-brand-wordmark {
         position: absolute;
         top: 8px;
+        // Align the drawn logo center with the navigation icons, including their configurable spacing.
+        left: calc(var(--sidebar-item-margin-x) + var(--sidebar-item-padding-x) + var(--sidebar-icon-size) / 2);
         height: 29px;
         overflow: hidden;
-        transform: translateX(calc(var(--admin-sidebar-brand-width) * -0.0988));
+        transform: translateX(calc(var(--sidebar-brand-width) * -0.0988));
 
         > img {
             display: block;
-            width: var(--admin-sidebar-brand-width);
+            width: var(--sidebar-brand-width);
             max-width: none;
             height: auto;
-            margin-top: calc((29px - var(--admin-sidebar-brand-width) * 0.1792) / 2);
+            margin-top: calc((29px - var(--sidebar-brand-width) * 0.1792) / 2);
         }
     }
 
     // The symbol spans x=0.6..48.8 in the original 250-unit viewBox; its center is 24.7 / 250.
-    // Anchor that drawn center at 24px inside the 8px sidebar inset, in both modes.
     .navbar-brand-symbol {
-        left: 24px;
-        width: calc(var(--admin-sidebar-brand-width) * 0.2);
+        width: calc(var(--sidebar-brand-width) * 0.2);
     }
 
     .navbar-brand-wordmark {
-        left: calc(24px + var(--admin-sidebar-brand-width) * 0.2);
-        width: var(--admin-sidebar-wordmark-width);
-        transition: width var(--admin-sidebar-motion) ease;
+        margin-left: calc(var(--sidebar-brand-width) * 0.2);
+        width: var(--sidebar-wordmark-width);
+        transition: width var(--sidebar-motion) ease;
 
         > img {
-            margin-left: calc(var(--admin-sidebar-brand-width) * -0.2);
-            opacity: var(--admin-sidebar-label-opacity);
-            transform: translateX(var(--admin-sidebar-label-shift));
-            transition: opacity var(--admin-sidebar-motion) ease, transform var(--admin-sidebar-motion) ease;
+            margin-left: calc(var(--sidebar-brand-width) * -0.2);
+            opacity: var(--sidebar-label-opacity);
+            transform: translateX(var(--sidebar-label-shift));
+            transition: opacity var(--sidebar-motion) ease, transform var(--sidebar-motion) ease;
         }
     }
 
     .navbar-sidebar-toggle {
         flex: 0 0 auto;
-        color: mix($indigo, #fff, 22%);
         cursor: pointer;
 
         &:disabled {
@@ -595,7 +440,7 @@ body {
         }
     }
 
-    .navbar-sidebar-toggle.is-expanded {
+    .navbar-sidebar-toggle.expanded {
         .navbar-toggle-expand {
             display: none;
         }
@@ -617,26 +462,48 @@ body {
     .navbar-sidebar-toggle .navbar-label {
         display: block;
         min-width: 0;
-        max-width: var(--admin-sidebar-label-width);
+        max-width: var(--sidebar-label-width);
         overflow: hidden;
         white-space: nowrap;
         text-overflow: ellipsis;
         text-align: left;
-        margin-inline-start: var(--admin-sidebar-label-gap);
+        margin-inline-start: var(--sidebar-label-gap);
         padding: 0;
-        opacity: var(--admin-sidebar-label-opacity);
-        transform: translateX(var(--admin-sidebar-label-shift));
-        transition: max-width var(--admin-sidebar-motion) ease, opacity var(--admin-sidebar-motion) ease,
-                    margin-inline-start var(--admin-sidebar-motion) ease, transform var(--admin-sidebar-motion) ease;
+        opacity: var(--sidebar-label-opacity);
+        transform: translateX(var(--sidebar-label-shift));
+        transition: max-width var(--sidebar-motion) ease, opacity var(--sidebar-motion) ease,
+                    margin-inline-start var(--sidebar-motion) ease, transform var(--sidebar-motion) ease;
     }
 
     #navbar-menu {
+        --dropdown-icon-item-padding-x: 1rem;
         flex: 1 1 auto;
         min-height: 0;
         width: 100%;
         overflow-y: auto;
         scrollbar-width: none;
         align-items: flex-start;
+
+        .dropdown-menu {
+            --dropdown-padding-x: 0.5rem;
+            --dropdown-padding-y: 0.5rem;
+            --dropdown-item-padding-y: 0.5rem;
+            --dropdown-divider-margin-y: 0.5rem;
+            --shadow-intensity: 0.7;
+            --dropdown-box-shadow: #{$box-shadow-lg};
+        }
+
+        .dropdown-item {
+            font-weight: $font-weight-medium;
+            gap: 1rem;
+            white-space: normal;
+            overflow-wrap: anywhere;
+        }
+
+        .dropdown-header {
+            font-size: $font-size-xs;
+            text-transform: uppercase;
+        }
     }
 
     .navbar-nav {
@@ -663,117 +530,49 @@ body {
         position: static;
     }
 
-    .nav-item > .nav-link,
-    .navbar-sidebar-toggle {
+    .nav-link {
         display: flex;
         align-items: center;
         justify-content: flex-start;
         column-gap: 0;
-        width: calc(100% - 4px);
-        padding: var(--admin-sidebar-item-padding-y) var(--admin-sidebar-item-padding-x);
-        color: mix($indigo, #fff, 22%);
+        width: calc(100% - 2 * var(--sidebar-item-margin-x));
         transition: color 0.1s linear, opacity 0.1s linear, background-color 0.1s linear;
-        margin: 0 2px;
+        margin: 0 var(--sidebar-item-margin-x);
         border: 0;
         box-shadow: none;
         border-radius: var(--border-radius-md);
-        background: transparent;
 
         &:focus-visible {
             outline: none;
         }
     }
 
-    .nav-item {
-        > .nav-link:hover,
-        > .nav-link:focus-visible,
-        > .nav-link:active,
-        > .nav-link.active,
-        > .nav-link[aria-current="page"],
-        &.active > .nav-link,
-        &.show > .nav-link {
-            color: #fff;
-            background: rgba(#fff, 0.09);
-            -webkit-backdrop-filter: blur(6px);
-            backdrop-filter: blur(6px);
-        }
-
-        > .nav-link:active,
-        > .nav-link.active,
-        > .nav-link[aria-current="page"],
-        &.active > .nav-link,
-        &.show > .nav-link {
-            background: rgba(#fff, 0.15);
-        }
-    }
-
-    .navbar-sidebar-toggle:hover:not(:disabled),
-    .navbar-sidebar-toggle:focus-visible {
-        color: #fff;
-        background: rgba(#fff, 0.09);
-    }
-
-    .navbar-sidebar-toggle:active:not(:disabled) {
-        background: rgba(#fff, 0.15);
-    }
-
     .navbar-icon.icon, .nav-link > img {
-        --icon-size: var(--admin-sidebar-icon-size);
+        --icon-size: var(--sidebar-icon-size);
         color: inherit;
         flex: 0 0 auto;
-        width: var(--admin-sidebar-icon-size);
-        height: var(--admin-sidebar-icon-size);
+        width: var(--sidebar-icon-size);
+        height: var(--sidebar-icon-size);
         margin-inline: 0;
     }
 
     .dropdown-menu-compact,
     .dropdown-menu-compact .dropdown-menu {
-        --dropdown-padding-x: 6px;
-        --dropdown-padding-y: 6px;
         --dropdown-item-padding-x: 10px;
-        --dropdown-item-padding-y: 6px;
         --dropdown-icon-item-padding-x: 10px;
-        --dropdown-icon-item-gap: 10px;
 
         .dropdown-item {
-            gap: var(--dropdown-icon-item-gap);
-            font-weight: $font-weight-normal;
+            gap: 10px;
         }
 
         .dropdown-group > .dropdown-item {
             padding-inline-end: calc(var(--dropdown-item-padding-x) + 1rem);
         }
-
-        .dropdown-divider {
-            margin-block: 6px;
-        }
-    }
-
-    .navbar-account-name {
-        min-width: 0;
-        max-width: 8rem;
-    }
-
-    .navbar-language-flag {
-        margin-inline-end: 2px;
     }
 
     .navbar-account .reddot {
-        bottom: calc(1lh + 2 * var(--admin-sidebar-item-padding-y) + 2px);
+        bottom: calc(1lh + 2 * var(--sidebar-item-padding-y) + 2px);
         right: 10px;
-    }
-
-    .dropdown-menu {
-        will-change: auto;
-        transform: translateX(var(--sidebar-menu-slide-x, calc(-1 * var(--sidebar-menu-slide-distance, 16px))));
-        transition: transform 0.2s ease, opacity 0.275s ease-out, visibility 0s 0.275s;
-        pointer-events: none;
-
-        &.show {
-            transform: none;
-            transition-delay: 0s;
-            pointer-events: auto;
-        }
     }
 
     .navbar-account > .nav-item > .dropdown-menu:not(.show) {
@@ -792,10 +591,10 @@ body {
     .nav-item > .dropdown-menu {
         position: fixed;
         top: var(--sidebar-menu-top, 8px);
-        left: var(--sidebar-menu-left, var(--admin-sidebar-width, 64px)) !important;
+        left: var(--sidebar-menu-left, var(--sidebar-width, 64px)) !important;
         right: auto;
         margin: 0;
-        max-width: var(--sidebar-menu-max-width, calc(100vw - var(--sidebar-menu-left, var(--admin-sidebar-width, 64px)) - 8px));
+        max-width: var(--sidebar-menu-max-width, calc(100vw - var(--sidebar-menu-left, var(--sidebar-width, 64px)) - 8px));
         max-height: var(--sidebar-menu-max-height, calc(100dvh - 16px));
 
         &.sidebar-menu-scrollable {
@@ -806,30 +605,23 @@ body {
 
     // Keep the arrow outside the menu's scrollable surface so overflow cannot clip it.
     .sidebar-menu-arrow {
+        @include bubble("left", "near", 8,
+            var(--sidebar-menu-arrow-bg, #{$dropdown-bg}),
+            var(--sidebar-menu-arrow-border-color, #{$dropdown-border-color}), 0px);
+
         position: fixed;
         z-index: $zindex-dropdown;
-        left: calc(var(--sidebar-menu-arrow-x, var(--admin-sidebar-width)) - 8px);
-        top: calc(var(--sidebar-menu-arrow-y, 0px) - 8px);
+        left: var(--sidebar-menu-arrow-x, var(--sidebar-width));
+        top: calc(var(--sidebar-menu-arrow-y, 0px) - var(--bubble-size));
         width: 0;
         height: 0;
-        border-top: 8px solid transparent;
-        border-bottom: 8px solid transparent;
-        border-right: 8px solid var(--sidebar-menu-arrow-border-color, #{$dropdown-border-color});
+        direction: ltr; // The sidebar remains on the left in RTL layouts too.
         opacity: 0;
         visibility: hidden;
         pointer-events: none;
         transform: translateX(var(--sidebar-menu-slide-x, calc(-1 * var(--sidebar-menu-slide-distance, 16px))));
         transition: transform 0.2s ease, opacity 0.275s ease-out, visibility 0s 0.275s;
 
-        &::after {
-            content: '';
-            position: absolute;
-            left: 1px;
-            top: -7px;
-            border-top: 7px solid transparent;
-            border-bottom: 7px solid transparent;
-            border-right: 7px solid var(--sidebar-menu-arrow-bg, #{$dropdown-bg});
-        }
     }
 
     .nav-item.show > .sidebar-menu-arrow {
@@ -856,11 +648,6 @@ body {
     .sidebar-submenu-back-icon {
         @include icon-mask(var(--icon-mask-chevron-left), 1rem);
     }
-
-    .dropdown-item {
-        white-space: normal;
-        overflow-wrap: anywhere;
-    }
 }
 
 .sidebar-tooltip {
@@ -870,17 +657,6 @@ body {
 
     &.bs-tooltip-right > .arrow::before {
         border-right-color: var(--dark);
-    }
-
-    // Preserve the shared tooltip scaling and add a small directional entrance.
-    translate: -4px 0;
-
-    &.show {
-        translate: 0 0;
-    }
-
-    &.fade {
-        @include transition(transform 140ms ease-out, translate 140ms ease-out, opacity 140ms ease-out);
     }
 }
 
@@ -893,7 +669,6 @@ body {
 .settings-menu-footer {
     --list-group-bg: transparent;
     --list-group-border-width: 0;
-    --list-group-border-radius: 0;
     --list-group-item-padding-x: 12px;
     --list-group-item-padding-y: 10px;
     --list-group-action-color: var(--gray-700);
@@ -911,8 +686,7 @@ body {
     }
 
     .list-group-item {
-        @include rfs($font-size-sm);
-        align-items: center !important;
+        border-radius: var(--border-radius-pill);
         transition: background-color 0.12s ease;
 
         &:before {
@@ -941,25 +715,24 @@ body {
 }
 
 @include media-breakpoint-down(xs) {
-    .admin-sidebar-layout:not(.popup) {
-        --admin-sidebar-width: 180px;
-        --admin-sidebar-label-width: 120px;
-        --admin-sidebar-label-gap: 10px;
-        --admin-sidebar-label-opacity: 1;
-        --admin-sidebar-label-shift: 0px;
-        --admin-sidebar-wordmark-width: calc(var(--admin-sidebar-brand-width) * 0.8);
-        --admin-sidebar-chevron-display: inline-block;
+    body:not(.popup):not(.installation) {
+        --sidebar-width: 180px;
+        --sidebar-label-width: 120px;
+        --sidebar-label-gap: 10px;
+        --sidebar-label-opacity: 1;
+        --sidebar-label-shift: 0px;
+        --sidebar-wordmark-width: calc(var(--sidebar-brand-width) * 0.8);
+        --sidebar-chevron-display: inline-block;
 
         #navbar-menu {
             --sidebar-menu-offset-x: -32px;
         }
 
         .page-main {
-            --sticky-header-left: 0px;
             margin-left: 0;
         }
 
-        &.admin-sidebar-ready .navbar-mobile-toggle {
+        &.sidebar-ready .navbar-mobile-toggle {
             display: inline-flex;
             flex: 0 0 auto;
         }
@@ -976,11 +749,11 @@ body {
         #navbar.navbar-sidebar {
             visibility: hidden;
             transform: translateX(-100%);
-            transition: transform var(--admin-sidebar-motion) ease,
-                        visibility 0s var(--admin-sidebar-motion);
+            transition: transform var(--sidebar-motion) ease,
+                        visibility 0s var(--sidebar-motion);
         }
 
-        &.admin-sidebar-mobile-open #navbar.navbar-sidebar {
+        &.sidebar-mobile-open #navbar.navbar-sidebar {
             visibility: visible;
             transform: none;
             transition-delay: 0s;
@@ -988,7 +761,7 @@ body {
     }
 }
 
-.admin-settings-layout:not(.popup) {
+.settings-layout:not(.popup) {
     --settings-navigation-width: 220px;
     --settings-navigation-gap: 24px;
 
@@ -1002,7 +775,7 @@ body {
 
         // An in-flow header needs space above the menu; a header rendered before the shell does not.
         &:has(.section-header) {
-            --settings-navigation-top: calc(var(--content-offset) + var(--section-header-spacing));
+            --settings-navigation-top: calc(var(--sticky-offset) + var(--section-header-spacing));
         }
     }
 
@@ -1013,41 +786,25 @@ body {
     .settings-navigation {
         --scrollbar-size: 8px;
         --scrollbar-thumb-padding: 2px;
-        display: flex;
-        flex-direction: column;
         position: sticky;
         top: var(--settings-navigation-top);
         z-index: $zindex-sticky - 1;
         margin-top: var(--settings-navigation-top);
-        padding-block: 8px;
-        border-radius: var(--border-radius-lg);
-        background: var(--iceblue);
         height: max(0px, calc(100dvh - var(--settings-navigation-top) - var(--settings-navigation-gap)));
-        max-height: 100%;
-        overflow: hidden;
 
         .settings-menu-items,
         .settings-menu-footer {
             --list-group-item-padding-y: 8px;
-            padding-inline: 8px;
         }
 
-        .settings-menu {
-            flex: 1 1 auto;
+        .settings-menu,
+        .settings-menu-items {
             min-height: 0;
-            margin: 0 !important;
         }
 
         .settings-menu-items {
-            flex: 1 1 auto;
-            min-height: 0;
             overscroll-behavior: contain;
             scrollbar-color: var(--scrollbar-thumb-color) transparent;
-        }
-
-        .settings-menu-footer,
-        .list-group-item {
-            flex-shrink: 0;
         }
 
         .list-group-item-icon {
@@ -1055,11 +812,11 @@ body {
         }
 
         .list-group-item {
-            border-radius: var(--border-radius-md) !important;
+            border-radius: var(--border-radius-md);
 
             &.active {
                 --settings-active-radius: calc(0.5lh + var(--list-group-item-padding-y));
-                border-radius: var(--settings-active-radius) var(--border-radius-md) var(--border-radius-md) var(--settings-active-radius) !important;
+                border-radius: var(--settings-active-radius) var(--border-radius-md) var(--border-radius-md) var(--settings-active-radius);
 
                 > .list-group-item-icon {
                     transform: translateX(calc(var(--settings-active-radius) - var(--list-group-item-padding-x) - 50%));
@@ -1097,35 +854,8 @@ body {
             column-gap: var(--settings-navigation-gap);
         }
 
-        #content .settings-content .section-header:not(.nofix) {
+        #content .settings-content .section-header {
             margin-inline-start: calc(-1 * (var(--settings-navigation-width) + 2 * var(--settings-navigation-gap)));
         }
-    }
-}
-
-// Installation navbar: standard Bootstrap controls with the installer logo and icon sizing.
-#navbar:where(:not(.navbar-sidebar)) {
-    .navbar-brand > .navbar-img {
-        width: 33px;
-        height: 28px;
-        object-fit: contain;
-
-        @include media-breakpoint-up(lg) {
-            width: 160px;
-        }
-    }
-
-    .navbar-tool {
-        display: flex;
-        align-items: center;
-        padding: 0.625rem;
-    }
-
-    .navbar-icon {
-        --icon-size: 24px;
-    }
-
-    .dropdown-toggle::after {
-        display: none;
     }
 }

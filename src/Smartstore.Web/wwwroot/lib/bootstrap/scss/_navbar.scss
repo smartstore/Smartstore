@@ -80,8 +80,8 @@
   list-style: none;
 
   .nav-link {
-    padding-inline-end: 0;
-    padding-inline-start: 0;
+    padding-inline-end: var(--navbar-nav-link-padding-x, 0);
+    padding-inline-start: var(--navbar-nav-link-padding-x, 0);
   }
 
   .dropdown-menu {
@@ -186,8 +186,8 @@
           }
 
           .nav-link {
-            padding-inline-end: $navbar-nav-link-padding-x;
-            padding-inline-start: $navbar-nav-link-padding-x;
+            padding-inline-end: var(--navbar-nav-link-padding-x, #{$navbar-nav-link-padding-x});
+            padding-inline-start: var(--navbar-nav-link-padding-x, #{$navbar-nav-link-padding-x});
           }
         }
 

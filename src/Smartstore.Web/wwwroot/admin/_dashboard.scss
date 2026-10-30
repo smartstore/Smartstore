@@ -1,18 +1,17 @@
 /// <reference path="references.scss" />
 
-.admin-dashboard-layout {
-    --admin-content-background: var(--iceblue);
-    --section-header-background: var(--admin-content-background);
+.dashboard-page {
+    --content-bg: transparent;
+    --section-header-bg: var(--page-bg);
     --section-header-padding-y: 16px;
     --section-header-spacing: var(--section-header-padding-y);
 
     #content {
-        background-color: var(--admin-content-background);
         box-shadow: none;
     }
 
     .report.sticky-report {
-        top: calc(var(--content-offset) + var(--section-header-spacing));
+        top: calc(var(--sticky-offset) + var(--section-header-spacing));
     }
 }
 

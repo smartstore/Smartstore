@@ -1,8 +1,7 @@
-﻿@* Please keep in mind that this layout view is also referenced and used by modules! *@
+@* Please keep in mind that this layout view is also referenced and used by modules! *@
 
 @{
     Layout = "_AdminRoot";
-    Assets.BodyAttributes.AppendCssClass("admin-sidebar-layout");
 }
 
 @if (ViewBag.RefreshPage == true)
@@ -38,7 +37,7 @@
 
 <script data-origin="admin-sidebar-state">
     try {
-        document.body.classList.toggle('admin-sidebar-expanded', localStorage.getItem('smartstore.admin.sidebar') === 'expanded');
+        document.body.classList.toggle('sidebar-expanded', localStorage.getItem('smartstore.admin.sidebar') === 'expanded');
     }
     catch { /* Keep the compact default when storage is unavailable. */ }
 </script>
@@ -60,7 +59,7 @@
 
         <aside sm-suppress-if-empty-zone="sidebar_left" sm-preview-disabled="true" class="sidebar-left custom-scrollbar d-none d-md-block">
             @{ 
-                Assets.BodyAttributes.AppendCssClass("has-left-sidebar");
+                Assets.BodyAttributes.AppendCssClass("left-sidebar");
             }
             <zone name="sidebar_left" preview-disabled="true"></zone>
         </aside>

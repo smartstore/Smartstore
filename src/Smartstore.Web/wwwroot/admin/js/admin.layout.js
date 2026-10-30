@@ -18,7 +18,6 @@ $(function () {
             .map(button => {
                 // Retain each original position, including separators and nested toolbar containers.
                 const placeholder = document.createComment('Header action');
-                button.before(placeholder);
                 const divider = button.classList.contains('vr');
                 const icons = Array.from(button.children).filter(child => child.matches('.icon, .icon-stack, sm-icon, sm-icon-stack'));
                 // Reserve the same icon column for every menu item, including actions without artwork.
@@ -33,6 +32,7 @@ $(function () {
         const hasOtherControls = options.querySelector('.input-group, input:not([type="hidden"]), select, textarea, [data-toggle="dropdown"]') !== null;
         if (!buttons.length || (!hasOtherControls && buttons.length <= 2 && buttons.every(action => !action.spacer))) return;
 
+        actions.forEach(({ button, placeholder }) => button.before(placeholder));
         const dropdown = $('<div class="dropdown section-header-actions" hidden></div>').appendTo(options);
         const toggle = $('<button type="button" class="btn btn-secondary btn-icon dropdown-toggle no-chevron" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></button>')
             .attr('aria-label', document.body.dataset.headerActionsLabel)
@@ -41,24 +41,21 @@ $(function () {
         const menu = $('<div class="dropdown-menu dropdown-menu-right"></div>').appendTo(dropdown)[0];
 
         function updateHeaderActions() {
+            const compact = compactHeader();
             // Close Bootstrap's dropdown before moving its contents across a breakpoint.
             toggle.dropdown('hide');
-            dropdown.prop('hidden', !compactHeader());
+            dropdown.prop('hidden', !compact);
             actions.forEach(({ button, placeholder, divider, fixedWidthIcons, spacer, classes }) => {
-                if (compactHeader()) {
+                // Apply and undo menu presentation in one place; retain functional classes and existing icons.
+                button.classList.toggle(divider ? 'dropdown-divider' : 'dropdown-item', compact);
+                classes.forEach(name => button.classList.toggle(name, !compact));
+                fixedWidthIcons.forEach(icon => icon.classList.toggle('icon-fw', compact));
+                if (compact) {
                     // Move the original nodes within the same form to preserve handlers and submit values.
-                    // Replace presentation classes only; functional classes and attributes stay attached.
-                    button.classList.remove(...classes);
-                    button.classList.add(divider ? 'dropdown-divider' : 'dropdown-item');
-                    fixedWidthIcons.forEach(icon => icon.classList.add('icon-fw'));
                     if (spacer) button.prepend(spacer);
                     menu.append(button);
                 }
                 else {
-                    // Restore only our temporary changes, keeping pre-existing fixed-width icons intact.
-                    button.classList.remove(divider ? 'dropdown-divider' : 'dropdown-item');
-                    button.classList.add(...classes);
-                    fixedWidthIcons.forEach(icon => icon.classList.remove('icon-fw'));
                     spacer?.remove();
                     placeholder.after(button);
                 }
@@ -68,23 +65,12 @@ $(function () {
         EventBroker.subscribe('page.gridtierchanged', updateHeaderActions);
         updateHeaderActions();
     });
-    // Keep the header's fade mask off the native scrollbar. Measure its width when the scrollport resizes,
-    // so the mask stays fixed during scrolling and does not fade or flicker over the scrollbar.
-    const contentScrollport = document.getElementById('content');
-    if (contentScrollport) {
-        // Keep the native scrollbar opaque without tracking the scroll position.
-        const updateScrollbarWidth = () => {
-            contentScrollport.style.setProperty('--content-scrollbar-width',
-                Math.max(0, contentScrollport.offsetWidth - contentScrollport.clientWidth) + 'px');
-        };
-        new ResizeObserver(updateScrollbarWidth).observe(contentScrollport);
-        updateScrollbarWidth();
-    }
-
-    // Activate the section-header fade mask once page content has been scrolled, including nested scrollports.
-    // Only the scrolled state changes here; CSS keeps the content mask anchored to the scrollport.
-    const headerScrollRoots = new Set([document.scrollingElement]);
+    // Mark a scrolled page only when it has a CSS-sticky header. Pages without one need no fade effect.
+    // Inspect the actual header and scrollports instead of maintaining a list of excluded page types.
+    const headerScrollRoots = new Set();
     sectionHeader.each(function () {
+        if (getComputedStyle(this).position !== 'sticky') return;
+        headerScrollRoots.add(document.scrollingElement);
         for (let parent = this.parentElement; parent && parent !== document.body; parent = parent.parentElement) {
             if (/^(auto|scroll|overlay)$/.test(window.getComputedStyle(parent).overflowY)) {
                 headerScrollRoots.add(parent);
@@ -96,7 +82,7 @@ $(function () {
     function updateHeaderAppearance() {
         headerScrollFrame = 0;
         const scrolled = Array.from(headerScrollRoots).some(root => root && root.scrollTop > 0);
-        document.body.classList.toggle('section-header-scrolled', scrolled);
+        document.body.classList.toggle('sticky-header', scrolled);
     }
     function scheduleHeaderAppearance() {
         if (!headerScrollFrame) {
@@ -110,21 +96,6 @@ $(function () {
     }, { capture: true, passive: true });
     window.addEventListener('pageshow', updateHeaderAppearance);
     updateHeaderAppearance();
-
-    // Keep absolutely positioned section headers visible when SPA or module pages scroll the document.
-    // Reserve their height to prevent content jumps; headers using native CSS sticky are excluded.
-    const fixedSectionHeaders = sectionHeader.filter(function () {
-        return !this.classList.contains('nofix') && getComputedStyle(this).position === 'absolute';
-    });
-    if (fixedSectionHeaders.find('.options').children().length) {
-        $(window).on('scroll resize', function () {
-            const sticky = window.scrollY >= 1;
-            fixedSectionHeaders.toggleClass('sticky', sticky);
-            $(document.body)
-                .toggleClass('sticky-header', sticky)
-                .css('--content-offset', sticky ? fixedSectionHeaders.outerHeight() + 'px' : '');
-        }).trigger('resize');
-    }
 
     // Refresh adaptive panes after an alert has been removed from the layout.
     $(document).on('close.bs.alert', '.alert', function () {
@@ -167,7 +138,7 @@ $(function () {
                 : paneWidth + 'px');
         };
 
-        resizer.classList.add('is-resizing');
+        resizer.classList.add('resizing');
 
         // Resize once to get current computed size
         var size = resize();
@@ -181,7 +152,7 @@ $(function () {
             // Run resize one more time to set computed width/height.
             size = resize(pane.clientWidth);
 
-            resizer.classList.remove('is-resizing');
+            resizer.classList.remove('resizing');
 
             removeEventListener('mousemove', onMouseMove);
             removeEventListener('mouseup', onMouseUp);
@@ -224,14 +195,16 @@ $(function () {
         return;
     }
 
+    const navbarElement = navbar[0];
     const sidebarDesktop = () => viewport.is('>=lg');
     const sidebarMobile = () => viewport.is('xs');
+    const sidebarExpanded = () => sidebarDesktop() && document.body.classList.contains('sidebar-expanded');
     const sidebarMobileToggle = document.getElementById('navbar-mobile-toggle');
     const sidebarMobileClose = document.getElementById('navbar-mobile-close');
     const sidebarStorageKey = 'smartstore.admin.sidebar';
 
     // Place the mobile navigation toggle in the section-header title so navigation is reachable on small screens.
-    // Reuse the centrally rendered button. CSS reveals it after placement via admin-sidebar-ready.
+    // Reuse the centrally rendered button. CSS reveals it after placement via sidebar-ready.
     // Headerless pages keep the button at its original position above the content.
     const headerTitle = sectionHeader.first().find('.title')[0];
     if (sidebarMobileToggle && headerTitle) {
@@ -242,17 +215,18 @@ $(function () {
     // Closing the overlay must not change the user's saved desktop sidebar preference.
     function setMobileSidebarOpen(open, restoreFocus = true) {
         // The mobile overlay is transient and never overwrites the persisted desktop expansion state.
-        open = sidebarMobile() && open;
+        const mobile = sidebarMobile();
+        open = mobile && open;
         closeSidebarMenus();
         hideSidebarTooltip();
-        document.body.classList.toggle('admin-sidebar-mobile-open', open);
+        document.body.classList.toggle('sidebar-mobile-open', open);
         // Offscreen navigation must not remain reachable by keyboard or assistive technology.
-        navbar[0].inert = sidebarMobile() && !open;
+        navbarElement.inert = mobile && !open;
         sidebarMobileToggle?.setAttribute('aria-expanded', String(open));
         if (open) {
-            navbar[0].querySelector('a[href]')?.focus({ preventScroll: true });
+            navbarElement.querySelector('a[href]')?.focus({ preventScroll: true });
         }
-        else if (restoreFocus && sidebarMobile()) {
+        else if (restoreFocus && mobile) {
             sidebarMobileToggle?.focus({ preventScroll: true });
         }
     }
@@ -260,18 +234,18 @@ $(function () {
     // Provide mobile open/close controls and dismiss the overlay on outside interaction or Escape.
     // Explicit close actions return focus to the toggle; outside interaction keeps focus on its target.
     sidebarMobileToggle?.addEventListener('click', function () {
-        setMobileSidebarOpen(!document.body.classList.contains('admin-sidebar-mobile-open'));
+        setMobileSidebarOpen(!document.body.classList.contains('sidebar-mobile-open'));
     });
     sidebarMobileClose?.addEventListener('click', () => setMobileSidebarOpen(false));
     // Pointer events cover mouse, pen and touch. Let the outside target retain its normal focus/action.
     document.addEventListener('pointerdown', function (e) {
-        if (document.body.classList.contains('admin-sidebar-mobile-open')
-            && !navbar[0].contains(e.target) && !sidebarMobileToggle?.contains(e.target)) {
+        if (document.body.classList.contains('sidebar-mobile-open')
+            && !navbarElement.contains(e.target) && !sidebarMobileToggle?.contains(e.target)) {
             setMobileSidebarOpen(false, false);
         }
     });
     document.addEventListener('keydown', function (e) {
-        if (e.key === 'Escape' && document.body.classList.contains('admin-sidebar-mobile-open')) {
+        if (e.key === 'Escape' && document.body.classList.contains('sidebar-mobile-open')) {
             e.preventDefault();
             setMobileSidebarOpen(false);
         }
@@ -282,18 +256,16 @@ $(function () {
     const sidebarTooltipTargets = navbar.find('#navbar-menu > .navbar-nav > .nav-item > .nav-link, #current-user, #navbar-sidebar-toggle');
     const sidebarTooltipBlocked = new WeakSet();
     let sidebarTooltipTransitionTimer = 0;
-    let sidebarTooltipTarget = null;
     let sidebarTooltipVisible = null;
     let sidebarChanging = false;
     let sidebarDropdownOpening = false;
 
     function sidebarTooltipsAllowed() {
-        return !sidebarMobile() && !(sidebarDesktop() && document.body.classList.contains('admin-sidebar-expanded'))
+        return !sidebarMobile() && !sidebarExpanded()
             && !sidebarChanging && !sidebarDropdownOpening && !navbar.find('.nav-item.dropdown.show').length;
     }
 
     function hideSidebarTooltip() {
-        sidebarTooltipTarget = null;
         if (sidebarTooltipVisible) {
             const tooltip = $(sidebarTooltipVisible);
             sidebarTooltipVisible = null;
@@ -306,17 +278,21 @@ $(function () {
         }
     }
 
+    // Finish the same transition state for both transitionend and the reduced-motion timeout fallback.
+    function finishSidebarTransition() {
+        clearTimeout(sidebarTooltipTransitionTimer);
+        sidebarChanging = false;
+        updateSidebarToggleIcon();
+    }
+
     function suspendSidebarTooltips() {
         // The timeout also updates the icon when reduced motion or missing transitions suppress transitionend.
         sidebarChanging = true;
         hideSidebarTooltip();
         requestAnimationFrame(() => {
             clearTimeout(sidebarTooltipTransitionTimer);
-            const duration = parseFloat(getComputedStyle(navbar[0]).transitionDuration) * 1000;
-            sidebarTooltipTransitionTimer = setTimeout(() => {
-                sidebarChanging = false;
-                updateSidebarToggleIcon();
-            }, duration + 16);
+            const duration = parseFloat(getComputedStyle(navbarElement).transitionDuration) * 1000;
+            sidebarTooltipTransitionTimer = setTimeout(finishSidebarTransition, duration + 16);
         });
     }
 
@@ -333,7 +309,7 @@ $(function () {
         html: false,
         title: function () { return this.getAttribute('aria-label'); }
     }).on('show.bs.tooltip.sidebarTooltip', function (e) {
-        if (!sidebarTooltipsAllowed() || sidebarTooltipTarget !== this || sidebarTooltipBlocked.has(this)) {
+        if (!sidebarTooltipsAllowed() || sidebarTooltipVisible !== this || sidebarTooltipBlocked.has(this)) {
             e.preventDefault();
         }
     }).on('mouseenter.sidebarTooltip focusin.sidebarTooltip', function (e) {
@@ -341,14 +317,13 @@ $(function () {
         if (sidebarTooltipBlocked.has(this)) return;
         hideSidebarTooltip();
         if (!sidebarTooltipsAllowed()) return;
-        sidebarTooltipTarget = this;
         sidebarTooltipVisible = this;
         $(this).tooltip('show');
     }).on('mouseleave.sidebarTooltip focusout.sidebarTooltip', function (e) {
         if (e.type === 'mouseleave' || !navbar.find('.nav-item.dropdown.show').length) {
             sidebarTooltipBlocked.delete(this);
         }
-        if (sidebarTooltipTarget === this || sidebarTooltipVisible === this) hideSidebarTooltip();
+        if (sidebarTooltipVisible === this) hideSidebarTooltip();
     }).on('pointerdown.sidebarTooltip click.sidebarTooltip keydown.sidebarTooltip', function () {
         sidebarTooltipBlocked.add(this);
         hideSidebarTooltip();
@@ -361,14 +336,14 @@ $(function () {
     }
 
     function updateSidebarToggleIcon() {
-        sidebarToggle.classList.toggle('is-expanded', sidebarDesktop()
-            && document.body.classList.contains('admin-sidebar-expanded'));
+        sidebarToggle.classList.toggle('expanded', sidebarExpanded());
     }
 
     function updateSidebarToggle() {
-        const expanded = sidebarDesktop() && document.body.classList.contains('admin-sidebar-expanded');
-        const label = navbar[0].dataset[expanded ? 'collapseLabel' : 'expandLabel'];
-        sidebarToggle.disabled = !sidebarDesktop();
+        const desktop = sidebarDesktop();
+        const expanded = desktop && document.body.classList.contains('sidebar-expanded');
+        const label = navbarElement.dataset[expanded ? 'collapseLabel' : 'expandLabel'];
+        sidebarToggle.disabled = !desktop;
         sidebarToggle.setAttribute('aria-expanded', String(expanded));
         sidebarToggle.setAttribute('aria-label', label);
         sidebarToggle.removeAttribute('title');
@@ -381,7 +356,7 @@ $(function () {
     sidebarToggle.addEventListener('click', function () {
         suspendSidebarTooltips();
         closeSidebarMenus();
-        const expanded = document.body.classList.toggle('admin-sidebar-expanded');
+        const expanded = document.body.classList.toggle('sidebar-expanded');
         try {
             localStorage.setItem(sidebarStorageKey, expanded ? 'expanded' : 'compact');
         }
@@ -390,12 +365,10 @@ $(function () {
         // Existing editors also need a resize notification when sidebar geometry changes.
         requestAnimationFrame(() => window.dispatchEvent(new Event('resize')));
     });
-    navbar[0].addEventListener('transitionend', function (e) {
+    navbarElement.addEventListener('transitionend', function (e) {
         // Keep the current toggle icon stable until the sidebar's width animation has completed.
         if (e.target === this && e.propertyName === 'width') {
-            clearTimeout(sidebarTooltipTransitionTimer);
-            sidebarChanging = false;
-            updateSidebarToggleIcon();
+            finishSidebarTransition();
             window.dispatchEvent(new Event('resize'));
         }
     });
@@ -403,15 +376,14 @@ $(function () {
     EventBroker.subscribe('page.gridtierchanged', function () {
         // Discard transient menus when CSS switches layout tiers; preserve the desktop preference.
         suspendSidebarTooltips();
-        closeSidebarMenus();
         setMobileSidebarOpen(false, false);
         updateSidebarToggle();
     });
     // Apply the initial sidebar state before CSS enables transitions and reveals the mobile toggle.
-    navbar[0].inert = sidebarMobile();
+    navbarElement.inert = sidebarMobile();
     updateSidebarToggle();
     updateSidebarToggleIcon();
-    requestAnimationFrame(() => requestAnimationFrame(() => document.body.classList.add('admin-sidebar-ready')));
+    requestAnimationFrame(() => requestAnimationFrame(() => document.body.classList.add('sidebar-ready')));
 
     // Position root flyouts beside their trigger, shifting upward only as needed to fit the viewport.
     // The account menu opens above its trigger; separate arrows remain aligned with the trigger center.
@@ -420,17 +392,17 @@ $(function () {
         const menu = dropdown.querySelector(':scope > .dropdown-menu');
         if (!toggle || !menu) return;
 
-        const viewportHeight = document.documentElement.clientHeight;
+        const { clientWidth: viewportWidth, clientHeight: viewportHeight } = document.documentElement;
         const trigger = toggle.getBoundingClientRect();
         const opensAbove = dropdown.closest('.navbar-account') !== null;
         const menuStyle = getComputedStyle(menu);
         // Sass supplies the mobile inward offset; desktop menus align with the sidebar's outer edge.
         const left = opensAbove ? Math.max(8, trigger.left)
-            : navbar[0].getBoundingClientRect().right + (parseFloat(menuStyle.getPropertyValue('--sidebar-menu-offset-x')) || 0);
+            : navbarElement.getBoundingClientRect().right + (parseFloat(menuStyle.getPropertyValue('--sidebar-menu-offset-x')) || 0);
         const bottom = opensAbove ? trigger.top - 4 : viewportHeight - 8;
         const availableHeight = Math.max(0, bottom - 8);
         menu.style.setProperty('--sidebar-menu-left', `${left}px`);
-        menu.style.setProperty('--sidebar-menu-max-width', `${Math.max(0, document.documentElement.clientWidth - left - 8)}px`);
+        menu.style.setProperty('--sidebar-menu-max-width', `${Math.max(0, viewportWidth - left - 8)}px`);
         menu.style.setProperty('--sidebar-menu-max-height', `${availableHeight}px`);
         const borderHeight = menu.offsetHeight - menu.clientHeight;
         menu.classList.toggle('sidebar-menu-scrollable', menu.offsetHeight >= availableHeight - 1 && menu.scrollHeight + borderHeight > availableHeight);
@@ -459,7 +431,7 @@ $(function () {
     // Keep open flyouts within the viewport as sidebar geometry or menu content changes.
     // Bootstrap lifecycle events also suppress conflicting tooltips and reset closed submenu state.
     const menuObserver = new ResizeObserver(positionOpenSidebarMenus);
-    menuObserver.observe(navbar[0]);
+    menuObserver.observe(navbarElement);
     navbar.find('.nav-item.dropdown').on('show.bs.dropdown shown.bs.dropdown', function (e) {
         hideSidebarTooltip();
         if (e.type === 'show') {
