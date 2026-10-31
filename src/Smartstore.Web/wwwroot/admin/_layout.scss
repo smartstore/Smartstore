@@ -661,54 +661,8 @@ body.sticky-header #content .section-header::after {
 }
 
 //
-// Settings Menu
+// Mobile Sidebar
 // --------------------------------------------------------------
-
-.settings-menu,
-.settings-menu-items,
-.settings-menu-footer {
-    --list-group-bg: transparent;
-    --list-group-border-width: 0;
-    --list-group-item-padding-x: 12px;
-    --list-group-item-padding-y: 10px;
-    --list-group-action-color: var(--gray-700);
-    --list-group-action-hover-color: var(--gray-900);
-    --list-group-action-hover-bg: rgb(0 0 0 / 0.06);
-    --list-group-action-active-color: var(--list-group-action-hover-color);
-    --list-group-action-active-bg: rgb(0 0 0 / 0.10);
-    --list-group-active-bg: rgb(0 0 0 / 0.08);
-
-    gap: 1px;
-
-    hr {
-        border-color: rgb(0 0 0 / 0.06);
-        opacity: 1;
-    }
-
-    .list-group-item {
-        border-radius: var(--border-radius-pill);
-        transition: background-color 0.12s ease;
-
-        &:before {
-            display: none !important;
-        }
-
-        > .list-group-item-icon {
-            margin-inline-end: 1rem;
-
-            > :is(.icon, .icon-stack) {
-                max-width: 16px;
-            }
-        }
-
-        &:active:not(.active) {
-            .menu-color-dot {
-                fill: transparent;
-            }
-        }
-    }
-}
-
 
 .navbar-mobile-toggle {
     display: none;
@@ -761,72 +715,102 @@ body.sticky-header #content .section-header::after {
     }
 }
 
-.settings-layout:not(.popup) {
+
+//
+// Settings Menu
+// --------------------------------------------------------------
+
+// Menu component shared by the desktop navigation and the mobile collapse.
+.settings-menu.nav-pills {
+    --nav-link-padding-x: 12px;
+    --nav-link-padding-y: 10px;
+    --nav-link-color: var(--gray-800);
+    --nav-link-hover-color: var(--gray-900);
+    --nav-link-hover-bg: rgb(0 0 0 / 0.06);
+    --nav-link-active-color: var(--nav-link-hover-color);
+    --nav-link-active-bg: rgb(0 0 0 / 0.10);
+    --nav-link-transition: background-color 0.12s ease;
+    --nav-pills-link-active-color: var(--nav-link-color);
+    --nav-pills-link-active-bg: rgb(0 0 0 / 0.08);
+    --nav-pills-border-radius: var(--border-radius-pill);
+    --settings-icon-gap: 1rem;
+    --border-color: var(--nav-link-hover-bg);
+
+    min-height: 0;
+    gap: 1px;
+
+    // Main menu entries and the separate footer containing "All settings".
+    .settings-menu-items,
+    .settings-menu-footer {
+        gap: inherit;
+    }
+
+    .nav-link {
+        column-gap: var(--settings-icon-gap);
+    }
+}
+
+
+// Body class applied by the settings page layout.
+.settings-layout {
     --settings-navigation-width: 220px;
     --settings-navigation-gap: 24px;
 
+    // Wrapper containing the navigation column and the settings page content.
     .settings-shell {
-        --settings-navigation-top: 0px;
         flex: 1 1 auto;
         min-height: 0;
         display: grid;
         grid-template-columns: minmax(0, 1fr);
         grid-template-rows: minmax(0, 1fr);
 
-        // An in-flow header needs space above the menu; a header rendered before the shell does not.
-        &:has(.section-header) {
-            --settings-navigation-top: var(--sticky-offset);
-        }
     }
 
+    // Main page area containing the section header, settings form or data grid.
     .settings-content {
         min-width: 0;
     }
 
+    // Desktop <nav> column that keeps the settings menu beside the page content.
     .settings-navigation {
         --scrollbar-size: 8px;
         --scrollbar-thumb-padding: 2px;
         position: sticky;
-        top: var(--settings-navigation-top);
+        top: var(--sticky-offset);
         z-index: $zindex-sticky - 1;
-        margin-top: var(--settings-navigation-top);
-        height: max(0px, calc(100dvh - var(--settings-navigation-top) - var(--settings-navigation-gap)));
+        margin-top: var(--sticky-offset);
+        height: max(0px, calc(100dvh - var(--sticky-offset) - var(--settings-navigation-gap)));
 
-        .settings-menu-items,
-        .settings-menu-footer {
-            --list-group-item-padding-y: 8px;
+        // Desktop menu instance; the mobile instance uses the base values above.
+        .settings-menu {
+            --nav-link-padding-y: 8px;
+            --settings-icon-gap: calc(1rem - 3px);
+            --nav-pills-border-radius: var(--border-radius-md);
+            // A half-height pill keeps the browser from shrinking the opposite corners.
+            --settings-pill-radius: calc(0.5lh + var(--nav-link-padding-y));
         }
 
-        .settings-menu,
-        .settings-menu-items {
-            min-height: 0;
+        // Selected link: pill-shaped on the left, standard rounded corners on the right.
+        .nav-link.active {
+            border-top-left-radius: var(--settings-pill-radius);
+            border-bottom-left-radius: var(--settings-pill-radius);
+
+            // Center the selected link's icon in its pill-shaped leading edge.
+            > .settings-menu-icon {
+                translate: -2px;
+            }
         }
 
+        // Scrollable menu entries; the "All settings" footer stays outside this area.
         .settings-menu-items {
             overscroll-behavior: contain;
             scrollbar-color: var(--scrollbar-thumb-color) transparent;
         }
-
-        .list-group-item-icon {
-            margin-inline-end: calc(1rem - 3px);
-        }
-
-        .list-group-item {
-            border-radius: var(--border-radius-md);
-
-            &.active {
-                --settings-active-radius: calc(0.5lh + var(--list-group-item-padding-y));
-                border-radius: var(--settings-active-radius) var(--border-radius-md) var(--border-radius-md) var(--settings-active-radius);
-
-                > .list-group-item-icon {
-                    transform: translateX(calc(var(--settings-active-radius) - var(--list-group-item-padding-x) - 50%));
-                }
-            }
-        }
     }
 
     @include media-breakpoint-down(sm) {
-        .settings-content:has(.section-header) {
+        // Mobile content wrapper; place its section header before the collapsible menu.
+        .settings-content {
             display: flex;
             flex-direction: column;
 
@@ -849,6 +833,7 @@ body.sticky-header #content .section-header::after {
             padding-inline-start: var(--settings-navigation-gap);
         }
 
+        // Desktop two-column arrangement of the navigation/content wrapper.
         .settings-shell {
             grid-template-columns: var(--settings-navigation-width) minmax(0, 1fr);
             column-gap: var(--settings-navigation-gap);
