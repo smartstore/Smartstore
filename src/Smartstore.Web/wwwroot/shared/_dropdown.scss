@@ -56,6 +56,10 @@
     vertical-align: middle;
 }
 
+.dropup > .dropdown-toggle::after {
+    scale: 1 -1;
+}
+
 .dropdown-toggle.no-chevron:after {
 	display: none !important;
 }

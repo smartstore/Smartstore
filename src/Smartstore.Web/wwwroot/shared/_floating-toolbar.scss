@@ -24,19 +24,42 @@
     border: var(--border-width) solid var(--border-color);
     border-radius: var(--border-radius-lg);
     box-shadow: var(--box-shadow-sm);
+
+    // Keep caller-provided toggle buttons as direct children when collapsed.
+    &.collapsed > :not(.floating-toolbar-toggle) {
+        display: none !important;
+    }
+
+    &.collapsed > .floating-toolbar-toggle .icon {
+        --icon-flip-x: -1;
+    }
 }
 
 // Optional title that follows the toolbar's foreground color.
 .floating-toolbar-label {
-    padding-inline-start: .25rem;
     font-size: $font-size-sm;
     color: inherit;
     opacity: .6;
     white-space: nowrap;
 }
 
+.floating-toolbar > .floating-toolbar-label:first-child {
+    padding-inline-start: .25rem;
+}
+
 // Dark variant; background utilities can override its default background.
 .floating-toolbar-inverse {
     --floating-toolbar-bg: var(--dark);
     --floating-toolbar-color: var(--white);
+}
+
+// Optional idle transparency; hover and keyboard focus restore full visibility.
+.floating-toolbar-autofade {
+    opacity: .8;
+    @include transition($transition-fade);
+
+    &:hover,
+    &:has(:focus-visible) {
+        opacity: 1;
+    }
 }

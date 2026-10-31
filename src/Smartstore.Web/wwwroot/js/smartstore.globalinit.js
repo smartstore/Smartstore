@@ -65,6 +65,19 @@ jQuery(function () {
         return confirm(msg);
     });
 
+    // Floating toolbar toggles are optional direct children supplied by the caller.
+    $(document).on('click', '.floating-toolbar > .floating-toolbar-toggle', function (e) {
+        e.preventDefault();
+        const toolbar = $(this).closest('.floating-toolbar');
+        toolbar.toggleClass('collapsed');
+        const collapsed = toolbar.hasClass('collapsed');
+        toolbar.children('.floating-toolbar-toggle')
+            .attr('aria-expanded', !collapsed)
+            .attr('title', function () {
+                return $(this).attr(collapsed ? 'data-expand-title' : 'data-collapse-title') || this.title;
+            });
+    });
+
     // Prevent (button) multiclick
     $(document).on('click', '.btn-prevent-multiclick', function (e) {
         let el = $(this);

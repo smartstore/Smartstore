@@ -4,121 +4,68 @@
 
 @{
     Layout = null;
-}
-
-@{
-    string previewUrl = (string)ViewBag.PreviewUrl;
-    if (!previewUrl.HasValue())
-    {
-        previewUrl = Url.RouteUrl("Homepage");
-    }
 
     var themes = (IList<SelectListItem>)ViewBag.Themes;
     var stores = (IList<SelectListItem>)ViewBag.Stores;
+    var currentTheme = themes.FirstOrDefault(x => x.Selected) ?? themes.FirstOrDefault();
+    var currentStore = stores.FirstOrDefault(x => x.Selected) ?? stores.FirstOrDefault();
     var disableApply = (bool)ViewBag.DisableApply;
-    var toolOpen = (bool)ViewBag.ToolOpen;
 }
 
-<style type="text/css">
-    .previewmode-wrapper {
-        position: fixed;
-        right: -250px;
-        top: 150px;
-        width: 250px;
-        transition: right 0.25s ease-out;
-        transition-delay: 0.12s;
-        z-index: 1000;
-    }
+<form id="previewmode" asp-controller="Theme" asp-action="PreviewTool" asp-area="Admin" method="post" class="floating-toolbar floating-toolbar-autofade">
+    <input type="hidden" name="returnUrl" value="@Context.Request.RawUrl()" />
+    <input type="hidden" name="theme" value="@currentTheme?.Value" />
+    <input type="hidden" name="storeId" value="@currentStore?.Value" />
 
-    .previewmode-wrapper.open {
-        right: 0;
-    }
+    <button type="button" class="btn btn-secondary btn-plain btn-sm btn-icon floating-toolbar-toggle" title="@T("Admin.Header.CollapseNavigation.Short")" data-collapse-title="@T("Admin.Header.CollapseNavigation.Short")" data-expand-title="@T("Admin.Configuration.Themes.PreviewMode")" aria-expanded="true" aria-controls="previewmode">
+        <icon name="hi:arrow-left-05/sr" />
+    </button>
 
-    #previewmode {
-        position: relative;
-        z-index: 100;
-        background: var(--gray-800);
-        opacity: 0;
-        transition: opacity 0.25s ease-out;
-        transition-delay: 0.12s;
-    }
+    <span class="floating-toolbar-label">@T("Admin.Configuration.Themes.PreviewMode"):</span>
 
-    .open #previewmode {
-        opacity: 1;
-    }
-
-    .previewmode-switcher {
-        position: absolute;
-        left: -40px;
-        z-index: 101;
-        top: 0;
-        box-sizing: border-box;
-        line-height: 38px;
-        vertical-align: middle;
-        text-align: center;
-        width: 40px;
-        height: 40px;
-        background: var(--gray-800);
-        opacity: 1;
-        transition: all 0.12s ease-in;
-        transition-delay: 0.25s;
-    }
-
-    .open .previewmode-switcher {
-        opacity: 0;
-        left: 0;
-        z-index: 99;
-        transition-delay: 0s;
-    }
-</style>
-
-<div class="previewmode-wrapper" attr-class='(toolOpen, "open")'>
-    <div id="previewmode" class="rounded-start rounded-end-0 rounded-3 shadow-lg shadow-dark text-white">
-        <form asp-controller="Theme" asp-action="PreviewTool" asp-area="Admin" method="post" class="m-0">
-            <input type="hidden" name="returnUrl" value="@Context.Request.RawUrl()" />
-            <div class="p-2">
-                <div class="hstack justify-content-between border-bottom border-white border-opacity-25 pb-2 mb-2">
-                    <h4 class="previewmode-title m-0">@T("Admin.Configuration.Themes.PreviewMode")</h4>
-                    <button type="button" class="btn-close btn-close-white toggle-preview"></button>
-                </div>
-
-                <label class="previewmode-label">@T("Admin.Configuration.Themes.Theme"):</label>
-                <select name="theme" id="select-theme" asp-items="themes" class="form-control form-control-sm bg-light noskin"></select>
-
-                <label class="previewmode-label mt-2">@T("Admin.Common.Store"):</label>
-                <select name="storeId" id="select-store" asp-items="stores" class="form-control form-control-sm bg-light noskin"></select>
-
-                <div class="row xs-gutters mt-3">
-                    <div class="col-6">
-                        <button type="submit" name="PreviewMode.Apply" value="@T("Common.Apply")" class="btn btn-sm btn-block btn-applytheme @(disableApply ? "btn-clear" : "btn-primary")" attr-disabled='(disableApply, "disabled")'>
-                            <span>@T("Common.Apply")</span>
-                        </button>
-                    </div>
-                    <div class="col-6">
-                        <button type="submit" name="PreviewMode.Exit" title="@T("Admin.Configuration.Themes.ExitPreviewMode")" value="@T("Admin.Configuration.Themes.ExitPreviewMode")" class="btn btn-danger btn-sm btn-block btn-exitpreview">
-                            <icon name="eye-off" class="icon-fw" />
-                            <span>@T("Common.Exit")</span>
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </form>
+    <div class="dropup">
+        <button id="preview-theme" type="button" class="btn btn-secondary btn-plain btn-sm dropdown-toggle" data-toggle="dropdown" aria-expanded="false" title="@T("Admin.Configuration.Themes.Theme")">
+            <icon name="hi:paint-board/sr" />
+            <span>@currentTheme?.Text</span>
+        </button>
+        <div class="dropdown-menu" aria-labelledby="preview-theme">
+            @foreach (var theme in themes)
+            {
+                <button type="button" class="dropdown-item" attr-class='(theme.Selected, "active")' attr-disabled='(theme.Disabled, "disabled")' data-preview-field="theme" data-value="@theme.Value">@theme.Text</button>
+            }
+        </div>
     </div>
 
-    <a class="previewmode-switcher toggle-preview rounded-left shadow-lg text-white" href="#" title="@T("Admin.Configuration.Themes.PreviewMode")">
-        <icon name="eye" class="icon-fw" />
-    </a>
-</div>
+    <div class="dropup">
+        <button id="preview-store" type="button" class="btn btn-secondary btn-plain btn-sm dropdown-toggle" data-toggle="dropdown" aria-expanded="false" title="@T("Admin.Common.Store")">
+            <icon name="hi:store-01/sr" />
+            <span>@currentStore?.Text</span>
+        </button>
+        <div class="dropdown-menu" aria-labelledby="preview-store">
+            @foreach (var store in stores)
+            {
+                <button type="button" class="dropdown-item" attr-class='(store.Selected, "active")' attr-disabled='(store.Disabled, "disabled")' data-preview-field="storeId" data-value="@store.Value">@store.Text</button>
+            }
+        </div>
+    </div>
+
+    <div class="vr" aria-hidden="true"></div>
+
+    <button type="submit" name="PreviewMode.Apply" value="@T("Common.Apply")" class="btn btn-primary btn-flat btn-sm" attr-disabled='(disableApply, "disabled")'>
+        <icon name="hi:check/sr" />
+        <span>@T("Common.Apply")</span>
+    </button>
+    <button type="submit" name="PreviewMode.Exit" value="@T("Admin.Configuration.Themes.ExitPreviewMode")" title="@T("Admin.Configuration.Themes.ExitPreviewMode")" class="btn btn-secondary btn-plain btn-sm">
+        <icon name="hi:view-off-slash/sr" />
+        <span>@T("Common.Exit")</span>
+    </button>
+</form>
 
 <script>
     $(function () {
-        $('.toggle-preview').on('click', function (e) {
-            e.preventDefault();
-            var wrapper = $('.previewmode-wrapper').toggleClass("open");
-            _.setCookie(".Smart.PreviewToolOpen", wrapper.hasClass("open") ? "True" : "False");
-            return false;
+        $('#previewmode').on('click', '[data-preview-field]', function () {
+            $(this.form).find('input[name="' + $(this).attr('data-preview-field') + '"]').val($(this).attr('data-value'));
+            this.form.submit();
         });
-
-        $('#select-theme, #select-store').on('change', function () { this.form.submit(); });
     });
 </script>
