@@ -103,7 +103,14 @@
       "discount",
       "headset",
       "star",
-      "wifi"
+      "wifi",
+      "megaphone",
+      "bars",
+      "minus",
+      "filter",
+      "cloud-upload",
+      "upload",
+      "power"
     ],
     "areas": [
       "public"
