@@ -596,6 +596,7 @@ public class TabStripTagHelper : SmartTagHelper
         {
             TagBuilder caption = new("span");
             caption.AppendCssClass("tab-caption");
+            caption.Attributes["data-caption"] = tab.Title;
             caption.InnerHtml.Append(tab.Title);
             a.InnerHtml.AppendHtml(caption);
         }

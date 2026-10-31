@@ -113,10 +113,11 @@
 .nav-tabs-line {
     --nav-link-icon-color: currentColor;
     --nav-link-padding-x: 1rem;
-    --nav-link-padding-y: 0.825rem;
+    --nav-link-padding-y: #{$mtab-padding-y};
     --nav-link-color: #{$mtab-color};
     --nav-link-font-weight: #{$mtab-font-weight};
-    --nav-link-transition: color 0.05s ease-in-out, background-color 0.05s ease-in-out;
+    --nav-link-active-font-weight: #{$mtab-active-font-weight};
+    --nav-link-transition: color #{$mtab-transition-duration} ease-in-out, background-color #{$mtab-transition-duration} ease-in-out;
     --nav-link-hover-color: #{$mtab-active-color};
     @include rfs($mtab-font-size, --nav-link-font-size);
 
@@ -140,6 +141,20 @@
 		text-transform: $mtab-text-transform;
 		text-align: center;
 		position: relative;
+
+        &.active {
+            font-weight: var(--nav-link-active-font-weight);
+        }
+
+        // Reserve the active caption width without changing the visible font weight.
+        > .tab-caption::after {
+            content: attr(data-caption);
+            display: block;
+            height: 0;
+            overflow: hidden;
+            visibility: hidden;
+            font-weight: var(--nav-link-active-font-weight);
+        }
 
 		&.disabled {
 			opacity: 0.4;
@@ -165,7 +180,7 @@
 
         &:not(.nav-stacked) {
             --nav-link-padding-x: 0;
-            --nav-link-padding-y: 0.825rem;
+            --nav-link-padding-y: #{$mtab-padding-y};
 
             margin-inline-start: -0.75rem;
 
