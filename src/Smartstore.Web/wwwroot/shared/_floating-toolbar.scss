@@ -21,7 +21,7 @@
     color: var(--floating-toolbar-color);
     background: var(--floating-toolbar-bg);
     background-image: linear-gradient(to bottom, rgba($white, .12) 0%, transparent 40%, rgba($black, .04) 100%);
-    border: var(--border-width) solid var(--border-color);
+    border: var(--border-width) solid var(--border-color-translucent);
     border-radius: var(--border-radius-lg);
     box-shadow: var(--box-shadow-sm);
 
