@@ -1,0 +1,42 @@
+/// <reference path="references.scss" />
+
+// Shared floating container; callers supply its contents.
+.floating-toolbar {
+    --floating-toolbar-bg: var(--body-bg);
+    --floating-toolbar-color: var(--body-color);
+
+    position: fixed;
+    z-index: $zindex-fixed;
+    inset-inline: 1rem;
+    bottom: calc(2rem + env(safe-area-inset-bottom, 0px));
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: .25rem;
+    width: fit-content;
+    min-height: 2rem;
+    max-width: calc(100% - 2rem);
+    margin-inline: auto;
+    padding: .375rem;
+    color: var(--floating-toolbar-color);
+    background: var(--floating-toolbar-bg);
+    background-image: linear-gradient(to bottom, rgba($white, .12) 0%, transparent 40%, rgba($black, .04) 100%);
+    border: var(--border-width) solid var(--border-color);
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--box-shadow-sm);
+}
+
+// Optional title that follows the toolbar's foreground color.
+.floating-toolbar-label {
+    padding-inline-start: .25rem;
+    font-size: $font-size-sm;
+    color: inherit;
+    opacity: .6;
+    white-space: nowrap;
+}
+
+// Dark variant; background utilities can override its default background.
+.floating-toolbar-inverse {
+    --floating-toolbar-bg: var(--dark);
+    --floating-toolbar-color: var(--white);
+}
