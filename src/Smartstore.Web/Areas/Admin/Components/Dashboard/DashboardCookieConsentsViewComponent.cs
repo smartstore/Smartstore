@@ -45,12 +45,15 @@ public class DashboardCookieConsentsViewComponent : SmartViewComponent
         {
             ctx.ExpiresIn(TimeSpan.FromHours(24));
 
-            var customerIds = _db.Customers.Where(customer => !customer.Deleted && !customer.IsSystemAccount).Select(customer => customer.Id);
+            var customerIds = _db.Customers
+                .Where(x => !x.Deleted && !x.IsSystemAccount)
+                .Select(x => x.Id);
+
             var pager = _db.GenericAttributes
                 .AsNoTracking()
-                .Where(attribute => attribute.KeyGroup == nameof(Customer)
-                    && attribute.Key == SystemCustomerAttributeNames.CookieConsent && attribute.StoreId == 0
-                    && customerIds.Contains(attribute.EntityId))
+                .Where(x => x.KeyGroup == nameof(Customer)
+                    && x.Key == SystemCustomerAttributeNames.CookieConsent && x.StoreId == 0
+                    && customerIds.Contains(x.EntityId))
                 .ToFastPager(500);
 
             var report = new DashboardCookieConsentModel
@@ -61,7 +64,8 @@ public class DashboardCookieConsentsViewComponent : SmartViewComponent
                 }).ToArray()
             };
 
-            while ((await pager.ReadNextPageAsync(attribute => new { attribute.Id, attribute.Value }, attribute => attribute.Id)).Out(out var page))
+            // TODO: (mh) WTF??!!!!!!!!!!!! TBD with MC.
+            while ((await pager.ReadNextPageAsync(x => new { x.Id, x.Value }, x => x.Id)).Out(out var page))
             {
                 foreach (var attribute in page)
                 {
@@ -77,6 +81,7 @@ public class DashboardCookieConsentsViewComponent : SmartViewComponent
 
     private static void AddConsent(DashboardCookieConsentModel model, string json)
     {
+        // TODO: (mh) WTF??!!!!!!!!!!!! TBD with MC.
         if (string.IsNullOrWhiteSpace(json))
         {
             model.SkippedConsents++;

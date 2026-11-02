@@ -33,34 +33,35 @@ public class DashboardContactRequestsViewComponent : SmartViewComponent
             return Empty();
 
         var authorizedStoreIds = await Services.StoreMappingService.GetAuthorizedStoreIdsAsync(nameof(Customer), Services.WorkContext.CurrentCustomer.Id);
-        var storeIds = _db.Stores.Select(store => store.Id);
+        var storeIds = _db.Stores.Select(x => x.Id);
         var query = _db.GenericAttributes
             .AsNoTracking()
-            .Where(attribute => attribute.KeyGroup == nameof(QueuedEmail) 
-                && attribute.Key == ContactRequestsDashboardHook.AttributeKey
-                && storeIds.Contains(attribute.StoreId));
+            .Where(x => x.KeyGroup == nameof(QueuedEmail) 
+                && x.Key == ContactRequestsDashboardHook.AttributeKey
+                && storeIds.Contains(x.StoreId));
 
         if (authorizedStoreIds.Length > 0)
         {
-            query = query.Where(attribute => authorizedStoreIds.Contains(attribute.StoreId));
+            query = query.Where(x => authorizedStoreIds.Contains(x.StoreId));
         }
-            
+        
+        // TODO: (mh) I don't get it. QueuedEmails are deleted after sending.
         var messages = await _db.QueuedEmails
             .AsNoTracking()
             .Join(query,
                 message => message.Id,
                 attribute => attribute.EntityId,
                 (message, attribute) => new { message.Id, Email = attribute.Value, message.CreatedOnUtc })
-            .OrderByDescending(message => message.CreatedOnUtc)
-            .ThenByDescending(message => message.Id)
+            .OrderByDescending(x => x.CreatedOnUtc)
+            .ThenByDescending(x => x.Id)
             .Take(ContactRequestsDashboardHook.MaxEntries)
             .ToListAsync();
 
-        var model = messages.Select(message => new DashboardContactRequestModel
+        var model = messages.Select(x => new DashboardContactRequestModel
         {
-            MessageId = message.Id,
-            Email = MailAddress.TryCreate(message.Email, out var sender) ? sender.Address : string.Empty,
-            CreatedOn = Services.DateTimeHelper.ConvertToUserTime(message.CreatedOnUtc, DateTimeKind.Utc).ToString("g")
+            MessageId = x.Id,
+            Email = MailAddress.TryCreate(x.Email, out var sender) ? sender.Address : string.Empty,
+            CreatedOn = Services.DateTimeHelper.ConvertToUserTime(x.CreatedOnUtc, DateTimeKind.Utc).ToString("g")
         }).ToList();
 
         return View(model);

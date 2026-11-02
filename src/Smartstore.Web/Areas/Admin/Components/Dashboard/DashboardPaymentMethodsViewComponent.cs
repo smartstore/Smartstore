@@ -42,6 +42,8 @@ public class DashboardPaymentMethodsViewComponent : SmartViewComponent
 
         var authorizedStoreIds = await Services.StoreMappingService.GetAuthorizedStoreIdsAsync(nameof(Customer), Services.WorkContext.CurrentCustomer.Id);
 
+        // TODO: (mh) Deseperately needs caching strategy!
+
         var paymentMethodTotals = await _db.Orders
             .AsNoTracking()
             .ApplyCustomerFilter(authorizedStoreIds)

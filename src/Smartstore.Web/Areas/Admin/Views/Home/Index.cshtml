@@ -3,8 +3,6 @@
 @{
     Layout = "_AdminLayout";
     Assets.BodyAttributes.AppendCssClass("dashboard-page");
-    string customizeDashboardLabel = DashboardLocalization.GetResource("Admin.Dashboard.Customize", logIfNotFound: false,
-        defaultValue: WorkContext.WorkingLanguage.UniqueSeoCode.EqualsNoCase("de") ? "Dashboard anpassen" : "Customize dashboard");
 }
 
 <div class="section-header">
@@ -15,7 +13,7 @@
     <div class="options">
         <button type="button" class="btn btn-light btn-customize-dashboard">
             <icon name="dashboard-circle-settings" stroke-scale="0.75" />
-            <span>@customizeDashboardLabel</span>
+            <span>@T("Admin.Dashboard.Customize")</span>
         </button>
     </div>
 </div>
