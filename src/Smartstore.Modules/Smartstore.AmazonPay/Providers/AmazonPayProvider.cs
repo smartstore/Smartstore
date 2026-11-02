@@ -101,7 +101,17 @@ public class AmazonPayProvider : PaymentMethodBase, IConfigurable
         => _settings.ShowInPaymentMethodList && (!_settings.ShowPayButtonForAdminOnly || _workContext.CurrentCustomer.IsAdmin());
 
     public override Widget GetPaymentInfoWidget()
-        => new ComponentWidget(typeof(PayButtonViewComponent));
+    {
+        var routeValues = _httpContextAccessor.HttpContext?.Request.RouteValues;
+
+        if (routeValues.GetControllerName().EqualsNoCase("Checkout") == true
+            && routeValues.GetActionName().EqualsNoCase(CheckoutActionNames.PaymentMethod) == true)
+        {
+            return null;
+        }
+
+        return new ComponentWidget(typeof(PayButtonViewComponent));
+    }
 
     #endregion
 

@@ -33,7 +33,7 @@ public class PayButtonViewComponent : SmartViewComponent
         _orderSettings = orderSettings;
     }
 
-    public async Task<IViewComponentResult> InvokeAsync()
+    public async Task<IViewComponentResult> InvokeAsync(bool isPaymentSelection = false)
     {
         var customer = Services.WorkContext.CurrentCustomer;
 
@@ -71,7 +71,11 @@ public class PayButtonViewComponent : SmartViewComponent
             _settings,
             cart.IsShippingRequired ? "PayAndShip" : "PayOnly",
             currencyCode,
-            Services.WorkContext.WorkingLanguage.UniqueSeoCode);
+            Services.WorkContext.WorkingLanguage.UniqueSeoCode,
+            isPaymentSelection)
+        {
+            IsSelectedMethod = customer.GenericAttributes.SelectedPaymentMethod.EqualsNoCase(AmazonPayProvider.SystemName)
+        };
 
         return View(model);
     }

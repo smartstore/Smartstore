@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Filters;
+using Smartstore.AmazonPay.Components;
 using Smartstore.Core;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Checkout.Payment;
@@ -18,6 +19,7 @@ public class CheckoutFilter : IAsyncActionFilter
     private readonly Lazy<IPaymentService> _paymentService;
     private readonly Lazy<IWidgetProvider> _widgetProvider;
     private readonly ICheckoutStateAccessor _checkoutStateAccessor;
+    private readonly AmazonPaySettings _settings;
     private readonly OrderSettings _orderSettings;
     private readonly Localizer T;
 
@@ -28,6 +30,7 @@ public class CheckoutFilter : IAsyncActionFilter
         Lazy<IPaymentService> paymentService,
         Lazy<IWidgetProvider> widgetProvider,
         ICheckoutStateAccessor checkoutStateAccessor,
+        AmazonPaySettings settings,
         OrderSettings orderSettings,
         Localizer localizer)
     {
@@ -37,6 +40,7 @@ public class CheckoutFilter : IAsyncActionFilter
         _paymentService = paymentService;
         _widgetProvider = widgetProvider;
         _checkoutStateAccessor = checkoutStateAccessor;
+        _settings = settings;
         _orderSettings = orderSettings;
         T = localizer;
     }
@@ -45,7 +49,14 @@ public class CheckoutFilter : IAsyncActionFilter
     {
         var action = context.RouteData.Values.GetActionName();
 
-        if (action.EqualsNoCase(nameof(CheckoutController.Completed)))
+        if (action.EqualsNoCase(nameof(CheckoutController.PaymentMethod)))
+        {
+            if (_settings.ShowInPaymentMethodList && await IsAmazonPayActive())
+            {
+                _widgetProvider.Value.RegisterViewComponent<PayButtonViewComponent>("checkout_payment_method_buttons", new { isPaymentSelection = true });
+            }
+        }        
+        else if (action.EqualsNoCase(nameof(CheckoutController.Completed)))
         {
             var session = context.HttpContext.Session;
             var responseStatus = session.GetString("AmazonPayResponseStatus");

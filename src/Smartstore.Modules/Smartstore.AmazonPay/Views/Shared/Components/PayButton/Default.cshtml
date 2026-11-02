@@ -1,12 +1,19 @@
-﻿@model AmazonPayButtonModel
+﻿@using Smartstore.AmazonPay.Providers
 
-<div class="cnt-amazonpay-button my-2">
-    <div id="amazonpay-button"></div>
+@model AmazonPayButtonModel
+
+<div class="cnt-amazonpay-button my-2 @(Model.IsPaymentSelection ? "w-100" : null)" attr-style='(Model.IsPaymentSelection && !Model.IsSelectedMethod, "display:none")'>
+    <div id="amazonpay-button" class="@(Model.IsPaymentSelection ? "w-100" : null)"></div>
 </div>
 
 <script sm-consent-type="Required" data-origin="amazonpay-button">
     loadAmazonPayScript(function () {
-        var amazonPayButton = amazon.Pay.renderButton('#amazonpay-button', {
+        const btnContainer = $('#amazonpay-button').closest('.cnt-amazonpay-button');
+        const btnNext = $('.payment-method-next-step-button');
+        const form = btnContainer.closest('form').length
+            ? btnContainer.closest('form')
+            : $('#startcheckout').closest('form');
+        let amazonPayButton = amazon.Pay.renderButton('#amazonpay-button', {
             merchantId: '@Html.Raw(Model.SellerId)',
             publicKeyId: '@Html.Raw(Model.PublicKeyId)',
             ledgerCurrency: '@Model.LedgerCurrency',
@@ -23,7 +30,7 @@
             $.ajax({
                 type: 'POST',
                 url: '@Url.Action("CreateCheckoutSession", "AmazonPay")',
-                data: $('#startcheckout').closest('form').serialize(),
+                data: form.serialize(),
 			    success: function (response) {
                     if (response.success) {
                         // INFO: this forces a redirect to AmazonPay in the same browser window.
@@ -41,6 +48,19 @@
 			    }
 		    });
         });
+
+        @if (Model.IsPaymentSelection)
+        {
+            <text>
+            $(document).on('change.amazonpay', 'input[name="paymentmethod"]', () => {
+                const isAmazonPaySelected = $('input[name="paymentmethod"]:checked').val() === '@AmazonPayProvider.SystemName';
+                btnNext.toggle(!isAmazonPaySelected);
+                btnContainer.toggle(isAmazonPaySelected);
+            });
+
+            $('input[name="paymentmethod"]:checked').trigger('change');
+            </text>
+        }
     });
 
     function loadAmazonPayScript(callback) {
@@ -60,3 +80,9 @@
         s.parentNode.insertBefore(elem, s);
     }
 </script>
+
+<style sm-if="Model.IsPaymentSelection && Model.IsSelectedMethod">
+    .payment-method-next-step-button {
+        display: none;
+    }
+</style>
