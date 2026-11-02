@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Moq;
 using NUnit.Framework;
@@ -143,59 +144,41 @@ public class OrderProcessingServiceTests : ServiceTestBase
     }
 
     [Test]
-    public void Ensure_order_can_only_be_cancelled_when_orderStatus_is_not_cancelled_yet()
+    public void Order_can_be_cancelled_if_not_already_cancelled()
     {
         var order = new Order();
-        foreach (OrderStatus os in Enum.GetValues(typeof(OrderStatus)))
+        foreach (var currentOrder in GetAllStatusCombinations(order))
         {
-            foreach (PaymentStatus ps in Enum.GetValues(typeof(PaymentStatus)))
+            if (currentOrder.OrderStatus != OrderStatus.Cancelled)
             {
-                foreach (ShippingStatus ss in Enum.GetValues(typeof(ShippingStatus)))
-                {
-                    order.OrderStatus = os;
-                    order.PaymentStatus = ps;
-                    order.ShippingStatus = ss;
-                    if (os != OrderStatus.Cancelled)
-                    {
-                        order.CanCancelOrder().ShouldBeTrue();
-                    }
-                    else
-                    {
-                        order.CanCancelOrder().ShouldBeFalse();
-                    }
-                }
+                currentOrder.CanCancelOrder().ShouldBeTrue();
+            }
+            else
+            {
+                currentOrder.CanCancelOrder().ShouldBeFalse();
             }
         }
     }
 
     [Test]
-    public void Ensure_order_can_only_be_marked_as_authorized_when_orderStatus_is_not_cancelled_and_paymentStatus_is_pending()
+    public void Order_can_be_authorized_if_pending_and_not_cancelled()
     {
         var order = new Order();
-        foreach (OrderStatus os in Enum.GetValues(typeof(OrderStatus)))
+        foreach (var currentOrder in GetAllStatusCombinations(order))
         {
-            foreach (PaymentStatus ps in Enum.GetValues(typeof(PaymentStatus)))
+            if (currentOrder.OrderStatus != OrderStatus.Cancelled && currentOrder.PaymentStatus == PaymentStatus.Pending)
             {
-                foreach (ShippingStatus ss in Enum.GetValues(typeof(ShippingStatus)))
-                {
-                    order.OrderStatus = os;
-                    order.PaymentStatus = ps;
-                    order.ShippingStatus = ss;
-                    if (os != OrderStatus.Cancelled && ps == PaymentStatus.Pending)
-                    {
-                        order.CanMarkOrderAsAuthorized().ShouldBeTrue();
-                    }
-                    else
-                    {
-                        order.CanMarkOrderAsAuthorized().ShouldBeFalse();
-                    }
-                }
+                currentOrder.CanMarkOrderAsAuthorized().ShouldBeTrue();
+            }
+            else
+            {
+                currentOrder.CanMarkOrderAsAuthorized().ShouldBeFalse();
             }
         }
     }
 
     [Test]
-    public async Task Ensure_order_can_only_be_captured_when_orderStatus_is_not_cancelled_or_pending_and_paymentstatus_is_authorized_and_paymentModule_supports_capture()
+    public async Task Order_can_be_captured_if_authorized_and_provider_supports_capture()
     {
         var testMethod1 = ProviderManager.GetProvider<IPaymentMethod>("Payments.TestMethod1");
         _paymentServiceMock
@@ -212,73 +195,49 @@ public class OrderProcessingServiceTests : ServiceTestBase
             PaymentMethodSystemName = "paymentMethodSystemName_that_supports_capture"
         };
 
-        foreach (OrderStatus os in Enum.GetValues(typeof(OrderStatus)))
+        foreach (var currentOrder in GetAllStatusCombinations(order))
         {
-            foreach (PaymentStatus ps in Enum.GetValues(typeof(PaymentStatus)))
+            if (currentOrder.OrderStatus != OrderStatus.Cancelled &&
+                currentOrder.OrderStatus != OrderStatus.Pending &&
+                currentOrder.PaymentStatus == PaymentStatus.Authorized)
             {
-                foreach (ShippingStatus ss in Enum.GetValues(typeof(ShippingStatus)))
-                {
-                    order.OrderStatus = os;
-                    order.PaymentStatus = ps;
-                    order.ShippingStatus = ss;
-
-                    if (os != OrderStatus.Cancelled && os != OrderStatus.Pending && (ps == PaymentStatus.Authorized))
-                    {
-                        (await _orderProcessingService.CanCaptureAsync(order)).ShouldBeTrue();
-                    }
-                    else
-                    {
-                        (await _orderProcessingService.CanCaptureAsync(order)).ShouldBeFalse();
-                    }
-                }
+                (await _orderProcessingService.CanCaptureAsync(currentOrder)).ShouldBeTrue();
+            }
+            else
+            {
+                (await _orderProcessingService.CanCaptureAsync(currentOrder)).ShouldBeFalse();
             }
         }
 
         order.PaymentMethodSystemName = "paymentMethodSystemName_that_doesn't_support_capture";
-        foreach (OrderStatus os in Enum.GetValues(typeof(OrderStatus)))
-        {
-            foreach (PaymentStatus ps in Enum.GetValues(typeof(PaymentStatus)))
-            {
-                foreach (ShippingStatus ss in Enum.GetValues(typeof(ShippingStatus)))
-                {
-                    order.OrderStatus = os;
-                    order.PaymentStatus = ps;
-                    order.ShippingStatus = ss;
 
-                    (await _orderProcessingService.CanCaptureAsync(order)).ShouldBeFalse();
-                }
-            }
+        foreach (var currentOrder in GetAllStatusCombinations(order))
+        {
+            (await _orderProcessingService.CanCaptureAsync(currentOrder)).ShouldBeFalse();
         }
     }
 
     [Test]
-    public void Ensure_order_cannot_be_marked_as_paid_when_orderStatus_is_cancelled_or_paymentStatus_is_paid_or_refunded()
+    public void Order_cannot_be_paid_if_cancelled_paid_or_refunded()
     {
         var order = new Order();
-        foreach (OrderStatus os in Enum.GetValues<OrderStatus>())
+        foreach (var currentOrder in GetAllStatusCombinations(order))
         {
-            foreach (PaymentStatus ps in Enum.GetValues<PaymentStatus>())
+            if (currentOrder.OrderStatus == OrderStatus.Cancelled ||
+                currentOrder.PaymentStatus == PaymentStatus.Paid ||
+                currentOrder.PaymentStatus == PaymentStatus.Refunded)
             {
-                foreach (ShippingStatus ss in Enum.GetValues<ShippingStatus>())
-                {
-                    order.OrderStatus = os;
-                    order.PaymentStatus = ps;
-                    order.ShippingStatus = ss;
-                    if (os == OrderStatus.Cancelled || ps == PaymentStatus.Paid || ps == PaymentStatus.Refunded)
-                    {
-                        order.CanMarkOrderAsPaid().ShouldBeFalse();
-                    }
-                    else
-                    {
-                        order.CanMarkOrderAsPaid().ShouldBeTrue();
-                    }
-                }
+                currentOrder.CanMarkOrderAsPaid().ShouldBeFalse();
+            }
+            else
+            {
+                currentOrder.CanMarkOrderAsPaid().ShouldBeTrue();
             }
         }
     }
 
     [Test]
-    public async Task Ensure_order_can_only_be_refunded_when_paymentstatus_is_paid_and_paymentModule_supports_refund()
+    public async Task Order_can_be_refunded_if_paid_and_provider_supports_refund()
     {
         var testMethod1 = ProviderManager.GetProvider<IPaymentMethod>("Payments.TestMethod1");
         _paymentServiceMock
@@ -290,127 +249,80 @@ public class OrderProcessingServiceTests : ServiceTestBase
             .Setup(x => x.LoadPaymentProviderBySystemNameAsync("paymentMethodSystemName_that_doesn't_support_refund", It.IsAny<bool>(), It.IsAny<int>()))
             .ReturnsAsync(testMethod2);
 
-        var order = new Order();
-        order.OrderTotal = 1;
-        order.PaymentMethodSystemName = "paymentMethodSystemName_that_supports_refund";
-
-        foreach (OrderStatus os in Enum.GetValues(typeof(OrderStatus)))
+        var order = new Order
         {
-            foreach (PaymentStatus ps in Enum.GetValues(typeof(PaymentStatus)))
-            {
-                foreach (ShippingStatus ss in Enum.GetValues(typeof(ShippingStatus)))
-                {
-                    order.OrderStatus = os;
-                    order.PaymentStatus = ps;
-                    order.ShippingStatus = ss;
+            OrderTotal = 1,
+            PaymentMethodSystemName = "paymentMethodSystemName_that_supports_refund"
+        };
 
-                    if (ps == PaymentStatus.Paid)
-                    {
-                        (await _orderProcessingService.CanRefundAsync(order)).ShouldBeTrue();
-                    }
-                    else
-                    {
-                        (await _orderProcessingService.CanRefundAsync(order)).ShouldBeFalse();
-                    }
-                }
+        foreach (var currentOrder in GetAllStatusCombinations(order))
+        {
+            if (currentOrder.PaymentStatus == PaymentStatus.Paid)
+            {
+                (await _orderProcessingService.CanRefundAsync(currentOrder)).ShouldBeTrue();
+            }
+            else
+            {
+                (await _orderProcessingService.CanRefundAsync(currentOrder)).ShouldBeFalse();
             }
         }
 
         order.PaymentMethodSystemName = "paymentMethodSystemName_that_doesn't_support_refund";
-        foreach (OrderStatus os in Enum.GetValues(typeof(OrderStatus)))
+        foreach (var currentOrder in GetAllStatusCombinations(order))
         {
-            foreach (PaymentStatus ps in Enum.GetValues(typeof(PaymentStatus)))
-            {
-                foreach (ShippingStatus ss in Enum.GetValues(typeof(ShippingStatus)))
-                {
-                    order.OrderStatus = os;
-                    order.PaymentStatus = ps;
-                    order.ShippingStatus = ss;
-
-                    (await _orderProcessingService.CanRefundAsync(order)).ShouldBeFalse();
-                }
-            }
+            (await _orderProcessingService.CanRefundAsync(currentOrder)).ShouldBeFalse();
         }
     }
 
     [Test]
-    public async Task Ensure_order_cannot_be_refunded_when_orderTotal_is_zero()
+    public async Task Order_cannot_be_refunded_if_total_is_zero()
     {
         var testMethod1 = ProviderManager.GetProvider<IPaymentMethod>("Payments.TestMethod1");
         _paymentServiceMock
             .Setup(x => x.LoadPaymentProviderBySystemNameAsync("paymentMethodSystemName_that_supports_refund", It.IsAny<bool>(), It.IsAny<int>()))
             .ReturnsAsync(testMethod1);
 
-        var order = new Order();
-        order.PaymentMethodSystemName = "paymentMethodSystemName_that_supports_refund";
-
-        foreach (OrderStatus os in Enum.GetValues(typeof(OrderStatus)))
+        var order = new Order
         {
-            foreach (PaymentStatus ps in Enum.GetValues(typeof(PaymentStatus)))
-            {
-                foreach (ShippingStatus ss in Enum.GetValues(typeof(ShippingStatus)))
-                {
-                    order.OrderStatus = os;
-                    order.PaymentStatus = ps;
-                    order.ShippingStatus = ss;
+            PaymentMethodSystemName = "paymentMethodSystemName_that_supports_refund"
+        };
 
-                    (await _orderProcessingService.CanRefundAsync(order)).ShouldBeFalse();
-                }
-            }
+        foreach (var currentOrder in GetAllStatusCombinations(order))
+        {
+            (await _orderProcessingService.CanRefundAsync(currentOrder)).ShouldBeFalse();
         }
     }
 
     [Test]
-    public void Ensure_order_can_only_be_refunded_offline_when_paymentstatus_is_paid()
+    public void Order_can_be_refunded_offline_if_paid()
     {
         var order = new Order()
         {
             OrderTotal = 1,
         };
 
-        foreach (OrderStatus os in Enum.GetValues(typeof(OrderStatus)))
+        foreach (var currentOrder in GetAllStatusCombinations(order))
         {
-            foreach (PaymentStatus ps in Enum.GetValues(typeof(PaymentStatus)))
-            {
-                foreach (ShippingStatus ss in Enum.GetValues(typeof(ShippingStatus)))
-                {
-                    order.OrderStatus = os;
-                    order.PaymentStatus = ps;
-                    order.ShippingStatus = ss;
-
-                    if (ps == PaymentStatus.Paid)
-                        order.CanRefundOffline().ShouldBeTrue();
-                    else
-                        order.CanRefundOffline().ShouldBeFalse();
-                }
-            }
+            if (currentOrder.PaymentStatus == PaymentStatus.Paid)
+                currentOrder.CanRefundOffline().ShouldBeTrue();
+            else
+                currentOrder.CanRefundOffline().ShouldBeFalse();
         }
     }
 
     [Test]
-    public void Ensure_order_cannot_be_refunded_offline_when_orderTotal_is_zero()
+    public void Order_cannot_be_refunded_offline_if_total_is_zero()
     {
         var order = new Order();
 
-        foreach (OrderStatus os in Enum.GetValues(typeof(OrderStatus)))
+        foreach (var currentOrder in GetAllStatusCombinations(order))
         {
-            foreach (PaymentStatus ps in Enum.GetValues(typeof(PaymentStatus)))
-            {
-                foreach (ShippingStatus ss in Enum.GetValues(typeof(ShippingStatus)))
-                {
-                    order.OrderStatus = os;
-                    order.PaymentStatus = ps;
-                    order.ShippingStatus = ss;
-
-                    order.CanRefundOffline().ShouldBeFalse();
-                }
-            }
+            currentOrder.CanRefundOffline().ShouldBeFalse();
         }
     }
 
-
     [Test]
-    public async Task Ensure_order_can_only_be_voided_when_paymentstatus_is_authorized_and_paymentModule_supports_void()
+    public async Task Order_can_be_voided_if_authorized_and_provider_supports_void()
     {
         var testMethod1 = ProviderManager.GetProvider<IPaymentMethod>("Payments.TestMethod1");
         _paymentServiceMock
@@ -422,130 +334,84 @@ public class OrderProcessingServiceTests : ServiceTestBase
             .Setup(x => x.LoadPaymentProviderBySystemNameAsync("paymentMethodSystemName_that_doesn't_support_void", It.IsAny<bool>(), It.IsAny<int>()))
             .ReturnsAsync(testMethod2);
 
-        var order = new Order();
-        order.OrderTotal = 1;
-        order.PaymentMethodSystemName = "paymentMethodSystemName_that_supports_void";
-
-        foreach (OrderStatus os in Enum.GetValues(typeof(OrderStatus)))
+        var order = new Order
         {
-            foreach (PaymentStatus ps in Enum.GetValues(typeof(PaymentStatus)))
-            {
-                foreach (ShippingStatus ss in Enum.GetValues(typeof(ShippingStatus)))
-                {
-                    order.OrderStatus = os;
-                    order.PaymentStatus = ps;
-                    order.ShippingStatus = ss;
+            OrderTotal = 1,
+            PaymentMethodSystemName = "paymentMethodSystemName_that_supports_void"
+        };
 
-                    if (ps == PaymentStatus.Authorized)
-                    {
-                        (await _orderProcessingService.CanVoidAsync(order)).ShouldBeTrue();
-                    }
-                    else
-                    {
-                        (await _orderProcessingService.CanVoidAsync(order)).ShouldBeFalse();
-                    }
-                }
+        foreach (var currentOrder in GetAllStatusCombinations(order))
+        {
+            if (currentOrder.PaymentStatus == PaymentStatus.Authorized)
+            {
+                (await _orderProcessingService.CanVoidAsync(currentOrder)).ShouldBeTrue();
+            }
+            else
+            {
+                (await _orderProcessingService.CanVoidAsync(currentOrder)).ShouldBeFalse();
             }
         }
 
         order.PaymentMethodSystemName = "paymentMethodSystemName_that_doesn't_support_void";
-        foreach (OrderStatus os in Enum.GetValues(typeof(OrderStatus)))
+        foreach (var currentOrder in GetAllStatusCombinations(order))
         {
-            foreach (PaymentStatus ps in Enum.GetValues(typeof(PaymentStatus)))
-            {
-                foreach (ShippingStatus ss in Enum.GetValues(typeof(ShippingStatus)))
-                {
-                    order.OrderStatus = os;
-                    order.PaymentStatus = ps;
-                    order.ShippingStatus = ss;
-
-                    (await _orderProcessingService.CanVoidAsync(order)).ShouldBeFalse();
-                }
-            }
+            (await _orderProcessingService.CanVoidAsync(currentOrder)).ShouldBeFalse();
         }
     }
 
     [Test]
-    public async Task Ensure_order_cannot_be_voided_when_orderTotal_is_zero()
+    public async Task Order_cannot_be_voided_if_total_is_zero()
     {
         var testMethod1 = ProviderManager.GetProvider<IPaymentMethod>("Payments.TestMethod1");
         _paymentServiceMock
             .Setup(x => x.LoadPaymentProviderBySystemNameAsync("paymentMethodSystemName_that_supports_void", It.IsAny<bool>(), It.IsAny<int>()))
             .ReturnsAsync(testMethod1);
 
-        var order = new Order();
-        order.PaymentMethodSystemName = "paymentMethodSystemName_that_supports_void";
-
-        foreach (OrderStatus os in Enum.GetValues(typeof(OrderStatus)))
+        var order = new Order
         {
-            foreach (PaymentStatus ps in Enum.GetValues(typeof(PaymentStatus)))
-            {
-                foreach (ShippingStatus ss in Enum.GetValues(typeof(ShippingStatus)))
-                {
-                    order.OrderStatus = os;
-                    order.PaymentStatus = ps;
-                    order.ShippingStatus = ss;
+            PaymentMethodSystemName = "paymentMethodSystemName_that_supports_void"
+        };
 
-                    (await _orderProcessingService.CanVoidAsync(order)).ShouldBeFalse();
-                }
-            }
+        foreach (var currentOrder in GetAllStatusCombinations(order))
+        {
+            (await _orderProcessingService.CanVoidAsync(currentOrder)).ShouldBeFalse();
         }
     }
 
     [Test]
-    public void Ensure_order_can_only_be_voided_offline_when_paymentstatus_is_authorized()
+    public void Order_can_be_voided_offline_if_authorized()
     {
         var order = new Order()
         {
             OrderTotal = 1,
         };
 
-        foreach (OrderStatus os in Enum.GetValues(typeof(OrderStatus)))
+        foreach (var currentOrder in GetAllStatusCombinations(order))
         {
-            foreach (PaymentStatus ps in Enum.GetValues(typeof(PaymentStatus)))
+            if (currentOrder.PaymentStatus == PaymentStatus.Authorized)
             {
-                foreach (ShippingStatus ss in Enum.GetValues(typeof(ShippingStatus)))
-                {
-                    order.OrderStatus = os;
-                    order.PaymentStatus = ps;
-                    order.ShippingStatus = ss;
-
-                    if (ps == PaymentStatus.Authorized)
-                    {
-                        order.CanVoidOffline().ShouldBeTrue();
-                    }
-                    else
-                    {
-                        order.CanVoidOffline().ShouldBeFalse();
-                    }
-                }
+                currentOrder.CanVoidOffline().ShouldBeTrue();
+            }
+            else
+            {
+                currentOrder.CanVoidOffline().ShouldBeFalse();
             }
         }
     }
 
     [Test]
-    public void Ensure_order_cannot_be_voided_offline_when_orderTotal_is_zero()
+    public void Order_cannot_be_voided_offline_if_total_is_zero()
     {
         var order = new Order();
 
-        foreach (OrderStatus os in Enum.GetValues(typeof(OrderStatus)))
+        foreach (var currentOrder in GetAllStatusCombinations(order))
         {
-            foreach (PaymentStatus ps in Enum.GetValues(typeof(PaymentStatus)))
-            {
-                foreach (ShippingStatus ss in Enum.GetValues(typeof(ShippingStatus)))
-                {
-                    order.OrderStatus = os;
-                    order.PaymentStatus = ps;
-                    order.ShippingStatus = ss;
-
-                    order.CanVoidOffline().ShouldBeFalse();
-                }
-            }
+            currentOrder.CanVoidOffline().ShouldBeFalse();
         }
     }
 
     [Test]
-    public async Task Ensure_order_can_only_be_partially_refunded_when_paymentstatus_is_paid_or_partiallyRefunded_and_paymentModule_supports_partialRefund()
+    public async Task Order_can_be_partially_refunded_if_paid_and_provider_supports_partial_refund()
     {
         var testMethod1 = ProviderManager.GetProvider<IPaymentMethod>("Payments.TestMethod1");
         _paymentServiceMock
@@ -557,51 +423,34 @@ public class OrderProcessingServiceTests : ServiceTestBase
             .Setup(x => x.LoadPaymentProviderBySystemNameAsync("paymentMethodSystemName_that_doesn't_support_partialrefund", It.IsAny<bool>(), It.IsAny<int>()))
             .ReturnsAsync(testMethod2);
 
-        var order = new Order();
-        order.OrderTotal = 100;
-        order.PaymentMethodSystemName = "paymentMethodSystemName_that_supports_partialrefund";
-
-        foreach (OrderStatus os in Enum.GetValues(typeof(OrderStatus)))
+        var order = new Order
         {
-            foreach (PaymentStatus ps in Enum.GetValues(typeof(PaymentStatus)))
-            {
-                foreach (ShippingStatus ss in Enum.GetValues(typeof(ShippingStatus)))
-                {
-                    order.OrderStatus = os;
-                    order.PaymentStatus = ps;
-                    order.ShippingStatus = ss;
+            OrderTotal = 100,
+            PaymentMethodSystemName = "paymentMethodSystemName_that_supports_partialrefund"
+        };
 
-                    if (ps == PaymentStatus.Paid || order.PaymentStatus == PaymentStatus.PartiallyRefunded)
-                    {
-                        (await _orderProcessingService.CanPartiallyRefundAsync(order, 10)).ShouldBeTrue();
-                    }
-                    else
-                    {
-                        (await _orderProcessingService.CanPartiallyRefundAsync(order, 10)).ShouldBeFalse();
-                    }
-                }
+        foreach (var currentOrder in GetAllStatusCombinations(order))
+        {
+            if (currentOrder.PaymentStatus is PaymentStatus.Paid or PaymentStatus.PartiallyRefunded)
+            {
+                (await _orderProcessingService.CanPartiallyRefundAsync(currentOrder, 10)).ShouldBeTrue();
+            }
+            else
+            {
+                (await _orderProcessingService.CanPartiallyRefundAsync(currentOrder, 10)).ShouldBeFalse();
             }
         }
 
         order.PaymentMethodSystemName = "paymentMethodSystemName_that_doesn't_support_partialrefund";
-        foreach (OrderStatus os in Enum.GetValues(typeof(OrderStatus)))
-        {
-            foreach (PaymentStatus ps in Enum.GetValues(typeof(PaymentStatus)))
-            {
-                foreach (ShippingStatus ss in Enum.GetValues(typeof(ShippingStatus)))
-                {
-                    order.OrderStatus = os;
-                    order.PaymentStatus = ps;
-                    order.ShippingStatus = ss;
 
-                    (await _orderProcessingService.CanPartiallyRefundAsync(order, 10)).ShouldBeFalse();
-                }
-            }
+        foreach (var currentOrder in GetAllStatusCombinations(order))
+        {
+            (await _orderProcessingService.CanPartiallyRefundAsync(currentOrder, 10)).ShouldBeFalse();
         }
     }
 
     [Test]
-    public async Task Ensure_order_cannot_be_partially_refunded_when_amountToRefund_is_greater_than_amount_that_can_be_refunded()
+    public async Task Order_cannot_be_partially_refunded_if_amount_exceeds_refundable_amount()
     {
         var testMethod1 = ProviderManager.GetProvider<IPaymentMethod>("Payments.TestMethod1");
 
@@ -609,62 +458,42 @@ public class OrderProcessingServiceTests : ServiceTestBase
             .Setup(x => x.LoadPaymentProviderBySystemNameAsync("paymentMethodSystemName_that_supports_partialrefund", true, 0))
             .ReturnsAsync(testMethod1);
 
-        var order = new Order()
+        var order = new Order
         {
             OrderTotal = 100,
             RefundedAmount = 30, //100-30=70 can be refunded
+            PaymentMethodSystemName = "paymentMethodSystemName_that_supports_partialrefund"
         };
-        order.PaymentMethodSystemName = "paymentMethodSystemName_that_supports_partialrefund";
 
-        foreach (OrderStatus os in Enum.GetValues(typeof(OrderStatus)))
+        foreach (var currentOrder in GetAllStatusCombinations(order))
         {
-            foreach (PaymentStatus ps in Enum.GetValues(typeof(PaymentStatus)))
-            {
-                foreach (ShippingStatus ss in Enum.GetValues(typeof(ShippingStatus)))
-                {
-                    order.OrderStatus = os;
-                    order.PaymentStatus = ps;
-                    order.ShippingStatus = ss;
-
-                    (await _orderProcessingService.CanPartiallyRefundAsync(order, 80)).ShouldBeFalse();
-                }
-            }
+            (await _orderProcessingService.CanPartiallyRefundAsync(currentOrder, 80)).ShouldBeFalse();
         }
     }
 
     [Test]
-    public void Ensure_order_can_only_be_partially_refunded_offline_when_paymentstatus_is_paid_or_partiallyRefunded()
+    public void Order_can_be_partially_refunded_offline_if_paid()
     {
         var order = new Order
         {
             OrderTotal = 100
         };
 
-        foreach (OrderStatus os in Enum.GetValues(typeof(OrderStatus)))
+        foreach (var currentOrder in GetAllStatusCombinations(order))
         {
-            foreach (PaymentStatus ps in Enum.GetValues(typeof(PaymentStatus)))
+            if (currentOrder.PaymentStatus is PaymentStatus.Paid or PaymentStatus.PartiallyRefunded)
             {
-                foreach (ShippingStatus ss in Enum.GetValues(typeof(ShippingStatus)))
-                {
-                    order.OrderStatus = os;
-                    order.PaymentStatus = ps;
-                    order.ShippingStatus = ss;
-
-                    if (ps == PaymentStatus.Paid || order.PaymentStatus == PaymentStatus.PartiallyRefunded)
-                    {
-                        order.CanPartiallyRefundOffline(10).ShouldBeTrue();
-                    }
-                    else
-                    {
-                        order.CanPartiallyRefundOffline(10).ShouldBeFalse();
-                    }
-                }
+                currentOrder.CanPartiallyRefundOffline(10).ShouldBeTrue();
+            }
+            else
+            {
+                currentOrder.CanPartiallyRefundOffline(10).ShouldBeFalse();
             }
         }
     }
 
     [Test]
-    public void Ensure_order_cannot_be_partially_refunded_offline_when_amountToRefund_is_greater_than_amount_that_can_be_refunded()
+    public void Order_cannot_be_partially_refunded_offline_if_amount_exceeds_refundable_amount()
     {
         var order = new Order()
         {
@@ -672,23 +501,74 @@ public class OrderProcessingServiceTests : ServiceTestBase
             RefundedAmount = 30, //100-30=70 can be refunded
         };
 
-        foreach (OrderStatus os in Enum.GetValues(typeof(OrderStatus)))
+        foreach (var currentOrder in GetAllStatusCombinations(order))
         {
-            foreach (PaymentStatus ps in Enum.GetValues(typeof(PaymentStatus)))
-            {
-                foreach (ShippingStatus ss in Enum.GetValues(typeof(ShippingStatus)))
-                {
-                    order.OrderStatus = os;
-                    order.PaymentStatus = ps;
-                    order.ShippingStatus = ss;
+            currentOrder.CanPartiallyRefundOffline(80).ShouldBeFalse();
+        }
+    }
 
-                    order.CanPartiallyRefundOffline(80).ShouldBeFalse();
+    [TestCase(3, 2, 8.0, 6.0)]
+    [TestCase(2, 3, 18.0, 13.5)]
+    [TestCase(4, 1, 3.0, 2.25)]
+    [TestCase(0, 2, 12.0, 9.0)]
+    public async Task Order_item_discounts_scale_with_quantity(
+        int oldQuantity,
+        int newQuantity,
+        double expectedDiscountInclTax,
+        double expectedDiscountExclTax)
+    {
+        _currency.RoundOrderItemsEnabled = true;
+
+        var order = new Order
+        {
+            Customer = new Customer(),
+            CustomerCurrencyCode = "USD",
+            OrderStatus = OrderStatus.Pending,
+            OrderSubtotalInclTax = oldQuantity * 10M,
+            OrderSubtotalExclTax = oldQuantity * 10M,
+            OrderTotal = oldQuantity * 10M
+        };
+        var orderItem = new OrderItem
+        {
+            Order = order,
+            Quantity = oldQuantity,
+            UnitPriceInclTax = 10M,
+            UnitPriceExclTax = 10M,
+            PriceInclTax = oldQuantity * 10M,
+            PriceExclTax = oldQuantity * 10M,
+            DiscountAmountInclTax = 12M,
+            DiscountAmountExclTax = 9M
+        };
+        order.OrderItems.Add(orderItem);
+
+        var context = new UpdateOrderDetailsContext
+        {
+            OldQuantity = oldQuantity,
+            NewQuantity = newQuantity,
+            UpdateTotals = true
+        };
+
+        await _orderProcessingService.UpdateOrderDetailsAsync(orderItem, context);
+
+        orderItem.DiscountAmountInclTax.ShouldEqual(Convert.ToDecimal(expectedDiscountInclTax));
+        orderItem.DiscountAmountExclTax.ShouldEqual(Convert.ToDecimal(expectedDiscountExclTax));
+    }
+
+    private static IEnumerable<Order> GetAllStatusCombinations(Order order)
+    {
+        foreach (var orderStatus in Enum.GetValues<OrderStatus>())
+        {
+            foreach (var paymentStatus in Enum.GetValues<PaymentStatus>())
+            {
+                foreach (var shippingStatus in Enum.GetValues<ShippingStatus>())
+                {
+                    order.OrderStatus = orderStatus;
+                    order.PaymentStatus = paymentStatus;
+                    order.ShippingStatus = shippingStatus;
+
+                    yield return order;
                 }
             }
         }
     }
-
-    //TODO write unit tests for the following methods:
-    //PlaceOrder
-    //CanCancelRecurringPayment, ProcessNextRecurringPayment, CancelRecurringPayment
 }

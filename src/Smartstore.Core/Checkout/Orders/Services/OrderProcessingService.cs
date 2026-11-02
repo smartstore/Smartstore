@@ -693,7 +693,7 @@ public partial class OrderProcessingService : IOrderProcessingService
             order.OrderSubtotalInclTax = _roundingHelper.RoundIfEnabledFor(subtotalInclTax, currency, order.CustomerTaxDisplayType);
             order.OrderSubtotalExclTax = _roundingHelper.RoundIfEnabledFor(subtotalExclTax, currency, order.CustomerTaxDisplayType);
 
-            decimal quantityChangeFactor = oldQuantity != 0 ? newQuantity / oldQuantity : 1.0M;
+            decimal quantityChangeFactor = oldQuantity != 0 ? (decimal)newQuantity / oldQuantity : 1.0M;
 
             decimal discountInclTax = oi.DiscountAmountInclTax * quantityChangeFactor;
             decimal discountExclTax = oi.DiscountAmountExclTax * quantityChangeFactor;
