@@ -79,6 +79,11 @@ public static partial class Permissions
                 public const string TopCustomers = Self + ".topcustomers";
 
                 /// <summary>
+                /// Allows displaying the CookieConsents widget and its data.
+                /// </summary>
+                public const string CookieConsents = Self + ".cookieconsents";
+
+                /// <summary>
                 /// Allows displaying the ContactRequests widget and its data.
                 /// </summary>
                 public const string ContactRequests = Self + ".contactrequests";

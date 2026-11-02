@@ -108,6 +108,14 @@ public class SmartDbContextDataSeeder : IDataSeeder<SmartDbContext>
 
     public void MigrateLocaleResources(LocaleResourcesBuilder builder)
     {
+        builder.AddOrUpdate("Permissions.DisplayName.CookieConsents", "Cookie consent", "Cookie-Zustimmungen");
+        builder.AddOrUpdate("Admin.Dashboard.CookieConsents", "Cookie consent", "Cookie-Zustimmungen");
+        builder.AddOrUpdate("Admin.Dashboard.CookieConsents.Description", "Saved consent status by cookie category.", "Gespeicherter Zustimmungsstatus je Cookie-Kategorie.");
+        builder.AddOrUpdate("Admin.Dashboard.CookieConsents.Skipped", "{0} unreadable or incomplete records were excluded.", "{0} nicht lesbare oder unvollständige Einträge wurden nicht berücksichtigt.");
+        builder.AddOrUpdate("Admin.Dashboard.CookieConsents.Category", "Category", "Kategorie");
+        builder.AddOrUpdate("Admin.Dashboard.CookieConsents.Accepted", "Accepted", "Zugestimmt");
+        builder.AddOrUpdate("Admin.Dashboard.CookieConsents.Declined", "Not consented", "Nicht zugestimmt");
+
         builder.AddOrUpdate("Common.Email", "Email", "E-Mail");
         builder.AddOrUpdate("Permissions.DisplayName.ContactRequests", "Contact requests", "Kontaktanfragen");
         builder.AddOrUpdate("Admin.Dashboard.ContactRequests", "Contact enquiries", "Kontaktanfragen");

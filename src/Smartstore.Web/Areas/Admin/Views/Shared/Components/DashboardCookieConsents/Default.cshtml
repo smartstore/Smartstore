@@ -1,0 +1,54 @@
+@using Smartstore.Admin.Models.Customers
+@model DashboardCookieConsentModel
+
+<div class="report">
+    <div class="report-title-row">
+        <div class="report-title">@T("Admin.Dashboard.CookieConsents")</div>
+    </div>
+    @if (Model.TotalConsents == 0)
+    {
+        <p class="p-3 mb-0">@T("Admin.DataGrid.NoData")</p>
+    }
+    else
+    {
+        <div class="table-responsive table-dashboard">
+            <table class="table small table-hover">
+                <thead>
+                    <tr>
+                        <th>@T("Admin.Dashboard.CookieConsents.Category")</th>
+                        <th class="text-right">@T("Admin.Dashboard.CookieConsents.Accepted")</th>
+                        <th class="text-right">@T("Admin.Dashboard.CookieConsents.Declined")</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var category in Model.Categories)
+                    {
+                        bool hasAnswers = category.AcceptedCount + category.DeclinedCount > 0;
+
+                        <tr>
+                            <td>@T(category.CategoryResourceKey)</td>
+                            @foreach (var (count, percentage) in new[]
+                            {
+                                (category.AcceptedCount, category.AcceptedPercentage),
+                                (category.DeclinedCount, category.DeclinedPercentage)
+                            })
+                            {
+                                <td class="text-right text-nowrap">
+                                    @if (hasAnswers)
+                                    {
+                                        <text>@count.ToString("N0") <small class="text-muted">(@percentage.ToString("N1") %)</small></text>
+                                    }
+                                    else
+                                    {
+                                        <text>—</text>
+                                    }
+                                </td>
+                            }
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    <p sm-if="Model.SkippedConsents > 0" class="p-3 fs-xs mb-0">@T("Admin.Dashboard.CookieConsents.Skipped", Model.SkippedConsents.ToString("N0"))</p>
+</div>
