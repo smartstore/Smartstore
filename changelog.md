@@ -25,6 +25,7 @@
   - #1571 Returns can be filtered in the data grid by the date they were completed.
   - #1571 The message templates of returns have been extended to provide shipping information (placeholder `ReturnCase.Shipping.xyz`).
   - #1571 Display shipping and delivery dates in the withdrawal and returns grid and on the edit page, along with whether the associated order has been canceled.
+- #1032 Add an option to also offer Amazon Pay on the payment method page in checkout.
 - #1564 MegaSearch: Added a setting to determine the relevance of a search hit using the best matching field.
 - #1580 Allow checkout attributes to be conditionally displayed using cart rules.
 - Dimension Pricing plugin (commercial module)
