@@ -37,10 +37,10 @@
         </Value>
     </LocaleResource>
     <LocaleResource Name="GoogleId">
-        <Value>ID</Value>
+        <Value>GA4 measurement ID</Value>
     </LocaleResource>
     <LocaleResource Name="GoogleId.Hint">
-        <Value>Enter Google Analytics ID.</Value>
+        <Value>Enter the GA4 measurement ID of your web data stream (format: G-XXXXXXXXXX). You can find it in Google Analytics under Admin &gt; Data streams &gt; your web data stream.</Value>
     </LocaleResource>
     <LocaleResource Name="RenderWithUserConsentOnly">
         <Value>Load only with consent</Value>

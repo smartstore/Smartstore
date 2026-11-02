@@ -38,10 +38,10 @@
         </Value>
     </LocaleResource>
     <LocaleResource Name="GoogleId">
-        <Value>ID</Value>
+        <Value>GA4-Mess-ID</Value>
     </LocaleResource>
     <LocaleResource Name="GoogleId.Hint">
-        <Value>Geben Sie hier Ihre "Google Analytics"-ID an.</Value>
+        <Value>Geben Sie die GA4-Mess-ID Ihres Web-Datenstreams ein (Format: G-XXXXXXXXXX). Sie finden sie in Google Analytics unter Verwaltung &gt; Datenstreams &gt; Ihr Web-Datenstream.</Value>
     </LocaleResource>
     <LocaleResource Name="RenderWithUserConsentOnly">
         <Value>Nur mit Zustimmung laden</Value>
