@@ -94,6 +94,11 @@ button:where(.reset) {
     gap: 0.5em;
     min-height: var(--btn-height);
 
+    // The button gap already separates the label from the dropdown chevron.
+    &.dropdown-toggle::after {
+        margin-inline-start: 0;
+    }
+
     > :where(.icon, .icon-stack) {
         color: var(--btn-icon-color);
         transition: var(--btn-icon-transition);

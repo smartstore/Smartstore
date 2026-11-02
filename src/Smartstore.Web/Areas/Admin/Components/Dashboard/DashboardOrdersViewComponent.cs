@@ -6,6 +6,11 @@ namespace Smartstore.Admin.Components;
 
 public class DashboardOrdersViewComponent : DashboardWidgetViewComponentBase
 {
+    /// <summary>
+    /// Gets the widget permission required to display this report.
+    /// </summary>
+    public const string RequiredPermission = Permissions.Dashboard.Widgets.Sales.Orders;
+
     private readonly SmartDbContext _db;
 
     public DashboardOrdersViewComponent(SmartDbContext db)
@@ -15,7 +20,7 @@ public class DashboardOrdersViewComponent : DashboardWidgetViewComponentBase
 
     public override async Task<IViewComponentResult> InvokeAsync()
     {
-        if (!await Services.Permissions.AuthorizeAsync(Permissions.Order.Read))
+        if (!await Services.Permissions.AuthorizeAsync(RequiredPermission))
         {
             return Empty();
         }

@@ -108,6 +108,48 @@ public class SmartDbContextDataSeeder : IDataSeeder<SmartDbContext>
 
     public void MigrateLocaleResources(LocaleResourcesBuilder builder)
     {
+        builder.AddOrUpdate("Permissions.DisplayName.CookieConsents", "Cookie consent", "Cookie-Zustimmungen");
+        builder.AddOrUpdate("Admin.Dashboard.CookieConsents", "Cookie consent", "Cookie-Zustimmungen");
+        builder.AddOrUpdate("Admin.Dashboard.CookieConsents.Description", "Saved consent status by cookie category.", "Gespeicherter Zustimmungsstatus je Cookie-Kategorie.");
+        builder.AddOrUpdate("Admin.Dashboard.CookieConsents.Skipped", "{0} unreadable or incomplete records were excluded.", "{0} nicht lesbare oder unvollständige Einträge wurden nicht berücksichtigt.");
+        builder.AddOrUpdate("Admin.Dashboard.CookieConsents.Category", "Category", "Kategorie");
+        builder.AddOrUpdate("Admin.Dashboard.CookieConsents.Accepted", "Accepted", "Zugestimmt");
+        builder.AddOrUpdate("Admin.Dashboard.CookieConsents.Declined", "Not consented", "Nicht zugestimmt");
+
+        builder.AddOrUpdate("Common.Email", "Email", "E-Mail");
+        builder.AddOrUpdate("Permissions.DisplayName.ContactRequests", "Contact requests", "Kontaktanfragen");
+        builder.AddOrUpdate("Admin.Dashboard.ContactRequests", "Contact enquiries", "Kontaktanfragen");
+        builder.AddOrUpdate("Admin.Dashboard.ContactRequests.Description", "The latest newly recorded contact enquiries with links to their messages.", "Die neuesten ab jetzt erfassten Kontaktanfragen mit Verweisen auf die Nachrichten.");
+        builder.AddOrUpdate("Admin.Dashboard.ContactRequests.Empty", "Future contact enquiries will appear here. Existing enquiries are not added retroactively.", "Hier erscheinen zukünftige Kontaktanfragen. Bereits vorhandene Anfragen werden nicht nachträglich übernommen.");
+
+        builder.AddOrUpdate("Admin.Dashboard.Labels.ByQuantity", "By quantity", "Nach Anzahl");
+        builder.AddOrUpdate("Admin.Dashboard.Labels.ByAmount", "By amount", "Nach Betrag");
+        builder.AddOrUpdate("Admin.Dashboard.Labels.OrderCount", "Orders", "Bestellungen");
+        builder.AddOrUpdate("Admin.Dashboard.Labels.Customer", "Customer", "Kunde");
+        builder.Delete(
+            "Admin.SalesReport.ByQuantity",
+            "Admin.SalesReport.ByAmount",
+            "Admin.Customers.Reports.BestBy.Fields.Customer");
+
+        builder.AddOrUpdate("Permissions.DisplayName.PaymentMethods", "Payment methods", "Zahlungsarten");
+        builder.AddOrUpdate("Admin.Dashboard.PaymentMethods", "Payment methods", "Zahlungsarten");
+        builder.AddOrUpdate("Admin.Dashboard.PaymentMethods.Description", "The top ten payment methods by order count or order total, including tax and shipping, across all order dates and statuses.", "Die zehn führenden Zahlungsarten nach Bestellanzahl oder Bestellgesamtbetrag einschließlich Steuer und Versand über alle Bestellzeiträume und Bestellstatus hinweg.");
+        builder.AddOrUpdate("Admin.Dashboard.PaymentMethods.Name", "Payment method", "Zahlungsart");
+        builder.AddOrUpdate("Admin.Dashboard.PaymentMethods.OrderCount", "Orders", "Bestellungen");
+
+        builder.AddOrUpdate("Permissions.DisplayName.Dashboard", "Dashboard", "Dashboard");
+        builder.AddOrUpdate("Permissions.DisplayName.Widgets", "Widgets", "Widgets");
+        builder.AddOrUpdate("Permissions.DisplayName.Sales", "Sales", "Verkäufe");
+        builder.AddOrUpdate("Permissions.DisplayName.Customers", "Customers", "Kunden");
+        builder.AddOrUpdate("Permissions.DisplayName.IncompleteOrders", "Incomplete orders", "Unvollständige Bestellungen");
+        builder.AddOrUpdate("Permissions.DisplayName.Orders", "Order statistics", "Bestellstatistik");
+        builder.AddOrUpdate("Permissions.DisplayName.Bestsellers", "Bestsellers", "Bestseller");
+        builder.AddOrUpdate("Permissions.DisplayName.LatestOrders", "Latest orders", "Neueste Bestellungen");
+        builder.AddOrUpdate("Permissions.DisplayName.RegisteredCustomers", "Customer registrations", "Kundenregistrierungen");
+        builder.AddOrUpdate("Permissions.DisplayName.TopCustomers", "Top customers", "Top Kunden");
+        builder.AddOrUpdate("Permissions.DisplayName.StoreReport", "Store statistics", "Shop-Statistiken");
+        builder.AddOrUpdate("Permissions.DisplayName.NewsFeed", "News", "News");
+
         builder.AddOrUpdate("Admin.Dashboard", "Dashboard", "Dashboard");
         builder.AddOrUpdate("Admin.Dashboard.Customize", "Customize dashboard", "Dashboard anpassen");
         builder.AddOrUpdate("Admin.Header.Account", "Account", "Konto");

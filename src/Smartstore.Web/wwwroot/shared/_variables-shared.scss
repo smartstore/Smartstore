@@ -80,7 +80,10 @@ $pagination-padding-x-xs:           6px !default;
 
 $mtab-text-transform:		none !default;
 $mtab-font-size:			1rem !default;
+$mtab-padding-y:                0.825rem !default;
+$mtab-transition-duration:      0.05s !default;
 $mtab-font-weight:			$font-weight-medium !default;
+$mtab-active-font-weight:        var(--nav-link-font-weight) !default;
 $mtab-color:				$gray-600 !default;
 $mtab-active-color:			$nav-tabs-link-active-color !default;
 

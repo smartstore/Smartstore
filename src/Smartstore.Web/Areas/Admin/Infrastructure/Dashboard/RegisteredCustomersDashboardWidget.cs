@@ -2,6 +2,7 @@
 
 using Smartstore.Admin.Components;
 using Smartstore.Core.Localization;
+using Smartstore.Core.Security;
 using Smartstore.Core.Widgets.Dashboard;
 using Smartstore.Engine.Modularity;
 
@@ -11,7 +12,8 @@ namespace Smartstore.Admin.Infrastructure.Dashboard;
 /// Describes and creates the dashboard widget that renders customer registrations.
 /// </summary>
 [SystemName(SystemName)]
-public sealed class RegisteredCustomersDashboardWidget : DashboardViewComponentWidget<DashboardRegisteredCustomersViewComponent>
+public sealed class RegisteredCustomersDashboardWidget(IPermissionService permissions)
+    : DashboardViewComponentWidget<DashboardRegisteredCustomersViewComponent>(permissions, DashboardRegisteredCustomersViewComponent.RequiredPermission)
 {
     /// <summary>
     /// Identifies the registered customers dashboard widget type.

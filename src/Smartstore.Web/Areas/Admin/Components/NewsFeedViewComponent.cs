@@ -3,11 +3,17 @@ using System.Net.Http;
 using System.Net.Http.Json;
 using Smartstore.Admin.Models.Common;
 using Smartstore.Core.Web;
+using Smartstore.Core.Security;
 
 namespace Smartstore.Admin.Components;
 
 public class NewsFeedViewComponent : SmartViewComponent
 {
+    /// <summary>
+    /// Gets the permission required to display dashboard news.
+    /// </summary>
+    public const string RequiredPermission = Permissions.Dashboard.Widgets.System.NewsFeed;
+
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly IWebHelper _webHelper;
 
@@ -19,6 +25,11 @@ public class NewsFeedViewComponent : SmartViewComponent
 
     public async Task<IViewComponentResult> InvokeAsync()
     {
+        if (!await Services.Permissions.AuthorizeAsync(RequiredPermission))
+        {
+            return Empty();
+        }
+
         var lang = Services.WorkContext.WorkingLanguage;
         var result = await Services.Cache.GetAsync($"admin:newsfeed{lang.UniqueSeoCode}", async ctx =>
         {

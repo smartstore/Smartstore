@@ -11,7 +11,7 @@
     }
 
     .report.sticky-report {
-        top: calc(var(--sticky-offset) + var(--section-header-spacing));
+        top: var(--sticky-offset);
     }
 }
 
@@ -299,10 +299,12 @@
     }
 
     .chart-tooltip {
+        --chart-tooltip-background: #{mix($black, $white, 80%)};
+
         opacity: 1;
         position: absolute;
         width: fit-content;
-        background: rgba(#000, 0.8);
+        background: var(--chart-tooltip-background);
         color: $light;
         border-radius: var(--border-radius-sm);
         transition: opacity 0.2s ease-in-out;
@@ -332,8 +334,8 @@
             transform: translate(-50%, calc(-100% - 15px));
 
             &:after {
-                border-top: 9px solid rgba($black, 0.8);
-                top: 100%;
+                border-top: 9px solid var(--chart-tooltip-background);
+                top: calc(100% - 1px);
             }
 
             &.left {
@@ -357,8 +359,8 @@
             transform: translate(-50%, 15px);
 
             &:after {
-                border-bottom: 9px solid rgba($black, 0.8);
-                top: -9px;
+                border-bottom: 9px solid var(--chart-tooltip-background);
+                top: -8px;
             }
         }
 
@@ -375,8 +377,8 @@
             transform: translate(15px, -50%);
 
             &:after {
-                border-inline-end: 9px solid rgba($black, 0.8);
-                inset-inline-start: -9px;
+                border-inline-end: 9px solid var(--chart-tooltip-background);
+                inset-inline-start: -8px;
             }
         }
 
@@ -384,8 +386,8 @@
             transform: translate(calc(-100% - 15px), -50%);
 
             &:after {
-                border-inline-start: 9px solid rgba($black, 0.8);
-                inset-inline-start: 100%;
+                border-inline-start: 9px solid var(--chart-tooltip-background);
+                inset-inline-start: calc(100% - 1px);
             }
         }
 

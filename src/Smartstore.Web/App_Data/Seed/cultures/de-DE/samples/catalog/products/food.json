@@ -56,5 +56,20 @@
     "name": "Weihnachtliche Gewürzkekse",
     "shortDescription": "Knusprige Gewürzkekse mit Zimt, Orange und Mandeln, 300 g.",
     "fullDescription": "@file"
+  },
+  "FD-1008": {
+    "name": "Blutorangen-Limonade 0,75 l",
+    "shortDescription": "Leicht perlende Limonade mit Blutorangensaft in der 0,75-l-Mehrwegflasche. Das Flaschenpfand wird automatisch hinzugefügt.",
+    "fullDescription": "@file",
+    "reviews": [
+      { "customer": "laura", "rating": 5, "title": "Frisch und nicht zu süß", "reviewText": "Ein echter Blutorangengeschmack. Das Pfand wurde von selbst in den Warenkorb gelegt, da kann man nichts vergessen.", "isApproved": true, "isVerifiedPurchase": true, "createdOnUtc": "@now-14d" },
+      { "customer": "tim", "rating": 4, "title": "Lecker, und das Pfand ist fair", "reviewText": "Gute Limonade. Ich finde gut, dass das Pfand schon vor der Bestellung angezeigt wird.", "isApproved": true, "isVerifiedPurchase": true, "createdOnUtc": "@now-8d" },
+      { "customer": "jonas", "rating": 3, "title": "Hätte gern eine größere Flasche", "reviewText": "Schmeckt gut, aber 0,75 l sind schnell weg, wenn Besuch kommt.", "isApproved": true, "createdOnUtc": "@now-3d" }
+    ]
+  },
+  "FD-1009": {
+    "name": "Flaschenpfand",
+    "shortDescription": "Fester Pfandbetrag pro Mehrwegflasche, wird bei Rückgabe der leeren Flasche erstattet.",
+    "fullDescription": "@file"
   }
 }

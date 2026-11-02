@@ -13,7 +13,7 @@
 <input sm-if="Model.Id == 0" asp-for="Id" type="hidden" />
 <input asp-for="IsGuest" type="hidden" />
 
-<tabstrip id="customer-edit" sm-nav-style="Material" sm-nav-position="Left" sm-onajaxsuccess="customerEditTab_onAjaxSuccess" >
+<tabstrip id="customer-edit" sm-nav-style="Material" sm-nav-position="Left" sm-nav-sticky="true" sm-onajaxsuccess="customerEditTab_onAjaxSuccess" >
     <tab sm-title="@T("Admin.Customers.Customers.Info")" sm-selected="true" sm-icon="pen">
         <partial name="_CreateOrUpdate.Info" model="Model" />
     </tab>

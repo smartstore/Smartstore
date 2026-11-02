@@ -2,6 +2,7 @@
 
 using Smartstore.Admin.Components;
 using Smartstore.Core.Localization;
+using Smartstore.Core.Security;
 using Smartstore.Core.Widgets.Dashboard;
 using Smartstore.Engine.Modularity;
 
@@ -11,7 +12,8 @@ namespace Smartstore.Admin.Infrastructure.Dashboard;
 /// Describes and creates the dashboard widget that renders incomplete orders.
 /// </summary>
 [SystemName(SystemName)]
-public sealed class IncompleteOrdersDashboardWidget : DashboardViewComponentWidget<DashboardIncompleteOrdersViewComponent>
+public sealed class IncompleteOrdersDashboardWidget(IPermissionService permissions)
+    : DashboardViewComponentWidget<DashboardIncompleteOrdersViewComponent>(permissions, DashboardIncompleteOrdersViewComponent.RequiredPermission)
 {
     /// <summary>
     /// Identifies the incomplete orders dashboard widget type.

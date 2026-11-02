@@ -2247,7 +2247,7 @@
     "$key": "PriceSettings.ShowRequiredProductPricesWithMainProduct|0",
     "Name": "PriceSettings.ShowRequiredProductPricesWithMainProduct",
     "StoreId": 0,
-    "Value": "False"
+    "Value": "True"
   },
   {
     "$key": "PriceSettings.ShowRetailPriceSaving|0",

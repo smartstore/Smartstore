@@ -260,14 +260,11 @@
     line-height: 1.15;
 
     > .swatch-value {
-        display: -webkit-box;
+        @include text-truncate();
+        display: block;
         max-width: 100%;
-        overflow: hidden;
         font-size: $font-size-xs;
         font-weight: $font-weight-semibold;
-        overflow-wrap: anywhere;
-        -webkit-box-orient: vertical;
-        -webkit-line-clamp: 2;
     }
 
     > :is(.swatch-price, .swatch-compare-price, .swatch-base-price, .swatch-status) {

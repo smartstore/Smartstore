@@ -11,13 +11,11 @@
     gridViewData["Parent"] = Model;
 }
 
-<widget target-zone="admin_content_before">
-    <div class="section-header">
-        <div class="title">
-            <icon name="gear" />
-            <span>@ViewBag.Title</span>
-        </div>
+<div class="section-header">
+    <div class="title">
+        <icon name="gear" />
+        <span>@ViewBag.Title</span>
     </div>
-</widget>
+</div>
 
 <partial name="_Grid.AllSettings" model="null" view-data="gridViewData" />

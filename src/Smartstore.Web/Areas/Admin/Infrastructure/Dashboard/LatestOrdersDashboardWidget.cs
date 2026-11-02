@@ -2,6 +2,7 @@
 
 using Smartstore.Admin.Components;
 using Smartstore.Core.Localization;
+using Smartstore.Core.Security;
 using Smartstore.Core.Widgets.Dashboard;
 using Smartstore.Engine.Modularity;
 
@@ -11,7 +12,8 @@ namespace Smartstore.Admin.Infrastructure.Dashboard;
 /// Describes and creates the dashboard widget that renders the latest orders report.
 /// </summary>
 [SystemName(SystemName)]
-public sealed class LatestOrdersDashboardWidget : DashboardViewComponentWidget<DashboardLatestOrdersViewComponent>
+public sealed class LatestOrdersDashboardWidget(IPermissionService permissions)
+    : DashboardViewComponentWidget<DashboardLatestOrdersViewComponent>(permissions, DashboardLatestOrdersViewComponent.RequiredPermission)
 {
     public const string SystemName = "Smartstore.Admin.Dashboard.LatestOrders";
 

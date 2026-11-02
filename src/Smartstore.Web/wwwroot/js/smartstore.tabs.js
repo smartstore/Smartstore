@@ -38,6 +38,23 @@
         });
 
 
+        // Keep the newly selected content visible when switching a sticky side navigation.
+        $(document).on('shown.bs.tab', '.nav-sticky > .nav-item > a[data-toggle=tab]', function (e) {
+            const nav = $(this).closest('.nav-sticky');
+            if (!e.relatedTarget || nav.css('position') !== 'sticky') return;
+
+            const strip = nav.closest('.tabbable');
+            const scrollport = strip.parents().filter(function () {
+                return /^(auto|scroll|overlay)$/.test($(this).css('overflow-y'));
+            }).first();
+            const offset = parseFloat(nav.css('top')) || 0;
+            const top = scrollport.length ? scrollport[0].getBoundingClientRect().top : 0;
+            if (strip[0].getBoundingClientRect().top < top + offset) {
+                (scrollport.length ? scrollport : $(window)).scrollTo(strip, { offset: { top: -offset }, behavior: 'smooth' });
+            }
+        });
+
+
         // AJAX tabs
         // ------------------------------------------------------
 

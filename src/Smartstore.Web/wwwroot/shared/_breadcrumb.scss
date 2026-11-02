@@ -26,6 +26,9 @@
 }
 
 .breadcrumb-item > a {
+    display: inline-flex;
+    flex-flow: row nowrap;
+    align-items: center;
     @extend .link-body;
     @extend .link-dnu;
 }

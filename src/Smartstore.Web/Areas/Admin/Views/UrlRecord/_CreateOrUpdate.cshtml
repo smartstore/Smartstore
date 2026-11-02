@@ -24,12 +24,11 @@
     </div>
     <div class="adminRow">
         <div class="adminTitle">
-            <smart-label asp-for="Slug" />
+            <smart-label asp-for="LanguageId" />
         </div>
         <div class="adminData">
-            <input asp-for="Slug" />
-            <span asp-validation-for="Slug"></span>
-            @await Component.InvokeAsync("NamesPerEntity", new { entityName = Model.EntityName, entityId = Model.EntityId })
+            <select asp-for="LanguageId" asp-items="ViewBag.AvailableLanguages"></select>
+            <span asp-validation-for="LanguageId"></span>
         </div>
     </div>
     <div class="adminRow">
@@ -37,7 +36,7 @@
             <smart-label asp-for="EntityName" />
         </div>
         <div class="adminData">
-            <input asp-for="EntityName" />
+            <input asp-for="EntityName" readonly />
             <span asp-validation-for="EntityName"></span>
         </div>
     </div>
@@ -46,17 +45,18 @@
             <smart-label asp-for="EntityId" />
         </div>
         <div class="adminData">
-            <editor asp-for="EntityId" />
+            <input asp-for="EntityId" readonly />
             <span asp-validation-for="EntityId"></span>
         </div>
     </div>
     <div class="adminRow">
         <div class="adminTitle">
-            <smart-label asp-for="LanguageId" />
+            <smart-label asp-for="Slug" />
         </div>
         <div class="adminData">
-            <select asp-for="LanguageId" asp-items="ViewBag.AvailableLanguages"></select>
-            <span asp-validation-for="LanguageId"></span>
+            <input asp-for="Slug" />
+            <span asp-validation-for="Slug"></span>
+            @await Component.InvokeAsync("NamesPerEntity", new { entityName = Model.EntityName, entityId = Model.EntityId })
         </div>
     </div>
 </div>

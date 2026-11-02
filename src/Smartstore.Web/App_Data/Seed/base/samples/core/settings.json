@@ -7,7 +7,9 @@
     "ShowProductSku": true
   },
   "PriceSettings": {
-    "PriceDisplayType": "PreSelectedPrice"
+    "PriceDisplayType": "PreSelectedPrice",
+    // The bottle deposit (required product) is shown below the price of the lemonade.
+    "ShowRequiredProductPricesWithMainProduct": true
   },
   // The sample pictures show fine print on labels. The default quality (85, chroma subsampling 4:2:0)
   // makes the downscaled thumbnails noisy around the letters.

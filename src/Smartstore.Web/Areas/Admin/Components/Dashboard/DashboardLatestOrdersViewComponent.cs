@@ -6,11 +6,16 @@ namespace Smartstore.Admin.Components;
 
 public class DashboardLatestOrdersViewComponent(CustomerSettings customerSettings) : DashboardWidgetViewComponentBase
 {
+    /// <summary>
+    /// Gets the widget permission required to display this report.
+    /// </summary>
+    public const string RequiredPermission = Permissions.Dashboard.Widgets.Sales.LatestOrders;
+
     private readonly CustomerSettings _customerSettings = customerSettings;
 
     public override async Task<IViewComponentResult> InvokeAsync()
     {
-        if (!await Services.Permissions.AuthorizeAsync(Permissions.Order.Read))
+        if (!await Services.Permissions.AuthorizeAsync(RequiredPermission))
         {
             return Empty();
         }

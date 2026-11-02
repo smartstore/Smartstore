@@ -255,6 +255,21 @@
     "UpdatedOnUtc": "0001-01-01T00:00:00"
   },
   {
+    "$key": "#4aaefa5e2d76",
+    "CreatedOnUtc": "<now+0M>",
+    "CustomerId": "Customer:tim@example.com",
+    "HelpfulNoTotal": 0,
+    "HelpfulYesTotal": 0,
+    "IpAddress": null,
+    "IsApproved": true,
+    "IsVerifiedPurchase": true,
+    "ProductId": "Product:FD-1008",
+    "Rating": 4,
+    "ReviewText": "Gute Limonade. Ich finde gut, dass das Pfand schon vor der Bestellung angezeigt wird.",
+    "Title": "Lecker, und das Pfand ist fair",
+    "UpdatedOnUtc": "0001-01-01T00:00:00"
+  },
+  {
     "$key": "#55d514ff2187",
     "CreatedOnUtc": "<now-1M>",
     "CustomerId": "Customer:markus@example.com",
@@ -432,6 +447,21 @@
     "Rating": 5,
     "ReviewText": "Sehr bequem zum Lesen. Wir haben Leinen mit dem Eichengestell gewählt, und es sieht toll aus.",
     "Title": "Unser Lieblingsplatz",
+    "UpdatedOnUtc": "0001-01-01T00:00:00"
+  },
+  {
+    "$key": "#90867f08470c",
+    "CreatedOnUtc": "<now+0M>",
+    "CustomerId": "Customer:laura@example.com",
+    "HelpfulNoTotal": 0,
+    "HelpfulYesTotal": 0,
+    "IpAddress": null,
+    "IsApproved": true,
+    "IsVerifiedPurchase": true,
+    "ProductId": "Product:FD-1008",
+    "Rating": 5,
+    "ReviewText": "Ein echter Blutorangengeschmack. Das Pfand wurde von selbst in den Warenkorb gelegt, da kann man nichts vergessen.",
+    "Title": "Frisch und nicht zu süß",
     "UpdatedOnUtc": "0001-01-01T00:00:00"
   },
   {
@@ -642,6 +672,21 @@
     "Rating": 4,
     "ReviewText": "Das Grau meliert sieht toll aus. Er ist recht weit geschnitten, wie beschrieben.",
     "Title": "Schöne lockere Passform",
+    "UpdatedOnUtc": "0001-01-01T00:00:00"
+  },
+  {
+    "$key": "#e9fc03bfdd93",
+    "CreatedOnUtc": "<now+0M>",
+    "CustomerId": "Customer:jonas@example.com",
+    "HelpfulNoTotal": 0,
+    "HelpfulYesTotal": 0,
+    "IpAddress": null,
+    "IsApproved": true,
+    "IsVerifiedPurchase": null,
+    "ProductId": "Product:FD-1008",
+    "Rating": 3,
+    "ReviewText": "Schmeckt gut, aber 0,75 l sind schnell weg, wenn Besuch kommt.",
+    "Title": "Hätte gern eine größere Flasche",
     "UpdatedOnUtc": "0001-01-01T00:00:00"
   },
   {

@@ -280,6 +280,38 @@
     "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Occasion|Christmas"
   },
   {
+    "$key": "Product:FD-1008|SpecificationAttributeOption:SpecificationAttribute:Dietary|Vegan",
+    "AllowFiltering": true,
+    "DisplayOrder": 3,
+    "ProductId": "Product:FD-1008",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Dietary|Vegan"
+  },
+  {
+    "$key": "Product:FD-1008|SpecificationAttributeOption:SpecificationAttribute:Flavour|Fruity",
+    "AllowFiltering": true,
+    "DisplayOrder": 2,
+    "ProductId": "Product:FD-1008",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Flavour|Fruity"
+  },
+  {
+    "$key": "Product:FD-1008|SpecificationAttributeOption:SpecificationAttribute:Flavour|Sweet",
+    "AllowFiltering": true,
+    "DisplayOrder": 2,
+    "ProductId": "Product:FD-1008",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Flavour|Sweet"
+  },
+  {
+    "$key": "Product:FD-1008|SpecificationAttributeOption:SpecificationAttribute:Origin|Italy",
+    "AllowFiltering": true,
+    "DisplayOrder": 1,
+    "ProductId": "Product:FD-1008",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Origin|Italy"
+  },
+  {
     "$key": "Product:FN-1001|SpecificationAttributeOption:SpecificationAttribute:Assembly|Easy self-assembly",
     "AllowFiltering": true,
     "DisplayOrder": 3,
