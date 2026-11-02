@@ -803,7 +803,7 @@ public class IconServiceTests
         var kits = new IconKitService(_service, accessor);
         var renderer = new IconRenderer(_service, kits);
         var output = await renderer.RenderAsync(icon, new IconPresentation { StrokeScale = 3 });
-        Assert.That(output.Attributes.TryGetValue("data-supports-stroke-scaling", out var strokeScaling), Is.EqualTo(supported));
+        Assert.That(output.Attributes.TryGetValue("data-scalable", out var strokeScaling), Is.EqualTo(supported));
         Assert.That(strokeScaling, Is.EqualTo(supported ? "true" : null));
         Assert.That(RenderMarkup(output).Contains("--icon-stroke-scale:3;"), Is.EqualTo(supported));
         var browser = new IconBrowser(_service, kits, accessor);

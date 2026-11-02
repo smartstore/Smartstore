@@ -400,7 +400,7 @@
                 template = document.createElementNS(ns, 'svg');
                 template.setAttribute('data-icon', input.name + ' -> ' + reference.address);
                 if (reference.transform) template.setAttribute('data-icon-mapping', reference.transform);
-                if (reference.supportsStrokeScaling) template.setAttribute('data-supports-stroke-scaling', 'true');
+                if (reference.supportsStrokeScaling) template.setAttribute('data-scalable', 'true');
                 template.setAttribute('class', reference.classes.join(' '));
                 const use = document.createElementNS(ns, 'use');
                 use.setAttribute('href', reference.href); template.append(use);

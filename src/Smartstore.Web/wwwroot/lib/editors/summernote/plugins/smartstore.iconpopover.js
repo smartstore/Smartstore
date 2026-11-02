@@ -68,7 +68,7 @@
         function refresh() {
             for (const [option, button] of buttons) {
                 const current = value(option);
-                if (option === 'stroke-scale') button.classList.toggle('d-none', !target?.querySelector('svg[data-supports-stroke-scaling="true"]'));
+                if (option === 'stroke-scale') button.classList.toggle('d-none', !target?.querySelector('svg[data-scalable="true"]'));
                 const active = option.startsWith('flip-') ? current.toLowerCase() === 'true' : !!current;
                 button.classList.toggle('active', active);
                 if (option.startsWith('flip-')) button.setAttribute('aria-pressed', String(active));

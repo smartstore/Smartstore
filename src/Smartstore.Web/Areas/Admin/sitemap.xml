@@ -136,8 +136,8 @@
         </siteMapNode>
 
         <siteMapNode id="modules" title="Plugins" resKey="Admin.Plugins" icon="puzzle" permissionNames="configuration.plugin.read">
-            <siteMapNode id="modules-sep-1" isGroupHeader="true" title="[SKIP]" />
             <siteMapNode id="modules-manage" icon="puzzle" title="Manage plugins" resKey="Admin.Plugins.Manage" permissionNames="configuration.plugin.read" controller="Module" action="List" area="Admin"/>
+            <siteMapNode id="modules-sep-1" isGroupHeader="true" title="[SKIP]" />
         </siteMapNode>
 
     </siteMapNode>

@@ -717,7 +717,6 @@ span.dg-page {
 // -----------------------------------------
 
 .dg-row-edit-commands {
-    --btnsize: 28px;
     --padding: 4px;
     --gap: 4px;
     position: absolute;
@@ -726,13 +725,8 @@ span.dg-page {
     flex-direction: column;
     gap: var(--gap);
     padding: var(--padding);
-    width: calc(var(--btnsize) + calc(var(--padding) * 2) + 2px);
-    height: calc(calc(var(--btnsize) * 2) + calc(var(--padding) * 2) + var(--gap) + 2px);
     box-shadow: var(--box-shadow-sm);
 
-    > .btn-row-command {
-        --btn-height: var(--btnsize);
-    }
 }
 
 

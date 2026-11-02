@@ -102,7 +102,7 @@
                     <option></option>
                     @if (selectedAddress.HasValue())
                     {
-                        <option value="@selectedAddress" data-external="@(initialSource?.IsExternal == true ? "true" : "false")" attr-data-supports-stroke-scaling='@(selectedIcon?.SupportsStrokeScaling == true, "true")' selected>@selectedLabel</option>
+                        <option value="@selectedAddress" data-external="@(initialSource?.IsExternal == true ? "true" : "false")" attr-data-scalable='@(selectedIcon?.SupportsStrokeScaling == true, "true")' selected>@selectedLabel</option>
                     }
                 </select>
                 @if (visibleOptions != IconOptionFields.None)

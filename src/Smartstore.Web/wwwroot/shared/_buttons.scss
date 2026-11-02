@@ -127,6 +127,13 @@ button:where(.reset) {
     }
 }
 
+// Extra-small buttons
+// --------------------------------------------------
+
+.btn-xs {
+    @include button-size($btn-padding-y-xs, $btn-padding-x-xs, $btn-font-size-xs, $btn-line-height-xs, $btn-border-radius-sm);
+}
+
 .btn-icon-fix {
     // Quick fix for directional icons not perfectly aligned with button text
     position: relative;
@@ -174,8 +181,7 @@ button:where(.reset) {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: var(--btn-height);
-    min-width: var(--btn-height);
+    aspect-ratio: 1;
     height: var(--btn-height);
     line-height: var(--btn-height);
 

@@ -146,7 +146,7 @@ public sealed partial class IconRenderer(IIconService icons, IIconKitService kit
 
         if (icon.SupportsStrokeScaling)
         {
-            svg.Attributes["data-supports-stroke-scaling"] = "true";
+            svg.Attributes["data-scalable"] = "true";
         }
         svg.Attributes["data-icon"] = missing && requestedName.HasValue()
             ? $"{requestedName} -> {icon.Address}"

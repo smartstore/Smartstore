@@ -205,10 +205,10 @@ Smartstore.Admin.DataGridVue.components["sm-datagrid"] = {
                                             </div>
 
                                             <div v-if="editing.active && row == editing.row" class="dg-row-edit-commands bg-white rounded-pill border">
-                                                <a href="#" @click.prevent.stop="saveChanges()" class="btn btn-primary btn-sm btn-flat btn-icon rounded-circle btn-row-command" :title="T.saveChanges">
+                                                <a href="#" @click.prevent.stop="saveChanges()" class="btn btn-primary btn-xs btn-flat btn-icon rounded-circle btn-row-command" :title="T.saveChanges">
                                                     <sm-icon name="check" size="xs"></sm-icon>
                                                 </a>
-                                                <a href="#" @click.prevent.stop="cancelEdit()" class="btn btn-secondary btn-sm btn-flat btn-icon rounded-circle btn-row-command" :title="T.cancel">
+                                                <a href="#" @click.prevent.stop="cancelEdit()" class="btn btn-secondary btn-xs btn-flat btn-icon rounded-circle btn-row-command" :title="T.cancel">
                                                     <sm-icon name="close" size="xs"></sm-icon>
                                                 </a>
                                             </div>

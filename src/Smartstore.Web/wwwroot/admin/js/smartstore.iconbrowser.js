@@ -178,7 +178,7 @@
                 dropdownCssClass: 'icon-browser-dropdown',
                 templateResult: item => format(item, true),
                 templateSelection: item => {
-                    supportsStrokeScaling = !!item?.id && (item.supportsStrokeScaling ?? item.element?.dataset.supportsStrokeScaling === 'true');
+                    supportsStrokeScaling = !!item?.id && (item.supportsStrokeScaling ?? item.element?.dataset.scalable === 'true');
                     updateToolbarState();
                     return format(item, false);
                 },

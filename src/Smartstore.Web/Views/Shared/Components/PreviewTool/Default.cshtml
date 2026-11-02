@@ -12,21 +12,21 @@
     var disableApply = (bool)ViewBag.DisableApply;
 }
 
-<form id="previewmode" asp-controller="Theme" asp-action="PreviewTool" asp-area="Admin" method="post" class="floating-toolbar floating-toolbar-autofade">
+<form id="previewmode" asp-controller="Theme" asp-action="PreviewTool" asp-area="Admin" method="post" class="floating-toolbar floating-toolbar-autofade rounded-sm">
     <input type="hidden" name="returnUrl" value="@Context.Request.RawUrl()" />
     <input type="hidden" name="theme" value="@currentTheme?.Value" />
     <input type="hidden" name="storeId" value="@currentStore?.Value" />
 
-    <button type="button" class="btn btn-secondary btn-plain btn-sm btn-icon floating-toolbar-toggle" title="@T("Admin.Header.CollapseNavigation.Short")" data-collapse-title="@T("Admin.Header.CollapseNavigation.Short")" data-expand-title="@T("Admin.Configuration.Themes.PreviewMode")" aria-expanded="true" aria-controls="previewmode">
+    <button type="button" class="btn btn-secondary btn-plain btn-xs fwn btn-icon floating-toolbar-toggle" title="@T("Admin.Header.CollapseNavigation.Short")" data-collapse-title="@T("Admin.Header.CollapseNavigation.Short")" data-expand-title="@T("Admin.Configuration.Themes.PreviewMode")" aria-expanded="true" aria-controls="previewmode">
         <icon name="hi:arrow-left-05/sr" />
     </button>
 
     <span class="floating-toolbar-label">@T("Admin.Configuration.Themes.PreviewMode"):</span>
 
     <div class="dropup">
-        <button id="preview-theme" type="button" class="btn btn-secondary btn-plain btn-sm dropdown-toggle" data-toggle="dropdown" aria-expanded="false" title="@T("Admin.Configuration.Themes.Theme")">
+        <button id="preview-theme" type="button" style="max-width: 200px" class="btn btn-secondary btn-plain btn-xs fwn dropdown-toggle" data-toggle="dropdown" aria-expanded="false" title="@T("Admin.Configuration.Themes.Theme")">
             <icon name="hi:paint-board/sr" />
-            <span>@currentTheme?.Text</span>
+            <span class="text-truncate">@currentTheme?.Text</span>
         </button>
         <div class="dropdown-menu" aria-labelledby="preview-theme">
             @foreach (var theme in themes)
@@ -37,9 +37,9 @@
     </div>
 
     <div class="dropup">
-        <button id="preview-store" type="button" class="btn btn-secondary btn-plain btn-sm dropdown-toggle" data-toggle="dropdown" aria-expanded="false" title="@T("Admin.Common.Store")">
+        <button id="preview-store" type="button" style="max-width: 200px" class="btn btn-secondary btn-plain btn-xs fwn dropdown-toggle" data-toggle="dropdown" aria-expanded="false" title="@T("Admin.Common.Store")">
             <icon name="hi:store-01/sr" />
-            <span>@currentStore?.Text</span>
+            <span class="text-truncate">@currentStore?.Text</span>
         </button>
         <div class="dropdown-menu" aria-labelledby="preview-store">
             @foreach (var store in stores)
@@ -51,13 +51,13 @@
 
     <div class="vr" aria-hidden="true"></div>
 
-    <button type="submit" name="PreviewMode.Apply" value="@T("Common.Apply")" class="btn btn-primary btn-flat btn-sm" attr-disabled='(disableApply, "disabled")'>
-        <icon name="hi:check/sr" />
-        <span>@T("Common.Apply")</span>
-    </button>
-    <button type="submit" name="PreviewMode.Exit" value="@T("Admin.Configuration.Themes.ExitPreviewMode")" title="@T("Admin.Configuration.Themes.ExitPreviewMode")" class="btn btn-secondary btn-plain btn-sm">
+    <button type="submit" name="PreviewMode.Exit" value="@T("Admin.Configuration.Themes.ExitPreviewMode")" title="@T("Admin.Configuration.Themes.ExitPreviewMode")" class="btn btn-secondary btn-plain btn-xs fwn">
         <icon name="hi:view-off-slash/sr" />
         <span>@T("Common.Exit")</span>
+    </button>
+    <button type="submit" name="PreviewMode.Apply" value="@T("Common.Apply")" class="btn btn-primary btn-flat btn-xs" attr-disabled='(disableApply, "disabled")'>
+        <icon name="hi:check/sr" />
+        <span>@T("Common.Apply")</span>
     </button>
 </form>
 

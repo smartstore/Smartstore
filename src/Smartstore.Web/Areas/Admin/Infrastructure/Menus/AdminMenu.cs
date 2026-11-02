@@ -34,26 +34,36 @@ public partial class AdminMenu : MenuBase
 
     protected override Task OnMenuBuilt(TreeNode<MenuItem> root)
     {
-        // Rearrange order of "Plugins" child nodes (ensure that "Manage Plugins" comes last).
+        // Keep "Manage Plugins" and its separator ahead of contributed plugin entries.
         var modulesNode = root.SelectNodeById("modules");
         var sepNode = root.SelectNodeById("modules-sep-1");
         var manageNode = root.SelectNodeById("modules-manage");
 
+        var pluginNodes = modulesNode.Children
+            .Where(x => x != manageNode && x != sepNode)
+            .OrderBy(x => x.GetItemText(T), StringComparer.CurrentCultureIgnoreCase)
+            .ToArray();
+
+        foreach (var node in pluginNodes)
+        {
+            modulesNode.Append(node);
+        }
+
         if (sepNode != null)
         {
-            modulesNode.Append(sepNode);
+            modulesNode.Prepend(sepNode);
         }
 
         if (manageNode != null)
         {
-            modulesNode.Append(manageNode);
+            modulesNode.Prepend(manageNode);
         }
 
         foreach (var item in modulesNode.Flatten(false))
         {
             if (item != manageNode?.Value)
             {
-                item.LinkHtmlAttributes.AppendCssClass("font-weight-normal");
+                item.LinkHtmlAttributes.AppendCssClass("fwn");
             }
         }
 
