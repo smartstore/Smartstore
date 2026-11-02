@@ -102,15 +102,13 @@ public class AmazonPayProvider : PaymentMethodBase, IConfigurable
 
     public override Widget GetPaymentInfoWidget()
     {
-        var routeValues = _httpContextAccessor.HttpContext?.Request.RouteValues;
-
-        if (routeValues.GetControllerName().EqualsNoCase("Checkout") == true
-            && routeValues.GetActionName().EqualsNoCase(CheckoutActionNames.PaymentMethod) == true)
+        var routeIdent = _httpContextAccessor.HttpContext?.Request?.RouteValues?.GenerateRouteIdentifier();
+        if (routeIdent.EqualsNoCase($"Checkout.{CheckoutActionNames.PaymentMethod}"))
         {
             return null;
         }
 
-        return new ComponentWidget(typeof(PayButtonViewComponent));
+        return new ComponentWidget<PayButtonViewComponent>();
     }
 
     public override Task<string> GetPaymentSummaryAsync()
