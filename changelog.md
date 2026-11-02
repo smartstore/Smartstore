@@ -172,6 +172,7 @@
 - **AI:** Fixed web search not being used during AI-assisted product creation.
 - #1576 GoogleAnalytics: purchase event has no product-ID token (mismatch with Merchant Center feed id).
 - Sorting by creation date in the product grid did not work when the catalog search was enabled in the backend.
+- Fixed the discount calculation when the quantity of an order item is subsequently changed.
 
 ## Smartstore 6.4.0
 
