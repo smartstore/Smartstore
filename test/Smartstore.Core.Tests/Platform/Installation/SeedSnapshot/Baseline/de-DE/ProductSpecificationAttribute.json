@@ -280,6 +280,38 @@
     "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Geschmack|Süß"
   },
   {
+    "$key": "Product:FD-1008|SpecificationAttributeOption:SpecificationAttribute:Ernährung|Vegan",
+    "AllowFiltering": true,
+    "DisplayOrder": 3,
+    "ProductId": "Product:FD-1008",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Ernährung|Vegan"
+  },
+  {
+    "$key": "Product:FD-1008|SpecificationAttributeOption:SpecificationAttribute:Geschmack|Fruchtig",
+    "AllowFiltering": true,
+    "DisplayOrder": 2,
+    "ProductId": "Product:FD-1008",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Geschmack|Fruchtig"
+  },
+  {
+    "$key": "Product:FD-1008|SpecificationAttributeOption:SpecificationAttribute:Geschmack|Süß",
+    "AllowFiltering": true,
+    "DisplayOrder": 2,
+    "ProductId": "Product:FD-1008",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Geschmack|Süß"
+  },
+  {
+    "$key": "Product:FD-1008|SpecificationAttributeOption:SpecificationAttribute:Herkunft|Italien",
+    "AllowFiltering": true,
+    "DisplayOrder": 1,
+    "ProductId": "Product:FD-1008",
+    "ShowOnProductPage": true,
+    "SpecificationAttributeOptionId": "SpecificationAttributeOption:SpecificationAttribute:Herkunft|Italien"
+  },
+  {
     "$key": "Product:FN-1001|SpecificationAttributeOption:SpecificationAttribute:Material|Holz",
     "AllowFiltering": true,
     "DisplayOrder": 2,

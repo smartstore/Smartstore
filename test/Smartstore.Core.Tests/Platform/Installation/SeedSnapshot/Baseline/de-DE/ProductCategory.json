@@ -72,6 +72,14 @@
     "ProductId": "Product:FD-1007"
   },
   {
+    "$key": "Product:FD-1008|Category:Delicacies",
+    "CategoryId": "Category:Delicacies",
+    "DisplayOrder": 1,
+    "IsFeaturedProduct": false,
+    "IsSystemMapping": false,
+    "ProductId": "Product:FD-1008"
+  },
+  {
     "$key": "Product:FN-1001|Category:Armchairs",
     "CategoryId": "Category:Armchairs",
     "DisplayOrder": 1,

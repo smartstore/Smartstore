@@ -248,6 +248,22 @@
     "Slug": "spiced-christmas-cookies"
   },
   {
+    "$key": "Product|Product:FD-1008|0|sparkling-blood-orange-lemonade-0-75-l",
+    "EntityId": "Product:FD-1008",
+    "EntityName": "Product",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "sparkling-blood-orange-lemonade-0-75-l"
+  },
+  {
+    "$key": "Product|Product:FD-1009|0|bottle-deposit",
+    "EntityId": "Product:FD-1009",
+    "EntityName": "Product",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "bottle-deposit"
+  },
+  {
     "$key": "Product|Product:FN-1001|0|lund-lounge-chair",
     "EntityId": "Product:FN-1001",
     "EntityName": "Product",

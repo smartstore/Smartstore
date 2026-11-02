@@ -271,5 +271,54 @@
       { "specificationAttributeOption": "flavour/spicy", "allowFiltering": true, "showOnProductPage": true, "displayOrder": 1 },
       { "specificationAttributeOption": "occasion/christmas", "allowFiltering": true, "showOnProductPage": true, "displayOrder": 2 }
     ]
+  },
+  {
+    "name": "Sparkling Blood Orange Lemonade 0.75 l",
+    "shortDescription": "Lightly sparkling lemonade with blood orange juice in a returnable 0.75 l bottle. The bottle deposit is added automatically.",
+    "fullDescription": "@file",
+    "sku": "FD-1008",
+    "reviews": [
+      { "customer": "laura", "rating": 5, "title": "Fresh and not too sweet", "reviewText": "A real blood orange taste. The deposit was added to the cart by itself, so there was nothing to forget.", "isApproved": true, "isVerifiedPurchase": true, "createdOnUtc": "@now-14d" },
+      { "customer": "tim", "rating": 4, "title": "Tasty, and the deposit is fair", "reviewText": "Good lemonade. I like that the deposit is shown before I order.", "isApproved": true, "isVerifiedPurchase": true, "createdOnUtc": "@now-8d" },
+      { "customer": "jonas", "rating": 3, "title": "Would like a larger bottle", "reviewText": "Tastes good, but 0.75 l is gone quickly when friends come over.", "isApproved": true, "createdOnUtc": "@now-3d" }
+    ],
+    "taxCategory": "general",
+    "price": 2.90,
+    "basePriceEnabled": true,
+    "basePriceMeasureUnit": "l",
+    "basePriceAmount": 0.75,
+    "basePriceBaseAmount": 1,
+    "requiredProducts": [ "FD-1009" ],
+    "automaticallyAddRequiredProducts": true,
+    "deliveryTime": "available-and-ready-to-ship",
+    "stockQuantity": 240,
+    "displayStockAvailability": true,
+    "categories": [ "Delicacies" ],
+    "manufacturers": [ "casa-vireluna" ],
+    "pictures": [
+      { "file": "product/fd-1008.jpg", "name": "sparkling-blood-orange-lemonade" }
+    ],
+    "specifications": [
+      { "specificationAttributeOption": "origin/italy", "allowFiltering": true, "showOnProductPage": true, "displayOrder": 1 },
+      { "specificationAttributeOption": "flavour/fruity", "allowFiltering": true, "showOnProductPage": true, "displayOrder": 2 },
+      { "specificationAttributeOption": "flavour/sweet", "allowFiltering": true, "showOnProductPage": true, "displayOrder": 2 },
+      { "specificationAttributeOption": "dietary/vegan", "allowFiltering": true, "showOnProductPage": true, "displayOrder": 3 }
+    ]
+  },
+  {
+    "name": "Bottle Deposit",
+    "shortDescription": "Fixed deposit per returnable bottle, refunded when the empty bottle is returned.",
+    "fullDescription": "@file",
+    "sku": "FD-1009",
+    "allowCustomerReviews": false,
+    "taxCategory": "general",
+    "price": 0.25,
+    "quantityPerParentUnit": 1,
+    "visibility": "ProductPage",
+    "isShippingEnabled": false,
+    "manageInventoryMethod": "DontManageStock",
+    "pictures": [
+      { "file": "product/fd-1009.jpg", "name": "bottle-deposit" }
+    ]
   }
 ]

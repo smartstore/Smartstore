@@ -248,6 +248,22 @@
     "Slug": "weihnachtliche-gewuerzkekse"
   },
   {
+    "$key": "Product|Product:FD-1008|0|blutorangen-limonade-0-75-l",
+    "EntityId": "Product:FD-1008",
+    "EntityName": "Product",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "blutorangen-limonade-0-75-l"
+  },
+  {
+    "$key": "Product|Product:FD-1009|0|flaschenpfand",
+    "EntityId": "Product:FD-1009",
+    "EntityName": "Product",
+    "IsActive": true,
+    "LanguageId": 0,
+    "Slug": "flaschenpfand"
+  },
+  {
     "$key": "Product|Product:FN-1001|0|loungesessel-lund",
     "EntityId": "Product:FN-1001",
     "EntityName": "Product",

@@ -240,6 +240,21 @@
     "UpdatedOnUtc": "0001-01-01T00:00:00"
   },
   {
+    "$key": "#723079354196",
+    "CreatedOnUtc": "<now+0M>",
+    "CustomerId": "Customer:jonas@example.com",
+    "HelpfulNoTotal": 0,
+    "HelpfulYesTotal": 0,
+    "IpAddress": null,
+    "IsApproved": true,
+    "IsVerifiedPurchase": null,
+    "ProductId": "Product:FD-1008",
+    "Rating": 3,
+    "ReviewText": "Tastes good, but 0.75 l is gone quickly when friends come over.",
+    "Title": "Would like a larger bottle",
+    "UpdatedOnUtc": "0001-01-01T00:00:00"
+  },
+  {
     "$key": "#77f3c474cc05",
     "CreatedOnUtc": "<now+0M>",
     "CustomerId": "Customer:tim@example.com",
@@ -267,6 +282,21 @@
     "Rating": 4,
     "ReviewText": "Very light for walking the course and the compartments are well planned.",
     "Title": "Light and practical",
+    "UpdatedOnUtc": "0001-01-01T00:00:00"
+  },
+  {
+    "$key": "#7d7e932e0c99",
+    "CreatedOnUtc": "<now+0M>",
+    "CustomerId": "Customer:tim@example.com",
+    "HelpfulNoTotal": 0,
+    "HelpfulYesTotal": 0,
+    "IpAddress": null,
+    "IsApproved": true,
+    "IsVerifiedPurchase": true,
+    "ProductId": "Product:FD-1008",
+    "Rating": 4,
+    "ReviewText": "Good lemonade. I like that the deposit is shown before I order.",
+    "Title": "Tasty, and the deposit is fair",
     "UpdatedOnUtc": "0001-01-01T00:00:00"
   },
   {
@@ -372,6 +402,21 @@
     "Rating": 4,
     "ReviewText": "Tastes great. I would only wish for a larger bottle with a better price per litre.",
     "Title": "Very good, a little pricey",
+    "UpdatedOnUtc": "0001-01-01T00:00:00"
+  },
+  {
+    "$key": "#9626b6e11d9b",
+    "CreatedOnUtc": "<now+0M>",
+    "CustomerId": "Customer:laura@example.com",
+    "HelpfulNoTotal": 0,
+    "HelpfulYesTotal": 0,
+    "IpAddress": null,
+    "IsApproved": true,
+    "IsVerifiedPurchase": true,
+    "ProductId": "Product:FD-1008",
+    "Rating": 5,
+    "ReviewText": "A real blood orange taste. The deposit was added to the cart by itself, so there was nothing to forget.",
+    "Title": "Fresh and not too sweet",
     "UpdatedOnUtc": "0001-01-01T00:00:00"
   },
   {

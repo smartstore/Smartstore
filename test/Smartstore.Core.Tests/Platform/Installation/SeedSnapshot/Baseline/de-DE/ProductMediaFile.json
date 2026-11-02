@@ -60,6 +60,18 @@
     "ProductId": "Product:FD-1007"
   },
   {
+    "$key": "Product:FD-1008|MediaFile:sparkling-blood-orange-lemonade.jpg",
+    "DisplayOrder": 1,
+    "MediaFileId": "MediaFile:sparkling-blood-orange-lemonade.jpg",
+    "ProductId": "Product:FD-1008"
+  },
+  {
+    "$key": "Product:FD-1009|MediaFile:bottle-deposit.jpg",
+    "DisplayOrder": 1,
+    "MediaFileId": "MediaFile:bottle-deposit.jpg",
+    "ProductId": "Product:FD-1009"
+  },
+  {
     "$key": "Product:FN-1001|MediaFile:lund-lounge-chair-fabric-steel.jpg",
     "DisplayOrder": 4,
     "MediaFileId": "MediaFile:lund-lounge-chair-fabric-steel.jpg",

@@ -44,6 +44,8 @@ SKUs are `{prefix}{number}`, starting at 1001, e.g. `FN-1002`. Combinations appe
 | FD-1005 | Gourmet gift box | Bundle with per-item pricing and item discounts, new |
 | FD-1006 | Sea salt mill | Out of stock with back-in-stock notification |
 | FD-1007 | Spiced Christmas cookies | Available from a future date; hidden in lists and search, reachable through the related products of FD-1002 and FD-1005 |
+| FD-1008 | Sparkling blood orange lemonade | Required product with a fixed deposit: the bottle deposit FD-1009 is added to the cart automatically; its price is shown below the price of the lemonade (sample setting `ShowRequiredProductPricesWithMainProduct`) |
+| FD-1009 | Bottle deposit | The required product itself: fixed amount, quantity per main product 1 (follows the number of bottles, cannot be changed in the cart), visible on the product page only, not shipped, standard tax rate (in Germany the deposit is a separate supply taxed at 19 %; the refund on return is not modelled) |
 | GF-1001 | Golf balls | Pack size variant with price and weight adjustment, tier prices |
 | GF-1002 | Golf tees, 50 pieces | Quantity unit and minimum order quantity |
 | GF-1003 | Leather golf glove | Required variants without preselection (radio list and dropdown) |
