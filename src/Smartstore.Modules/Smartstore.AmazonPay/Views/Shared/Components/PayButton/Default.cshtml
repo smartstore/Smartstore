@@ -13,53 +13,70 @@
         const form = btnContainer.closest('form').length
             ? btnContainer.closest('form')
             : $('#startcheckout').closest('form');
-        let amazonPayButton = amazon.Pay.renderButton('#amazonpay-button', {
-            merchantId: '@Html.Raw(Model.SellerId)',
-            publicKeyId: '@Html.Raw(Model.PublicKeyId)',
-            ledgerCurrency: '@Model.LedgerCurrency',
-            checkoutLanguage: '@Model.CheckoutLanguage',
-            productType: '@Model.ButtonType',
-            placement: '@Model.ButtonPlacement',
-            buttonColor: '@Model.ButtonColor',
-            sandbox: @(Model.UseSandbox.ToString().ToLower())
-        });
+        let amazonPayButton;
 
-        amazonPayButton.onClick(function () {
-            // INFO: we are decoupling button render and checkout initiation
-            // by creating and signing the payload later using AJAX to reduce net traffic.
-            $.ajax({
-                type: 'POST',
-                url: '@Url.Action("CreateCheckoutSession", "AmazonPay")',
-                data: form.serialize(),
-			    success: function (response) {
-                    if (response.success) {
-                        // INFO: this forces a redirect to AmazonPay in the same browser window.
-                        amazonPayButton.initCheckout({
-                            createCheckoutSessionConfig: {
-                                payloadJSON: response.payload,
-                                signature: response.signature,
-                                publicKeyId: '@Html.Raw(Model.PublicKeyId)'
-                            }
-                        });
-				    }
-				    else {
-					    displayNotification(response.message, response.messageType);
-				    }
-			    }
-		    });
-        });
+        function renderAmazonPayButton() {
+            if (amazonPayButton) {
+                return;
+            }
+
+            amazonPayButton = amazon.Pay.renderButton('#amazonpay-button', {
+                merchantId: '@Html.Raw(Model.SellerId)',
+                publicKeyId: '@Html.Raw(Model.PublicKeyId)',
+                ledgerCurrency: '@Model.LedgerCurrency',
+                checkoutLanguage: '@Model.CheckoutLanguage',
+                productType: '@Model.ButtonType',
+                placement: '@Model.ButtonPlacement',
+                buttonColor: '@Model.ButtonColor',
+                sandbox: @(Model.UseSandbox.ToString().ToLower())
+            });
+
+            amazonPayButton.onClick(function () {
+                // INFO: We are decoupling button render and checkout initiation
+                // by creating and signing the payload later using AJAX to reduce net traffic.
+                $.ajax({
+                    type: 'POST',
+                    url: '@Url.Action("CreateCheckoutSession", "AmazonPay")',
+                    data: form.serialize(),
+			        success: function (response) {
+                        if (response.success) {
+                            // INFO: this forces a redirect to AmazonPay in the same browser window.
+                            amazonPayButton.initCheckout({
+                                createCheckoutSessionConfig: {
+                                    payloadJSON: response.payload,
+                                    signature: response.signature,
+                                    publicKeyId: '@Html.Raw(Model.PublicKeyId)'
+                                }
+                            });
+				        }
+				        else {
+					        displayNotification(response.message, response.messageType);
+				        }
+			        }
+		        });
+            });
+        }
 
         @if (Model.IsPaymentSelection)
         {
             <text>
             $(document).on('change.amazonpay', 'input[name="paymentmethod"]', () => {
                 const isAmazonPaySelected = $('input[name="paymentmethod"]:checked').val() === '@AmazonPayProvider.SystemName';
-                btnNext.toggle(!isAmazonPaySelected);
+                btnNext.toggleClass('d-none', isAmazonPaySelected);
                 btnContainer.toggle(isAmazonPaySelected);
+
+                if (isAmazonPaySelected) {
+                    renderAmazonPayButton();
+                }
             });
 
             $('input[name="paymentmethod"]:checked').trigger('change');
+            $(window).on('pageshow.amazonpay', () => $('input[name="paymentmethod"]:checked').trigger('change.amazonpay'));
             </text>
+        }
+        else
+        {
+            <text>renderAmazonPayButton();</text>
         }
     });
 
