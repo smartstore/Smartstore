@@ -51,7 +51,8 @@ public class CheckoutFilter : IAsyncActionFilter
 
         if (action.EqualsNoCase(nameof(CheckoutController.PaymentMethod)))
         {
-            if (_settings.ShowInPaymentMethodList && await IsAmazonPayActive())
+            var state = _checkoutStateAccessor.CheckoutState.GetCustomState<AmazonPayCheckoutState>();
+            if (_settings.ShowInPaymentMethodList && state.SessionId.IsEmpty() && await IsAmazonPayActive())
             {
                 _widgetProvider.Value.RegisterViewComponent<PayButtonViewComponent>("checkout_payment_method_buttons", new { isPaymentSelection = true });
             }

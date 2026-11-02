@@ -113,6 +113,9 @@ public class AmazonPayProvider : PaymentMethodBase, IConfigurable
         return new ComponentWidget(typeof(PayButtonViewComponent));
     }
 
+    public override Task<string> GetPaymentSummaryAsync()
+        => Task.FromResult(_checkoutStateAccessor.CheckoutState.PaymentSummary);
+
     #endregion
 
 
