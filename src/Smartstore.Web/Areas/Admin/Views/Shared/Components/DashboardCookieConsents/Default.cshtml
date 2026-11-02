@@ -1,4 +1,5 @@
 @using Smartstore.Admin.Models.Customers
+
 @model DashboardCookieConsentModel
 
 <div class="report">
@@ -27,6 +28,7 @@
 
                         <tr>
                             <td>@T(category.CategoryResourceKey)</td>
+
                             @foreach (var (count, percentage) in new[]
                             {
                                 (category.AcceptedCount, category.AcceptedPercentage),

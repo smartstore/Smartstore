@@ -36,8 +36,11 @@ internal sealed class ContactRequestsDashboardHook : AsyncDbSaveHook<QueuedEmail
 
         int storeId = context.Store?.Id ?? context.StoreId.GetValueOrDefault();
         string email = message.MessageModel?.Evaluate("Message.SenderEmail") as string;
+
         if (storeId > 0 && email.HasValue())
+        {
             message.QueuedEmail.AddHookState(AttributeKey, (StoreId: storeId, Email: email));
+        }
     }
 
     /// <inheritdoc />
@@ -64,6 +67,7 @@ internal sealed class ContactRequestsDashboardHook : AsyncDbSaveHook<QueuedEmail
             .Where(x => x.InitialState == Smartstore.Data.EntityState.Deleted)
             .Select(x => x.Entity.Id)
             .ToArray();
+
         foreach (var chunk in deletedIds.Chunk(128))
         {
             await _db.GenericAttributes

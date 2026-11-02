@@ -52,6 +52,7 @@ public class DashboardCookieConsentsViewComponent : SmartViewComponent
                     && attribute.Key == SystemCustomerAttributeNames.CookieConsent && attribute.StoreId == 0
                     && customerIds.Contains(attribute.EntityId))
                 .ToFastPager(500);
+
             var report = new DashboardCookieConsentModel
             {
                 Categories = _fields.Select(field => new DashboardCookieConsentCategoryModel
@@ -59,6 +60,7 @@ public class DashboardCookieConsentsViewComponent : SmartViewComponent
                     CategoryResourceKey = "CookieManager.Dialog." + field.Category + ".Heading"
                 }).ToArray()
             };
+
             while ((await pager.ReadNextPageAsync(attribute => new { attribute.Id, attribute.Value }, attribute => attribute.Id)).Out(out var page))
             {
                 foreach (var attribute in page)
