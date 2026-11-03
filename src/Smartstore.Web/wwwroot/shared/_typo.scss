@@ -110,7 +110,7 @@ h6, .h6 {
     margin-bottom: 1.5rem;
 
     > :where(h1, .h1) {
-        font-size: cssmin($h1-font-size, 46px);
+        @include font-size($h1-font-size);
         line-height: 1.1;
         letter-spacing: -.02em;
     }

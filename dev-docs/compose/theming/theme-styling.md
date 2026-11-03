@@ -32,11 +32,19 @@ Smartstore uses Lightning CSS to transpile style bundles for the browsers config
 
 ### Vendor components (neutral)
 
-<table><thead><tr><th width="294">File</th><th>Description</th></tr></thead><tbody><tr><td>lib/rfs/_rfs.scss</td><td>Used to set automated, responsive values for font sizes, padding, margins, and more.</td></tr><tr><td>lib/photoswipe/photoswipe.scss</td><td>Styles for basic PhotoSwipe functionality (sliding area, open / close transitions)</td></tr><tr><td>lib/slick/slick.scss</td><td>Styles for Slick Slider</td></tr><tr><td>lib/select2/scss/core.scss</td><td>Styles for Select2, which gives you a customizable select box with support for searching, tagging, remote records, infinite scrolling, and many more popular options.</td></tr><tr><td>lib/aos/scss/aos.scss</td><td>Styles for AOS (Animate On Scroll) library.</td></tr></tbody></table>
+<table><thead><tr><th width="294">File</th><th>Description</th></tr></thead><tbody><tr><td>lib/photoswipe/photoswipe.scss</td><td>Styles for basic PhotoSwipe functionality (sliding area, open / close transitions)</td></tr><tr><td>lib/slick/slick.scss</td><td>Styles for Slick Slider</td></tr><tr><td>lib/select2/scss/core.scss</td><td>Styles for Select2, which gives you a customizable select box with support for searching, tagging, remote records, infinite scrolling, and many more popular options.</td></tr><tr><td>lib/aos/scss/aos.scss</td><td>Styles for AOS (Animate On Scroll) library.</td></tr></tbody></table>
 
 ### Button tweaks
 
 <table><thead><tr><th width="284">File</th><th>Description</th></tr></thead><tbody><tr><td>_buttons.scss</td><td>Used to override some Bootstrap values for buttons.</td></tr></tbody></table>
+
+### Responsive typography
+
+The implementation lives in `lib/bootstrap/scss/mixins/_font-size.scss`.
+
+Use `@include font-size($value)` for responsive font sizes. The Bootstrap font-size mixin uses CSS `clamp()` instead of RFS. Enable it with `$enable-rfs`; Flex enables it and the admin theme disables it. Values up to `1.25rem`, relative units, CSS variables and keywords remain unchanged. Prose keeps its own typography rules.
+
+Existing `rfs` and `margin-bottom` calls remain supported by compatibility entry points in the same file. Bootstrap font-size utilities use the same calculation. The legacy RFS files are no longer imported.
 
 ### Global / Shared
 
