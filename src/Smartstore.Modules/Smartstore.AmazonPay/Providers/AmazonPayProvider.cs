@@ -98,7 +98,9 @@ public class AmazonPayProvider : PaymentMethodBase, IConfigurable
     #region Checkout integration
 
     public override bool DisplayInPaymentMethodList
-        => _settings.ShowInPaymentMethodList && (!_settings.ShowPayButtonForAdminOnly || _workContext.CurrentCustomer.IsAdmin());
+        => _settings.ShowInPaymentMethodList
+            && (!_settings.ShowPayButtonForAdminOnly || _workContext.CurrentCustomer.IsAdmin())
+            && AmazonPayService.IsLedgerCurrencySupported(_currencyService.PrimaryCurrency.CurrencyCode);
 
     public override Widget GetPaymentInfoWidget()
     {
