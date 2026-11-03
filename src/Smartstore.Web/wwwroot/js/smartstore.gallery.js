@@ -147,14 +147,26 @@
 
             gal.slick(options);
 
-            // INFO: Not setting height anymore since the browser seems to handle it correctly and
-            // the slick dots were not aligned correctly before. If there is a layout problem, 
-            // maybe uncomment again.
-            //gal.height(gal.width());
-            EventBroker.subscribe("page.resized", (msg, viewport) => {
-                //gal.height(gal.width());
-                self.initNav();
+            // Recalculate sizes when the gallery changes width, including container-only changes.
+            let galleryWidth;
+            const resizeObserver = new ResizeObserver(([entry]) => {
+                if (!gal[0].isConnected) {
+                    resizeObserver.disconnect();
+                    return;
+                }
+
+                const width = entry.contentRect.width;
+                if (!width || width === galleryWidth) return;
+                galleryWidth = width;
+
+                requestAnimationFrame(() => {
+                    if (!gal[0].isConnected) return;
+                    gal.slick('setPosition');
+                    self.initNav();
+                });
             });
+            resizeObserver.observe(gal[0]);
+            gal.one('destroy.gal', () => resizeObserver.disconnect());
 
             gal.on('beforeChange', (e, slick, curIdx, nextIdx) => {
                 if (!self.nav.data('glimpse')) {
@@ -177,7 +189,7 @@
 
         initNav: function () {
             var self = this;
-            self.nav = (nav = (self.nav || self.el.find('.gal-nav')));
+            var nav = self.nav = self.nav || self.el.find('.gal-nav');
             if (nav.length === 0)
                 return;
 
@@ -185,8 +197,17 @@
 
             var list = self.navList = nav.find('.gal-list').first(),
                 track = self.navTrack = list.find('.gal-track').first(),
-                items = list.find('.gal-item'),
-                itemHeight = items.first().outerHeight(true);
+                items = list.find('.gal-item');
+
+            if (items.length > self.options.thumbsToShow && nav.is(':visible')) {
+                list.height(items.first().outerHeight(true) * self.options.thumbsToShow);
+            }
+
+            // Subsequent calls only refresh geometry; keep selection and handlers intact.
+            if (isInitialized) {
+                list.scrollTop(list.height() * (nav.data('current-page') || 0));
+                return;
+            }
 
             self.navItemsCount = items.length;
 
@@ -204,8 +225,6 @@
                     self.navPrevArrow = $(`<button type="button" class="${cssClass} gal-prev" aria-label="${Res['Common.MoveUp']}" aria-disabled="true"><sm-icon name="chevron-up"  style="vertical-align: top" aria-hidden="true"></sm-icon></button>`).prependTo(nav);
                     self.navNextArrow = $(`<button type="button" class="${cssClass} gal-next" aria-label="${Res['Common.MoveDown']}" aria-disabled="true"><sm-icon name="chevron-down"  aria-hidden="true"></sm-icon></button>`).appendTo(nav);
                 }
-
-                list.height(itemHeight * self.options.thumbsToShow);
 
                 list.on('scroll', function (e) {
                     // We only handle native tab key scrolling here
@@ -246,7 +265,7 @@
                 });
             }
 
-            self._selectNavItem(self.options.startIndex, isInitialized);
+            self._selectNavItem(self.options.startIndex, false);
 
             nav.on('mouseenter.gal click.gal', '.gal-item-viewport', function (e) {
                 e.preventDefault();

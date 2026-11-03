@@ -3,6 +3,10 @@
 // Image Gallery
 // ========================================
 
+#pd-gallery {
+    container: product-gallery / inline-size;
+}
+
 .gal-box {
     position: relative; 
     display: table; 
@@ -128,28 +132,18 @@
     vertical-align: top;
 }
 
-@media (min-width: 1200px) {
-	.gal-nav-cell {
-		width: 5.5rem;
-	}
-}
-
-@include media-breakpoint-only(xs) {
+// Use the available gallery width to switch between thumbnails and dots.
+@container product-gallery (width < 28rem) {
     .gal-nav-cell { display: none !important; }
 }
 
-@include media-breakpoint-only(sm) {
-	.gal .slick-dots { display: none !important; }
-	.gal.slick-dotted.slick-slider { margin-bottom: 0 !important; }  
+@container product-gallery (min-width: 28rem) {
+    .gal .slick-dots { display: none !important; }
+    .gal.slick-dotted.slick-slider { margin-bottom: 0 !important; }
 }
 
-@include media-breakpoint-only(md) {
-    .gal-nav-cell { display: none !important; }
-}
-
-@include media-breakpoint-up(lg) {
-	.gal .slick-dots { display: none !important; }
-	.gal.slick-dotted.slick-slider { margin-bottom: 0 !important; }   
+@container product-gallery (min-width: 40rem) {
+    .gal-nav-cell { width: 5.5rem; }
 }
 
 .gal-nav-hidden {

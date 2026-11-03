@@ -41,6 +41,7 @@ input.form-control-plaintext {
     border: 1px solid var(--dg-border-color);
     flex-grow: 1;
     width: 100%;
+    container: datagrid / inline-size;
     border-radius: var(--border-radius-md);
 
     @include media-breakpoint-up(md) {
@@ -290,7 +291,10 @@ input.form-control-plaintext {
     .touchevents .dg-toolbar {
         overflow-x: auto;
     }
+}
 
+// Compact button labels according to the available grid width.
+@container datagrid (width < 48rem) {
     .dg-toolbar .btn > :is(.icon, .icon-stack) + span {
         display: none;
     }

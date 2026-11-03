@@ -544,6 +544,7 @@ $pd-offer-spacing:              math.div($grid-gutter-width, 2);
 // =====================================================
 
 .pd-actions-container {
+    container: product-actions / inline-size;
     margin-top: $pd-offer-spacing;
     padding-top: $pd-offer-spacing;
     border-top: 1px solid rgba(#000, 0.15);
@@ -576,17 +577,15 @@ $pd-offer-spacing:              math.div($grid-gutter-width, 2);
         &.col .pd-action-label, &.col-2 .pd-action-label {
             display: none !important;
 
-            @include media-breakpoint-only(sm) {
-                display: block !important;
-            }
-
-            @include media-breakpoint-up(xl) {
+            // Show labels when the action area has enough room.
+            @container product-actions (min-width: 30rem) {
                 display: block !important;
             }
         }
     }
 
     .pd-action-link {
+        max-width: 100%;
         display: inline-flex;
         flex-direction: column;
         text-decoration: none;
@@ -607,10 +606,9 @@ $pd-offer-spacing:              math.div($grid-gutter-width, 2);
         }
 
         .pd-action-label {
+            @include text-truncate();
             padding-top: 0.375rem;
             display: block;
-            overflow: hidden;
-            text-overflow: ellipsis;
         }
 
         &:hover .pd-action-icon {
