@@ -61,11 +61,14 @@ public class CurrencyController : AdminController
             .ToPagedList(command)
             .LoadAsync();
 
+        var dtHelper = Services.DateTimeHelper;
         var mapper = MapperFactory.GetMapper<Currency, CurrencyModel>();
         var currencyModels = await currencies
             .SelectAwait(async x =>
             {
                 var model = await mapper.MapAsync(x);
+                model.CreatedOn = dtHelper.ConvertToUserTime(x.CreatedOnUtc, DateTimeKind.Utc);
+                model.UpdatedOn = dtHelper.ConvertToUserTime(x.UpdatedOnUtc, DateTimeKind.Utc);
                 model.IsPrimaryCurrency = model.Id == _currencySettings.PrimaryCurrencyId;
                 model.IsPrimaryExchangeCurrency = model.Id == _currencySettings.PrimaryExchangeCurrencyId;
                 model.EditUrl = Url.Action(nameof(Edit), "Currency", new { id = x.Id });
@@ -454,6 +457,7 @@ public class CurrencyController : AdminController
         if (currency != null)
         {
             model.CreatedOn = Services.DateTimeHelper.ConvertToUserTime(currency.CreatedOnUtc, DateTimeKind.Utc);
+            model.UpdatedOn = Services.DateTimeHelper.ConvertToUserTime(currency.UpdatedOnUtc, DateTimeKind.Utc);
             model.IsPrimaryCurrency = currency.Id == _currencySettings.PrimaryCurrencyId;
             model.IsPrimaryExchangeCurrency = currency.Id == _currencySettings.PrimaryExchangeCurrencyId;
         }

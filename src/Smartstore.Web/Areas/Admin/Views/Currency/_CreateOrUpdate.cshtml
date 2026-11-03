@@ -139,13 +139,25 @@
                     </div>
                 </div>
             </div>
-            <div sm-if="Model.Id > 0" class="adminRow">
-                <div class="adminTitle">
-                    <smart-label asp-for="CreatedOn" />
+            <div sm-if="Model.Id > 0">
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="CreatedOn" />
+                    </div>
+                    <div class="adminData">
+                        <div class="form-control-plaintext">
+                            @Html.DisplayFor(model => model.CreatedOn)
+                        </div>
+                    </div>
                 </div>
-                <div class="adminData">
-                    <div class="form-control-plaintext">
-                        @Html.DisplayFor(model => model.CreatedOn)
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="UpdatedOn" />
+                    </div>
+                    <div class="adminData">
+                        <div class="form-control-plaintext">
+                            @Html.DisplayFor(model => model.UpdatedOn)
+                        </div>
                     </div>
                 </div>
             </div>

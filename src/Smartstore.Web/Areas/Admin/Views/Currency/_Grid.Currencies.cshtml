@@ -44,6 +44,8 @@
         <column for="DisplayOrder" halign="center" />
         <column for="LimitedToStores" halign="center" readonly="true" />
         <column for="DomainEndings" />
+        <column for="CreatedOn" entity-member="CreatedOnUtc" visible="false" />
+        <column for="UpdatedOn" entity-member="UpdatedOnUtc" visible="false" />
     </columns>
     <row-commands>
         <a datarow-action="DataRowAction.Custom" :href="item.row.EditUrl">@T("Common.Edit")</a>
