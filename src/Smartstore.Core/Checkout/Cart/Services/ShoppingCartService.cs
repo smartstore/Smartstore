@@ -232,7 +232,7 @@ public partial class ShoppingCartService : IShoppingCartService
         {
             // Add the corresponding bundle items.
             var bundleItems = await _db.ProductBundleItem
-                .ApplyBundledProductsFilter([ctx.Product.Id], true)
+                .ApplyBundledProductsFilter([ctx.Product.Id])
                 .Include(x => x.Product)
                 .ToListAsync();
 
