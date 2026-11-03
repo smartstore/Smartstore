@@ -231,10 +231,11 @@ public partial class CatalogHelper
                         bundleItemModel.Name = bundleItemName;
                     }
 
-                    var bundleItemShortDescription = bundleItem.GetLocalized(x => x.ShortDescription);
-                    if (bundleItemShortDescription.Value.HasValue())
+                    var bundleItemShortDesc = bundleItem.GetLocalized(x => x.ShortDescription);
+                    // INFO: An empty value keeps the product short description as fallback, while whitespace explicitly suppresses it.
+                    if (!string.IsNullOrEmpty(bundleItemShortDesc.Value))
                     {
-                        bundleItemModel.ShortDescription = bundleItemShortDescription;
+                        bundleItemModel.ShortDescription = bundleItemShortDesc.Value.HasValue() ? bundleItemShortDesc : null;
                     }
 
                     model.BundledItems.Add(bundleItemModel);
@@ -258,7 +259,6 @@ public partial class CatalogHelper
 
             #region Brands
 
-            // Brands
             if (_catalogSettings.ShowManufacturerInProductDetail)
             {
                 var brands = _db.IsCollectionLoaded(product, x => x.ProductManufacturers)
