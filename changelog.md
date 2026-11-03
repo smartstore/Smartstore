@@ -137,6 +137,9 @@
 - **Product Details**:
   - Weight adjustments for preselected products attributes were not taken into account.
   - The images of linked products displayed for variants were too small and distorted.
+- **Product Bundle**
+  - A deactivated bundle item should not prevent the bundle from being added to the shopping cart.
+  - An empty short description of a bundle item keeps the product short description as fallback, while whitespace explicitly suppresses it.
 - Negative price adjustments for checkout attributes were not taken into account on the checkout confirm page.
 - Percentage product discounts must also be taken into account when applying the displayed variant price adjustment.
 - #1575 Newsletter reward points are not awarded during customer registration.
@@ -156,7 +159,6 @@
 - MegaMenu: Fixed `DependencyResolutionException` caused by `MegaMenuService` when creating Web API keys in the Web API plugin.
 - Fixed a bug that could cause long-running exports to fail with `ObjectDisposedException` when the underlying service scope was disposed while the export was still running.
 - The multi-store settings for offline payment methods could not be configured.
-- A deactivated bundle item should not prevent the bundle from being added to the shopping cart.
 - Fixed script error "ce.easing[this.easing] is not a function" on installation page.
 - When adding a group of attribute rules, the attribute that is currently being edited must not be included in the list of product attributes.
 - #1561 When a single attribute combination is added, the respective attributes should be optional even if the attribute itself is marked as "required".
