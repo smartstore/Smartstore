@@ -13,13 +13,16 @@
     --lb-toolbar-offset: 0.5rem;
     --lb-toolbar-bg: #{rgba($white, 0.9)};
     --lb-z-index: #{$zindex-fixed};
+    --lb-thumb-size: 4.5rem;
+    --lb-thumb-gutter: #{$spacer * 0.5};
+    --lb-thumb-strip-height: calc(var(--lb-thumb-size) + var(--lb-thumb-gutter));
+    --lb-thumb-arrow-opacity: 0.75;
 
     position: fixed;
     inset: 0;
     max-inline-size: 100dvi;
     block-size: 100dvb;
     overflow: hidden;
-    touch-action: none;
     z-index: var(--lb-z-index);
     outline: none;
     backface-visibility: hidden;
@@ -33,10 +36,81 @@
 .lightbox-bg,
 .lightbox-stage,
 .lightbox-track,
-.lightbox-slide {
+.lightbox-slide,
+.lightbox-image,
+.lightbox-placeholder,
+.lightbox-loader {
     position: absolute;
     inset: 0;
 }
+
+// Horizontal Lightbox layout; thumbnail appearance comes from the shared gallery.
+.lightbox-thumbs.gal-nav {
+    --gal-item-display: flex;
+    --gal-image-display: inline-block;
+    --gal-thumb-padding-y: #{$spacer * 0.125};
+    --gal-thumb-padding-x: #{$spacer * 0.25};
+    --gal-arrow-margin-y: auto;
+
+    position: absolute;
+    inset-block-end: 0;
+    inset-inline: 0;
+    block-size: var(--lb-thumb-strip-height);
+}
+
+.lightbox-thumb-list {
+    z-index: 0;
+    flex: 1 1 auto;
+    min-inline-size: 0;
+    inline-size: 100%;
+    block-size: 100%;
+    overflow: auto hidden;
+    scroll-padding-inline: var(--scroll-fade-size);
+    scrollbar-width: none;
+    overscroll-behavior: contain;
+    touch-action: pan-x;
+}
+
+.lightbox-thumb-track {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    inline-size: max-content;
+    min-inline-size: 100%;
+    block-size: 100%;
+}
+
+.lightbox-thumb { flex: none; }
+
+.lightbox-thumb-btn {
+    inline-size: calc(var(--lb-thumb-size) - 2 * var(--gal-thumb-padding-y));
+    aspect-ratio: 1;
+    cursor: pointer;
+}
+
+.lightbox-thumb-scroll-btn {
+    position: absolute;
+    inset-block: 0;
+    z-index: 1;
+    visibility: hidden;
+    opacity: 0;
+    pointer-events: none;
+    transition: var(--btn-transition), opacity var(--lb-duration) var(--lb-easing);
+
+    .lightbox-thumbs:is(:hover, :focus-within) & {
+        visibility: visible;
+        opacity: var(--lb-thumb-arrow-opacity);
+        pointer-events: auto;
+
+        &:is(:hover, :focus-visible, :active) { opacity: 1; }
+    }
+    &[data-lightbox-action="thumbnails-previous"] { inset-inline-start: var(--lb-toolbar-offset); }
+    &[data-lightbox-action="thumbnails-next"] { inset-inline-end: var(--lb-toolbar-offset); }
+}
+
+.lightbox-stage, .lightbox-track, .lightbox-zoom { touch-action: none; }
+
+.lightbox-has-thumbs .lightbox-stage { inset-block-end: var(--lb-thumb-strip-height); }
 
 .lightbox-bg {
     background: var(--lb-background);
@@ -49,8 +123,10 @@
 }
 
 .lightbox-track,
-.lightbox-zoom {
-    touch-action: none;
+.lightbox-zoom,
+.lightbox-caption,
+.lightbox-topbar,
+.lightbox-arrow {
     will-change: transform;
     backface-visibility: hidden;
 }
@@ -71,8 +147,6 @@
 
 .lightbox-image,
 .lightbox-placeholder {
-    position: absolute;
-    inset: 0;
     inline-size: 100%;
     block-size: 100%;
     max-inline-size: none;
@@ -99,11 +173,16 @@
     --btn-height: 40px;
 }
 
-.lightbox-topbar {
+.lightbox-topbar,
+.lightbox-caption,
+.lightbox-error {
     position: absolute;
     inset-inline-start: 0;
-    inset-block-start: var(--lb-toolbar-offset);
     inline-size: 100%;
+}
+
+.lightbox-topbar {
+    inset-block-start: var(--lb-toolbar-offset);
     padding-block: 0;
     padding-inline: var(--lb-toolbar-offset);
 
@@ -119,7 +198,8 @@
     margin-block-start: -30px;
 }
 
-.lightbox-arrow > .icon {
+.lightbox-arrow > .icon,
+.lightbox-thumb-scroll-btn > .icon {
     --icon-direction-x: var(--lb-inline-direction);
 }
 
@@ -129,10 +209,7 @@
 .lightbox-mouse .lightbox-arrow { visibility: visible; }
 
 .lightbox-caption {
-    position: absolute;
-    inset-inline-start: 0;
     inset-block-end: 0;
-    inline-size: 100%;
     min-block-size: 40px;
 }
 
@@ -148,8 +225,6 @@
 .lightbox-caption,
 .lightbox-topbar,
 .lightbox-arrow {
-    backface-visibility: hidden;
-    will-change: transform;
     transition: transform var(--lb-duration) var(--lb-easing), opacity var(--lb-duration) var(--lb-easing);
 }
 
@@ -167,17 +242,10 @@
 
 .lightbox-single .lightbox-arrow { display: none; }
 
-.lightbox-loader {
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-}
+.lightbox-loader { pointer-events: none; }
 
 .lightbox-error {
-    position: absolute;
-    inset-inline-start: 0;
     inset-block-start: 50%;
-    inline-size: 100%;
     text-align: center;
     transform: translateY(-50%);
     color: var(--danger);

@@ -39,8 +39,7 @@ internal class CommonBundles : IBundleProvider
         -----------------------------------------------------*/
         bundles.Add(new ScriptBundle("/bundle/js/smart-gallery.js").Include(
             lib + "drift/Drift.js",
-            lib + "photoswipe/photoswipe.js",
-            lib + "photoswipe/photoswipe-ui-default.js",
+            js + "smartstore.lightbox.js",
             js + "smartstore.gallery.js"));
     }
 }

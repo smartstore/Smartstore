@@ -2,6 +2,17 @@
      aria-label="@T("Aria.Label.MediaGallery")" aria-hidden="true" hidden
      data-error-message="@T("Common.NoImageAvail")">
     <div class="lightbox-bg"></div>
+    <nav class="gal-nav lightbox-thumbs hstack" data-lightbox-thumbnails aria-label="@T("Aria.Label.MediaGallery")" hidden>
+        <button type="button" class="btn btn-secondary btn-no-border btn-icon rounded-circle btn-sm gal-arrow lightbox-thumb-scroll-btn" data-lightbox-action="thumbnails-previous" aria-label="@T("Pager.Previous")" aria-controls="lightbox-thumbnails" hidden>
+            <icon name="chevron-left" mirror-rtl="false" />
+        </button>
+        <div class="gal-list lightbox-thumb-list scroll-fade scroll-fade-x scroll-fade-observable" data-lightbox-thumbnail-list>
+            <div class="gal-track lightbox-thumb-track" id="lightbox-thumbnails" data-lightbox-thumbnail-track role="list"></div>
+        </div>
+        <button type="button" class="btn btn-secondary btn-no-border btn-icon rounded-circle btn-sm gal-arrow lightbox-thumb-scroll-btn" data-lightbox-action="thumbnails-next" aria-label="@T("Pager.Next")" aria-controls="lightbox-thumbnails" hidden>
+            <icon name="chevron-right" mirror-rtl="false" />
+        </button>
+    </nav>
     <section class="lightbox-stage" aria-roledescription="carousel">
         <div class="lightbox-track" id="lightbox-slides" aria-live="off">
             <div class="lightbox-slide" role="group" aria-roledescription="slide" aria-hidden="true" inert></div>

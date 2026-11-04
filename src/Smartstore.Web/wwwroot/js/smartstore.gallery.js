@@ -487,6 +487,8 @@
                         type: image ? 'image' : 'video',
                         src: link.href,
                         msrc: a.data('medium-image'),
+                        thumbnail: link.querySelector('.gal-item-content'),
+                        thumbnailLabel: link.getAttribute('aria-label'),
                         w: width,
                         h: height,
                         alt: link.querySelector('img')?.alt || ''
@@ -496,8 +498,7 @@
 
                 const options = {
                     index: Math.max(0, galleryIndices.indexOf(self.currentIndex)),
-                    legacy: self.options.box.legacy,
-                    ..._.pick(self.options.box, 'loop', 'history', 'closeOnScroll'),
+                    ..._.pick(self.options.box, 'loop', 'history', 'closeOnScroll', 'thumbnails'),
                     getThumbnailRect: (index) => {
                         const item = self.gallery?.find('.gal-item').eq(galleryIndices[index])[0];
                         if (!item?.isConnected) return null;
@@ -551,7 +552,7 @@
         // full size image box options
         box: {
             enabled: true,
-            // Set legacy: true to test the retained PhotoSwipe implementation.
+            thumbnails: true
         },
         callbacks: {
             imageClick: null,

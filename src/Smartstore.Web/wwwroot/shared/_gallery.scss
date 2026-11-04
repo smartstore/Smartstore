@@ -1,0 +1,82 @@
+/// <reference path="references.scss" />
+
+// Shared gallery primitives and thumbnail appearance. Layout and initialization belong to consumers.
+:root {
+    --gal-thumb-padding-y: 4px;
+    --gal-thumb-padding-x: 2px;
+    --gal-thumb-content-padding: 3px;
+    --gal-thumb-icon-size: 2rem;
+    --gal-thumb-border-width: #{$border-width};
+    --gal-thumb-border-color: #{rgba($black, 0.12)};
+    --gal-thumb-border-color-hover: #{rgba($black, 0.35)};
+    --gal-thumb-border-color-active: #{rgba($black, 0.4)};
+    --gal-thumb-shadow-active: 0 0 0 1px #{rgba($black, 0.6)};
+    --gal-arrow-margin-y: 3px;
+    --gal-arrow-margin-x: 0;
+}
+
+.gal { position: relative; }
+
+.gal-item {
+    position: relative;
+    margin: 0;
+}
+
+// Keep the primitives easy to override with a consumer's layout classes.
+:where(.gal-item-viewport) {
+    position: relative;
+    display: block;
+    inline-size: 100%;
+    padding: 0;
+    text-align: center;
+    overflow: hidden;
+    background: transparent;
+}
+
+.gal-item-content {
+    position: absolute;
+    inset: 0;
+    display: var(--gal-item-display, none);
+    margin: auto;
+    inline-size: auto;
+    block-size: auto;
+    max-inline-size: 100%;
+    max-block-size: 100%;
+}
+
+img.gal-item-content { display: var(--gal-image-display, var(--gal-item-display, none)); }
+
+.gal-nav {
+    text-align: center;
+
+    :is(.gal-list, .gal-track) { position: relative; }
+
+    .gal-item {
+        padding-block: var(--gal-thumb-padding-y);
+        padding-inline: var(--gal-thumb-padding-x);
+
+        .file-icon { font-size: var(--gal-thumb-icon-size); }
+    }
+
+    .gal-item-viewport {
+        border: var(--gal-thumb-border-width) solid var(--gal-thumb-border-color);
+        border-radius: var(--gal-thumb-border-radius, var(--border-radius-md));
+
+        &:hover { border-color: var(--gal-thumb-border-color-hover); }
+    }
+
+    :is(.gal-current .gal-item-viewport, .gal-item-viewport[aria-current="true"]) {
+        border-color: var(--gal-thumb-border-color-active);
+
+        &:not(:focus-visible) { box-shadow: var(--gal-thumb-shadow-active); }
+    }
+
+    .gal-item-content { padding: var(--gal-thumb-content-padding); }
+
+    .gal-arrow {
+        line-height: 1;
+        padding: 0;
+        margin-block: var(--gal-arrow-margin-y);
+        margin-inline: var(--gal-arrow-margin-x);
+    }
+}

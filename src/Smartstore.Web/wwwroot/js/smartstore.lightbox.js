@@ -12,18 +12,16 @@
     const nativeControl = target => target.closest('button, a, input, select, textarea, video, [contenteditable]');
     let active = null;
 
-    // Options configure behavior: loop, closeOnScroll and history (false, true or a gallery ID).
+    // Options configure behavior: loop, closeOnScroll, thumbnails and history (false, true or a gallery ID).
     // Integration hooks: index, getThumbnailRect(index), onChange(index), onClose().
     // Presentation, including motion and idle timing, comes from --lb-* properties in CSS.
     class Lightbox {
         static defaults = {
             loop: true,
             closeOnScroll: true,
-            history: true
+            history: true,
+            thumbnails: true
         };
-
-        // Temporary test switch. The original scripts, template and styles stay available.
-        static useLegacy = false;
 
         static getInstance(element) {
             return instances.get(element);
@@ -46,17 +44,18 @@
             this.isOpen = true;
             this.styles = getComputedStyle(this.element);
 
-            if (this.options.legacy || Lightbox.useLegacy) {
-                this.legacy = new LegacyLightbox(this);
-                this.legacy.open();
-                return this;
-            }
-
             this.events = new AbortController();
+            this.motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
             this.stage = this.element.querySelector('.lightbox-stage');
             this.track = this.element.querySelector('.lightbox-track');
             this.background = this.element.querySelector('.lightbox-bg');
             this.loader = this.element.querySelector('.lightbox-loader');
+            this.caption = this.element.querySelector('.lightbox-caption');
+            this.captionText = this.element.querySelector('.lightbox-caption-text');
+            this.counter = this.element.querySelector('.lightbox-counter');
+            this.zoomButton = this.element.querySelector('[data-lightbox-action="zoom"]');
+            this.closeButton = this.element.querySelector('[data-lightbox-action="close"]');
+            this.fullscreenButton = this.element.querySelector('[data-lightbox-action="fullscreen"]');
             this.loader.hidden = true;
             this.loader.replaceChildren(window.createCircularSpinner(64, true)[0]);
             this.slots = [...this.track.children].map(element => ({ element, index: -1 }));
@@ -65,16 +64,20 @@
             this.fullscreenEnterIcon = this.element.querySelector('[data-lightbox-icon="fullscreen-enter"]');
             this.fullscreenExitIcon = this.element.querySelector('[data-lightbox-icon="fullscreen-exit"]');
             this.updateFullscreen();
+            this.initThumbnails();
             this.element.hidden = false;
             this.element.setAttribute('aria-hidden', 'false');
             this.element.classList.toggle('lightbox-touch', !!window.touchable);
             this.element.classList.toggle('lightbox-single', this.items.length === 1);
             this.element.classList.remove('lightbox-idle', 'lightbox-controls-hidden');
             this.element.style.opacity = '1';
-            this.background.style.opacity = this.cssNumber('opacity');
             this.scrollY = window.scrollY;
             this.resize();
             this.bindEvents();
+            this.resizeObserver = new ResizeObserver(() => {
+                if (this.stage.clientWidth !== this.width || this.stage.clientHeight !== this.height) this.resize();
+            });
+            this.resizeObserver.observe(this.stage);
             this.openHistory();
             this.notifyChange();
             window.AccessKitFocusTrap?.activate(this.element, { exclude: '.lightbox-slide[aria-hidden="true"] *' });
@@ -116,6 +119,9 @@
                     case 'next': this.next(); break;
                     case 'zoom': this.toggleZoom(); break;
                     case 'fullscreen': this.toggleFullscreen(); break;
+                    case 'thumbnail': this.goTo(Number(button.dataset.lightboxIndex), false, true); break;
+                    case 'thumbnails-previous': this.scrollThumbnails(-1); break;
+                    case 'thumbnails-next': this.scrollThumbnails(1); break;
                 }
             });
             this.on(this.element, 'dblclick', event => {
@@ -137,6 +143,9 @@
                 if (this.duration('idle-outside-delay')) this.later('idle', () => this.element.classList.add('lightbox-idle'), this.duration('idle-outside-delay'));
             });
             this.on(this.element, 'focusin', () => this.showControls());
+            if (this.thumbnailsEnabled) {
+                this.thumbnailFade.on('scrollfadechange.lightbox', () => this.updateThumbnailArrows()).scrollFade();
+            }
             this.on(this.element, 'keydown', event => {
                 if (event.key === 'Escape') {
                     event.preventDefault();
@@ -144,7 +153,20 @@
                 }
                 else if (!event.altKey && !event.ctrlKey && !event.metaKey &&
                     !event.target.closest('video, input, textarea, select, [contenteditable]')) {
-                    if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
+                    const thumbnail = this.thumbnailsEnabled && event.target.closest('[data-lightbox-action="thumbnail"]');
+                    if (thumbnail &&
+                        ['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) {
+                        event.preventDefault();
+                        this.synchronizeDirection();
+                        const current = Number(thumbnail.dataset.lightboxIndex);
+                        const step = (event.key === 'ArrowRight' ? 1 : -1) * this.inlineDirection;
+                        const index = event.key === 'Home' ? 0 : event.key === 'End' ? this.items.length - 1 :
+                            clamp(current + step, 0, this.items.length - 1);
+                        this.goTo(index, false, true);
+                        this.thumbnails[index].focus({ preventScroll: true });
+                        this.showControls();
+                    }
+                    else if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
                         event.preventDefault();
                         this.synchronizeDirection();
                         const step = (event.key === 'ArrowRight' ? 1 : -1) * this.inlineDirection;
@@ -174,7 +196,7 @@
             this.height = this.stage.clientHeight;
             this.step = this.width * (1 + this.cssNumber('spacing'));
             this.resetGesture();
-            this.render();
+            this.render(true);
         }
 
         synchronizeDirection() {
@@ -182,14 +204,145 @@
             if (this.inlineDirection !== direction) this.resize();
         }
 
-        // Programmatic navigation wraps even for two items, as PhotoSwipe's goTo did.
+        initThumbnails() {
+            this.thumbnailNav = this.element.querySelector('[data-lightbox-thumbnails]');
+            this.thumbnailList = this.thumbnailNav?.querySelector('[data-lightbox-thumbnail-list]');
+            this.thumbnailTrack = this.thumbnailList?.querySelector('[data-lightbox-thumbnail-track]');
+            this.thumbnailPrevious = this.thumbnailNav?.querySelector('[data-lightbox-action="thumbnails-previous"]');
+            this.thumbnailNext = this.thumbnailNav?.querySelector('[data-lightbox-action="thumbnails-next"]');
+            this.thumbnailsEnabled = this.options.thumbnails !== false && this.items.length > 1 &&
+                !!(this.thumbnailNav && this.thumbnailList && this.thumbnailTrack);
+            this.element.classList.toggle('lightbox-has-thumbs', this.thumbnailsEnabled);
+            if (this.thumbnailNav) this.thumbnailNav.hidden = !this.thumbnailsEnabled;
+            this.thumbnailFade = this.thumbnailList ? $(this.thumbnailList) : null;
+            this.selectedThumbnail = null;
+            this.thumbnails = [];
+            if (!this.thumbnailsEnabled) {
+                this.thumbnailFade?.data('scroll-fade-instance')?.destroy();
+                return;
+            }
+            this.thumbnailTrack.replaceChildren();
+
+            const fragment = document.createDocumentFragment();
+            this.items.forEach((item, index) => {
+                const entry = document.createElement('div');
+                entry.className = 'gal-item lightbox-thumb';
+                entry.setAttribute('role', 'listitem');
+                const button = document.createElement('button');
+                button.type = 'button';
+                button.className = 'gal-item-viewport lightbox-thumb-btn';
+                button.dataset.lightboxAction = 'thumbnail';
+                button.dataset.lightboxIndex = index;
+                button.tabIndex = -1;
+                button.setAttribute('aria-label', item.thumbnailLabel || item.alt || `${index + 1}/${this.items.length}`);
+                button.setAttribute('aria-controls', 'lightbox-slides');
+                // Reuse the small media preview, including lazy video thumbnail markup.
+                const preview = item.thumbnail ? item.thumbnail.cloneNode(true) : document.createElement('div');
+                preview.classList.add('gal-item-content', 'lightbox-thumb-content');
+                if (item.thumbnail) {
+                    preview.setAttribute('aria-hidden', 'true');
+                    const images = preview.matches('img') ? [preview] : preview.querySelectorAll('img');
+                    images.forEach(image => { image.loading = 'lazy'; image.decoding = 'async'; });
+                }
+                else {
+                    preview.classList.add('align-items-center', 'justify-content-center');
+                    const icon = document.createElement('sm-icon');
+                    icon.setAttribute('name', item.type === 'video' ? 'file-video' : 'file-image');
+                    icon.setAttribute('aria-hidden', 'true');
+                    icon.className = 'file-icon show';
+                    preview.append(icon);
+                }
+                button.append(preview);
+                entry.append(button);
+                fragment.append(entry);
+                this.thumbnails.push(button);
+            });
+            this.thumbnailTrack.append(fragment);
+            namespace.media.lazyLoadThumbnails(this.thumbnailList);
+        }
+
+        updateThumbnailArrows() {
+            if (!this.thumbnailsEnabled) return;
+            const list = this.thumbnailList;
+            const visible = !this.thumbnailNav.hidden && this.thumbnailNav.clientHeight > 0;
+            // Reuse the scroll-fade plugin's logical boundary state, including RTL normalization.
+            const arrows = visible && !window.touchable && list.classList.contains('scroll-fade-ready');
+            const focused = document.activeElement;
+            if (this.thumbnailPrevious) this.thumbnailPrevious.hidden = !arrows || list.classList.contains('scroll-fade-at-start');
+            if (this.thumbnailNext) this.thumbnailNext.hidden = !arrows || list.classList.contains('scroll-fade-at-end');
+            if (!visible && this.thumbnailNav.contains(focused)) {
+                this.closeButton.focus({ preventScroll: true });
+            }
+            else if ((this.thumbnailPrevious && focused === this.thumbnailPrevious && this.thumbnailPrevious.hidden) ||
+                (this.thumbnailNext && focused === this.thumbnailNext && this.thumbnailNext.hidden)) {
+                const target = this.thumbnailNext && !this.thumbnailNext.hidden ? this.thumbnailNext :
+                    this.thumbnailPrevious && !this.thumbnailPrevious.hidden ? this.thumbnailPrevious : this.selectedThumbnail;
+                target?.focus({ preventScroll: true });
+            }
+        }
+
+        syncThumbnails(index = this.index, immediate = false) {
+            if (!this.thumbnailsEnabled) return;
+            const current = this.thumbnails[index];
+            if (!current) return;
+            const visible = this.thumbnailNav.clientHeight > 0;
+            const moveFocus = this.thumbnailList.contains(document.activeElement);
+            const changed = this.selectedThumbnail !== current;
+            if (changed) {
+                this.selectedThumbnail?.removeAttribute('aria-current');
+                if (this.selectedThumbnail) this.selectedThumbnail.tabIndex = -1;
+                current.setAttribute('aria-current', 'true');
+                this.selectedThumbnail = current;
+                if (moveFocus && visible) current.focus({ preventScroll: true });
+            }
+            current.tabIndex = visible ? 0 : -1;
+            if (visible) {
+                if (changed || immediate) {
+                    current.parentElement.scrollIntoView({
+                        block: 'nearest',
+                        inline: 'nearest',
+                        behavior: immediate || this.motionQuery.matches ? 'auto' : 'smooth'
+                    });
+                }
+                this.thumbnailFade.data('scroll-fade-instance')?.refresh();
+            }
+            this.updateThumbnailArrows();
+        }
+
+        scrollThumbnails(direction) {
+            if (!this.thumbnailsEnabled) return;
+            const list = this.thumbnailList;
+            if (!list.clientWidth) return;
+            const bounds = list.getBoundingClientRect();
+            const first = this.thumbnails.find(button => {
+                const thumb = button.parentElement.getBoundingClientRect();
+                return thumb.left >= bounds.left - 1 && thumb.right <= bounds.right + 1;
+            }) || this.thumbnails.find(button => {
+                const thumb = button.parentElement.getBoundingClientRect();
+                return thumb.right > bounds.left && thumb.left < bounds.right;
+            });
+            if (!first) return;
+            const thumb = first.parentElement.getBoundingClientRect();
+            const width = thumb.right - thumb.left;
+            if (!width) return;
+            // Page by the measured item pitch (including padding), keeping one thumbnail in view.
+            const step = Math.max(1, Math.floor(list.clientWidth / width) - 1);
+            const index = clamp(Number(first.dataset.lightboxIndex) + direction * step, 0, this.thumbnails.length - 1);
+            this.thumbnails[index].parentElement.scrollIntoView({
+                block: 'nearest',
+                inline: width > list.clientWidth && direction > 0 ? 'end' : 'start',
+                behavior: this.motionQuery.matches ? 'auto' : 'smooth'
+            });
+        }
+
+        // Programmatic navigation wraps even for two items.
         // Gestures only wrap with at least three items, avoiding duplicate holders.
         normalize(index, gesture = false) {
             if (this.options.loop && (!gesture || this.items.length > 2)) return (index % this.items.length + this.items.length) % this.items.length;
             return clamp(index, 0, this.items.length - 1);
         }
 
-        render() {
+        render(immediateThumbnails = false) {
             this.track.style.transform = 'translate3d(0,0,0)';
             const desired = [-1, 0, 1].map(offset => {
                 const index = this.index + offset;
@@ -204,22 +357,27 @@
                 if (slot.index !== index || !slot.content) this.fill(slot, index);
                 return slot;
             });
-            this.element.querySelector('.lightbox-caption-text').textContent = this.items[this.index].title || '';
-            this.element.querySelector('.lightbox-caption').hidden = !this.items[this.index].title;
+            this.captionText.textContent = this.items[this.index].title || '';
+            this.caption.hidden = !this.items[this.index].title;
             this.slots.forEach((slot, position) => {
-                const current = position === 1;
-                slot.element.style.transform = `translate3d(${(position - 1) * this.step * this.inlineDirection}px,0,0)`;
-                slot.element.setAttribute('aria-hidden', String(!current));
-                slot.element.inert = !current;
-                slot.element.setAttribute('aria-label', `${slot.index + 1} / ${this.items.length}`);
+                this.positionSlot(slot, position);
                 this.layout(slot);
             });
             this.current = this.slots[1];
             this.zoom = this.current.fit || 1;
             this.pan = { ...this.current.center };
             this.paint();
-            this.element.querySelector('.lightbox-counter').textContent = `${this.index + 1}/${this.items.length}`;
+            this.counter.textContent = `${this.index + 1}/${this.items.length}`;
+            this.syncThumbnails(this.index, immediateThumbnails);
             this.updateLoading();
+        }
+
+        positionSlot(slot, position) {
+            const current = position === 1;
+            slot.element.style.transform = `translate3d(${(position - 1) * this.step * this.inlineDirection}px,0,0)`;
+            slot.element.setAttribute('aria-hidden', String(!current));
+            slot.element.inert = !current;
+            slot.element.setAttribute('aria-label', `${slot.index + 1} / ${this.items.length}`);
         }
 
         clearSlot(slot) {
@@ -311,18 +469,12 @@
 
         layout(slot) {
             const item = this.items[slot.index];
-            if (!item || item.type === 'video') {
+            if (!item || item.type === 'video' || slot.error) {
                 slot.fit = 1;
                 slot.center = { x: 0, y: 0 };
                 return;
             }
-            if (slot.error) {
-                slot.content.style.cssText = 'inline-size:100%;block-size:100%';
-                slot.fit = 1;
-                slot.center = { x: 0, y: 0 };
-                return;
-            }
-            const captionHeight = item.title ? this.element.querySelector('.lightbox-caption').offsetHeight : 0;
+            const captionHeight = item.title ? this.caption.offsetHeight : 0;
             slot.areaHeight = this.height - captionHeight;
             slot.fit = Math.min(1, this.width / (item.w || this.width), slot.areaHeight / (item.h || slot.areaHeight));
             slot.center = { x: Math.round((this.width - item.w * slot.fit) / 2), y: Math.round((slot.areaHeight - item.h * slot.fit) / 2) };
@@ -371,10 +523,10 @@
             if (!this.current) return;
             const zoomable = this.items[this.index].type !== 'video' && !this.current.error;
             if (zoomable) this.transformImage(this.current, this.pan, this.zoom);
-            const zoomButton = this.element.querySelector('[data-lightbox-action="zoom"]');
+            const zoomButton = this.zoomButton;
             zoomButton.disabled = !zoomable || (this.current.fit >= 1 && this.zoom <= this.current.fit + 0.01);
             if (zoomButton.disabled && document.activeElement === zoomButton) {
-                this.element.querySelector('[data-lightbox-action="close"]').focus({ preventScroll: true });
+                this.closeButton.focus({ preventScroll: true });
             }
             this.element.classList.toggle('lightbox-zoom-allowed', zoomable && this.current.fit < 1);
             const zoomed = zoomable && this.zoom > this.current.fit + 0.01;
@@ -406,25 +558,37 @@
             this.element.dispatchEvent(new CustomEvent('change.sm.lightbox', { detail: { index: this.index } }));
         }
 
-        getCurrentIndex() { return this.legacy?.viewer.getCurrentIndex() ?? this.index; }
+        getCurrentIndex() { return this.index; }
         next() { this.finishAnimation(); this.goTo(this.index + 1); }
         prev() { this.finishAnimation(); this.goTo(this.index - 1); }
 
-        goTo(index, gesture = false) {
+        goTo(index, gesture = false, fromThumbnail = false) {
             if (!this.isOpen || this.closing) return;
-            if (this.legacy) { this.legacy.viewer.goTo(index); return; }
             this.synchronizeDirection();
             this.finishAnimation();
             const next = this.normalize(index, gesture);
             if (next === this.index) { this.settle(); return; }
+            const wrap = !fromThumbnail && this.options.loop && (!gesture || this.items.length > 2) && next !== index;
+            this.syncThumbnails(next, wrap);
             this.pauseVideos();
-            const previous = this.index;
-            const direction = index > previous ? 1 : -1;
-            const adjacent = Math.abs(next - previous) === 1 || (this.items.length > 2 && this.options.loop);
+            const direction = index > this.index ? 1 : -1;
+            const adjacent = Math.abs(next - this.index) === 1;
+            const loopGesture = gesture && this.options.loop && this.items.length > 2;
             const start = this.trackX || 0;
-            // Keep the old immediate first/last keyboard wrap. Swipes use recycling holders.
-            const wrap = Math.abs(next - previous) > 1;
-            if (adjacent && (!wrap || gesture)) {
+            if (fromThumbnail || wrap || adjacent || loopGesture) {
+                const position = direction > 0 ? 2 : 0;
+                if (this.slots[position].index !== next || !this.slots[position].content) {
+                    const opposite = 2 - position;
+                    // Reuse an already loaded target even when it is on the opposite side.
+                    if (this.slots[opposite].index === next) {
+                        [this.slots[position], this.slots[opposite]] = [this.slots[opposite], this.slots[position]];
+                        this.positionSlot(this.slots[opposite], opposite);
+                    }
+                    const slot = this.slots[position];
+                    if (slot.index !== next || !slot.content) this.fill(slot, next);
+                    this.positionSlot(slot, position);
+                    this.layout(slot);
+                }
                 this.animate(this.duration(), progress => {
                     this.track.style.transform = `translate3d(${start + (-direction * this.step * this.inlineDirection - start) * progress}px,0,0)`;
                 }, () => this.changeIndex(next));
@@ -434,7 +598,6 @@
 
         changeIndex(index) {
             this.index = index;
-            this.trackX = 0;
             this.resetGesture();
             this.render();
             this.writeHistory();
@@ -449,7 +612,7 @@
         // cancel immediately on a gesture or disposal. No untracked animation frames.
         animate(duration, update, complete = () => {}) {
             this.cancelAnimation();
-            if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) duration = 0;
+            if (this.motionQuery.matches) duration = 0;
             if (!duration) { update(1); complete(); return; }
             const started = performance.now();
             this.animationEnd = () => { update(1); complete(); };
@@ -485,14 +648,15 @@
             const target = { ...this.pan };
             const fit = this.zoom;
             const canZoom = thumb?.w > 0 && item.w > 0 && item.type !== 'video' && !this.current.error;
+            const origin = canZoom ? this.point({ clientX: thumb.x, clientY: thumb.y - this.scrollY }) : null;
             this.animate(this.duration(), progress => {
                 this.element.style.opacity = Math.max(0.001, progress);
                 if (canZoom) {
                     const initialZoom = thumb.w / item.w;
                     this.zoom = initialZoom + (fit - initialZoom) * progress;
                     this.pan = {
-                        x: thumb.x + (target.x - thumb.x) * progress,
-                        y: thumb.y - this.scrollY + (target.y - thumb.y + this.scrollY) * progress
+                        x: origin.x + (target.x - origin.x) * progress,
+                        y: origin.y + (target.y - origin.y) * progress
                     };
                     this.paint();
                 }
@@ -703,7 +867,7 @@
         }
 
         wheel(event) {
-            if (event.target.closest('video') || this.closing) return;
+            if (event.target.closest('video, [data-lightbox-thumbnails]') || this.closing) return;
             // Preserve desktop wheel panning/closing rather than changing it to zoom.
             if (this.zoom > this.current.fit + 0.01) {
                 event.preventDefault();
@@ -718,7 +882,7 @@
 
         updateFullscreen() {
             const fullscreen = document.fullscreenElement === this.element;
-            const button = this.element.querySelector('[data-lightbox-action="fullscreen"]');
+            const button = this.fullscreenButton;
             if (button) button.hidden = !document.fullscreenEnabled;
             this.fullscreenEnterIcon?.toggleAttribute('hidden', fullscreen);
             this.fullscreenExitIcon?.toggleAttribute('hidden', !fullscreen);
@@ -741,9 +905,9 @@
             this.historyPushed = hash.get('gid') !== this.historyID;
             if (!this.historyPushed && Number.isInteger(initialIndex) && initialIndex >= 0 && initialIndex < this.items.length) {
                 this.index = initialIndex;
-                this.render();
+                this.render(true);
             }
-            this.originalHash = new URLSearchParams(location.hash.slice(1));
+            this.originalHash = hash;
             this.originalHash.delete('gid');
             this.originalHash.delete('pid');
             this.writeHistory(this.historyPushed);
@@ -782,7 +946,6 @@
 
         close(fromHistory = false, immediate = false) {
             if (!this.isOpen || this.closing) return;
-            if (this.legacy) { this.legacy.close(immediate); return; }
             this.closing = true;
             this.finishAnimation();
             this.events.abort();
@@ -794,11 +957,12 @@
             const start = { ...this.pan };
             const item = this.items[this.index];
             const thumb = this.options.getThumbnailRect?.(this.index);
+            const target = thumb ? this.point({ clientX: thumb.x, clientY: thumb.y - window.scrollY }) : null;
             this.animate(immediate ? 0 : this.duration(), progress => {
                 this.element.style.opacity = opacity * (1 - progress);
                 if (thumb?.w && item.w && item.type !== 'video' && !this.current.error) {
                     this.zoom = startZoom + (thumb.w / item.w - startZoom) * progress;
-                    this.pan = { x: start.x + (thumb.x - start.x) * progress, y: start.y + (thumb.y - window.scrollY - start.y) * progress };
+                    this.pan = { x: start.x + (target.x - start.x) * progress, y: start.y + (target.y - start.y) * progress };
                     this.paint();
                 }
             }, () => this.dispose());
@@ -809,7 +973,16 @@
             this.timers.forEach(clearTimeout);
             this.timers.clear();
             this.events?.abort();
+            this.resizeObserver?.disconnect();
             this.slots?.forEach(slot => this.clearSlot(slot));
+            this.thumbnailFade?.off('.lightbox');
+            this.thumbnailFade?.data('scroll-fade-instance')?.destroy();
+            this.thumbnailFade = null;
+            if (this.thumbnailsEnabled) this.thumbnailTrack.replaceChildren();
+            this.thumbnailsEnabled = false;
+            this.element.classList.remove('lightbox-has-thumbs');
+            this.thumbnails = [];
+            this.selectedThumbnail = null;
             if (this.loader) {
                 this.loader.hidden = true;
                 this.loader.replaceChildren();
@@ -819,8 +992,8 @@
             this.element.hidden = true;
             this.element.setAttribute('aria-hidden', 'true');
             this.isOpen = false;
+            this.historyID = null;
             this.closing = false;
-            this.legacy = null;
             if (active === this) {
                 window.AccessKitFocusTrap?.deactivate();
                 active = null;
@@ -833,88 +1006,6 @@
         destroy() {
             if (this.closing) { this.finishAnimation(); return; }
             this.close(false, true);
-        }
-    }
-
-    // Kept here so Gallery only supplies media and synchronizes its selected index.
-    // This adapter can be removed after the parallel PhotoSwipe test phase.
-    class LegacyLightbox {
-        constructor(owner) { this.owner = owner; }
-
-        open() {
-            const owner = this.owner;
-            const root = document.getElementById('pswp');
-            const container = root.querySelector('.pswp__container');
-            this.events = new AbortController();
-            const on = (type, callback) => root.addEventListener(type, callback, { signal: this.events.signal });
-            const pause = () => root.querySelectorAll('video').forEach(video => video.pause());
-            const transition = direction => {
-                const index = this.viewer.getCurrentIndex();
-                container.classList.toggle('sliding', !((direction < 0 && index === 0) || (direction > 0 && index === owner.items.length - 1)));
-            };
-            on('keydown', event => {
-                if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') transition(event.key === 'ArrowLeft' ? -1 : 1);
-            });
-            on('mousedown', event => {
-                const arrow = event.target.closest('.pswp__arrow');
-                if (arrow) {
-                    event.stopPropagation();
-                    transition(arrow.classList.contains('pswp__button--arrow--left') ? -1 : 1);
-                }
-                else container.classList.remove('sliding');
-            });
-            on('dblclick', event => {
-                if (event.target.closest('.pswp__arrow')) { event.preventDefault(); event.stopPropagation(); }
-            });
-            container.addEventListener('transitionend', () => container.classList.remove('sliding'), { signal: this.events.signal });
-            const items = owner.items.map(item => {
-                if (item.type !== 'video') return item;
-                const content = document.createElement('div');
-                content.className = 'video-container hstack justify-content-center';
-                const video = document.createElement('video');
-                video.className = 'video-item';
-                video.src = item.src;
-                video.controls = true;
-                video.preload = 'metadata';
-                content.append(video);
-                return { html: content.outerHTML };
-            });
-            this.viewer = new PhotoSwipe(root, PhotoSwipeUI_Default, items, {
-                index: owner.index,
-                loop: owner.options.loop,
-                history: !!owner.options.history,
-                galleryUID: owner.options.history === true ? 1 : owner.options.history,
-                closeOnScroll: owner.options.closeOnScroll,
-                showHideOpacity: true,
-                shareEl: false,
-                barsSize: { top: 0, bottom: 'auto' },
-                getThumbBoundsFn: owner.options.getThumbnailRect,
-                showAnimationDuration: owner.duration(),
-                hideAnimationDuration: owner.duration()
-            });
-            this.viewer.listen('beforeChange', pause);
-            this.viewer.listen('afterChange', () => {
-                owner.index = this.viewer.getCurrentIndex();
-                for (const slide of container.children) {
-                    const current = slide.contains(this.viewer.currItem.container);
-                    slide.setAttribute('aria-hidden', String(!current));
-                    slide.inert = !current;
-                }
-                owner.notifyChange();
-            });
-            this.viewer.listen('destroy', () => {
-                pause();
-                this.events.abort();
-                container.classList.remove('sliding');
-                owner.dispose();
-            });
-            this.viewer.init();
-            window.AccessKitFocusTrap?.activate(root, { exclude: '.pswp__item[aria-hidden="true"] *' });
-        }
-
-        close(immediate) {
-            if (immediate) this.viewer.options.hideAnimationDuration = 0;
-            this.viewer.close();
         }
     }
 

@@ -47,7 +47,6 @@
 // Vendor components (neutral)
 // --------------------------------------------------
 
-@import "/lib/photoswipe/photoswipe";
 @import "/lib/slick/slick";
 @import "/lib/select2/scss/core";
 @import "/lib/aos/scss/aos";
@@ -101,6 +100,8 @@
 @import '/shared/media';
 @import "/shared/text-expander";
 @import "/shared/entity-picker";
+@import "/shared/gallery";
+@import "/shared/lightbox";
 
 
 //
@@ -109,7 +110,6 @@
 
 @import "/skinning/select2";
 @import "/skinning/pnotify";
-@import "/skinning/photoswipe";
 @import "/skinning/slick";
 @import "/skinning/drift";
 @import "/skinning/fileupload";
