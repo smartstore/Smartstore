@@ -13,6 +13,7 @@
 
 - **Administration:** A new collapsible sidebar gives the administration area a modern, uncluttered layout with easy access to its main sections.
 - **Category icons:** Added support for assigning icons to categories, with customizable colors, rotation, mirroring and animations. Icons are displayed in the sidebar category navigation, main-menu dropdowns, MegaMenu, mobile menu and admin category tree.
+- **Media gallery:** Replaced PhotoSwipe with the new Smartstore *Lightbox* for viewing images and videos. A horizontal thumbnail strip lets shoppers jump directly to any image or video, including on mobile devices. Zoom, fullscreen viewing, touch gestures and keyboard controls remain available, with support for right-to-left layouts.
 - (DEV) Added `Smartstore.Packager.Cli` for scriptable packaging of modules and themes, including batch processing and automation-friendly exit codes.
 - (DEV) Added `linux-arm64` builds and lazy deployment support for native ARM64 tools.
 - Enhanced color and image swatches for attributes
@@ -60,7 +61,6 @@
 - New **Rule Builder** rules:
   - #1541 Add a cart rule to check whether discount code(s) have been applied.
   - #1542 Add a cart rule to check whether gift card code(s) have been applied.
-
 - **Editable List:** Added an admin editor for adding, removing and reordering text entries.
 - (DEV) Added property-level `TypeConverterAttribute` support to `ConvertUtility` and `MiniMapper`.
 
