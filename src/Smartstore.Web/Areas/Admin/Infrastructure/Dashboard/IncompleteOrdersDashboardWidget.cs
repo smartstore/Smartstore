@@ -22,19 +22,13 @@ public sealed class IncompleteOrdersDashboardWidget(IPermissionService permissio
 
     private static readonly DashboardWidgetDescriptor _descriptor = new(SystemName, ResolvableText.Resource("Admin.SalesReport.Incomplete"))
     {
-        Description = ResolvableText.Resource("Admin.SalesReport.Incomplete"),
         Group = KnownDashboardWidgetGroups.Sales,
-        IconName = "hourglass-split",
+        IconName = "hourglass",
         CssClass = "report-incomplete-orders",
         Order = 100,
         DefaultSize = new DashboardWidgetSize(10, 1),
         MinSize = new DashboardWidgetSize(4, 1),
-        MaxSize = new DashboardWidgetSize(12, 1),
-        AllowedSizes =
-        [
-            new DashboardWidgetSize(10, 1),
-            new DashboardWidgetSize(12, 1)
-        ]
+        MaxSize = new DashboardWidgetSize(12)
     };
 
     /// <inheritdoc />

@@ -24,8 +24,8 @@ public sealed class PaymentMethodsDashboardWidget(IPermissionService permissions
         Group = KnownDashboardWidgetGroups.Sales,
         IconName = "creditcard",
         Order = 650,
-        DefaultSize = new DashboardWidgetSize(4),
-        MinSize = new DashboardWidgetSize(3),
+        DefaultSize = new DashboardWidgetSize(4, 1),
+        MinSize = new DashboardWidgetSize(3, 1),
         MaxSize = new DashboardWidgetSize(12)
     };
 

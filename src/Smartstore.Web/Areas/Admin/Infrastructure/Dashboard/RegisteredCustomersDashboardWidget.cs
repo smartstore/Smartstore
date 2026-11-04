@@ -22,20 +22,13 @@ public sealed class RegisteredCustomersDashboardWidget(IPermissionService permis
 
     private static readonly DashboardWidgetDescriptor _descriptor = new(SystemName, ResolvableText.Resource("Admin.Report.CustomerRegistrations"))
     {
-        Description = ResolvableText.Resource("Admin.Report.CustomerRegistrations"),
         Group = KnownDashboardWidgetGroups.Customers,
-        IconName = "person-plus",
+        IconName = "user-add",
         CssClass = "report-customer-registrations",
         Order = 500,
-        DefaultSize = new DashboardWidgetSize(7, 1),
+        DefaultSize = new DashboardWidgetSize(6, 1),
         MinSize = new DashboardWidgetSize(4, 1),
-        MaxSize = new DashboardWidgetSize(12, 1),
-        AllowedSizes =
-        [
-            new DashboardWidgetSize(7, 1),
-            new DashboardWidgetSize(10, 1),
-            new DashboardWidgetSize(12, 1)
-        ]
+        MaxSize = new DashboardWidgetSize(12)
     };
 
     /// <inheritdoc />

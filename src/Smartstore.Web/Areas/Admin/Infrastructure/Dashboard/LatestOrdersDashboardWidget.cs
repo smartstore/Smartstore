@@ -22,23 +22,17 @@ public sealed class LatestOrdersDashboardWidget(IPermissionService permissions)
     /// </summary>
     private static readonly DashboardWidgetDescriptor _descriptor = new(SystemName, ResolvableText.Resource("Admin.SalesReport.LatestOrders"))
     {
-        Description = ResolvableText.Resource("Admin.SalesReport.LatestOrders"),
         Group = KnownDashboardWidgetGroups.Sales,
-        IconName = "card-checklist",
+        IconName = "clipboard",
         CssClass = "report-latest-orders",
         Order = 600,
         AllowMultipleInstances = false,
         SupportsRefresh = false,
         DefaultSize = new DashboardWidgetSize(6, 1),
-        MinSize = new DashboardWidgetSize(4, 1),
-        MaxSize = new DashboardWidgetSize(12, 1),
-        AllowedSizes =
-        [
-            new DashboardWidgetSize(6, 1),
-            new DashboardWidgetSize(10, 1),
-            new DashboardWidgetSize(12, 1)
-        ]
+        MinSize = new DashboardWidgetSize(5, 1),
+        MaxSize = new DashboardWidgetSize(12)
     };
 
+    /// <inheritdoc />
     public override DashboardWidgetDescriptor Descriptor => _descriptor;
 }

@@ -24,8 +24,8 @@ public sealed class ContactRequestsDashboardWidget(IPermissionService permission
         Group = KnownDashboardWidgetGroups.Customers,
         IconName = "mail",
         Order = 575,
-        DefaultSize = new DashboardWidgetSize(6),
-        MinSize = new DashboardWidgetSize(4),
+        DefaultSize = new DashboardWidgetSize(6, 1),
+        MinSize = new DashboardWidgetSize(4, 1),
         MaxSize = new DashboardWidgetSize(12)
     };
 

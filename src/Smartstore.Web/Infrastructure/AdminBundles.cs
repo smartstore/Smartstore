@@ -19,6 +19,8 @@ internal class AdminBundles : IBundleProvider
             return;
         }
 
+        bundles.Add(new StyleBundle("/bundle/css/dashboard-editor.css").Include("/admin/dashboard-editor.scss"));
+
         var lib = "/lib/";
         var js = "/js/";
         var adminJs = "/admin/js/";

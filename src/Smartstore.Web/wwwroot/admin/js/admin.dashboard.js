@@ -105,6 +105,7 @@ Smartstore.Admin.Charts = {
                     }
                 }
 
+                const reports = new Map();
                 const chartConfig = {
                     maintainAspectRatio: false,
                     cutoutPercentage: 90,
@@ -152,7 +153,7 @@ Smartstore.Admin.Charts = {
                                     && data.datasets[0].data[1] == 0) {
                                     return textFulfilled;
                                 }
-                                const d = dataSets[this._chart.id + alreadyExistingCharts].Data[item.index];
+                                const d = reports.get(this._chart).Data[item.index];
                                 return [textOrders + ':  ' + d.QuantityFormatted, textAmount + ':  ' + d.AmountFormatted];
                             },
                             title: function (item, data) {
@@ -190,7 +191,7 @@ Smartstore.Admin.Charts = {
                 );
 
                 // This value is needed for mapping tooltip data
-                const alreadyExistingCharts = chartDay.id;
+                reports.set(chartDay, dataSets[0]);
                 const dataWeek = {
                     labels: [textNotShipped, textNotPayed, textNewOrders],
                     datasets: [{
@@ -213,6 +214,7 @@ Smartstore.Admin.Charts = {
                         options: chartConfig
                     }
                 );
+                reports.set(chartWeek, dataSets[1]);
 
                 const dataMonth = {
                     labels: [textNotShipped, textNotPayed, textNewOrders],
@@ -236,6 +238,7 @@ Smartstore.Admin.Charts = {
                         options: chartConfig
                     }
                 );
+                reports.set(chartMonth, dataSets[2]);
 
                 const dataOverall = {
                     labels: [textNotShipped, textNotPayed, textNewOrders],
@@ -259,6 +262,7 @@ Smartstore.Admin.Charts = {
                         options: chartConfig
                     }
                 );
+                reports.set(chartOverall, dataSets[3]);
             },
             OrdersChart: function (dataSets, textCancelled, textPending, textProcessing, textComplete, textOrders) {
                 const reportElement = document.getElementById('orders-report');

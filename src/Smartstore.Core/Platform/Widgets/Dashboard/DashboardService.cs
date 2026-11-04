@@ -14,7 +14,7 @@ namespace Smartstore.Core.Widgets.Dashboard;
 /// <summary>
 /// Provides dashboard registration, layered layout resolution and render-model preparation.
 /// </summary>
-public class DashboardService : IDashboardService
+public partial class DashboardService : IDashboardService
 {
     /// <summary>
     /// Defines the prefix used for customer-specific dashboard layout attributes.
@@ -99,6 +99,19 @@ public class DashboardService : IDashboardService
         Customer? customer,
         CancellationToken cancelToken = default)
     {
+        var resolved = await ResolveLayoutAsync(dashboardId, customer, DashboardLayoutLayer.User, cancelToken);
+        return resolved.Layout;
+    }
+
+    /// <summary>
+    /// Resolves a requested layer and its fallbacks without copying or modifying the layout.
+    /// </summary>
+    private async ValueTask<(DashboardLayout Layout, DashboardLayoutLayer Source)> ResolveLayoutAsync(
+        string dashboardId,
+        Customer? customer,
+        DashboardLayoutLayer layer,
+        CancellationToken cancelToken)
+    {
         Guard.NotEmpty(dashboardId);
 
         if (!LayoutProviders.TryGetValue(dashboardId, out var providerRegistration))
@@ -107,15 +120,19 @@ public class DashboardService : IDashboardService
         }
 
         var canonicalDashboardId = providerRegistration.Metadata.SystemName;
-        var layout = LoadUserLayout(canonicalDashboardId, customer);
+        var source = layer;
+        DashboardLayout? layout = layer == DashboardLayoutLayer.User
+            ? LoadUserLayout(canonicalDashboardId, customer) : null;
 
-        if (layout == null)
+        if (layout == null && layer != DashboardLayoutLayer.System)
         {
+            source = DashboardLayoutLayer.Global;
             layout = await LoadGlobalLayoutAsync(canonicalDashboardId, cancelToken);
         }
 
         if (layout == null)
         {
+            source = DashboardLayoutLayer.System;
             var provider = providerRegistration.Value;
             layout = Guard.NotNull(provider.GetDefaultLayout());
 
@@ -130,7 +147,7 @@ public class DashboardService : IDashboardService
             ValidateLayout(layout, canonicalDashboardId, customer);
         }
 
-        return layout;
+        return (layout, source);
     }
 
     public virtual async ValueTask<DashboardRenderModel> GetDashboardAsync(
@@ -140,6 +157,17 @@ public class DashboardService : IDashboardService
         CancellationToken cancelToken = default)
     {
         var layout = await GetEffectiveLayoutAsync(dashboardId, customer, cancelToken);
+        return await PrepareDashboardAsync(layout, customer, isEditMode, cancelToken);
+    }
+
+    /// <inheritdoc />
+    public virtual async ValueTask<DashboardRenderModel> PrepareDashboardAsync(
+        DashboardLayout layout,
+        Customer? customer,
+        bool isEditMode = false,
+        CancellationToken cancelToken = default)
+    {
+        ValidateLayout(layout, layout.Id, customer);
         var context = new DashboardWidgetContext
         {
             DashboardId = layout.Id,
@@ -176,27 +204,7 @@ public class DashboardService : IDashboardService
                 continue;
             }
 
-            var settings = (JsonObject)instance.Settings.DeepClone();
-            var settingsVersion = instance.SettingsVersion;
-
-            if (settingsVersion != descriptor.SettingsVersion)
-            {
-                settings = Guard.NotNull(await dashboardWidget.MigrateSettingsAsync(
-                    settings,
-                    settingsVersion,
-                    cancelToken));
-
-                settingsVersion = descriptor.SettingsVersion;
-            }
-
-            await dashboardWidget.ValidateSettingsAsync(settings, cancelToken);
-
-            var runtimeInstance = instance with
-            {
-                Settings = settings,
-                SettingsVersion = settingsVersion
-            };
-
+            var runtimeInstance = await PrepareWidgetInstanceAsync(dashboardWidget, instance, cancelToken);
             var policy = DashboardWidgetPolicy.Combine(descriptor.Policy, runtimeInstance.Policy);
 
             items.Add(new DashboardRenderItem
@@ -214,6 +222,28 @@ public class DashboardService : IDashboardService
             Context = context,
             Widgets = items
         };
+    }
+
+    /// <summary>
+    /// Migrates and validates a detached settings copy without changing the stored widget instance.
+    /// </summary>
+    private async ValueTask<DashboardWidgetInstance> PrepareWidgetInstanceAsync(
+        IDashboardWidget widget,
+        DashboardWidgetInstance instance,
+        CancellationToken cancelToken)
+    {
+        var settings = (JsonObject)instance.Settings.DeepClone();
+        int settingsVersion = instance.SettingsVersion;
+
+        if (settingsVersion != widget.Descriptor.SettingsVersion)
+        {
+            settings = Guard.NotNull(await widget.MigrateSettingsAsync(settings, settingsVersion, cancelToken));
+            settingsVersion = widget.Descriptor.SettingsVersion;
+        }
+
+        await widget.ValidateSettingsAsync(settings, cancelToken);
+
+        return instance with { Settings = settings, SettingsVersion = settingsVersion };
     }
 
     private IReadOnlyDictionary<string, Lazy<IDashboardWidget, DashboardMetadata>> CreateWidgetMap()
@@ -303,7 +333,7 @@ public class DashboardService : IDashboardService
             var layout = DeserializeLayout(json);
             return ValidateCustomLayout(layout, dashboardId, customer, DashboardLayoutScope.User, "user");
         }
-        catch (JsonException exception)
+        catch (Exception exception) when (exception is JsonException or ArgumentException)
         {
             Logger.Error(
                 exception,
@@ -348,7 +378,7 @@ public class DashboardService : IDashboardService
                 var candidate = DeserializeLayout(json);
                 return ValidateCustomLayout(candidate, dashboardId, null, DashboardLayoutScope.Global, "global");
             }
-            catch (JsonException ex)
+            catch (Exception ex) when (ex is JsonException or ArgumentException)
             {
                 Logger.Error(ex, $"Failed to load global layout for dashboard '{dashboardId}' from '{fileName}'.");
                 return null;
@@ -485,7 +515,7 @@ public class DashboardService : IDashboardService
                     $"Dashboard widget instance '{instance.Id}' must declare a positive settings version.");
             }
 
-            if (instance.Positions.GroupBy(x => x.MinViewportWidth).Any(x => x.Count() > 1))
+            if (instance.Positions.Where(x => x != null).GroupBy(x => x.MinViewportWidth).Any(x => x.Count() > 1))
             {
                 throw new InvalidOperationException(
                     $"Dashboard widget instance '{instance.Id}' declares a viewport breakpoint more than once.");
@@ -497,7 +527,8 @@ public class DashboardService : IDashboardService
                     throw new InvalidOperationException($"Dashboard widget instance '{instance.Id}' contains an invalid grid position.");
 
                 if (position.MinViewportWidth < 0 || position.Column < 0 || position.Row < 0 ||
-                    position.Column + position.Size.ColumnSpan > layout.ColumnCount)
+                    position.MinHeight is < 0 or > DashboardWidgetPosition.MaxRequestedHeight ||
+                    (long)position.Column + position.Size.ColumnSpan > layout.ColumnCount)
                 {
                     throw new InvalidOperationException(
                         $"Dashboard widget instance '{instance.Id}' contains an invalid grid position.");

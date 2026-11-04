@@ -1,23 +1,54 @@
 @using Smartstore.Core.Widgets.Dashboard
-
 @model DashboardRenderModel
 @inject IDashboardCssBuilder DashboardCssBuilder
 
 <style sm-target-zone="stylesheets" data-origin="@Model.Layout.Id">
     @Html.Raw(DashboardCssBuilder.Build(Model))
+    @* The fixed news rail follows the visible content, without modifying its stored, locked placement. *@
+    @if (Model.Layout.Id == "admin-dashboard" && Model.Widgets.FirstOrDefault(x => x.Instance.Id == "news-feed") is { } news)
+    {
+        var content = Model.Widgets.Where(x => x != news).ToArray();
+        var breakpoints = content.SelectMany(x => x.Instance.Positions).Select(x => x.MinViewportWidth).Append(0).Append(992).Distinct().Order();
+        foreach (int width in breakpoints)
+        {
+            int bottom = content.Select(x => x.Instance.GetPosition(width)).Select(x => x.Row + (x.Size.RowSpan ?? 1)).DefaultIfEmpty(0).Max();
+            string placement = width >= 992 ? $"1 / span {Math.Max(1, bottom)}" : $"{bottom + 1} / span 1";
+            @Html.Raw($"@media (min-width: {width}px) {{ #{Model.Layout.BuildWidgetId(news.Instance.Id)} {{ grid-row: {placement}; }} }}")
+        }
+    }
 </style>
 
-<div id="@(Model.Layout.Id)-grid"
-     style="display: grid; grid-template-columns: @Model.Layout.GridTemplateColumns; column-gap: @Model.Layout.ColumnGap; row-gap: @Model.Layout.RowGap; grid-auto-rows: @Model.Layout.GridAutoRows;">
-    
-    <zone name="dashboard_top"></zone>
-
+<zone name="dashboard_top"></zone>
+<div id="@(Model.Layout.Id)-grid" style="display: grid; grid-template-columns: @Model.Layout.GridTemplateColumns; column-gap: @Model.Layout.ColumnGap; row-gap: @Model.Layout.RowGap; grid-auto-rows: @Model.Layout.GridAutoRows;">
     @foreach (var item in Model.Widgets)
     {
-        <div id="@Model.Layout.BuildWidgetId(item.Instance.Id)" class="dashboard-widget @item.Descriptor.CssClass">
-            @await item.Widget.InvokeAsync(ViewContext)
+        bool canEdit = Model.Context.IsEditMode && (item.Policy.AllowMove || item.Policy.AllowResize || !item.Policy.IsRequired);
+        <div id="@Model.Layout.BuildWidgetId(item.Instance.Id)" class="dashboard-widget d-grid position-relative rounded-3 @item.Descriptor.CssClass"
+             data-instance-id="@item.Instance.Id"
+             data-min-width="@item.Descriptor.MinSize.ColumnSpan" data-max-width="@item.Descriptor.MaxSize.ColumnSpan">
+            @if (canEdit)
+            {
+                <div class="dashboard-widget-overlay z-1 position-absolute top-0 start-0 w-100 h-100 rounded-3"
+                     tabindex="@(item.Policy.AllowMove ? "0" : null)"
+                     aria-label="@(item.Policy.AllowMove ? T("Admin.Dashboard.Editor.Move").ToString() : null)"
+                     aria-hidden="@(!item.Policy.AllowMove ? "true" : null)"></div>
+            }
+            <div class="dashboard-widget-body h-100">
+                @if (canEdit && !item.Policy.IsRequired)
+                {
+                    <div class="dashboard-widget-tools select2-selection-toolbar rounded position-absolute z-3 top-0 end-0 m-2">
+                        <button type="button" class="btn btn-xs btn-plain btn-flat btn-icon btn-destructive" data-dashboard-remove title="@T("Common.Remove")" aria-label="@T("Common.Remove")"><icon name="trash" /></button>
+                    </div>
+                }
+                @if (Model.Context.IsEditMode && item.Policy.AllowResize)
+                {
+                    <button sm-if="item.Policy.AllowMove" type="button" class="dashboard-resize z-2 position-absolute border-0 bg-transparent p-0 top-0 start-0 h-100" data-dashboard-resize="width-start" aria-label="@T("Admin.Dashboard.Editor.Width")"></button>
+                    <button type="button" class="dashboard-resize z-2 position-absolute border-0 bg-transparent p-0 top-0 end-0 h-100" data-dashboard-resize="width" aria-label="@T("Admin.Dashboard.Editor.Width")"></button>
+                    <button type="button" class="dashboard-resize z-2 position-absolute border-0 bg-transparent p-0 bottom-0 start-0 w-100" data-dashboard-resize="height" aria-label="@T("Admin.Dashboard.Editor.Height")"></button>
+                }
+                @await item.Widget.InvokeAsync(ViewContext)
+            </div>
         </div>
     }
-
-    <zone name="dashboard_bottom"></zone>
 </div>
+<zone name="dashboard_bottom"></zone>

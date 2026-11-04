@@ -91,6 +91,7 @@ public class DashboardCookieConsentsViewComponent : SmartViewComponent
         try
         {
             using var document = JsonDocument.Parse(json);
+
             if (document.RootElement.ValueKind != JsonValueKind.Object)
             {
                 model.SkippedConsents++;

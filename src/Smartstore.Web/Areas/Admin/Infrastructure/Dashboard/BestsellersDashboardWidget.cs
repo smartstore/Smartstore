@@ -22,21 +22,13 @@ public sealed class BestsellersDashboardWidget(IPermissionService permissions)
 
     private static readonly DashboardWidgetDescriptor _descriptor = new(SystemName, ResolvableText.Resource("Admin.SalesReport.BestSellers"))
     {
-        Description = ResolvableText.Resource("Admin.SalesReport.BestSellers"),
         Group = KnownDashboardWidgetGroups.Sales,
         IconName = "trophy",
         CssClass = "report-bestsellers",
         Order = 300,
-        DefaultSize = new DashboardWidgetSize(3, 1),
+        DefaultSize = new DashboardWidgetSize(4, 1),
         MinSize = new DashboardWidgetSize(3, 1),
-        MaxSize = new DashboardWidgetSize(12, 1),
-        AllowedSizes =
-        [
-            new DashboardWidgetSize(3, 1),
-            new DashboardWidgetSize(4, 1),
-            new DashboardWidgetSize(6, 1),
-            new DashboardWidgetSize(12, 1)
-        ]
+        MaxSize = new DashboardWidgetSize(12)
     };
 
     /// <inheritdoc />

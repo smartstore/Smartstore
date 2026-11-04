@@ -740,6 +740,54 @@ public class SmartDbContextDataSeeder : IDataSeeder<SmartDbContext>
         builder.AddOrUpdate(prefix + "Title", "Migrate icons", "Icons migrieren");
         builder.AddOrUpdate(prefix + "Start", "Start migration", "Migration starten");
         builder.AddOrUpdate(prefix + "Hint",
+        builder.Delete("Admin.Dashboard.Editor.Layer.System", "Admin.Dashboard.Editor.Layer.Global", "Admin.Dashboard.Editor.Layer.User",
+            "Admin.Dashboard.Editor.Using", "Admin.Dashboard.Editor.SharedHint");
+
+        builder.AddOrUpdate("Admin.Dashboard.Editor.Dashboard.System", "Default dashboard", "Standard-Dashboard");
+        builder.AddOrUpdate("Admin.Dashboard.Editor.Dashboard.Global", "Dashboard for everyone", "Dashboard für alle");
+        builder.AddOrUpdate("Admin.Dashboard.Editor.Dashboard.User", "My dashboard", "Mein Dashboard");
+        builder.AddOrUpdate("Admin.Dashboard.Editor.Status.Unsaved", "Not saved", "Nicht gespeichert");
+        builder.AddOrUpdate("Admin.Dashboard.Editor.TemplateNotice",
+            "{0} is the template for this draft. Save replaces the layout of {1}. Cancel leaves your saved dashboards unchanged.",
+            "{0} dient als Vorlage für diesen Entwurf. Speichern ersetzt die Anordnung von {1}. Abbrechen lässt Ihre gespeicherten Dashboards unverändert.");
+        builder.AddOrUpdate("Admin.Dashboard.Editor.Status.Reset", "Reset pending", "Zurücksetzen vorgemerkt");
+        builder.AddOrUpdate("Admin.Dashboard.Editor.Customize", "Customize dashboard", "Dashboard anpassen");
+        builder.AddOrUpdate("Admin.Dashboard.Editor.View", "Dashboard view", "Dashboard-Ansicht");
+        builder.AddOrUpdate("Admin.Dashboard.Editor.Editing", "Editing", "Bearbeiten");
+        builder.AddOrUpdate("Admin.Dashboard.Editor.Widgets", "Widgets", "Widgets");
+        builder.AddOrUpdate("Admin.Dashboard.Editor.AddWidget", "Add widget", "Widget hinzufügen");
+        builder.AddOrUpdate("Admin.Dashboard.Editor.Search", "Search widgets", "Widgets suchen");
+        builder.AddOrUpdate("Admin.Dashboard.Editor.ResetPersonal", "Reset to the shared dashboard", "Auf gemeinsame Vorgabe zurücksetzen");
+        builder.AddOrUpdate("Admin.Dashboard.Editor.ResetGlobal", "Reset to the default dashboard", "Auf Standard zurücksetzen");
+        builder.AddOrUpdate("Admin.Dashboard.Editor.SaveUser", "Save for me", "Für mich speichern");
+        builder.AddOrUpdate("Admin.Dashboard.Editor.SaveGlobal", "Save for everyone", "Für alle speichern");
+        builder.AddOrUpdate("Admin.Dashboard.Editor.SaveGlobalConfirm",
+            "This dashboard will be saved as the shared default for all users. Personal dashboards will be retained. Do you want to continue?",
+            "Dieses Dashboard wird als gemeinsame Vorgabe für alle Benutzer gespeichert. Persönliche Dashboards bleiben erhalten. Möchten Sie fortfahren?");
+        builder.AddOrUpdate("Admin.Dashboard.Editor.SaveTarget", "Choose where to save", "Speicherziel wählen");
+        builder.AddOrUpdate("Admin.Dashboard.Editor.ResetPending", "Customization will be removed when saved", "Anpassung wird beim Speichern entfernt");
+        builder.AddOrUpdate("Admin.Dashboard.Editor.Saved", "Dashboard saved.", "Dashboard gespeichert.");
+        builder.AddOrUpdate("Admin.Dashboard.Editor.SelectionFailed", "The dashboard was saved, but the view selection could not be saved.", "Das Dashboard wurde gespeichert, die Ansichtsauswahl konnte jedoch nicht gespeichert werden.");
+        builder.AddOrUpdate("Admin.Dashboard.Editor.SaveFailed", "Could not save the dashboard. Your draft is still available.", "Dashboard konnte nicht gespeichert werden. Ihr Entwurf bleibt erhalten.");
+        builder.AddOrUpdate("Admin.Dashboard.Editor.Invalid", "The dashboard changes are invalid or no longer permitted.", "Die Dashboard-Änderungen sind ungültig oder nicht mehr erlaubt.");
+        builder.AddOrUpdate("Admin.Dashboard.Editor.Unsaved", "Unsaved changes", "Ungespeicherte Änderungen");
+        builder.AddOrUpdate("Admin.Dashboard.Editor.UnsavedHint", "Save the current draft before switching?", "Den aktuellen Entwurf vor dem Wechsel speichern?");
+        builder.AddOrUpdate("Admin.Dashboard.Editor.KeepEditing", "Keep editing", "Weiter bearbeiten");
+        builder.AddOrUpdate("Admin.Dashboard.Editor.Discard", "Discard and switch", "Verwerfen und wechseln");
+        builder.AddOrUpdate("Admin.Dashboard.Editor.SaveAndSwitch", "Save and switch", "Speichern und wechseln");
+        builder.Delete("Admin.Dashboard.Editor.TargetAbove", "Admin.Dashboard.Editor.TargetBelow");
+        builder.AddOrUpdate("Admin.Dashboard.Editor.Move", "Move widget", "Widget verschieben");
+        builder.AddOrUpdate("Admin.Dashboard.Editor.Undo", "Undo last change", "Letzte Änderung rückgängig machen");
+        builder.AddOrUpdate("Admin.Dashboard.Editor.Redo", "Redo last change", "Letzte Änderung wiederholen");
+        builder.AddOrUpdate("Admin.Dashboard.Editor.Width", "Change widget width", "Widget-Breite ändern");
+        builder.AddOrUpdate("Admin.Dashboard.Editor.Height", "Change widget height (Home: automatic)", "Widget-Höhe ändern (Pos1: automatisch)");
+        builder.Delete("Permissions.DisplayName.dashboard.personalize", "Permissions.DisplayName.dashboard.manageglobal");
+        builder.AddOrUpdate("Permissions.DisplayName.Personalize", "Customize own dashboard", "Eigenes Dashboard anpassen");
+        builder.AddOrUpdate("Permissions.DisplayName.ManageGlobal", "Manage shared dashboard", "Gemeinsames Dashboard verwalten");
+
+        builder.AddOrUpdate("Admin.System.Maintenance.Icons.Title", "Migrate icons", "Icons migrieren");
+        builder.AddOrUpdate("Admin.System.Maintenance.Icons.Start", "Start migration", "Migration starten");
+        builder.AddOrUpdate("Admin.System.Maintenance.Icons.Hint",
             "Converts legacy Font Awesome icons in menus and HTML content to the new icon format. Already migrated icons remain unchanged. Migration usually takes just a few seconds, but may take several minutes for large datasets. Keep this page open until the migration finishes. Logs of automatic and manual migrations are available in App_Data/Logs (icon-migration-*).",
             "Überführt bisherige Font-Awesome-Icons in Menüs und HTML-Inhalten in das neue Icon-Format. Bereits migrierte Icons bleiben unverändert. Die Migration dauert meist nur wenige Sekunden, bei großen Datenbeständen auch mehrere Minuten. Lassen Sie diese Seite bis zum Abschluss geöffnet. Protokolle automatischer und manueller Migrationen finden Sie unter App_Data/Logs (icon-migration-*).");
         builder.AddOrUpdate(prefix + "Started", "Icon migration is running…", "Die Icon-Migration läuft…");

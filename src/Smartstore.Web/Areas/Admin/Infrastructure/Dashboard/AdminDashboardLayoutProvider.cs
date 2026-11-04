@@ -19,7 +19,7 @@ public class AdminDashboardLayoutProvider : IDashboardLayoutProvider
         {
             Scope = DashboardLayoutScope.Global,
             ColumnCount = 12,
-            GridTemplateColumns = "repeat(10, 1fr) repeat(2, 130px)",
+            GridTemplateColumns = "repeat(10, minmax(0, 1fr)) repeat(2, 130px)",
             ColumnGap = "1rem",
             RowGap = "1rem",
             GridAutoRows = "auto",

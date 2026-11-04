@@ -22,20 +22,13 @@ public sealed class TopCustomersDashboardWidget(IPermissionService permissions)
 
     private static readonly DashboardWidgetDescriptor _descriptor = new(SystemName, ResolvableText.Resource("Admin.SalesReport.TopCustomers"))
     {
-        Description = ResolvableText.Resource("Admin.SalesReport.TopCustomers"),
         Group = KnownDashboardWidgetGroups.Customers,
-        IconName = "people",
+        IconName = "user-group",
         CssClass = "report-top-customers",
         Order = 400,
-        DefaultSize = new DashboardWidgetSize(3, 1),
+        DefaultSize = new DashboardWidgetSize(4, 1),
         MinSize = new DashboardWidgetSize(3, 1),
-        MaxSize = new DashboardWidgetSize(12, 1),
-        AllowedSizes =
-        [
-            new DashboardWidgetSize(3, 1),
-            new DashboardWidgetSize(6, 1),
-            new DashboardWidgetSize(12, 1)
-        ]
+        MaxSize = new DashboardWidgetSize(12)
     };
 
     /// <inheritdoc />

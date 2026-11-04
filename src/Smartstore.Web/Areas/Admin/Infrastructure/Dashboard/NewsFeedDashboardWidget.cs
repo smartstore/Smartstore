@@ -22,20 +22,19 @@ public sealed class NewsFeedDashboardWidget(IPermissionService permissions)
 
     private static readonly DashboardWidgetDescriptor _descriptor = new(SystemName, ResolvableText.Resource("Admin.NewsFeed.Title"))
     {
-        Description = ResolvableText.Resource("Admin.NewsFeed.Title"),
         Group = KnownDashboardWidgetGroups.System,
         IconName = "newspaper",
         CssClass = "news-feed",
         Order = 800,
-        DefaultSize = new DashboardWidgetSize(2, 4),
+        DefaultSize = new DashboardWidgetSize(2, 1),
         MinSize = new DashboardWidgetSize(2, 1),
-        MaxSize = new DashboardWidgetSize(12, 6),
-        AllowedSizes =
-        [
-            new DashboardWidgetSize(2, 4),
-            new DashboardWidgetSize(2, 6),
-            new DashboardWidgetSize(12, 1)
-        ]
+        MaxSize = new DashboardWidgetSize(12),
+        Policy = new DashboardWidgetPolicy
+        {
+            IsRequired = true,
+            AllowMove = false,
+            AllowResize = false
+        }
     };
 
     /// <inheritdoc />
