@@ -159,9 +159,12 @@ public class StripeController : ModuleController
 
             var cart = await _shoppingCartService.GetCartAsync(storeId: Services.StoreContext.CurrentStore.Id);
             var result = await _checkoutWorkflow.AdvanceAsync(new(cart, HttpContext, Url));
-            if (result.ActionResult != null)
+            if (result.ActionResult is ChallengeResult)
             {
-                var redirectToAction = (RedirectToActionResult)result.ActionResult;
+                redirectUrl = Url.RouteUrl("Checkout");
+            }
+            else if (result.ActionResult is RedirectToActionResult redirectToAction)
+            {
                 redirectUrl = Url.Action(redirectToAction.ActionName, redirectToAction.ControllerName, redirectToAction.RouteValues, Request.Scheme);
             }
 

@@ -14,6 +14,7 @@ namespace Smartstore.StripeElements.Components;
 public class StripeElementsViewComponent : SmartViewComponent
 {
     private readonly StripeSettings _settings;
+    private readonly OrderSettings _orderSettings;
     private readonly IShoppingCartService _shoppingCartService;
     private readonly IOrderCalculationService _orderCalculationService;
     private readonly ICurrencyService _currencyService;
@@ -22,6 +23,7 @@ public class StripeElementsViewComponent : SmartViewComponent
 
     public StripeElementsViewComponent(
         StripeSettings settings,
+        OrderSettings orderSettings,
         IShoppingCartService shoppingCartService,
         IOrderCalculationService orderCalculationService,
         ICurrencyService currencyService,
@@ -29,6 +31,7 @@ public class StripeElementsViewComponent : SmartViewComponent
         StripeHelper stripeHelper)
     {
         _settings = settings;
+        _orderSettings = orderSettings;
         _shoppingCartService = shoppingCartService;
         _orderCalculationService = orderCalculationService;
         _currencyService = currencyService;
@@ -43,6 +46,11 @@ public class StripeElementsViewComponent : SmartViewComponent
     {
         // If public API key or secret API key haven't been configured yet, don't render anything.
         if (!_settings.PublicApiKey.HasValue() || !_settings.SecrectApiKey.HasValue())
+        {
+            return Empty();
+        }
+
+        if (!_orderSettings.AnonymousCheckoutAllowed && !Services.WorkContext.CurrentCustomer.IsRegistered())
         {
             return Empty();
         }
