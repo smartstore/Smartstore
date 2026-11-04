@@ -724,6 +724,8 @@ span.dg-page {
     --padding: 4px;
     --gap: 4px;
     position: absolute;
+    top: 0;
+    left: 0;
     z-index: 13;
     display: flex;
     flex-direction: column;
