@@ -65,9 +65,6 @@
     <LocaleResource Name="DisplayMachineName.Hint">
         <Value>Stellt den Rechnernamen unterhalb des Footers dar. Mit dieser Funktion können Sie in einer verteilten Anwendung den gerade genutzten Rechner ermitteln.</Value>
     </LocaleResource>
-    <LocaleResource Name="Icons">
-        <Value>Icons</Value>
-    </LocaleResource>
     <LocaleResource Name="IconBrowser">
         <Value>Icon Browser</Value>
     </LocaleResource>

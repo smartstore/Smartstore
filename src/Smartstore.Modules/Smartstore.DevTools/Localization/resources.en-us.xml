@@ -65,9 +65,6 @@
     <LocaleResource Name="DisplayMachineName.Hint">
         <Value>Displays the current machine name below the footer. With this function you can determine the current machine within a distributed application.</Value>
     </LocaleResource>
-    <LocaleResource Name="Icons">
-        <Value>Icons</Value>
-    </LocaleResource>
     <LocaleResource Name="IconBrowser">
         <Value>Icon Browser</Value>
     </LocaleResource>
