@@ -381,6 +381,11 @@ $mixed-megamenu-bg:             $megamenu-bg;
     z-index: -1;
 }
 
+.megamenu-dropdown-heading > .icon,
+.megamenu-subitems.block .megamenu-subitem > .icon {
+    width: 1.25rem;
+}
+
 .megamenu-dropdown-heading + .megamenu-subitems {
     margin-top: 3px;
 }
@@ -411,6 +416,10 @@ $mixed-megamenu-bg:             $megamenu-bg;
             display: flex;
             align-items: center;
 
+            > .icon {
+                --icon-color: color-mix(in srgb, currentColor 88%, #{$black});
+            }
+
             > .icon,
             > .badge {
                 flex-shrink: 0;
@@ -438,7 +447,7 @@ $mixed-megamenu-bg:             $megamenu-bg;
     color: $megamenu-subitem-color;
 
     > .icon + span {
-        margin-inline-start: 0.25rem;
+        margin-inline-start: 0.375rem;
     }
 
     transition: color 0.1s ease;
