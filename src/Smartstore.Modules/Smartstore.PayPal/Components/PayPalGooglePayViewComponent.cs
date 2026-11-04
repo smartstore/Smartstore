@@ -10,11 +10,6 @@ namespace Smartstore.PayPal.Components;
 /// </summary>
 public class PayPalGooglePayViewComponent : PayPalViewComponentBase
 {
-    public PayPalGooglePayViewComponent(OrderSettings orderSettings)
-        : base(orderSettings)
-    {
-    }
-
     protected override IViewComponentResult InvokeCore()
     {
         if (HttpContext.Connection.IsLocal())

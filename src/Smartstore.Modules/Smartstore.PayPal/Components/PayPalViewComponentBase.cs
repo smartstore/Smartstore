@@ -7,18 +7,18 @@ namespace Smartstore.PayPal.Components;
 
 public abstract class PayPalViewComponentBase : SmartViewComponent
 {
-    private readonly OrderSettings _orderSettings;
+    private OrderSettings _orderSettings;
     private PayPalSettings _settings;
     private string _routeIdent;
-
-    protected PayPalViewComponentBase(OrderSettings orderSettings)
-    {
-        _orderSettings = orderSettings;
-    }
 
     protected PayPalSettings Settings
     {
         get => _settings ??= Services.Resolve<PayPalSettings>();
+    }
+
+    protected OrderSettings OrderSettings
+    {
+        get => _orderSettings ??= Services.Resolve<OrderSettings>();
     }
 
     protected string RouteIdent
@@ -37,7 +37,7 @@ public abstract class PayPalViewComponentBase : SmartViewComponent
             return Task.FromResult(Empty());
         }
 
-        if (!_orderSettings.AnonymousCheckoutAllowed && !Services.WorkContext.CurrentCustomer.IsRegistered())
+        if (!OrderSettings.AnonymousCheckoutAllowed && !Services.WorkContext.CurrentCustomer.IsRegistered())
         {
             return Task.FromResult(Empty());
         }

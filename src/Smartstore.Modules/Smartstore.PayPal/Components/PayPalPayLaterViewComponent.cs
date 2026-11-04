@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Smartstore.Core.Checkout.Orders;
 using Smartstore.PayPal.Services;
 
 namespace Smartstore.PayPal.Components;
@@ -9,11 +8,6 @@ namespace Smartstore.PayPal.Components;
 /// </summary>
 public class PayPalPayLaterViewComponent : PayPalViewComponentBase
 {
-    public PayPalPayLaterViewComponent(OrderSettings orderSettings)
-        : base(orderSettings)
-    {
-    }
-
     protected override IViewComponentResult InvokeCore()
     {
         // Get displayable options from settings depending on location (OffCanvasCart or Cart).
