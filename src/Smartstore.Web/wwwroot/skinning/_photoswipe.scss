@@ -434,3 +434,6 @@ $pswp__background-color: #fff;
         }
     }
 }
+
+// Shared entry point for themes during the parallel Lightbox test phase.
+@import "../shared/lightbox";

@@ -58,6 +58,8 @@
   "return": "arrow-rotate-left",
   "ruler": "ruler-combined",
   "search": "magnifying-glass",
+  "zoom-in": "magnifying-glass-plus",
+  "zoom-out": "magnifying-glass-minus",
   "share-square": "share-from-square",
   "tablet": "tablet-screen-button",
   "unlink": "link-slash",

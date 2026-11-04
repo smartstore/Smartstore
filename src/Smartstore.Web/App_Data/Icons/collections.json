@@ -163,7 +163,9 @@
       "video",
       "user",
       "user-circle",
-      "warning"
+      "warning",
+      "zoom-in",
+      "zoom-out"
     ],
     "sources": {
       "play-fill": "fa:play!/s",

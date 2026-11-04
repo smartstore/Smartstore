@@ -215,6 +215,8 @@
   "balance": "scale-balanced",
   "cut": "scissors",
   "search": "magnifying-glass",
+  "zoom-in": "magnifying-glass-plus",
+  "zoom-out": "magnifying-glass-minus",
   "send": "paper-plane",
   "gears": "gears",
   "share": "share",
