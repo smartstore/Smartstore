@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Smartstore.Core.Checkout.Orders;
 
 namespace Smartstore.PayPal.Components;
 
@@ -8,6 +9,11 @@ namespace Smartstore.PayPal.Components;
 /// </summary>
 public class PayPalCreditCardViewComponent : PayPalViewComponentBase
 {
+    public PayPalCreditCardViewComponent(OrderSettings orderSettings)
+        : base(orderSettings)
+    {
+    }
+
     protected override IViewComponentResult InvokeCore()
     {
         var model = new PublicCreditCardModel

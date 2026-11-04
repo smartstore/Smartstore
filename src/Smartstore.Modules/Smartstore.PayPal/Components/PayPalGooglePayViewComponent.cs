@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Smartstore.Core.Checkout.Orders;
 using Smartstore.PayPal.Services;
 
 namespace Smartstore.PayPal.Components;
@@ -9,6 +10,11 @@ namespace Smartstore.PayPal.Components;
 /// </summary>
 public class PayPalGooglePayViewComponent : PayPalViewComponentBase
 {
+    public PayPalGooglePayViewComponent(OrderSettings orderSettings)
+        : base(orderSettings)
+    {
+    }
+
     protected override IViewComponentResult InvokeCore()
     {
         if (HttpContext.Connection.IsLocal())
