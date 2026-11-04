@@ -95,7 +95,7 @@
     visibility: hidden;
     opacity: 0;
     pointer-events: none;
-    transition: var(--btn-transition), opacity var(--lb-duration) var(--lb-easing);
+    transition: var(--btn-transition), var(--btn-icon-transition);
 
     .lightbox-thumbs:is(:hover, :focus-within) & {
         visibility: visible;

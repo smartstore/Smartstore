@@ -80,7 +80,7 @@
             this.resizeObserver.observe(this.stage);
             this.openHistory();
             this.notifyChange();
-            window.AccessKitFocusTrap?.activate(this.element, { exclude: '.lightbox-slide[aria-hidden="true"] *' });
+            window.AccessKitFocusTrap?.activate(this.element, { initial: '[data-lightbox-action="close"]', exclude: '.lightbox-slide[aria-hidden="true"] *' });
             this.showControls();
             this.animateOpening();
             return this;
