@@ -3,7 +3,6 @@ using System.Linq;
 using Moq;
 using NUnit.Framework;
 using Smartstore.Core.Installation;
-using Smartstore.Core.Tests.Platform.Installation.SeedSnapshot;
 using Smartstore.Engine;
 using Smartstore.IO;
 
@@ -17,7 +16,7 @@ public class InstallationServiceLanguageTests
 {
     private static InstallationService CreateService()
     {
-        var appDataDir = Path.Combine(InstallationSeedSnapshotTests.FindRepositoryRoot(), "src", "Smartstore.Web", "App_Data");
+        var appDataDir = Path.Combine(SeedingHarness.RepositoryRoot, "src", "Smartstore.Web", "App_Data");
 
         var appContext = new Mock<IApplicationContext>();
         appContext.SetupGet(x => x.AppDataRoot).Returns(new LocalFileSystem(appDataDir));
@@ -30,7 +29,8 @@ public class InstallationServiceLanguageTests
     {
         var languages = CreateService().GetInstallationLanguages();
 
-        Assert.That(languages.Select(x => x.Code), Is.EquivalentTo(new[] { "de", "en" }));
+        // Superset: adding a language must not break this test.
+        Assert.That(languages.Select(x => x.Code), Is.SupersetOf(new[] { "de", "en" }));
 
         var en = languages.Single(x => x.Code == "en");
         Assert.That(en.IsDefault, Is.True);
@@ -46,7 +46,7 @@ public class InstallationServiceLanguageTests
     {
         var service = CreateService();
 
-        Assert.That(service.GetAppLanguages().Select(x => x.Culture), Is.EquivalentTo(new[] { "de-DE", "en-US" }));
+        Assert.That(service.GetAppLanguages().Select(x => x.Culture), Is.SupersetOf(new[] { "de-DE", "en-US" }));
         Assert.That(service.GetAppLanguage("de-de").UniqueSeoCode, Is.EqualTo("de"));
         Assert.That(service.GetAppLanguage("fr-FR"), Is.Null);
     }

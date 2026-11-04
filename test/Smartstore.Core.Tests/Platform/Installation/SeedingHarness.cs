@@ -26,36 +26,36 @@ using Smartstore.Engine;
 using Smartstore.IO;
 using Smartstore.Utilities;
 
-namespace Smartstore.Core.Tests.Platform.Installation.SeedSnapshot;
+namespace Smartstore.Core.Tests.Platform.Installation;
 
 /// <summary>
 /// Runs the real <see cref="InstallationDataSeeder"/> for one culture against an isolated
-/// in-memory SQLite database, so that the seeded data can be snapshotted.
+/// in-memory SQLite database.
 /// </summary>
 /// <remarks>
 /// Only the seed data itself is in scope. Seed files and locale resources are copied from "App_Data/Seed"
 /// (without pending migration resources), so that data referencing them is complete. Message templates are skipped, modules are
 /// not installed and no DB hooks run.
 /// </remarks>
-internal sealed class SeedSnapshotHarness : IDisposable
+internal sealed class SeedingHarness : IDisposable
 {
-    public const string AdminEmail = "admin@seed-snapshot.test";
+    public const string AdminEmail = "admin@seeding.test";
 
     private readonly string _contentRoot;
     private readonly IEngine _previousEngine;
     private readonly IFileSystem _previousCommonContentRoot;
     private readonly IContainer _container;
 
-    private SeedSnapshotHarness(string seedSourceDir)
+    private SeedingHarness()
     {
         _previousEngine = EngineContext.Current;
         _previousCommonContentRoot = CommonHelper.ContentRoot;
 
         // Isolated content root with the seed folder (data, media and locale resources), but without
         // "head.txt": pending migration resources need the DB migrator.
-        _contentRoot = Path.Combine(Path.GetTempPath(), "SmartstoreSeedSnapshot", Guid.NewGuid().ToString("N"));
+        _contentRoot = Path.Combine(Path.GetTempPath(), "SmartstoreSeeding", Guid.NewGuid().ToString("N"));
         CopyDirectory(
-            seedSourceDir,
+            SeedSourceDir,
             Path.Combine(_contentRoot, "App_Data", SeedDataSource.AppDataFolder),
             file => Path.GetFileName(file) != "head.txt");
 
@@ -82,7 +82,7 @@ internal sealed class SeedSnapshotHarness : IDisposable
         var scopeAccessorMock = new Mock<ILifetimeScopeAccessor>();
         scopeAccessorMock.SetupGet(x => x.LifetimeScope).Returns(_container);
 
-        EngineContext.Replace(new SnapshotEngine
+        EngineContext.Replace(new SeedingEngine
         {
             Application = AppContext,
             Scope = new ScopedServiceContainer(scopeAccessorMock.Object, _container.Resolve<IHttpContextAccessor>(), _container)
@@ -115,17 +115,35 @@ internal sealed class SeedSnapshotHarness : IDisposable
     public SmartDbContext Db { get; }
 
     /// <summary>
-    /// Seeds a fresh database with the given seed data and returns the harness holding it.
+    /// The root of the repository that contains the test assembly.
     /// </summary>
-    public static async Task<SeedSnapshotHarness> SeedAsync(
-        string seedSourceDir,
-        string culture,
-        string languageName,
-        string uniqueSeoCode,
-        string flagImageFileName,
-        bool seedSampleData = true)
+    public static string RepositoryRoot
     {
-        var harness = new SeedSnapshotHarness(seedSourceDir);
+        get
+        {
+            var dir = new DirectoryInfo(System.AppContext.BaseDirectory);
+
+            while (dir != null && !File.Exists(Path.Combine(dir.FullName, "Smartstore.sln")))
+            {
+                dir = dir.Parent;
+            }
+
+            return dir?.FullName ?? throw new DirectoryNotFoundException("Could not locate the repository root (Smartstore.sln).");
+        }
+    }
+
+    /// <summary>
+    /// The real seed folder "App_Data/Seed" of the web project.
+    /// </summary>
+    public static string SeedSourceDir
+        => Path.Combine(RepositoryRoot, "src", "Smartstore.Web", "App_Data", SeedDataSource.AppDataFolder);
+
+    /// <summary>
+    /// Seeds a fresh database for the given culture and returns the harness holding it.
+    /// </summary>
+    public static async Task<SeedingHarness> SeedAsync(SeedCulture culture, bool seedSampleData)
+    {
+        var harness = new SeedingHarness();
 
         try
         {
@@ -137,10 +155,10 @@ internal sealed class SeedSnapshotHarness : IDisposable
                 StoreMediaInDB = true,
                 Language = new Language
                 {
-                    Name = languageName,
-                    LanguageCulture = culture,
-                    UniqueSeoCode = uniqueSeoCode,
-                    FlagImageFileName = flagImageFileName
+                    Name = culture.Name,
+                    LanguageCulture = culture.Culture,
+                    UniqueSeoCode = culture.UniqueSeoCode,
+                    FlagImageFileName = culture.FlagImageFileName
                 }
             };
 
@@ -191,7 +209,7 @@ internal sealed class SeedSnapshotHarness : IDisposable
         }
     }
 
-    private sealed class SnapshotEngine : IEngine
+    private sealed class SeedingEngine : IEngine
     {
         public IApplicationContext Application { get; set; }
         public ScopedServiceContainer Scope { get; set; }

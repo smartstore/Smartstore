@@ -87,6 +87,6 @@ Some products also show features of optional modules. Their texts say so in a se
    (see README). Link every mention of another product or category.
 4. Keep derived product properties consistent (e.g. tier prices, combinations, discounts); the loader
    derives most of them, see `InstallationDataSeeder.Products.cs`.
-5. Run the seed tests, review the snapshot diff and update the table above.
+5. Run the seed tests and update the table above.
 
 All pictures are final images (brand logos `media/brand/*.png`, category images `media/category/*.jpg` as text-free scenes without products, so that they do not repeat the product pictures in lists, `media/product/fd-*.jpg`, `gf-*.jpg`, `fs-*.jpg`, `fn-*.jpg`, `dg-*.jpg`, `gc-*.jpg`). Pictures with printed text exist once per language: the e-book cover (`dg-1001.jpg`, `dg-1001-de.jpg`) and the gift cards (`gc-1001-25.jpg` and `gc-1001-25-de.jpg`, …); the de-DE overlay sets the German ones, including the pictures of the combinations of the gift card.

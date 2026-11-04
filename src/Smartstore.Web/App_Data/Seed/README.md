@@ -156,8 +156,8 @@ Format these files so that people can edit them: every block element (`<p>`, `<u
 content indented by two spaces, one sentence per line. No one-line HTML.
 Every mention of another product or category is a link to `/{slug}/`
 (e.g. `<a href="/arc-floor-lamp/">Arc floor lamp</a>`). Slugs are
-derived from the name in the installed language; look them up in the snapshot (`UrlRecord.json`) and update the
-links when a name changes.
+derived from the name in the installed language; update the links when a name changes. The seed tests report
+links without a matching slug.
 
 ## Locale resources
 
@@ -238,7 +238,7 @@ of that culture are applied on top of the base data.
 
 1. Edit the base file. Give a new record a key following the rules above.
 2. Add translations to the overlays of every culture that translates that file.
-3. Run the seed tests and review the snapshot diff.
+3. Run the seed tests.
 
 ## Validation and tests
 
@@ -251,10 +251,11 @@ Tests in `test/Smartstore.Core.Tests/Platform/Installation`:
 | Test | Purpose |
 |---|---|
 | `Seeding/*Tests` | Unit tests of merger, data source, factory and resolver. |
-| `SeedSnapshot/InstallationSeedSnapshotTests` | Runs the real installation seeder for `en-US` and `de-DE` against SQLite and compares a normalized snapshot of all seeded tables with `SeedSnapshot/Baseline/{culture}`. |
+| `InstallationSeedingTests` | Runs the real installation seeder with these files for every culture against SQLite, with and without sample data, and checks a few general rules (unique SKUs, visible products have a category, internal links point to an existing slug). |
+| `InstallationServiceLanguageTests` | Reads the installer and app languages from this folder. |
 
-The snapshot protects against unintended changes. To accept an **intended** change, run the
-tests with `SMARTSTORE_UPDATE_SEED_SNAPSHOT=1` and review the baseline diff before committing it.
+The tests do not know concrete values or counts, so you can change seed data without changing a test.
+They fail only if something is broken. Whether the data itself is right is a matter of reviewing the diff of these files.
 
 ## Data files
 
@@ -292,6 +293,6 @@ Descriptors (files, keys, references) are defined in
 - Prefer `$all`, `$add`, `$remove` over copying whole files with `$mode: "replace"`.
 - After every change, run
   `dotnet test test/Smartstore.Core.Tests --filter "FullyQualifiedName~Installation"`.
-  A snapshot diff is only acceptable when the data change was intended.
+- Do not add tests that assert concrete seed values or record counts.
 - Sample images and downloads live in `media/`. Reference them by their path below `media/`.
   Every media reference creates its own media file.
