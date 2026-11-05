@@ -74,6 +74,15 @@
                         <span asp-validation-for="CustomerSettings.CustomerLoginType"></span>
                     </div>
                 </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="CustomerSettings.CustomerNameFormat" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="CustomerSettings.CustomerNameFormat"></setting-editor>
+                        <span asp-validation-for="CustomerSettings.CustomerNameFormat"></span>
+                    </div>
+                </div>
                 <div id="pnlUsernamesEnabled">
                     <div class="adminRow">
                         <div class="adminTitle">
@@ -92,15 +101,6 @@
                             <setting-editor asp-for="CustomerSettings.CheckUsernameAvailabilityEnabled"></setting-editor>
                             <span asp-validation-for="CustomerSettings.CheckUsernameAvailabilityEnabled"></span>
                         </div>
-                    </div>
-                </div>
-                <div class="adminRow">
-                    <div class="adminTitle">
-                        <smart-label asp-for="CustomerSettings.CustomerNameFormat" />
-                    </div>
-                    <div class="adminData">
-                        <setting-editor asp-for="CustomerSettings.CustomerNameFormat"></setting-editor>
-                        <span asp-validation-for="CustomerSettings.CustomerNameFormat"></span>
                     </div>
                 </div>
                 <div class="adminRow">
@@ -895,12 +895,18 @@
 
 <script sm-target-zone="Scripts" data-origin="customer-user-settings">
     $(function () {
-        $('#@Html.IdFor(model => model.CustomerSettings.CustomerNumberMethod)').change(function () {
-        	$('#pnlCustomerNumberVisibility').toggle($(this).val() !== '@(CustomerNumberMethod.Disabled.ToString())');
+        $('#@Html.IdFor(x => x.CustomerSettings.CustomerNumberMethod)').on('change', (e) => {
+        	$('#pnlCustomerNumberVisibility').toggle($(e.currentTarget).val() !== '@((int)CustomerNumberMethod.Disabled)');
         }).trigger('change');
 
-        $('#@Html.IdFor(model => model.CustomerSettings.CustomerLoginType)').change(function () {
-            $('#pnlUsernamesEnabled').toggle($(this).val() !== '@((int)CustomerLoginType.Email)');
-        }).trigger('change');
+        const $elLoginType = $('#@Html.IdFor(x => x.CustomerSettings.CustomerLoginType)');
+        const $elNameFormat = $('#@Html.IdFor(x => x.CustomerSettings.CustomerNameFormat)');
+
+        const toggleUsernameSettings = () => {
+            $('#pnlUsernamesEnabled').toggle($elLoginType.val() !== '@((int)CustomerLoginType.Email)' || $elNameFormat.val() === '@((int)CustomerNameFormat.ShowUsernames)');
+        };
+
+        $elLoginType.add($elNameFormat).on('change', toggleUsernameSettings);
+        toggleUsernameSettings();
     });
 </script>

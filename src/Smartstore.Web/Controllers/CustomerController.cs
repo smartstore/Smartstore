@@ -143,7 +143,7 @@ public class CustomerController : PublicController
         {
             ModelState.AddModelError(string.Empty, T("Account.Register.Errors.EmailIsNotProvided"));
         }
-        if (_customerSettings.CustomerLoginType != CustomerLoginType.Email && _customerSettings.AllowUsersToChangeUsernames && model.Username.IsEmpty())
+        if (_customerSettings.CanEditUsernames() && model.Username.IsEmpty())
         {
             ModelState.AddModelError(string.Empty, T("Account.Register.Errors.UsernameIsNotProvided"));
         }
@@ -174,8 +174,7 @@ public class CustomerController : PublicController
 
         // Username.
         if (ModelState.IsValid
-            && _customerSettings.CustomerLoginType != CustomerLoginType.Email
-            && _customerSettings.AllowUsersToChangeUsernames
+            && _customerSettings.CanEditUsernames()
             && !newUsername.EqualsNoCase(customer.Username))
         {
             var result = await _userManager.SetUserNameAsync(customer, newUsername);
@@ -1071,8 +1070,8 @@ public class CustomerController : PublicController
         model.FaxEnabled = _customerSettings.FaxEnabled;
         model.FaxRequired = _customerSettings.FaxRequired;
         model.NewsletterEnabled = _customerSettings.NewsletterEnabled;
-        model.UsernamesEnabled = _customerSettings.CustomerLoginType != CustomerLoginType.Email;
-        model.AllowUsersToChangeUsernames = _customerSettings.AllowUsersToChangeUsernames;
+        model.UsernamesEnabled = _customerSettings.CanUseUsernames();
+        model.AllowUsersToChangeUsernames = _customerSettings.CanEditUsernames();
         model.CheckUsernameAvailabilityEnabled = _customerSettings.CheckUsernameAvailabilityEnabled;
         model.DisplayCustomerNumber = _customerSettings.CustomerNumberMethod != CustomerNumberMethod.Disabled
             && _customerSettings.CustomerNumberVisibility != CustomerNumberVisibility.None;

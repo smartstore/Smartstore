@@ -288,4 +288,16 @@ public class CustomerSettings : ISettings
     /// Identifier of a customer role that new registered customers will be assigned to.
     /// </summary>
     public int? RegisterCustomerRoleId { get; set; }
+
+    /// <summary>
+    /// Gets a value indicating whether usernames are used as login identifiers or public aliases.
+    /// </summary>
+    public bool CanUseUsernames()
+        => CustomerLoginType != CustomerLoginType.Email || CustomerNameFormat == CustomerNameFormat.ShowUsernames;
+
+    /// <summary>
+    /// Gets a value indicating whether usernames can be edited.
+    /// </summary>
+    public bool CanEditUsernames()
+        => AllowUsersToChangeUsernames && CanUseUsernames();
 }
