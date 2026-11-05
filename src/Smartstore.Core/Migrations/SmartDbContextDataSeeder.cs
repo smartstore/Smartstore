@@ -895,5 +895,14 @@ public class SmartDbContextDataSeeder : IDataSeeder<SmartDbContext>
         builder.AddOrUpdate("Admin.Common.Reorder", "Reorder (Up/Down arrow keys)", "Reihenfolge ändern (Pfeiltasten hoch/runter)");
 
         builder.AddOrUpdate("Admin.Common.InvalidFileName", "Invalid file name \"{0}\".", "Ungültiger Dateiname \"{0}\".");
+
+        builder.AddOrUpdate("Admin.Catalog.Attributes.ProductAttributes.Fields.ExportMappings.Note",
+            "Define the mapping of attribute values to export fields according to the following pattern: <b>&lt;Format prefix&gt;:&lt;Export field name&gt;</b>."
+            + " For example, <b>gmc:color</b> exports the attribute values for colors to the <b>color</b> field during"
+            + " the Google Merchant Center export and <b>channable:color</b> exports them to the Channable export."
+            + " Theses mappings are only apply when exporting attribute combinations.",
+            "Legen Sie Zuordnungen von Attributwerten zu Exportfeldern nach dem folgenden Muster fest: <b>&lt;Formatpräfix&gt;:&lt;Export-Feldname&gt;</b>"
+            + " fest. Beispiel: <b>gmc:color</b> exportiert beim Google-Merchant-Center-Export die Attributwerte für Farben in das Feld"
+            + " <b>color</b> und <b>channable:color</b> beim Channable-Export. Die Zuordnungen sind nur beim Export von Attributkombinationen wirksam.");
     }
 }
