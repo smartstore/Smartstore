@@ -1,0 +1,90 @@
+﻿@using Smartstore.Web.Rendering.Menus
+@using Smartstore.Collections
+@using Smartstore.Core.Content.Menus
+
+@model MenuModel
+
+@{
+    Layout = "";
+
+    if (Model.Root == null)
+    {
+        return;
+    }
+
+    var cutOffItems = Model.Root.Children
+        .Where(x => x.Value.Id != "brand" && x.GetMetadata<bool>("spare", false))
+        .ToList();
+}
+
+<div class="megamenu-dropdown-container simple">
+    @foreach (var node in Model.Root.Children)
+    {
+        <div id="dropdown-menu-@node.Value.Id" data-id="@node.Value.Id" role="menu" aria-labelledby="main-nav-item-@node.Value.Id">
+            @{ await CreateDrilldownMenuAsync(node.Children, true); }
+        </div>
+    }
+
+    <div sm-if="cutOffItems.Any()" id="dropdown-menu--1" data-id="-1">
+        @{ await CreateDrilldownMenuAsync(cutOffItems, true); }
+    </div>
+</div>
+
+@{
+    async Task CreateDrilldownMenuAsync(IEnumerable<TreeNode<MenuItem>> nodes, bool isRoot, string parentId = "")
+    {
+        if (isRoot)
+        {
+            if (parentId.HasValue())
+            {
+                @Html.Raw($"<div id='dropdown-submenu-{parentId}' class='dropdown-menu' aria-labelledby='dropdown-item-link-{parentId}' role='menu'>")
+            }
+            else
+            {
+                @Html.Raw($"<div class='dropdown-menu'>")
+            }
+        }
+
+        var iconSize = Model.GetIconSize();
+        var hasIcons = nodes.Any(x => x.Value.Visible && Model.GetIcon(x.Value, supportsImages: false).HasValue());
+
+        foreach (var node in nodes.Where(x => x.Value.Visible))
+        {
+            var item = node.Value;
+            var icon = Model.GetIcon(item, supportsImages: false);
+            var itemUrl = item.GenerateUrl(this.ViewContext);
+            var itemState = node.GetNodePathState(Model.Path);
+
+            var attrs = item.GetCombinedAttributes().PrependCssClass("dropdown-item" + ((itemState & NodePathState.Selected) == NodePathState.Selected ? " selected" : ""));
+
+            if (node.HasChildren)
+            {
+                attrs["aria-haspopup"] = "menu";
+                attrs["aria-expanded"] = "false";
+                attrs["aria-controls"] = "dropdown-submenu-" + item.Id;
+            }
+
+            attrs["id"] = "dropdown-item-link-" + item.Id;
+
+            <div id="dropdown-item-@item.Id" data-id="@item.Id" attr-class='(node.HasChildren, "dropdown-group")' role="none">
+                <a href="@itemUrl" attrs="@attrs" role="menuitem">
+                    @if (hasIcons)
+                    {
+                        <icon sm-if="icon.HasValue()" name="@icon" area="public" class="icon-fw" attr-class='@(item.IconClass.HasValue(), item.IconClass)' />
+                        <span sm-if="icon.IsEmpty()" class="icon icon-fw" attr-class='@(iconSize.HasValue(), "icon-" + iconSize)' aria-hidden="true"></span>
+                    }
+                    <span sm-language-attributes-for="item">@item.Text</span>
+                </a>
+                @if (node.HasChildren)
+                {
+                    await CreateDrilldownMenuAsync(node.Children, node.HasChildren, item.Id);
+                }
+            </div>
+        }
+
+        if (isRoot)
+        {
+            @Html.Raw("</div>")
+        }
+    }
+}

@@ -40,8 +40,9 @@
         }
 
         var isFirst = true;
-        var hasIcons = nodes.Any(x => x.Value.Icon.HasValue());
-        var hasImages = nodes.Any(x => x.Value.ImageUrl.HasValue());
+        var iconSize = Model.GetIconSize();
+        var hasIcons = nodes.Any(x => (Model.IconOptions == null || (x.Value.Visible && !x.Value.IsGroupHeader)) && Model.GetIcon(x.Value).HasValue());
+        var hasImages = nodes.Any(x => (Model.IconOptions == null || (x.Value.Visible && !x.Value.IsGroupHeader)) && x.Value.ImageUrl.HasValue());
 
         <div class="dropdown-menu" aria-labelledby="@(menuName)-opener" role="listbox">
             @foreach (var node in nodes)
@@ -54,6 +55,7 @@
 
                 var itemText = node.GetItemText(T);
                 var itemUrl = item.GenerateUrl(this.ViewContext);
+                var icon = Model.GetIcon(item);
 
                 if (item.IsGroupHeader)
                 {
@@ -72,22 +74,26 @@
                 var attrs = item.GetCombinedAttributes().PrependCssClass("dropdown-item menu-link");
 
                 <a href="@itemUrl" attrs="attrs" role="option">
-                    @if (hasIcons)
+                    @if (Model.IconOptions != null && item.ImageUrl.HasValue() && !icon.HasValue())
                     {
-                        @if (item.Icon.HasValue())
+                        <img class="icon" src="@Url.Content(item.ImageUrl)" alt="@itemText" />
+                    }
+                    else if (hasIcons)
+                    {
+                        @if (icon.HasValue())
                         {
-                            <icon name="@item.Icon" class="icon-fw" attr-class='@(item.IconClass.HasValue(), item.IconClass)' />
+                            <icon name="@icon" class="icon-fw" attr-class='@(item.IconClass.HasValue(), item.IconClass)' />
                         }
                         else
                         {
-                            <span class="icon icon-fw" aria-hidden="true"></span>
+                            <span class="icon icon-fw" attr-class='@(iconSize.HasValue(), "icon-" + iconSize)' aria-hidden="true"></span>
                         }
                     }
                     else if (hasImages && item.ImageUrl.HasValue())
                     {
                         <img class="icon" src="@Url.Content(item.ImageUrl)" alt="@itemText" />
                     }
-                    else if (hasImages)
+                    else if (hasImages && Model.IconOptions?.DisplayIcons != false)
                     {
                         <span class="icon icon-fw" aria-hidden="true"></span>
                     }

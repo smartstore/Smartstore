@@ -66,6 +66,7 @@
                 var isDropDownActive = (isMegaMenuActive == null ? true : (bool)isMegaMenuActive) && node.HasChildren;
                 var itemText = node.GetItemText(T);
                 var itemUrl = item.GenerateUrl(this.ViewContext);
+                var icon = Model.GetIcon(item);
 
                 if (item.IsGroupHeader)
                 {
@@ -103,9 +104,9 @@
 
                 <li id="main-nav-item-@item.Id" data-id="@item.Id" attrs="attrs" role="none">
                     <a id="main-nav-item-link-@item.Id" href="@itemUrl" attrs="linkAttrs">
-                        @if (item.Icon.HasValue())
+                        @if (icon.HasValue())
                         {
-                            <icon name="@item.Icon" attr-class='@(item.IconClass.HasValue(), item.IconClass)' />
+                            <icon name="@icon" attr-class='@(item.IconClass.HasValue(), item.IconClass)' />
                         }
                         else if (item.ImageUrl.HasValue())
                         {

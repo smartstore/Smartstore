@@ -11,8 +11,8 @@
     }
 
     var isFirst = true;
-    var hasIcons = root.Children.Any(x => x.Value.Icon.HasValue());
-    var hasImages = root.Children.Any(x => x.Value.ImageUrl.HasValue());
+    var hasIcons = root.Children.Any(x => (Model.IconOptions == null || (x.Value.Visible && !x.Value.IsGroupHeader)) && Model.GetIcon(x.Value).HasValue());
+    var hasImages = root.Children.Any(x => (Model.IconOptions == null || (x.Value.Visible && !x.Value.IsGroupHeader)) && x.Value.ImageUrl.HasValue());
 }
 
 <div class="cms-menu cms-menu-linklist" data-menu-name="@(Model.Name?.ToLower())">
@@ -27,6 +27,7 @@
 
             var itemText = node.GetItemText(T);
             var itemUrl = item.GenerateUrl(this.ViewContext);
+            var icon = Model.GetIcon(item);
 
             if (item.IsGroupHeader)
             {
@@ -46,15 +47,19 @@
         
             <li>
                 <a href="@itemUrl" attrs="attrs">
-                    @if (hasIcons)
+                    @if (Model.IconOptions != null && item.ImageUrl.HasValue() && !icon.HasValue())
                     {
-                        <icon name="@(item.Icon.NullEmpty() ?? "arrow-right")" class="icon-fw" attr-class='@(item.IconClass.HasValue(), item.IconClass)' />
+                        <img class="icon" src="@Url.Content(item.ImageUrl)" alt="@itemText" />
+                    }
+                    else if (hasIcons)
+                    {
+                        <icon sm-if="Model.IconOptions == null || icon.HasValue()" name="@(Model.IconOptions == null ? item.Icon.NullEmpty() ?? "arrow-right" : icon)" class="icon-fw" attr-class='@(item.IconClass.HasValue(), item.IconClass)' />
                     }
                     else if (hasImages && item.ImageUrl.HasValue())
                     {
                         <img class="icon" src="@Url.Content(item.ImageUrl)" alt="@itemText" />
                     }
-                    else if (hasImages)
+                    else if (hasImages && Model.IconOptions == null)
                     {
                         <icon name="arrow-right" class="icon-fw" />
                     }

@@ -20,7 +20,7 @@
         ? Model.SelectedNode.Children
         : Model.SelectedNode.Parent.Children;
 
-    var hasIcons = path.Concat(items).Any(x => x.Value.Icon.HasValue());
+    var hasIcons = path.Concat(items).Any(x => Model.GetIcon(x.Value, supportsImages: false).HasValue());
 
     if (!path.Any() && !items.Any())
     {
@@ -54,6 +54,7 @@
 @{
     async Task CreateMenuItem(TreeNode<MenuItem> node, TreeNode<MenuItem> curNode, bool isPathItem)
     {
+        var icon = Model.GetIcon(node.Value, supportsImages: false);
         var isSelected = node == curNode;
         var cssClass = "list-group-item";
 
@@ -88,7 +89,7 @@
         {
             <div class="@cssClass" role="menuitem" aria-current="page" aria-disabled="true">
                 <span sm-if="hasIcons" class="list-group-item-icon" aria-hidden="true">
-                    <icon sm-if="node.Value.Icon.HasValue()" name="@node.Value.Icon" area="public" />
+                    <icon sm-if="icon.HasValue()" name="@icon" area="public" />
                 </span>
                 <span class="has-count" attr-data-count="(node.Value.ElementsCount.HasValue, node.Value.ElementsCount.ToString())">@node.Value.Text</span>
             </div>
@@ -97,7 +98,7 @@
         {
             <a class="@cssClass" href="@node.Value.GenerateUrl(this.Url)" role="menuitem">
                 <span sm-if="hasIcons" class="list-group-item-icon" aria-hidden="true">
-                    <icon sm-if="node.Value.Icon.HasValue()" name="@node.Value.Icon" area="public" />
+                    <icon sm-if="icon.HasValue()" name="@icon" area="public" />
                 </span>
                 <span class="has-count" attr-data-count="(node.Value.ElementsCount.HasValue, node.Value.ElementsCount.ToString())">@node.Value.Text</span>
             </a>

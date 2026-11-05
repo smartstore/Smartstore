@@ -112,6 +112,8 @@
 
         > .icon {
             flex-shrink: 0;
+            // Reserve one text line without resizing the icon artwork.
+            margin-block: calc((var(--ocm-item-font-size) * var(--ocm-item-line-height) - 1em) / 2);
         }
 
         > .icon + span {

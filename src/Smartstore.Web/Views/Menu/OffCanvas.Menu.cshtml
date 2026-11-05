@@ -13,7 +13,8 @@
         targetNode = targetNode.Parent;
     }
 
-    var hasIcons = targetNode.Children.Any(x => x.Value.Visible && !x.Value.IsGroupHeader && x.Value.Icon.HasValue());
+    var iconSize = Model.GetIconSize();
+    var hasIcons = targetNode.Children.Any(x => x.Value.Visible && !x.Value.IsGroupHeader && Model.GetIcon(x.Value, supportsImages: false).HasValue());
 
     // currentNode represents the current page.
     var currentNode = ViewBag.CurrentNode as TreeNode<MenuItem>;
@@ -46,6 +47,8 @@
             {
                 continue;
             }
+
+            var icon = Model.GetIcon(item, supportsImages: false);
 
             // LI attributes
             var cssClass = "ocm-item";
@@ -89,8 +92,8 @@
                 <a href="@item.GenerateUrl(this.Url)" attrs="linkAttrs">
                     @if (hasIcons)
                     {
-                        <icon sm-if="item.Icon.HasValue()" name="@item.Icon" area="public" class="icon-fw" attr-class='@(item.IconClass.HasValue(), item.IconClass)' />
-                        <span sm-if="item.Icon.IsEmpty()" class="icon icon-fw" aria-hidden="true"></span>
+                        <icon sm-if="icon.HasValue()" name="@icon" area="public" class="icon-fw" attr-class='@(item.IconClass.HasValue(), item.IconClass)' />
+                        <span sm-if="icon.IsEmpty()" class="icon icon-fw" attr-class='@(iconSize.HasValue(), "icon-" + iconSize)' aria-hidden="true"></span>
                     }
                     <span sm-language-attributes-for="WorkContext.WorkingLanguage">@item.Text</span>
                 </a>
