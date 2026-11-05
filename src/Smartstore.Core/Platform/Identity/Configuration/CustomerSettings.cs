@@ -292,12 +292,12 @@ public class CustomerSettings : ISettings
     /// <summary>
     /// Gets a value indicating whether usernames are used as login identifiers or public aliases.
     /// </summary>
-    public bool CanUseUsernames()
+    public bool SupportsUsernames()
         => CustomerLoginType != CustomerLoginType.Email || CustomerNameFormat == CustomerNameFormat.ShowUsernames;
 
     /// <summary>
     /// Gets a value indicating whether usernames can be edited.
     /// </summary>
     public bool CanEditUsernames()
-        => AllowUsersToChangeUsernames && CanUseUsernames();
+        => AllowUsersToChangeUsernames && SupportsUsernames();
 }

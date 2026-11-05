@@ -11,7 +11,7 @@ public class CustomerSettingsTests
     [TestCase(CustomerLoginType.UsernameOrEmail, CustomerNameFormat.ShowFirstName, true)]
     [TestCase(CustomerLoginType.Email, CustomerNameFormat.ShowFirstName, false)]
     [TestCase(CustomerLoginType.Email, CustomerNameFormat.ShowUsernames, true)]
-    public void Can_use_usernames(CustomerLoginType loginType, CustomerNameFormat nameFormat, bool expected)
+    public void Supports_usernames(CustomerLoginType loginType, CustomerNameFormat nameFormat, bool expected)
     {
         var settings = new CustomerSettings
         {
@@ -19,6 +19,6 @@ public class CustomerSettingsTests
             CustomerNameFormat = nameFormat
         };
 
-        settings.CanUseUsernames().ShouldEqual(expected);
+        settings.SupportsUsernames().ShouldEqual(expected);
     }
 }

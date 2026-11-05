@@ -1070,7 +1070,7 @@ public class CustomerController : PublicController
         model.FaxEnabled = _customerSettings.FaxEnabled;
         model.FaxRequired = _customerSettings.FaxRequired;
         model.NewsletterEnabled = _customerSettings.NewsletterEnabled;
-        model.UsernamesEnabled = _customerSettings.CanUseUsernames();
+        model.UsernamesEnabled = _customerSettings.SupportsUsernames();
         model.AllowUsersToChangeUsernames = _customerSettings.CanEditUsernames();
         model.CheckUsernameAvailabilityEnabled = _customerSettings.CheckUsernameAvailabilityEnabled;
         model.DisplayCustomerNumber = _customerSettings.CustomerNumberMethod != CustomerNumberMethod.Disabled

@@ -72,7 +72,7 @@ public class UserValidator : PasswordValidator<Customer>, IUserValidator<Custome
             return Failed(Describer.DuplicateUserName(userName));
         }
 
-        if (_customerSettings.CanUseUsernames())
+        if (_customerSettings.SupportsUsernames())
         {
             //var normalizedUserName = userName.RemoveDiacritics();
 
