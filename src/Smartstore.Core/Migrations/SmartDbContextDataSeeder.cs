@@ -447,6 +447,10 @@ public class SmartDbContextDataSeeder : IDataSeeder<SmartDbContext>
             "Maximale Anzahl an Preisberechnungen bei Farb- und Bildmustern",
             "Maximum number of full price calculations for color and image swatches, provided that attribute combinations with fixed prices exist. If this limit is exceeded, the prices for swatches are hidden.",
             "Maximale Anzahl vollständiger Preisberechnungen bei Farb- und Bildmustern, sofern Attributkombinationen mit festen Preisen existieren. Bei Überschreitung dieser Grenze werden die Preise für Farb- und Bildmuster ausgeblendet.");
+
+        builder.AddOrUpdate("Admin.Configuration.Settings.CustomerUser.CustomerFormFields.Description",
+            "Manage form fields that are displayed during registration. In order to ensure the address transfer from the registration form, it is necessary that the following fields are activated and filled in by the customer:<ul class=\"mb-0\"><li>First name</li><li>Last name</li><li>Email</li><li>and all fields that are selected as required in the tab <b>Addresses</b></li></ul>",
+            "Sie können Formularfelder verwalten, die während der Registrierung angezeigt werden. Um die Adressübergabe aus dem Registrierungsformular zu gewährleisten, müssen folgende Felder aktiviert und vom Kunden ausgefüllt sein:<ul class=\"mb-0\"><li>Vorname</li><li>Nachname</li><li>E-Mail</li><li>und alle Felder die im Tab <b>Adressen</b> als erforderlich ausgewählt sind</li></ul>");
     }
 
     private static void MigrateCatalogResources(LocaleResourcesBuilder builder)
@@ -639,6 +643,15 @@ public class SmartDbContextDataSeeder : IDataSeeder<SmartDbContext>
         builder.AddOrUpdate(prefix + "ProductVariantAttributes.AttributeCombinations.SelectAttributes",
             "Set the attributes for the combination.",
             "Legen Sie die Attribute für die Kombination fest");
+
+        builder.AddOrUpdate("Admin.Catalog.Attributes.ProductAttributes.Fields.ExportMappings.Note",
+            "Define the mapping of attribute values to export fields according to the following pattern: <b>&lt;Format prefix&gt;:&lt;Export field name&gt;</b>."
+            + " For example, <b>gmc:color</b> exports the attribute values for colors to the <b>color</b> field during"
+            + " the Google Merchant Center export and <b>channable:color</b> exports them to the Channable export."
+            + " Theses mappings are only apply when exporting attribute combinations.",
+            "Legen Sie Zuordnungen von Attributwerten zu Exportfeldern nach dem folgenden Muster fest: <b>&lt;Formatpräfix&gt;:&lt;Export-Feldname&gt;</b>"
+            + " fest. Beispiel: <b>gmc:color</b> exportiert beim Google-Merchant-Center-Export die Attributwerte für Farben in das Feld"
+            + " <b>color</b> und <b>channable:color</b> beim Channable-Export. Die Zuordnungen sind nur beim Export von Attributkombinationen wirksam.");
     }
 
     private static void MigrateThemeResources(LocaleResourcesBuilder builder)
@@ -895,14 +908,5 @@ public class SmartDbContextDataSeeder : IDataSeeder<SmartDbContext>
         builder.AddOrUpdate("Admin.Common.Reorder", "Reorder (Up/Down arrow keys)", "Reihenfolge ändern (Pfeiltasten hoch/runter)");
 
         builder.AddOrUpdate("Admin.Common.InvalidFileName", "Invalid file name \"{0}\".", "Ungültiger Dateiname \"{0}\".");
-
-        builder.AddOrUpdate("Admin.Catalog.Attributes.ProductAttributes.Fields.ExportMappings.Note",
-            "Define the mapping of attribute values to export fields according to the following pattern: <b>&lt;Format prefix&gt;:&lt;Export field name&gt;</b>."
-            + " For example, <b>gmc:color</b> exports the attribute values for colors to the <b>color</b> field during"
-            + " the Google Merchant Center export and <b>channable:color</b> exports them to the Channable export."
-            + " Theses mappings are only apply when exporting attribute combinations.",
-            "Legen Sie Zuordnungen von Attributwerten zu Exportfeldern nach dem folgenden Muster fest: <b>&lt;Formatpräfix&gt;:&lt;Export-Feldname&gt;</b>"
-            + " fest. Beispiel: <b>gmc:color</b> exportiert beim Google-Merchant-Center-Export die Attributwerte für Farben in das Feld"
-            + " <b>color</b> und <b>channable:color</b> beim Channable-Export. Die Zuordnungen sind nur beim Export von Attributkombinationen wirksam.");
     }
 }
