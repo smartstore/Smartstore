@@ -289,10 +289,21 @@
 // --------------------------------------------------
 
 .number-input-prepend {
-    margin-inline-end: -3px !important;
+    margin-inline-end: -$input-border-width !important;
     z-index: 2;
 
     .input-group-text {
         border-radius: var(--border-radius-sm) 0 0 var(--border-radius-sm);
+    }
+
+    + .numberinput-group {
+        &:focus-within {
+            z-index: 3;
+        }
+
+        > .numberinput {
+            border-start-start-radius: 0 !important;
+            border-end-start-radius: 0 !important;
+        }
     }
 }

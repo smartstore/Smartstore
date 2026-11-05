@@ -42,6 +42,8 @@ Smartstore.Admin = {
                 checked ? input.removeAttr('disabled') : input.attr('disabled', true);
             }
         });
+
+        parent.find('[data-amount-or-percent]').amountOrPercent();
     },
     movePluginActionButtons: function () {
         // Move plugin specific action buttons (like 'Save') to top header section

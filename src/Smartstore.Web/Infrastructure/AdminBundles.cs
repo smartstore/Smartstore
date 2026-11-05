@@ -81,6 +81,7 @@ internal class AdminBundles : IBundleProvider
             js + "smartstore.entitypicker.js",
             js + "smartstore.rangeslider.js",
             js + "smartstore.numberinput.js",
+            js + "smartstore.amount-or-percent.js",
             js + "smartstore.tree.js",
             js + "smartstore.media.js",
             js + "smartstore.colorpicker.js",

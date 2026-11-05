@@ -305,16 +305,11 @@
                 <smart-label asp-for="AdditionalFee" />
             </div>
             <div class="adminData">
-                <setting-editor asp-for="AdditionalFee" sm-postfix="@ViewBag.PrimaryStoreCurrencyCode"></setting-editor>
+                <setting-editor asp-for="AdditionalFee" additional-for="AdditionalFeePercentage">
+                    <amount-or-percent asp-for="AdditionalFee" percentage-for="AdditionalFeePercentage"
+                                       unit="@ViewBag.PrimaryStoreCurrencyCode" />
+                </setting-editor>
                 <span asp-validation-for="AdditionalFee"></span>
-            </div>
-        </div>
-        <div class="adminRow">
-            <div class="adminTitle">
-                <smart-label asp-for="AdditionalFeePercentage" />
-            </div>
-            <div class="adminData">
-                <setting-editor asp-for="AdditionalFeePercentage"></setting-editor>
                 <span asp-validation-for="AdditionalFeePercentage"></span>
             </div>
         </div>

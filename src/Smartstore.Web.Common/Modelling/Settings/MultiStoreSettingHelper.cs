@@ -20,6 +20,8 @@ public class MultiStoreSettingData
 
 public class MultiStoreSettingHelper
 {
+    internal const string GroupedOverridesFormKey = "__GroupedSettingOverrides";
+
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IViewDataAccessor _viewDataAccessor;
     private readonly SmartDbContext _db;
@@ -189,6 +191,14 @@ public class MultiStoreSettingHelper
 
         static bool IsOverridden(string key, IFormCollection form)
         {
+            foreach (string? group in form[GroupedOverridesFormKey])
+            {
+                if (group != null && group.Split(',').Contains(key, StringComparer.OrdinalIgnoreCase))
+                {
+                    return true;
+                }
+            }
+
             key += "_OverrideForStore";
 
             if (form.ContainsKey(key))
