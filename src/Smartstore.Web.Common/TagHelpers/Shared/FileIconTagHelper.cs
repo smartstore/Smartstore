@@ -64,6 +64,7 @@ public class FileIconTagHelper : SmartTagHelper
                 "png" or "jpg" or "jpeg" or "bmp" or "psd" => "file-image",
                 "mp3" or "wav" or "ogg" or "wma" => "file-audio",
                 "mp4" or "mkv" or "wmv" or "avi" or "asf" or "mpg" or "mpeg" => "file-video",
+                "json" => "file-braces",
                 "txt" => "file-text",
                 "exe" => "gear",
                 "xml" or "html" or "htm" => "file-code",
