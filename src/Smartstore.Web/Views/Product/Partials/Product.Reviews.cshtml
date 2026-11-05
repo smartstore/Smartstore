@@ -40,8 +40,14 @@
              role="article"
              aria-labelledby="review-title-@id"
              itemscope
-             attr-itemprop='(!Model.IsReviewsDetailPage, "review")'
              attr-itemtype='(!Model.IsReviewsDetailPage, "https://schema.org/Review")'>
+            @if (!Model.IsReviewsDetailPage)
+            {
+                <div itemprop="itemReviewed" itemscope itemtype="https://schema.org/Product">
+                    <meta itemprop="name" content="@Model.ProductName.Value" />
+                    <link itemprop="url" href="@Url.RouteUrl("Product", new { SeName = Model.ProductSeName }, Context.Request.Scheme)" />
+                </div>
+            }
             <div class="review-title">
                 <div role="img" 
                      class="rating" 
@@ -62,9 +68,9 @@
                     <span class="review-meta-label">@res["From"]:</span>
                     @if (review.AllowViewingProfiles)
                     {
-                        <a class="review-meta-value" asp-route="CustomerProfile" asp-route-id="@review.CustomerId" rel="nofollow" dir="auto" itemprop="name">
+                        <a class="review-meta-value" asp-route="CustomerProfile" asp-route-id="@review.CustomerId" rel="nofollow" dir="auto">
                             <span class="sr-only">@(res["From"])&nbsp;</span>
-                            <span>@review.CustomerName</span>
+                            <span itemprop="name">@review.CustomerName</span>
                         </a>
                     }
                     else
