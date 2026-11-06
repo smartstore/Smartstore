@@ -32,9 +32,9 @@ public class IconSettings : ISettings
     public MenuIconOptions CategoryMenu { get; set; } = new();
 
     /// <summary>
-    /// Gets or sets the icon options for the My Account menu.
+    /// Gets or sets the icon size preset for the My Account menu.
     /// </summary>
-    public MenuIconOptions MyAccountMenu { get; set; } = new();
+    public string MyAccountIconSize { get; set; } = "md";
 }
 
 /// <summary>

@@ -27,7 +27,7 @@
 
             var itemText = node.GetItemText(T);
             var itemUrl = item.GenerateUrl(this.ViewContext);
-            var icon = Model.GetIcon(item);
+            var icon = Model.GetIcon(item, allowFallback: hasIcons);
 
             if (item.IsGroupHeader)
             {

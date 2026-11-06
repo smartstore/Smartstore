@@ -14,7 +14,7 @@
 
     var renderMoreItem = false;
     var rtl = WorkContext.WorkingLanguage.Rtl;
-    var hasIcons = root.Children.Any(x => x.Value.Icon.HasValue());
+    var hasIcons = root.Children.Any(x => x.Value.Visible && !x.Value.IsGroupHeader && !x.GetMetadata<bool>("spare", false) && Model.GetIcon(x.Value).HasValue());
     var hasImages = root.Children.Any(x => x.Value.ImageUrl.HasValue());
     var isFirst = true;
 }
@@ -66,7 +66,7 @@
                 var isDropDownActive = (isMegaMenuActive == null ? true : (bool)isMegaMenuActive) && node.HasChildren;
                 var itemText = node.GetItemText(T);
                 var itemUrl = item.GenerateUrl(this.ViewContext);
-                var icon = Model.GetIcon(item);
+                var icon = Model.GetIcon(item, allowFallback: hasIcons);
 
                 if (item.IsGroupHeader)
                 {

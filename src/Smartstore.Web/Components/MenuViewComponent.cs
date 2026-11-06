@@ -32,8 +32,9 @@ public class MenuViewComponent : SmartViewComponent
         {
             if (model.Template.EqualsNoCase("Main"))
             {
-                // Keep the original model unconfigured for modules that replace the Main view.
-                // The Core view receives separate render contexts sharing the same menu tree.
+                // Shared navbar defaults also apply when a module replaces the Main view.
+                // Core dropdowns retain their separate options and share the same menu tree.
+                model.IconOptions = _iconSettings.MainMenu;
                 ViewData["MainMenuNavbarModel"] = CreateRenderModel(model, _iconSettings.MainMenu);
                 ViewData["MainMenuDropdownModel"] = CreateRenderModel(model, _iconSettings.MainMenuDropdown);
             }
@@ -48,7 +49,10 @@ public class MenuViewComponent : SmartViewComponent
         }
         else if (model.Name.EqualsNoCase("MyAccount") && model.Template.EqualsNoCase("ListGroup"))
         {
-            model.IconOptions = _iconSettings.MyAccountMenu;
+            model.IconOptions = new MenuIconOptions
+            {
+                Size = _iconSettings.MyAccountIconSize
+            };
         }
 
         var viewName = model.Template ?? model.Name;

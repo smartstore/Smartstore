@@ -16,7 +16,8 @@ public static class MenuModelExtensions
     /// <param name="model">The menu render context.</param>
     /// <param name="item">The menu item to render.</param>
     /// <param name="supportsImages">Whether the template renders menu images in place of missing icons.</param>
-    public static string? GetIcon(this MenuModel model, MenuItem item, bool supportsImages = true)
+    /// <param name="allowFallback">Whether the current block has an entry with its own icon and allows fallback icons.</param>
+    public static string? GetIcon(this MenuModel model, MenuItem item, bool supportsImages = true, bool allowFallback = false)
     {
         Guard.NotNull(model);
         Guard.NotNull(item);
@@ -34,7 +35,7 @@ public static class MenuModelExtensions
 
         var icon = item.Icon.HasValue()
             ? item.Icon
-            : supportsImages && item.ImageUrl.HasValue() ? null : options.FallbackIcon;
+            : allowFallback && !(supportsImages && item.ImageUrl.HasValue()) ? options.FallbackIcon : null;
 
         var size = model.GetIconSize();
         if (size == null

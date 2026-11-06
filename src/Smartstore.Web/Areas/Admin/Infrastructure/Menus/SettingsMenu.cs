@@ -123,6 +123,15 @@ public partial class SettingsMenu : MenuBase
             },
             new MenuItem
             {
+                Id = "icons",
+                Text = T("Admin.Configuration.Settings.Icons"),
+                Icon = "star",
+                PermissionNames = perm,
+                ControllerName = "Setting",
+                ActionName = "IconSettings"
+            },
+            new MenuItem
+            {
                 Id = "media",
                 Text = T("Admin.Plugins.KnownGroup.Media"),
                 Icon = "images",

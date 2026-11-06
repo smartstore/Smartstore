@@ -48,7 +48,7 @@
                 continue;
             }
 
-            var icon = Model.GetIcon(item, supportsImages: false);
+            var icon = Model.GetIcon(item, supportsImages: false, allowFallback: hasIcons);
 
             // LI attributes
             var cssClass = "ocm-item";

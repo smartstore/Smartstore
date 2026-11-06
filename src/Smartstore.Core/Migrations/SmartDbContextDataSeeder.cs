@@ -451,6 +451,64 @@ public class SmartDbContextDataSeeder : IDataSeeder<SmartDbContext>
         builder.AddOrUpdate("Admin.Configuration.Settings.CustomerUser.CustomerFormFields.Description",
             "Manage form fields that are displayed during registration. In order to ensure the address transfer from the registration form, it is necessary that the following fields are activated and filled in by the customer:<ul class=\"mb-0\"><li>First name</li><li>Last name</li><li>Email</li><li>and all fields that are selected as required in the tab <b>Addresses</b></li></ul>",
             "Sie können Formularfelder verwalten, die während der Registrierung angezeigt werden. Um die Adressübergabe aus dem Registrierungsformular zu gewährleisten, müssen folgende Felder aktiviert und vom Kunden ausgefüllt sein:<ul class=\"mb-0\"><li>Vorname</li><li>Nachname</li><li>E-Mail</li><li>und alle Felder die im Tab <b>Adressen</b> als erforderlich ausgewählt sind</li></ul>");
+
+        builder.AddOrUpdate("Admin.Configuration.Settings.Icons", "Icons", "Icons");
+
+        prefix = "Admin.Configuration.Settings.Icons.";
+
+        builder.AddOrUpdate(prefix + "Description",
+            "Choose which menu areas display icons and set their size and optional fallback icon. In My Account, icons are always displayed and only their size can be changed.",
+            "Legen Sie fest, in welchen Menübereichen Icons angezeigt werden, und bestimmen Sie Größe und optionales Ersatzicon. Im Bereich Mein Konto werden Icons immer angezeigt; dort lässt sich nur ihre Größe ändern.");
+
+        prefix += "Fields.";
+
+        builder.AddOrUpdate(prefix + "MainMenu",
+            "Main menu",
+            "Hauptmenü",
+            "Icon defaults for the top navigation. A store override applies to all options in this menu area.",
+            "Icon-Vorgaben für die obere Hauptnavigation. Eine Shop-Überschreibung gilt für alle Optionen dieses Menübereichs.");
+
+        builder.AddOrUpdate(prefix + "MainMenuDropdown",
+            "Main menu dropdowns",
+            "Hauptmenü-Dropdowns",
+            "Icon defaults for the standard main menu dropdowns. A store override applies to all options in this menu area.",
+            "Icon-Vorgaben für die normalen Hauptmenü-Dropdowns. Eine Shop-Überschreibung gilt für alle Optionen dieses Menübereichs.");
+
+        builder.AddOrUpdate(prefix + "OffCanvasMenu",
+            "Off-canvas menu",
+            "Offcanvas-Menü",
+            "Icon defaults for the off-canvas menu and all its submenu levels. A store override applies to this entire menu area.",
+            "Icon-Vorgaben für das Offcanvas-Menü und alle nachgeladenen Untermenüebenen. Eine Shop-Überschreibung gilt für diesen gesamten Menübereich.");
+
+        builder.AddOrUpdate(prefix + "CategoryMenu",
+            "Category menu",
+            "Kategoriemenü",
+            "Icon defaults for the category navigation in the sidebar. A store override applies to all options in this menu area.",
+            "Icon-Vorgaben für die Kategorienavigation in der Seitenleiste. Eine Shop-Überschreibung gilt für alle Optionen dieses Menübereichs.");
+
+        builder.AddOrUpdate(prefix + "MyAccountIconSize",
+            "My Account icon size",
+            "Icon-Größe für Mein Konto",
+            "Sets the icon size in My Account. This menu always displays its own icons.",
+            "Legt die Icon-Größe im Bereich Mein Konto fest. Dieses Menü zeigt seine eigenen Icons immer an.");
+
+        builder.AddOrUpdate(prefix + "DisplayIcons",
+            "Display icons",
+            "Icons anzeigen",
+            "Shows entry icons in this menu area. Navigation controls remain visible.",
+            "Zeigt Eintragsicons in diesem Menübereich an. Navigationssymbole bleiben sichtbar.");
+
+        builder.AddOrUpdate(prefix + "Size",
+            "Icon size",
+            "Icon-Größe",
+            "Default size for menu icons: 16px, 20px or 24px. A size configured on an individual icon takes precedence.",
+            "Standardgröße für Menüicons: 16px, 20px oder 24px. Eine individuell am Icon konfigurierte Größe hat Vorrang.");
+
+        builder.AddOrUpdate(prefix + "FallbackIcon",
+            "Fallback icon",
+            "Ersatzicon",
+            "Fills missing icons only in menu blocks that already contain at least one entry icon.",
+            "Füllt fehlende Icons nur in Menüblöcken auf, die bereits mindestens ein Eintragsicon enthalten.");
     }
 
     private static void MigrateCatalogResources(LocaleResourcesBuilder builder)

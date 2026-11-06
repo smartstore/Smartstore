@@ -54,7 +54,7 @@
 @{
     async Task CreateMenuItem(TreeNode<MenuItem> node, TreeNode<MenuItem> curNode, bool isPathItem)
     {
-        var icon = Model.GetIcon(node.Value, supportsImages: false);
+        var icon = Model.GetIcon(node.Value, supportsImages: false, allowFallback: hasIcons);
         var isSelected = node == curNode;
         var cssClass = "list-group-item";
 

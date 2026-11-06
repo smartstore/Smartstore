@@ -18,7 +18,7 @@
     @foreach (var node in Model.Root.Children.Where(x => x.Value.Visible))
     {
         var item = node.Value;
-        var icon = Model.GetIcon(item);
+        var icon = Model.GetIcon(item, allowFallback: hasIcons);
         var itemState = node.GetNodePathState(Model.Path);
         var itemText = node.GetItemText(T);
         var itemUrl = item.GenerateUrl(this.ViewContext);
