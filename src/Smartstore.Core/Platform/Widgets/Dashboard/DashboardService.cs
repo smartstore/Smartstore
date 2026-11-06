@@ -212,7 +212,9 @@ public partial class DashboardService : IDashboardService
                 Instance = runtimeInstance,
                 Descriptor = descriptor,
                 Policy = policy,
-                Widget = dashboardWidget.CreateWidget(context, runtimeInstance)
+                Widget = dashboardWidget.CreateWidget(context, runtimeInstance),
+                ConfigurationRoute = context.IsEditMode && policy.AllowConfigure
+                    ? dashboardWidget.GetConfigurationRoute() : null
             });
         }
 

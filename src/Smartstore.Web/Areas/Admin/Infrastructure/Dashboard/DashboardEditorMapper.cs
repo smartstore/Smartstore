@@ -32,11 +32,16 @@ public static class DashboardEditorMapper
 
         var widgets = layout.Widgets.Select(widget =>
         {
+            var settings = model.Dashboard.Widgets
+                .FirstOrDefault(item => item.Instance.Id == widget.Id && item.Policy.AllowConfigure)
+                ?.Instance.Settings;
+
             return new DashboardEditorWidget(
                 widget.Id,
                 widget.WidgetSystemName,
                 widget.Positions,
-                movableIds.Contains(widget.Id));
+                movableIds.Contains(widget.Id),
+                settings);
         }).ToArray();
 
         var widgetChoices = model.Catalog
@@ -75,12 +80,16 @@ public static class DashboardEditorMapper
     /// <summary>
     /// Applies template placements to the supplied target draft while retaining its metadata and widget restrictions.
     /// </summary>
-    public static DashboardLayout ApplyTemplate(DashboardLayout source, DashboardLayout target,
-        IReadOnlyCollection<DashboardWidgetDescriptor> availableWidgets, IDashboardService dashboardService)
+    public static DashboardLayout ApplyTemplate(
+        DashboardLayout source,
+        DashboardLayout target,
+        IReadOnlyCollection<DashboardWidgetDescriptor> availableWidgets,
+        IDashboardService dashboardService)
     {
         var descriptors = availableWidgets.ToDictionary(x => x.SystemName, StringComparer.OrdinalIgnoreCase);
         var existing = target.Widgets.ToDictionary(x => x.Id);
         var placements = new List<DashboardWidgetPlacement>();
+
         foreach (var widget in source.Widgets)
         {
             var positions = widget.Positions;
@@ -109,16 +118,24 @@ public static class DashboardEditorMapper
                         };
                     }).ToArray();
             }
+
             if (descriptors.ContainsKey(widget.WidgetSystemName))
+            {
                 placements.Add(new(widget.Id, widget.WidgetSystemName, positions));
+            }
         }
+
         var includedIds = placements.Select(x => x.Id).ToHashSet(StringComparer.Ordinal);
+
         foreach (var widget in target.Widgets.Where(x => !includedIds.Contains(x.Id)))
         {
             if (!descriptors.TryGetValue(widget.WidgetSystemName, out var descriptor) ||
                 DashboardWidgetPolicy.Combine(descriptor.Policy, widget.Policy).IsRequired)
+            {
                 placements.Add(new(widget.Id, widget.WidgetSystemName, widget.Positions));
+            }
         }
+
         return ApplyChanges(new(placements), target, dashboardService);
     }
 
@@ -134,19 +151,21 @@ public static class DashboardEditorMapper
         var ids = new HashSet<string>(StringComparer.Ordinal);
         var widgets = new List<DashboardWidgetInstance>();
         var nextOrder = baseline.Widgets.Select(x => x.Order).DefaultIfEmpty(0).Max();
+
         foreach (var placement in changes.Widgets)
         {
             Guard.Against<ArgumentException>(placement == null, "Invalid widget placement.");
             Guard.Against<ArgumentException>(
                 !placement.Id.HasValue()
-                    || placement.Id != placement.Id.SanitizeHtmlId()
-                    || !placement.WidgetSystemName.HasValue()
-                    || !ids.Add(placement.Id),
+                || placement.Id != placement.Id.SanitizeHtmlId()
+                || !placement.WidgetSystemName.HasValue()
+                || !ids.Add(placement.Id),
                 "Invalid widget placement.");
+
             Guard.Against<ArgumentException>(
                 placement.Positions == null
-                    || placement.Positions.Count == 0
-                    || placement.Positions.Any(position => position?.Size == null),
+                || placement.Positions.Count == 0
+                || placement.Positions.Any(position => position?.Size == null),
                 "Invalid widget placement.");
 
             var exceedsEditorLimits = placement.Positions.Any(position =>
@@ -158,15 +177,24 @@ public static class DashboardEditorMapper
 
             if (existing.TryGetValue(placement.Id, out var instance))
             {
-                Guard.Against<ArgumentException>(
-                    placement.WidgetSystemName != instance.WidgetSystemName,
-                    "An existing widget cannot change its type.");
+                Guard.Against<ArgumentException>(placement.WidgetSystemName != instance.WidgetSystemName, "An existing widget cannot change its type.");
             }
             else
             {
                 var widget = dashboardService.GetWidget(placement.WidgetSystemName);
                 nextOrder = checked(nextOrder + 100);
                 instance = CreateWidgetInstance(widget, placement.Id, nextOrder);
+            }
+            if (placement.Settings != null)
+            {
+                var widget = dashboardService.GetWidget(instance.WidgetSystemName);
+
+                if (!DashboardWidgetPolicy.Combine(widget.Descriptor.Policy, instance.Policy).AllowConfigure)
+                {
+                    throw new InvalidOperationException("This widget cannot be configured.");
+                }
+
+                instance = instance with { Settings = (System.Text.Json.Nodes.JsonObject)placement.Settings.DeepClone() };
             }
 
             widgets.Add(instance with { Positions = placement.Positions });
@@ -206,10 +234,8 @@ public static class DashboardEditorMapper
                 {
                     var overlaps = occupiedPositions.Any(position =>
                     {
-                        var overlapsColumns = column < position.Column + position.Size.ColumnSpan
-                            && column + columnSpan > position.Column;
-                        var overlapsRows = row < position.Row + (position.Size.RowSpan ?? 1)
-                            && row + rowSpan > position.Row;
+                        var overlapsColumns = column < position.Column + position.Size.ColumnSpan && column + columnSpan > position.Column;
+                        var overlapsRows = row < position.Row + (position.Size.RowSpan ?? 1) && row + rowSpan > position.Row;
 
                         return overlapsColumns && overlapsRows;
                     });
@@ -250,7 +276,8 @@ public static class DashboardEditorMapper
         {
             Order = order,
             SettingsVersion = widget.Descriptor.SettingsVersion,
-            Settings = widget.CreateDefaultSettings()
+            Settings = widget.CreateDefaultSettings(),
+            Policy = new() { AllowConfigure = widget.Descriptor.Policy.AllowConfigure }
         };
 
 }

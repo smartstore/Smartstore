@@ -1,3 +1,18 @@
+using FluentValidation;
+using Smartstore.Engine.Modularity;
+using Smartstore.Core.Data;
+using Smartstore.Core.Common;
+using Smartstore.Core.Checkout.Payment;
+using Smartstore.Core.Checkout.Orders;
+using Smartstore.Core.Localization;
+using Smartstore.Caching;
+using Smartstore.Admin.Models.Orders;
+using Smartstore.Admin.Components;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Mvc.ViewEngines;
+using Microsoft.AspNetCore.Mvc.ViewComponents;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Smartstore.Core.Widgets;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -34,6 +49,69 @@ namespace Smartstore.Web.Tests.Admin.Dashboard;
 [TestFixture]
 public class HomeControllerDashboardTests
 {
+    [TestCase(true, true)]
+    [TestCase(false, true)]
+    [TestCase(true, false)]
+    public async Task Configuration_Route_Checks_Widget_Availability_And_Policy(bool available, bool configurable)
+    {
+        var widget = new Mock<IDashboardWidget>();
+        var descriptor = new DashboardWidgetDescriptor("test-widget", "Test")
+        {
+            DefaultSize = new DashboardWidgetSize(4, 1),
+            MinSize = new DashboardWidgetSize(1, 1),
+            MaxSize = new DashboardWidgetSize(12),
+            Policy = new DashboardWidgetPolicy { AllowConfigure = configurable }
+        };
+        widget.SetupGet(x => x.Descriptor).Returns(descriptor);
+        widget.Setup(x => x.IsAvailableAsync(It.IsAny<DashboardWidgetContext>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(available);
+        var configuration = new PartialViewWidget("Configuration");
+        widget.Setup(x => x.CreateConfigurationWidget(It.IsAny<DashboardWidgetContext>(), It.IsAny<DashboardWidgetInstance>()))
+            .Returns(configuration);
+        var layout = new DashboardLayout(AdminDashboardLayoutProvider.Id)
+        {
+            Widgets = [new DashboardWidgetInstance("instance", descriptor.SystemName)
+            {
+                Policy = new DashboardWidgetPolicy { AllowConfigure = true }
+            }]
+        };
+        Mock<IDashboardService> dashboard = null;
+        var controller = CreateController(true, false, DashboardLayoutLayer.User, service =>
+        {
+            dashboard = service;
+            service.Setup(x => x.GetWidget(descriptor.SystemName)).Returns(widget.Object);
+            service.Setup(x => x.GetLayoutStateAsync(layout.Id, It.IsAny<Customer>(), DashboardLayoutLayer.User, true, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(new DashboardLayoutState { Layout = layout, Layer = DashboardLayoutLayer.User, Source = DashboardLayoutLayer.Global });
+        });
+
+        var result = await controller.DashboardConfigure("instance", descriptor.SystemName, DashboardLayoutLayer.User, null, true);
+        if (available && configurable)
+        {
+            Assert.That(result, Is.TypeOf<PartialViewResult>());
+            Assert.That(((PartialViewResult)result).Model, Is.SameAs(configuration));
+            widget.Verify(x => x.ValidateSettingsAsync(It.IsAny<JsonObject>(), It.IsAny<CancellationToken>()), Times.Once);
+        }
+        else
+        {
+            Assert.That(result, Is.TypeOf<ForbidResult>());
+            widget.Verify(x => x.CreateConfigurationWidget(It.IsAny<DashboardWidgetContext>(), It.IsAny<DashboardWidgetInstance>()), Times.Never);
+        }
+
+        dashboard.Verify(x => x.SaveLayoutAsync(It.IsAny<DashboardLayout>(), It.IsAny<Customer>(), It.IsAny<DashboardLayoutLayer>(),
+            It.IsAny<bool>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Test]
+    public async Task Configuration_Route_Validates_The_Draft_And_Rejects_Unknown_Instances()
+    {
+        Mock<IDashboardService> dashboard = null;
+        var controller = CreateController(true, false, DashboardLayoutLayer.User, service => dashboard = service);
+        var result = await controller.DashboardConfigure("missing", "widget", DashboardLayoutLayer.User, "{\"widgets\":[]}");
+        Assert.That(result, Is.TypeOf<NotFoundResult>());
+        dashboard.Verify(x => x.ValidateDraftAsync(It.IsAny<DashboardLayout>(), It.IsAny<Customer>(), DashboardLayoutLayer.User,
+            It.IsAny<CancellationToken>()), Times.Once);
+    }
+
     [TestCase(false, DashboardLayoutLayer.System)]
     [TestCase(false, DashboardLayoutLayer.Global)]
     [TestCase(true, DashboardLayoutLayer.System)]
@@ -264,6 +342,7 @@ public class HomeControllerDashboardTests
         Assert.ThrowsAsync<AccessDeniedException>(async () => await controller.Index(true, layer));
         Assert.ThrowsAsync<AccessDeniedException>(async () => await controller.DashboardPreview(layer, "", false, "", ""));
         Assert.ThrowsAsync<AccessDeniedException>(async () => await controller.DashboardSave(layer, "", false));
+        Assert.ThrowsAsync<AccessDeniedException>(async () => await controller.DashboardConfigure("widget", "type", layer, ""));
     }
 
     /// <summary>
@@ -273,6 +352,7 @@ public class HomeControllerDashboardTests
     [TestCase(nameof(HomeController.DashboardSelect))]
     [TestCase(nameof(HomeController.DashboardPreview))]
     [TestCase(nameof(HomeController.DashboardSave))]
+    [TestCase(nameof(HomeController.DashboardConfigure))]
     public void Missing_Read_Permission_Is_Rejected_By_The_Endpoint_Filter(string action)
     {
         var permission = new Mock<IPermissionService>();
@@ -541,7 +621,7 @@ public class DashboardEditorMapperTests
     /// Rejects client attempts to send metadata outside the explicit changes contract.
     /// </summary>
     [TestCase("{\"widgets\":[],\"customerId\":42}")]
-    [TestCase("{\"widgets\":[{\"id\":\"existing\",\"widgetSystemName\":\"Widget\",\"positions\":[],\"settings\":{}}]}")]
+    [TestCase("{\"widgets\":[{\"id\":\"existing\",\"widgetSystemName\":\"Widget\",\"positions\":[],\"settingsVersion\":2}]}")]
     [TestCase("{\"widgets\":[{\"id\":\"existing\",\"widgetSystemName\":\"Widget\",\"positions\":[],\"allowMove\":true}]}")]
     public void Changes_Reject_Server_Metadata(string json)
         => Assert.Throws<JsonException>(() => DashboardEditorMapper.ReadChanges(json));
@@ -616,5 +696,373 @@ public class DashboardEditorMapperTests
             changeType ? "Another.Widget" : instance.WidgetSystemName, instance.Positions);
         var changes = new DashboardLayoutChanges(changeType ? [placement] : [placement, placement]);
         Assert.Throws<ArgumentException>(() => DashboardEditorMapper.ApplyChanges(changes, baseline, new Mock<IDashboardService>(MockBehavior.Strict).Object));
+    }
+}
+
+[TestFixture]
+public class LatestOrdersConfigurationTests
+{
+    [Test]
+    public async Task Base_Uses_The_Injected_Widget_Validator_And_Cancellation_Token()
+    {
+        var settings = new JsonObject { ["count"] = 12 };
+        using var cancellation = new CancellationTokenSource();
+        var receivedToken = CancellationToken.None;
+        var receivedCount = 0;
+        var validator = new LatestOrdersDashboardWidgetValidator();
+        validator.RuleFor(x => x.Count).MustAsync((count, token) =>
+        {
+            receivedToken = token;
+            receivedCount = count;
+            return Task.FromResult(false);
+        }).WithMessage("Widget-specific failure");
+        var widget = new LatestOrdersDashboardWidget(Mock.Of<IPermissionService>(), validator);
+
+        var error = Assert.ThrowsAsync<ArgumentException>(async () => await widget.ValidateSettingsAsync(settings, cancellation.Token));
+        Assert.That(error.Message, Does.Contain("Widget-specific failure"));
+        Assert.That(receivedCount, Is.EqualTo(12));
+        Assert.That(receivedToken, Is.EqualTo(cancellation.Token));
+
+        var validWidget = new LatestOrdersDashboardWidget(Mock.Of<IPermissionService>(), new LatestOrdersDashboardWidgetValidator());
+        await validWidget.ValidateSettingsAsync(settings, cancellation.Token);
+    }
+
+    [TestCase("{}")]
+    [TestCase("{\"count\":1}")]
+    [TestCase("{\"count\":50}")]
+    public async Task Accepts_Default_And_Boundaries(string json)
+    {
+        var widget = new LatestOrdersDashboardWidget(Mock.Of<IPermissionService>(), new LatestOrdersDashboardWidgetValidator());
+        await widget.ValidateSettingsAsync(JsonNode.Parse(json).AsObject());
+    }
+
+    [TestCase("{\"count\":0}")]
+    [TestCase("{\"count\":51}")]
+    [TestCase("{\"count\":1.5}")]
+    [TestCase("{\"count\":\"7\"}")]
+    [TestCase("{\"count\":null}")]
+    public void Rejects_Invalid_Count(string json)
+    {
+        var widget = new LatestOrdersDashboardWidget(Mock.Of<IPermissionService>(), new LatestOrdersDashboardWidgetValidator());
+        Assert.ThrowsAsync<ArgumentException>(async () => await widget.ValidateSettingsAsync(JsonNode.Parse(json).AsObject()));
+    }
+
+    [Test]
+    public async Task Editor_Settings_Survive_Layout_Serialization_And_Reach_Renderer()
+    {
+        var widget = new LatestOrdersDashboardWidget(Mock.Of<IPermissionService>(), new LatestOrdersDashboardWidgetValidator());
+        var service = new Mock<IDashboardService>();
+        service.Setup(x => x.GetWidget(LatestOrdersDashboardWidget.SystemName)).Returns(widget);
+        var layout = new AdminDashboardLayoutProvider().GetDefaultLayout();
+        var instance = layout.Widgets.Single(x => x.WidgetSystemName == LatestOrdersDashboardWidget.SystemName);
+        layout.Widgets = [instance];
+        var changes = new DashboardLayoutChanges([
+            new(instance.Id, instance.WidgetSystemName, instance.Positions, new JsonObject { ["count"] = 12 })]);
+        var wire = JsonSerializer.Serialize(changes, SmartJsonOptions.CamelCased);
+        DashboardEditorMapper.ApplyChanges(DashboardEditorMapper.ReadChanges(wire), layout, service.Object);
+        var stored = JsonSerializer.Serialize(layout, SmartJsonOptions.CamelCased);
+        var loaded = JsonSerializer.Deserialize<DashboardLayout>(stored, SmartJsonOptions.CamelCased).Widgets.Single();
+        await widget.ValidateSettingsAsync(loaded.Settings);
+        var rendered = (ComponentWidget)widget.CreateWidget(new DashboardWidgetContext { DashboardId = layout.Id }, loaded);
+        Assert.Multiple(() =>
+        {
+            Assert.That(loaded.Settings["count"].GetValue<int>(), Is.EqualTo(12));
+            Assert.That(rendered.Arguments.GetType().GetProperty("count").GetValue(rendered.Arguments), Is.EqualTo(12));
+            Assert.That(loaded.Policy.AllowConfigure, Is.True);
+            Assert.That(instance.Settings.Count, Is.Zero);
+        });
+    }
+
+    [Test]
+    public void Editor_Cannot_Change_Settings_Of_Locked_Instance()
+    {
+        var widget = new LatestOrdersDashboardWidget(Mock.Of<IPermissionService>(), new LatestOrdersDashboardWidgetValidator());
+        var service = new Mock<IDashboardService>();
+        service.Setup(x => x.GetWidget(LatestOrdersDashboardWidget.SystemName)).Returns(widget);
+        var layout = new AdminDashboardLayoutProvider().GetDefaultLayout();
+        var instance = layout.Widgets.Single(x => x.WidgetSystemName == LatestOrdersDashboardWidget.SystemName)
+            with { Policy = new() { AllowConfigure = false } };
+        layout.Widgets = [instance];
+        var changes = new DashboardLayoutChanges([
+            new(instance.Id, instance.WidgetSystemName, instance.Positions, new JsonObject { ["count"] = 12 })]);
+        Assert.Throws<InvalidOperationException>(() => DashboardEditorMapper.ApplyChanges(changes, layout, service.Object));
+    }
+}
+
+[TestFixture(typeof(LatestOrdersDashboardWidget))]
+[TestFixture(typeof(BestsellersDashboardWidget))]
+[TestFixture(typeof(TopCustomersDashboardWidget))]
+[TestFixture(typeof(ContactRequestsDashboardWidget))]
+public class WidgetCountConfigurationTests(Type widgetType)
+{
+    [Test]
+    public void Widget_And_Its_Validator_Are_Resolved_Through_Existing_Registration()
+    {
+        var services = new ServiceCollection();
+        services.AddSingleton(Mock.Of<IPermissionService>());
+        services.AddValidatorsFromAssemblyContaining<LatestOrdersDashboardWidgetValidator>();
+        services.AddTransient(widgetType);
+        using var provider = services.BuildServiceProvider();
+        using var scope = provider.CreateScope();
+        var widget = (IDashboardWidget)scope.ServiceProvider.GetRequiredService(widgetType);
+
+        Assert.That(widget.GetConfigurationRoute(), Is.Not.Null);
+        Assert.That(widget, Is.InstanceOf<Smartstore.Engine.Modularity.IConfigurable>());
+    }
+
+    private IDashboardWidget CreateWidget()
+    {
+        var validatorType = widgetType.Assembly.GetType(widgetType.FullName + "Validator");
+        var validator = Activator.CreateInstance(validatorType);
+        return (IDashboardWidget)Activator.CreateInstance(widgetType, Mock.Of<IPermissionService>(), validator);
+    }
+
+    [TestCase("{}", 7)]
+    [TestCase("{\"count\":1}", 1)]
+    [TestCase("{\"count\":50}", 50)]
+    public async Task Stored_Count_Reaches_Renderer_And_Default_Remains_Empty_In_Configuration(string json, int expected)
+    {
+        var widget = CreateWidget();
+        var instance = new AdminDashboardLayoutProvider().GetDefaultLayout().Widgets.FirstOrDefault(x => x.WidgetSystemName == widget.Descriptor.SystemName)
+            ?? new DashboardWidgetInstance("contact-requests", widget.Descriptor.SystemName) { Policy = widget.Descriptor.Policy };
+        instance = instance with { Settings = JsonNode.Parse(json).AsObject() };
+        var defaultCount = widgetType == typeof(ContactRequestsDashboardWidget) ? 5 : 7;
+        if (json == "{}") expected = defaultCount;
+        var loaded = JsonSerializer.Deserialize<DashboardWidgetInstance>(JsonSerializer.Serialize(instance, SmartJsonOptions.CamelCased), SmartJsonOptions.CamelCased);
+        await widget.ValidateSettingsAsync(loaded.Settings);
+        var context = new DashboardWidgetContext { DashboardId = "admin-dashboard" };
+        var render = (ComponentWidget)widget.CreateWidget(context, loaded);
+        Assert.That(render.Arguments.GetType().GetProperty("count").GetValue(render.Arguments), Is.EqualTo(expected));
+        Assert.That(loaded.Policy.AllowConfigure, Is.True);
+        var configuration = (PartialViewWidget)widget.CreateConfigurationWidget(context, loaded);
+        Assert.That(configuration.ViewName, Is.EqualTo("Components/Dashboard/ConfigureCount"));
+        Assert.That(render.Key, Is.EqualTo(loaded.Id));
+        Assert.That(((DashboardWidgetCountConfigurationModel)configuration.Model).DefaultCount, Is.EqualTo(defaultCount));
+        Assert.That(((DashboardWidgetCountConfigurationModel)configuration.Model).Count,
+            Is.EqualTo(loaded.Settings.ContainsKey("count") ? (int?)expected : null));
+    }
+
+    [TestCase("0")]
+    [TestCase("51")]
+    [TestCase("1.5")]
+    [TestCase("null")]
+    [TestCase("\"7\"")]
+    public void Invalid_Count_Is_Rejected(string value)
+    {
+        var widget = CreateWidget();
+        Assert.ThrowsAsync<ArgumentException>(async () => await widget.ValidateSettingsAsync(JsonNode.Parse("{\"count\":" + value + "}").AsObject()));
+    }
+}
+
+[TestFixture]
+public class PaymentMethodsConfigurationTests
+{
+    [TestCase("0")]
+    [TestCase("2.75")]
+    [TestCase("100")]
+    public async Task Decimal_Rates_Survive_Persistence_And_Reach_Both_Renderers(string rate)
+    {
+        var widget = new PaymentMethodsDashboardWidget(Mock.Of<IPermissionService>(), new PaymentMethodsDashboardWidgetValidator());
+        var instance = new DashboardWidgetInstance("payments", PaymentMethodsDashboardWidget.SystemName)
+        {
+            Policy = new() { AllowConfigure = true },
+            Positions = [new DashboardWidgetPosition { Size = new DashboardWidgetSize(4, 1) }]
+        };
+        var service = new Mock<IDashboardService>();
+        service.Setup(x => x.GetWidget(PaymentMethodsDashboardWidget.SystemName)).Returns(widget);
+        var layout = new DashboardLayout("test") { Widgets = [instance] };
+        var settings = JsonNode.Parse("{\"count\":3,\"feeValue.Payments.Example\":" + rate + "}").AsObject();
+        settings["feeIsPercentage.Payments.Example"] = true;
+        var changes = new DashboardLayoutChanges([new(instance.Id, instance.WidgetSystemName, instance.Positions, settings)]);
+        layout = DashboardEditorMapper.ApplyChanges(DashboardEditorMapper.ReadChanges(JsonSerializer.Serialize(changes, SmartJsonOptions.CamelCased)), layout, service.Object);
+        var loaded = JsonSerializer.Deserialize<DashboardLayout>(JsonSerializer.Serialize(layout, SmartJsonOptions.CamelCased), SmartJsonOptions.CamelCased).Widgets.Single();
+        await widget.ValidateSettingsAsync(loaded.Settings);
+        var context = new DashboardWidgetContext { DashboardId = "test" };
+        foreach (var rendered in new[] { widget.CreateWidget(context, loaded), widget.CreateConfigurationWidget(context, loaded) }.Cast<ComponentWidget>())
+        {
+            Assert.That(rendered.Arguments.GetType().GetProperty("count").GetValue(rendered.Arguments), Is.EqualTo(3));
+            var modes = (IReadOnlyDictionary<string, bool>)rendered.Arguments.GetType().GetProperty("feeIsPercentage").GetValue(rendered.Arguments);
+            Assert.That(modes["Payments.Example"], Is.True);
+            var rates = (IReadOnlyDictionary<string, decimal>)rendered.Arguments.GetType().GetProperty("feeValues").GetValue(rendered.Arguments);
+            Assert.That(rates["Payments.Example"], Is.EqualTo(decimal.Parse(rate, System.Globalization.CultureInfo.InvariantCulture)));
+        }
+    }
+
+    [TestCase("-1")]
+    [TestCase("100.01")]
+    [TestCase("null")]
+    [TestCase("\"2.75\"")]
+    [TestCase("true")]
+    public void Invalid_Rates_Are_Rejected(string value)
+    {
+        var widget = new PaymentMethodsDashboardWidget(Mock.Of<IPermissionService>(), new PaymentMethodsDashboardWidgetValidator());
+        var settings = JsonNode.Parse("{\"feeValue.Payments.Example\":" + value + "}").AsObject();
+        Assert.ThrowsAsync<ArgumentException>(async () => await widget.ValidateSettingsAsync(settings));
+    }
+
+    [Test]
+    public async Task Fees_Use_Only_Paid_Visible_Nondeleted_Orders_And_Keep_Existing_Rankings()
+    {
+        var model = (DashboardPaymentMethodsModel)await RenderAsync(false);
+        var payment = model.PaymentMethods.Single(x => x.Name == "Zahlung");
+        Assert.That(model.PaymentMethods.Any(x => x.Name.Contains("Disabled")), Is.False);
+        Assert.Multiple(() =>
+        {
+            Assert.That(payment.OrderCount, Is.EqualTo(3));
+            Assert.That(payment.TotalAmount.Amount, Is.EqualTo(600m));
+            Assert.That(payment.FeeValue, Is.EqualTo(2.75m));
+            Assert.That(payment.EstimatedFees.Amount, Is.EqualTo(2.75m));
+        });
+    }
+
+    [Test]
+    public async Task Configuration_Uses_Only_Active_Providers_Sorted_By_Localized_Name()
+    {
+        var model = (DashboardPaymentMethodsConfigurationModel)await RenderAsync(true);
+        Assert.That(model.PaymentMethods.Select(x => x.SystemName), Is.EqualTo(new[] { "Payments.Active", "Payments.Current" }));
+        Assert.That(model.PaymentMethods.Single(x => x.SystemName == "Payments.Current").FeeValue, Is.EqualTo(2.75m));
+    }
+
+    [TestCase("0")]
+    [TestCase("51")]
+    [TestCase("1.5")]
+    [TestCase("null")]
+    public void Invalid_Count_Is_Rejected(string value)
+    {
+        var widget = new PaymentMethodsDashboardWidget(Mock.Of<IPermissionService>(), new PaymentMethodsDashboardWidgetValidator());
+        Assert.ThrowsAsync<ArgumentException>(async () => await widget.ValidateSettingsAsync(JsonNode.Parse("{\"count\":" + value + "}").AsObject()));
+    }
+
+    [Test]
+    public async Task Count_Limits_Rankings_And_Is_Available_In_Configuration()
+    {
+        var report = (DashboardPaymentMethodsModel)await RenderAsync(false, 1);
+        Assert.That(report.Count, Is.EqualTo(1));
+        Assert.That(report.PaymentMethods.Count, Is.EqualTo(1));
+        var configuration = (DashboardPaymentMethodsConfigurationModel)await RenderAsync(true, 3);
+        Assert.That(configuration.Count, Is.EqualTo(3));
+    }
+
+    [Test]
+    public async Task Cache_Hit_Uses_Authorized_Store_Set_And_Current_Fee_Percentage_Without_Database()
+    {
+        var cache = new Mock<ICacheManager>(MockBehavior.Strict);
+        cache.Setup(x => x.GetAsync("admin:dashboard:paymentmethods:v2:1-2",
+            It.IsAny<Func<CacheEntryOptions, Task<List<DashboardPaymentMethodTotals>>>>(), false, false))
+            .ReturnsAsync(new List<DashboardPaymentMethodTotals>
+            {
+                new() { SystemName = "Payments.Current", OrderCount = 1, TotalAmount = 200, PaidAmount = 200 }
+            });
+        var report = (DashboardPaymentMethodsModel)await RenderAsync(false, 10, cache.Object, new[] { 2, 1 });
+        Assert.That(report.PaymentMethods.Single().EstimatedFees.Amount, Is.EqualTo(5.5m));
+        cache.VerifyAll();
+    }
+
+    [Test]
+    public async Task Fixed_Fees_Use_Only_Paid_Orders_Without_Adding_Percentage_Fees()
+    {
+        var model = (DashboardPaymentMethodsModel)await RenderAsync(false, fixedFee: true);
+        var payment = model.PaymentMethods.Single(x => x.Name == "Zahlung");
+        Assert.Multiple(() =>
+        {
+            Assert.That(payment.FeeValue, Is.EqualTo(0.35m));
+            Assert.That(payment.FeeIsPercentage, Is.False);
+            Assert.That(payment.EstimatedFees.Amount, Is.EqualTo(0.35m));
+        });
+        var configuration = (DashboardPaymentMethodsConfigurationModel)await RenderAsync(true, fixedFee: true);
+        var fee = configuration.PaymentMethods.Single(x => x.SystemName == "Payments.Current");
+        Assert.That(fee.FeeIsPercentage, Is.False);
+        Assert.That(fee.FeeValue, Is.EqualTo(0.35m));
+    }
+
+    [TestCase("feeValue.Payments.Example", "-1")]
+    [TestCase("feeValue.Payments.Example", "1000001")]
+    [TestCase("feeValue.Payments.Example", "null")]
+    [TestCase("feeIsPercentage.Payments.Example", "\"unknown\"")]
+    public void Invalid_Fixed_Fees_And_Modes_Are_Rejected(string key, string value)
+    {
+        var widget = new PaymentMethodsDashboardWidget(Mock.Of<IPermissionService>(), new PaymentMethodsDashboardWidgetValidator());
+        var settings = new JsonObject { [key] = JsonNode.Parse(value) };
+        Assert.ThrowsAsync<ArgumentException>(async () => await widget.ValidateSettingsAsync(settings));
+    }
+
+    private static async Task<object> RenderAsync(bool configure, int count = 10, ICacheManager cache = null, int[] storeIds = null, bool fixedFee = false)
+    {
+        await using var db = new PaymentTestContext();
+        db.Orders.AddRange(
+            new Order { Id = 1, StoreId = 1, PaymentMethodSystemName = "Payments.Current", PaymentStatusId = (int)PaymentStatus.Paid, OrderTotal = 100m },
+            new Order { Id = 2, StoreId = 1, PaymentMethodSystemName = "Payments.Current", PaymentStatusId = (int)PaymentStatus.Pending, OrderTotal = 200m },
+            new Order { Id = 3, StoreId = 1, PaymentMethodSystemName = "Payments.Current", PaymentStatusId = (int)PaymentStatus.Refunded, OrderTotal = 300m },
+            new Order { Id = 4, StoreId = 2, PaymentMethodSystemName = "Payments.Current", PaymentStatusId = (int)PaymentStatus.Paid, OrderTotal = 400m },
+            new Order { Id = 5, StoreId = 1, PaymentMethodSystemName = "Payments.Current", PaymentStatusId = (int)PaymentStatus.Paid, OrderTotal = 500m, Deleted = true },
+            new Order { Id = 6, StoreId = 1, PaymentMethodSystemName = "Payments.Disabled", PaymentStatusId = (int)PaymentStatus.Paid, OrderTotal = 10000m },
+            new Order { Id = 7, StoreId = 1, PaymentMethodSystemName = "Payments.Active", PaymentStatusId = (int)PaymentStatus.Paid, OrderTotal = 50m });
+        await db.SaveChangesAsync();
+
+        var services = new Mock<ICommonServices> { DefaultValue = DefaultValue.Mock };
+        services.SetupGet(x => x.Cache).Returns(cache ?? NullCache.Instance);
+        services.Setup(x => x.Permissions.AuthorizeAsync(DashboardPaymentMethodsViewComponent.RequiredPermission, null, false)).ReturnsAsync(true);
+        services.Setup(x => x.WorkContext.CurrentCustomer).Returns(new Customer { Id = 42 });
+        services.Setup(x => x.StoreMappingService.GetAuthorizedStoreIdsAsync(nameof(Customer), 42)).ReturnsAsync(storeIds ?? new[] { 1 });
+        var currency = new Currency { CurrencyCode = "EUR" };
+        services.Setup(x => x.CurrencyService.PrimaryCurrency).Returns(currency);
+        services.Setup(x => x.CurrencyService.CreateMoney(It.IsAny<decimal>(), currency, true, true))
+            .Returns((decimal amount, object code, bool display, bool round) => new Money(amount, currency));
+        var payments = new Mock<IPaymentService>();
+        payments.Setup(x => x.LoadAllPaymentProvidersAsync(true, 0)).ReturnsAsync(new[]
+        {
+            new Provider<IPaymentMethod>(new Lazy<IPaymentMethod, ProviderMetadata>(() => Mock.Of<IPaymentMethod>(),
+                new ProviderMetadata { SystemName = "Payments.Current", FriendlyName = "Default", ResourceKeyPattern = "{0}.{1}" })),
+            new Provider<IPaymentMethod>(new Lazy<IPaymentMethod, ProviderMetadata>(() => Mock.Of<IPaymentMethod>(),
+                new ProviderMetadata { SystemName = "Payments.Active", FriendlyName = "Default", ResourceKeyPattern = "{0}.{1}" }))
+        });
+        var localization = new Mock<ILocalizationService>();
+        localization.Setup(x => x.GetResource(It.IsAny<string>(), 0, false, " ", true))
+            .Returns((string key, int languageId, bool log, string fallback, bool empty) => key.StartsWith("Payments.Active") ? "Alpha" : "Zahlung");
+        var modules = new ModuleManager(null, null, null, localization.Object, null, null, null, null);
+        using var provider = new ServiceCollection().AddLogging().AddSingleton(services.Object).BuildServiceProvider();
+        var component = new TestPaymentComponent(cache == null ? db : null, payments.Object, modules)
+        {
+            ViewEngine = Mock.Of<ICompositeViewEngine>(),
+            ViewComponentContext = new ViewComponentContext
+            {
+                ViewContext = new ViewContext { HttpContext = new DefaultHttpContext { RequestServices = provider } }
+            }
+        };
+        var result = (ViewViewComponentResult)await component.InvokeAsync(new Dictionary<string, decimal> { ["Payments.Current"] = fixedFee ? 0.35m : 2.75m }, configure, count,
+            feeIsPercentage: new Dictionary<string, bool> { ["Payments.Current"] = !fixedFee });
+        return result.ViewData.Model;
+    }
+
+    private sealed class TestPaymentComponent(SmartDbContext db, IPaymentService payments, ModuleManager modules) : DashboardPaymentMethodsViewComponent(db, payments, modules)
+    {
+        protected override bool PublishEvents => false;
+    }
+
+    private sealed class PaymentTestContext() : SmartDbContext(new DbContextOptionsBuilder<SmartDbContext>()
+        .UseInMemoryDatabase(Guid.NewGuid().ToString()).Options)
+    {
+        protected override void OnConfiguring(DbContextOptionsBuilder builder) { }
+
+        protected override void ConfigureConventions(ModelConfigurationBuilder builder)
+            => builder.Conventions.Remove<Microsoft.EntityFrameworkCore.Metadata.Conventions.IndexAttributeConvention>();
+
+        protected override void OnModelCreating(ModelBuilder builder)
+        {
+            foreach (var type in builder.Model.GetEntityTypes().Select(entity => entity.ClrType).ToArray())
+            {
+                builder.Ignore(type);
+            }
+            var order = builder.Entity<Order>();
+            order.HasBaseType((Type)null).HasKey(x => x.Id);
+            string[] included = [nameof(Order.Id), nameof(Order.StoreId), nameof(Order.PaymentMethodSystemName), nameof(Order.PaymentStatusId), nameof(Order.OrderTotal), nameof(Order.Deleted)];
+            foreach (var property in typeof(Order).GetProperties().Where(x => !included.Contains(x.Name)))
+            {
+                order.Ignore(property.Name);
+            }
+        }
+
+        public override Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default)
+            => SaveChangesCoreAsync(acceptAllChangesOnSuccess, cancellationToken);
     }
 }

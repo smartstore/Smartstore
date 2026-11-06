@@ -4,7 +4,7 @@ using Smartstore.Core.Security;
 
 namespace Smartstore.Admin.Components;
 
-public class DashboardLatestOrdersViewComponent(CustomerSettings customerSettings) : DashboardWidgetViewComponentBase
+public class DashboardLatestOrdersViewComponent(CustomerSettings customerSettings) : SmartViewComponent
 {
     /// <summary>
     /// Gets the widget permission required to display this report.
@@ -13,7 +13,7 @@ public class DashboardLatestOrdersViewComponent(CustomerSettings customerSetting
 
     private readonly CustomerSettings _customerSettings = customerSettings;
 
-    public override async Task<IViewComponentResult> InvokeAsync()
+    public async Task<IViewComponentResult> InvokeAsync(int count = 7)
     {
         if (!await Services.Permissions.AuthorizeAsync(RequiredPermission))
         {
@@ -34,7 +34,7 @@ public class DashboardLatestOrdersViewComponent(CustomerSettings customerSetting
                 .ThenInclude(x => x.CustomerRole)
             .Include(x => x.OrderItems)
             .OrderByDescending(x => x.Id)
-            .Take(7)
+            .Take(Math.Clamp(count, 1, 50))
             .ToListAsync();
 
         foreach (var order in latestOrders)

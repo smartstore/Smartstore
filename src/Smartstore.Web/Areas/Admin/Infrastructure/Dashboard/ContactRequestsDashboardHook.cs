@@ -16,7 +16,6 @@ internal sealed class ContactRequestsDashboardHook : AsyncDbSaveHook<QueuedEmail
     private readonly SmartDbContext _db;
 
     internal const string AttributeKey = "Dashboard.ContactRequest";
-    internal const int MaxEntries = 5;
 
     public ContactRequestsDashboardHook(IGenericAttributeService attributes, SmartDbContext db)
     {

@@ -23,6 +23,62 @@ public class HomeController : AdminController
 
     #region Dashboard
 
+    /// <summary>Renders the configuration surface for an authorized widget in the current draft.</summary>
+    [HttpPost, ValidateAntiForgeryToken, Permission(Permissions.Dashboard.Read), RequestSizeLimit(262144)]
+    public async Task<IActionResult> DashboardConfigure(
+        string instanceId,
+        string widgetSystemName,
+        DashboardLayoutLayer layer,
+        string changesJson,
+        bool reset = false)
+    {
+        if (!ModelState.IsValid || !instanceId.HasValue() || !widgetSystemName.HasValue())
+        {
+            return BadRequest();
+        }
+
+        await AuthorizeDashboardEditAsync(layer);
+
+        try
+        {
+            var state = await ReadDashboardDraftAsync(changesJson, layer, reset);
+            var customer = Services.WorkContext.CurrentCustomer;
+            if (!reset)
+            {
+                await _dashboardService.ValidateDraftAsync(state.Layout, customer, layer, HttpContext.RequestAborted);
+            }
+
+            var instance = state.Layout.Widgets.FirstOrDefault(x => x.Id == instanceId);
+            if (instance == null || instance.WidgetSystemName != widgetSystemName)
+            {
+                return NotFound();
+            }
+
+            var widget = _dashboardService.GetWidget(widgetSystemName);
+            var context = new DashboardWidgetContext { DashboardId = state.Layout.Id, Customer = customer, IsEditMode = true };
+            var policy = DashboardWidgetPolicy.Combine(widget.Descriptor.Policy, instance.Policy);
+            if (!policy.AllowConfigure || !await widget.IsAvailableAsync(context, HttpContext.RequestAborted))
+            {
+                return Forbid();
+            }
+
+            await widget.ValidateSettingsAsync(instance.Settings, HttpContext.RequestAborted);
+            var configuration = widget.CreateConfigurationWidget(context, instance);
+            if (configuration == null)
+            {
+                return NotFound();
+            }
+
+            return PartialView("_DashboardConfiguration", configuration);
+        }
+        catch (Exception ex) when (ex is JsonException or ArgumentException or InvalidOperationException or KeyNotFoundException)
+        {
+            Logger.Warn(ex, "Invalid dashboard widget configuration.");
+            return BadRequest();
+        }
+    }
+
+
     [Permission(Permissions.Dashboard.Read)]
     public async Task<IActionResult> Index(bool edit = false, DashboardLayoutLayer? layer = null)
     {

@@ -23,4 +23,23 @@ public class DashboardPaymentMethodModel : ModelBase
     /// </summary>
     [LocalizedDisplay("Common.Amount")]
     public Money TotalAmount { get; set; }
+
+    /// <summary>
+    /// Gets or sets the configured fee value, or null when no fee has been configured.
+    /// </summary>
+    [LocalizedDisplay("*Fee")]
+    public decimal? FeeValue { get; set; }
+
+    /// <summary>
+    /// Gets or sets estimated fees on paid order totals in the primary currency.
+    /// </summary>
+    [LocalizedDisplay("*EstimatedFees")]
+    public Money EstimatedFees { get; set; }
+
+    /// <summary>
+    /// Gets or sets whether the configured fee is a percentage.
+    /// </summary>
+    [LocalizedDisplay("*FeePercentage")]
+    public bool FeeIsPercentage { get; set; }
+
 }

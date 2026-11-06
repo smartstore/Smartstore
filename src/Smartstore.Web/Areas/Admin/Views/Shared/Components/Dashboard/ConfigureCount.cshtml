@@ -1,0 +1,11 @@
+@model Smartstore.Admin.Models.Dashboard.DashboardWidgetCountConfigurationModel
+
+<div class="adminRow">
+    <div class="adminTitle">
+        <smart-label asp-for="Count" />
+    </div>
+    <div class="adminData">
+        <input asp-for="Count" type="number" sm-numberinput-group-class="overflow-visible" data-dashboard-setting="count" min="1" max="50" step="1" placeholder="@Model.DefaultCount" />
+        <span asp-validation-for="Count"></span>
+    </div>
+</div>

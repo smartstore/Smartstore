@@ -168,7 +168,7 @@ public partial class DashboardService
                     throw new InvalidOperationException("This widget cannot be configured.");
                 }
             }
-            layout.Widgets[i] = instance with { Policy = previous?.Policy ?? new() };
+            layout.Widgets[i] = instance with { Policy = previous?.Policy ?? new() { AllowConfigure = descriptor.Policy.AllowConfigure } };
 
             foreach (var position in instance.Positions)
             {

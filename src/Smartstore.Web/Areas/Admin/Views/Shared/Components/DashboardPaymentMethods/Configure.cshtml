@@ -1,0 +1,42 @@
+@using Smartstore.Admin.Infrastructure.Dashboard
+@model Smartstore.Admin.Models.Dashboard.DashboardPaymentMethodsConfigurationModel
+
+@{
+    var resourceKey = "Admin.Dashboard.PaymentMethods.";
+}
+
+<tabstrip id="dashboard-paymentmethods-configuration" sm-nav-style="Material">
+    <tab sm-title="@T(resourceKey + "DisplaySettings")" sm-selected="true">
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="Count" />
+            </div>
+            <div class="adminData">
+                <input asp-for="Count" type="number" sm-numberinput-group-class="overflow-visible" data-dashboard-setting="count" min="1" max="50" step="1" placeholder="10" required />
+                <span asp-validation-for="Count"></span>
+            </div>
+        </div>
+    </tab>
+    <tab sm-title="@T(resourceKey + "FeeSettings")">
+        <p class="text-muted">@T(resourceKey + "FeeNotice")</p>
+
+        @for (var i = 0; i < Model.PaymentMethods.Count; i++)
+        {
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="PaymentMethods[i].FeeValue" sm-text="@Model.PaymentMethods[i].Name" />
+                </div>
+                <div class="adminData">
+                    <fixed-or-percent asp-for="PaymentMethods[i].FeeValue" asp-for-percentage="PaymentMethods[i].FeeIsPercentage"
+                                       sm-postfix="@Model.CurrencyCode"
+                                       value-data-dashboard-setting="@(PaymentMethodsDashboardWidget.FeeValuePrefix + Model.PaymentMethods[i].SystemName)"
+                                       percentage-data-dashboard-setting="@(PaymentMethodsDashboardWidget.FeeIsPercentagePrefix + Model.PaymentMethods[i].SystemName)"
+                                       value-min="0" value-max="1000000" value-required="required" value-placeholder="0" />
+                    <span asp-validation-for="PaymentMethods[i].FeeValue"></span>
+                </div>
+            </div>
+        }
+
+        <p sm-if="Model.PaymentMethods.Count == 0" class="text-muted">@T("Admin.DataGrid.NoData")</p>
+    </tab>
+</tabstrip>

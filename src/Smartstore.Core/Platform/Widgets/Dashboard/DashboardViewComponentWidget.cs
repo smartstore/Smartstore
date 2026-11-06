@@ -1,7 +1,13 @@
 #nullable enable
 
+using System.Text.Json;
 using System.Text.Json.Nodes;
+using System.Text.Json.Serialization;
+using FluentValidation;
 using Smartstore.Core.Security;
+using Smartstore.Engine.Modularity;
+using Smartstore.Http;
+using Smartstore.Json;
 
 namespace Smartstore.Core.Widgets.Dashboard;
 
@@ -9,7 +15,7 @@ namespace Smartstore.Core.Widgets.Dashboard;
 /// Provides default dashboard widget behavior for implementations backed by an MVC view component.
 /// </summary>
 /// <typeparam name="TComponent">The MVC view component used to render the widget.</typeparam>
-public abstract class DashboardViewComponentWidget<TComponent> : IDashboardWidget
+public abstract class DashboardViewComponentWidget<TComponent> : IDashboardWidget, IConfigurable
     where TComponent : Microsoft.AspNetCore.Mvc.ViewComponent
 {
     private readonly IPermissionService _permissionService;
@@ -19,7 +25,9 @@ public abstract class DashboardViewComponentWidget<TComponent> : IDashboardWidge
     /// Initializes a widget with the widget permission required by its view component.
     /// </summary>
     /// <param name="requiredPermission">The widget permission declared by the view component.</param>
-    protected DashboardViewComponentWidget(IPermissionService permissions, string requiredPermission)
+    protected DashboardViewComponentWidget(
+        IPermissionService permissions,
+        string requiredPermission)
     {
         Guard.NotNull(permissions);
         Guard.NotEmpty(requiredPermission);
@@ -38,7 +46,14 @@ public abstract class DashboardViewComponentWidget<TComponent> : IDashboardWidge
 
     /// <inheritdoc />
     public virtual Widget CreateWidget(DashboardWidgetContext context, DashboardWidgetInstance instance)
-        => new ComponentWidget<TComponent> { Key = instance.Id };
+        => new ComponentWidget<TComponent>(GetWidgetArguments(context, instance)) { Key = instance.Id };
+
+    /// <summary>Creates the arguments passed to the widget view component.</summary>
+    protected virtual object? GetWidgetArguments(DashboardWidgetContext context, DashboardWidgetInstance instance)
+        => null;
+
+    /// <inheritdoc />
+    public virtual RouteInfo? GetConfigurationRoute() => null;
 
     /// <inheritdoc />
     public virtual Widget? CreateConfigurationWidget(
@@ -60,4 +75,87 @@ public abstract class DashboardViewComponentWidget<TComponent> : IDashboardWidge
         int fromVersion,
         CancellationToken cancelToken = default)
         => ValueTask.FromResult(settings);
+}
+
+/// <summary>
+/// Loads and validates typed widget settings and creates the configuration surface.
+/// </summary>
+/// <typeparam name="TComponent">The MVC view component used to render the widget.</typeparam>
+/// <typeparam name="TSettings">The widget's settings model.</typeparam>
+public abstract class DashboardViewComponentWidget<TComponent, TSettings> : DashboardViewComponentWidget<TComponent>
+    where TComponent : Microsoft.AspNetCore.Mvc.ViewComponent
+    where TSettings : class, new()
+{
+    private static readonly JsonSerializerOptions _settingsJsonOptions = new(SmartJsonOptions.CamelCased)
+    {
+        NumberHandling = JsonNumberHandling.Strict
+    };
+
+    private readonly IValidator<TSettings> _settingsValidator;
+    private readonly string? _configurationViewName;
+
+    /// <summary>Initializes a widget with its settings validator and optional configuration partial view.</summary>
+    protected DashboardViewComponentWidget(
+        IPermissionService permissions,
+        string requiredPermission,
+        IValidator<TSettings> settingsValidator,
+        string? configurationViewName = null)
+        : base(permissions, requiredPermission)
+    {
+        _settingsValidator = Guard.NotNull(settingsValidator);
+        _configurationViewName = configurationViewName;
+    }
+
+    /// <summary>Deserializes persisted settings into the widget's model.</summary>
+    protected virtual TSettings LoadSettings(JsonObject settings)
+    {
+        Guard.NotNull(settings);
+        try
+        {
+            return settings.Deserialize<TSettings>(_settingsJsonOptions) ?? new TSettings();
+        }
+        catch (JsonException ex)
+        {
+            throw new ArgumentException("Invalid dashboard widget settings.", nameof(settings), ex);
+        }
+    }
+
+    /// <inheritdoc />
+    public override async ValueTask ValidateSettingsAsync(JsonObject settings, CancellationToken cancelToken = default)
+    {
+        Guard.NotNull(settings);
+        var model = LoadSettings(settings);
+        var result = await _settingsValidator.ValidateAsync(model, cancelToken);
+        if (!result.IsValid)
+        {
+            throw new ArgumentException(result.ToString(), nameof(settings));
+        }
+    }
+
+    /// <inheritdoc />
+    protected override object? GetWidgetArguments(DashboardWidgetContext context, DashboardWidgetInstance instance)
+        => GetWidgetArguments(context, instance, LoadSettings(instance.Settings));
+
+    /// <summary>Creates component arguments from the typed settings.</summary>
+    protected abstract object? GetWidgetArguments(DashboardWidgetContext context, DashboardWidgetInstance instance, TSettings settings);
+
+    /// <inheritdoc />
+    public override Widget? CreateConfigurationWidget(DashboardWidgetContext context, DashboardWidgetInstance instance)
+        => CreateConfigurationWidget(context, instance, LoadSettings(instance.Settings));
+
+    /// <summary>Creates the configuration surface from the typed settings.</summary>
+    protected virtual Widget? CreateConfigurationWidget(DashboardWidgetContext context, DashboardWidgetInstance instance, TSettings settings)
+    {
+        if (_configurationViewName == null)
+        {
+            return null;
+        }
+
+        var model = CreateConfigurationModel(instance, settings);
+        return new PartialViewWidget(_configurationViewName, model);
+    }
+
+    /// <summary>Maps the settings to the configuration view model.</summary>
+    protected virtual object CreateConfigurationModel(DashboardWidgetInstance instance, TSettings settings)
+        => settings;
 }

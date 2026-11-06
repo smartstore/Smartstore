@@ -145,11 +145,30 @@ public class SmartDbContextDataSeeder : IDataSeeder<SmartDbContext>
 
         builder.AddOrUpdate("Permissions.DisplayName.PaymentMethods", "Payment methods", "Zahlungsarten");
         builder.AddOrUpdate("Admin.Dashboard.PaymentMethods", "Payment methods", "Zahlungsarten");
-        builder.AddOrUpdate("Admin.Dashboard.PaymentMethods.Description", "The top ten payment methods by order count or order total, including tax and shipping, across all order dates and statuses.", "Die zehn führenden Zahlungsarten nach Bestellanzahl oder Bestellgesamtbetrag einschließlich Steuer und Versand über alle Bestellzeiträume und Bestellstatus hinweg.");
+        builder.AddOrUpdate("Admin.Dashboard.PaymentMethods.Description", "Active payment methods ranked by order count or order total, including tax and shipping, across all order dates and statuses.", "Aktive Zahlungsarten nach Bestellanzahl oder Bestellgesamtbetrag einschließlich Steuer und Versand über alle Bestellzeiträume und Bestellstatus hinweg.");
         builder.AddOrUpdate("Admin.Dashboard.PaymentMethods.Name", "Payment method", "Zahlungsart");
         builder.AddOrUpdate("Admin.Dashboard.PaymentMethods.OrderCount", "Orders", "Bestellungen");
+        builder.AddOrUpdate("Admin.Dashboard.PaymentMethods.DisplaySettings", "Display", "Anzeige");
+        builder.AddOrUpdate("Admin.Dashboard.PaymentMethods.FeeSettings", "Payment fees", "Zahlungsgebühren");
+
+        builder.AddOrUpdate("Admin.Dashboard.PaymentMethods.EstimatedFees", "Estimated fees", "Geschätzte Gebühren");
+        builder.AddOrUpdate("Admin.Dashboard.PaymentMethods.FeeNotConfigured", "No fee configured.", "Noch kein Gebührensatz hinterlegt.");
+        builder.AddOrUpdate("Admin.Dashboard.PaymentMethods.FeeNotice",
+            "The widget uses these settings to estimate payment fees for all paid orders. Changes also apply to past orders. The calculation includes tax and shipping but does not account for refunds.",
+            "Mit diesen Angaben schätzt das Widget die Zahlungsgebühren für alle bezahlten Bestellungen. Änderungen gelten auch für frühere Bestellungen. Steuern und Versand gehören zur Berechnungsgrundlage; Erstattungen werden nicht berücksichtigt.");
         builder.AddOrUpdate("FixedValueOrPercent.Absolute", "Fixed value", "Fester Wert");
         builder.AddOrUpdate("FixedValueOrPercent.Percentage", "Percentage", "Prozent");
+        builder.AddOrUpdate("Admin.Dashboard.PaymentMethods.FixedFee", "Fixed fee per paid order", "Feste Gebühr je bezahlter Bestellung");
+        builder.AddOrUpdate("Admin.Dashboard.PaymentMethods.Fee",
+            "Fee",
+            "Gebühr",
+            "Choose a percentage of the paid order total or a fixed amount per paid order.",
+            "Wähle einen Prozentsatz auf den bezahlten Bestellgesamtbetrag oder einen Festbetrag je bezahlter Bestellung.");
+        builder.AddOrUpdate("Admin.Dashboard.PaymentMethods.FeePercentage",
+            "Fee percentage",
+            "Gebührensatz",
+            "Estimated payment provider fee in percent (0–100). Applied to paid order totals including tax and shipping, across all order dates.",
+            "Geschätzte Gebühr des Zahlungsanbieters in Prozent (0–100). Gilt für bezahlte Bestellgesamtbeträge einschließlich Steuer und Versand über alle Bestellzeiträume.");
 
         builder.AddOrUpdate("Permissions.DisplayName.Dashboard", "Dashboard", "Dashboard");
         builder.AddOrUpdate("Permissions.DisplayName.Widgets", "Widgets", "Widgets");
@@ -756,7 +775,6 @@ public class SmartDbContextDataSeeder : IDataSeeder<SmartDbContext>
         builder.AddOrUpdate("Admin.Dashboard.Editor.Customize", "Customize dashboard", "Dashboard anpassen");
         builder.AddOrUpdate("Admin.Dashboard.Editor.View", "Dashboard view", "Dashboard-Ansicht");
         builder.AddOrUpdate("Admin.Dashboard.Editor.Editing", "Editing", "Bearbeiten");
-        builder.AddOrUpdate("Admin.Dashboard.Editor.Configure", "Configure widget", "Widget konfigurieren");
         builder.AddOrUpdate("Admin.Dashboard.Editor.RemoveWidgetConfirm", "Really remove this widget?", "Dieses Widget wirklich entfernen?");
         builder.AddOrUpdate("Admin.Dashboard.Editor.ResetConfirm", "Really reset the dashboard?", "Das Dashboard wirklich zurücksetzen?");
         builder.AddOrUpdate("Admin.Dashboard.Editor.Widgets", "Select widget", "Widget auswählen");
@@ -784,6 +802,15 @@ public class SmartDbContextDataSeeder : IDataSeeder<SmartDbContext>
         builder.AddOrUpdate("Admin.Dashboard.Editor.Move", "Move widget", "Widget verschieben");
         builder.AddOrUpdate("Admin.Dashboard.Editor.Undo", "Undo last change", "Letzte Änderung rückgängig machen");
         builder.AddOrUpdate("Admin.Dashboard.Editor.Redo", "Redo last change", "Letzte Änderung wiederholen");
+        builder.AddOrUpdate("Admin.Dashboard.Editor.Configure", "Configure widget", "Widget konfigurieren");
+        builder.AddOrUpdate("Admin.Dashboard.Widget.Count",
+            "Number of displayed items",
+            "Anzahl angezeigter Elemente",
+            "Show between 1 and 50 items.",
+            "Zeigt zwischen 1 und 50 Elemente an.");
+        builder.Delete("Admin.Dashboard.LatestOrders.Fields.Count", "Admin.Dashboard.LatestOrders.Fields.Count.Hint",
+            "Admin.Dashboard.PaymentMethods.Fields.Count", "Admin.Dashboard.PaymentMethods.Fields.Count.Hint",
+            "Admin.Dashboard.PaymentMethods.Fields.FeePercentage", "Admin.Dashboard.PaymentMethods.Fields.FeePercentage.Hint");
         builder.AddOrUpdate("Admin.Dashboard.Editor.Width", "Change widget width", "Widget-Breite ändern");
         builder.AddOrUpdate("Admin.Dashboard.Editor.Height", "Change widget row span (Home: one row)", "Widget-Zeilenspanne ändern (Pos1: eine Zeile)");
         builder.AddOrUpdate("Admin.Dashboard.Editor.ExtendRow", "Extend widget by one row", "Widget um eine Zeile erweitern");

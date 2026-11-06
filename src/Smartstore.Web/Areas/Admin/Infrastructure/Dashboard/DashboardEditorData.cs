@@ -1,3 +1,4 @@
+using System.Text.Json.Nodes;
 using Smartstore.Core.Widgets.Dashboard;
 
 namespace Smartstore.Admin.Infrastructure.Dashboard;
@@ -50,7 +51,7 @@ public sealed record DashboardEditorLayoutRule(
     bool HasNewsRail);
 
 /// <summary>
-/// Describes one editable placement without exposing widget settings or persisted metadata.
+/// Describes one editable placement with optional editable settings, without exposing persisted metadata.
 /// </summary>
 /// <param name="Id">The instance identifier.</param>
 /// <param name="WidgetSystemName">The widget type used to update the picker.</param>
@@ -60,7 +61,8 @@ public sealed record DashboardEditorWidget(
     string Id,
     string WidgetSystemName,
     IReadOnlyCollection<DashboardWidgetPosition> Positions,
-    bool AllowMove);
+    bool AllowMove,
+    JsonObject Settings = null);
 
 /// <summary>
 /// Contains the widget catalog information used by duplicate detection.
@@ -84,7 +86,7 @@ public sealed record DashboardEditorWidgetChoice(
 public sealed record DashboardLayoutChanges(IReadOnlyCollection<DashboardWidgetPlacement> Widgets);
 
 /// <summary>
-/// Contains the only widget values the editor may submit for persistence or preview.
+/// Contains the placements and optional settings the editor may submit for persistence or preview.
 /// </summary>
 /// <param name="Id">The stable instance identifier.</param>
 /// <param name="WidgetSystemName">The registered type; existing instances cannot change type.</param>
@@ -92,4 +94,5 @@ public sealed record DashboardLayoutChanges(IReadOnlyCollection<DashboardWidgetP
 public sealed record DashboardWidgetPlacement(
     string Id,
     string WidgetSystemName,
-    IReadOnlyCollection<DashboardWidgetPosition> Positions);
+    IReadOnlyCollection<DashboardWidgetPosition> Positions,
+    JsonObject Settings = null);

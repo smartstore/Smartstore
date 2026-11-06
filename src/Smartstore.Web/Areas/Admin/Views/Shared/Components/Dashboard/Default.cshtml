@@ -25,7 +25,7 @@
 <div id="@(Model.Layout.Id)-grid" style="display: grid; grid-template-columns: @Model.Layout.GridTemplateColumns; column-gap: @Model.Layout.ColumnGap; row-gap: @Model.Layout.RowGap; grid-auto-rows: @Model.Layout.GridAutoRows;">
     @foreach (var item in Model.Widgets)
     {
-        var canConfigure = item.ConfigurationWidget != null;
+        var canConfigure = item.ConfigurationRoute != null;
         var canEdit = Model.Context.IsEditMode && (item.Policy.AllowMove || item.Policy.AllowResize || !item.Policy.IsRequired || canConfigure);
         <div id="@Model.Layout.BuildWidgetId(item.Instance.Id)" class="dashboard-widget d-grid position-relative rounded-3 @item.Descriptor.CssClass"
              attr-class='(canConfigure, "dashboard-widget-configurable")'
@@ -58,7 +58,8 @@
                 @await item.Widget.InvokeAsync(ViewContext)
             </div>
             <form sm-if="canConfigure" class="dashboard-widget-configuration card position-absolute top-0 start-0 w-100 h-100 rounded-3 overflow-hidden"
-                  data-dashboard-configuration novalidate inert>
+                  data-dashboard-configuration data-configuration-url="@Url.Action(item.ConfigurationRoute)"
+                  data-configuration-error="@T("Admin.Dashboard.Editor.Invalid")" novalidate inert>
                 <div class="card-header bg-white border-0 d-flex flex-wrap align-items-center gap-2 flex-shrink-0">
                     <h5 class="card-title mb-0">@item.Descriptor.Title.Resolve(T)</h5>
                     <div class="d-flex gap-2 ml-auto">
@@ -71,9 +72,7 @@
                 </div>
                 <div class="card-body overflow-auto">
                     <div class="alert alert-warning d-none" data-dashboard-configuration-error role="alert"></div>
-                    <div class="adminContent">
-                        @await item.ConfigurationWidget.InvokeAsync(ViewContext)
-                    </div>
+                    <div class="adminContent" data-dashboard-configuration-content></div>
                 </div>
             </form>
         </div>

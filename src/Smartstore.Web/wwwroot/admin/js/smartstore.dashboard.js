@@ -471,7 +471,7 @@
         });
 
         // A one-use, tab-local transfer keeps undo across server-rendered add/reset previews.
-        // Only placement data is transferred; widget HTML, settings and credentials never enter storage.
+        // Only layout data and editable settings are transferred; widget HTML and credentials never enter storage.
         let addedWidgetId;
         const transferToken = new URL(window.location.href).searchParams.get('dashboardHistory');
         if (transferToken) {
@@ -512,7 +512,7 @@
                 }
             }
             form.elements.changesJson.value = JSON.stringify({ widgets: layout.widgets.map(
-                ({ id, widgetSystemName, positions }) => ({ id, widgetSystemName, positions })) });
+                ({ id, widgetSystemName, positions, settings }) => ({ id, widgetSystemName, positions, settings })) });
             form.elements.reset.value = reset ? 'true' : 'false';
             form.elements.command.value = command || '';
             form.elements.widgetSystemName.value = widget || '';
@@ -581,10 +581,12 @@
             if (!from.length) return;
             to.push(capture());
             const state = from.pop();
+            const settingsChanged = state.layout.widgets.some(widget =>
+                !_.isEqual(widget.settings, widgetsById.get(widget.id)?.settings));
             setLayout(structuredClone(state.layout));
             reset = state.reset;
             dirty = state.dirty;
-            if (layout.widgets.some(w => !elements.has(w.id) && !unavailableIds.has(w.id))) {
+            if (settingsChanged || layout.widgets.some(w => !elements.has(w.id) && !unavailableIds.has(w.id))) {
                 // A reset can introduce widgets not rendered on this page. Use their normal server lifecycle.
                 submit(config.previewUrl, null, null, true);
                 return;
@@ -614,6 +616,88 @@
                     arrange(); render(false); remember(before);
                 }
             });
+        });
+        function flipConfiguration(el, open) {
+            const back = el.querySelector('[data-dashboard-configuration]');
+            const front = el.querySelector('.dashboard-widget-body');
+            const button = el.querySelector('[data-dashboard-configure]');
+            el.classList.toggle('dashboard-configuring', open);
+            front.inert = open;
+            back.inert = !open;
+            button.setAttribute('aria-expanded', String(open));
+            (open ? back.querySelector('input') : button)?.focus();
+        }
+        $(container).on('click', '[data-dashboard-configure]', function () {
+            const button = this;
+            const el = button.closest('[data-instance-id]');
+            const back = el.querySelector('[data-dashboard-configuration]');
+            const error = back.querySelector('[data-dashboard-configuration-error]');
+            const save = back.querySelector('[type="submit"]');
+            if (button.disabled) return;
+
+            button.disabled = true;
+            save.disabled = true;
+            error.classList.add('d-none');
+            back.querySelector('[data-dashboard-configuration-content]').replaceChildren();
+            flipConfiguration(el, true);
+            $.ajax({
+                url: back.dataset.configurationUrl,
+                type: 'POST',
+                data: {
+                    instanceId: el.dataset.instanceId,
+                    changesJson: JSON.stringify({ widgets: layout.widgets.map(
+                        ({ id, widgetSystemName, positions, settings }) => ({ id, widgetSystemName, positions, settings })) }),
+                    layer: config.layer,
+                    reset
+                }
+            }).done(html => {
+                $(back).find('[data-dashboard-configuration-content]').html(html);
+                $(back).find('[data-fixed-or-percent]').fixedOrPercent();
+                save.disabled = false;
+                if (el.classList.contains('dashboard-configuring')) back.querySelector('input')?.focus();
+            }).fail(() => {
+                error.textContent = back.dataset.configurationError;
+                error.classList.remove('d-none');
+            }).always(() => {
+                button.disabled = false;
+            });
+        });
+        $(container).on('click', '[data-dashboard-configuration-cancel]', function () {
+            flipConfiguration(this.closest('[data-instance-id]'), false);
+        });
+        $(container).on('keydown', '[data-dashboard-configuration]', function (event) {
+            if (event.key === 'Escape') {
+                event.preventDefault();
+                flipConfiguration(this.closest('[data-instance-id]'), false);
+            }
+        });
+        $(container).on('submit', '[data-dashboard-configuration]', function (event) {
+            event.preventDefault();
+            const invalidPane = this.querySelector(':invalid')?.closest('.tab-pane');
+            if (invalidPane) {
+                $(this).find('[data-toggle="tab"]').filter(function () {
+                    return this.getAttribute('href') === '#' + invalidPane.id;
+                }).tab('show');
+            }
+            if (!this.reportValidity()) return;
+            const el = this.closest('[data-instance-id]');
+            const widget = widgetsById.get(el.dataset.instanceId);
+            const before = capture();
+            const settings = { ...widget.settings };
+            this.querySelectorAll('[data-dashboard-setting]').forEach(input => {
+                if (input.type === 'radio' && !input.checked) return;
+                if (input.type === 'number' && input.value === '') {
+                    delete settings[input.dataset.dashboardSetting];
+                }
+                else {
+                    settings[input.dataset.dashboardSetting] = input.type === 'checkbox' ? input.checked
+                        : input.dataset.valueType === 'boolean' ? input.value === 'true'
+                        : input.type === 'number' ? input.valueAsNumber : input.value;
+                }
+            });
+            widget.settings = settings;
+            remember(before);
+            submit(config.previewUrl, null, null, true);
         });
         $(form).on('submit', event => { event.preventDefault(); save(); });
         $('#dashboard-cancel').on('click', () => guard(shouldSave => shouldSave ? save('cancel:') : navigate(config.cancelUrl)));

@@ -4,14 +4,12 @@ using Smartstore.Core.Security;
 
 namespace Smartstore.Admin.Components;
 
-public class DashboardTopCustomersViewComponent : DashboardWidgetViewComponentBase
+public class DashboardTopCustomersViewComponent : SmartViewComponent
 {
     /// <summary>
     /// Gets the widget permission required to display this report.
     /// </summary>
     public const string RequiredPermission = Permissions.Dashboard.Widgets.Customers.TopCustomers;
-
-    private const int NUM_REPORT_LINES = 7;
 
     private readonly SmartDbContext _db;
 
@@ -20,7 +18,7 @@ public class DashboardTopCustomersViewComponent : DashboardWidgetViewComponentBa
         _db = db;
     }
 
-    public override async Task<IViewComponentResult> InvokeAsync()
+    public async Task<IViewComponentResult> InvokeAsync(int count = 7)
     {
         if (!await Services.Permissions.AuthorizeAsync(RequiredPermission))
         {
@@ -34,12 +32,12 @@ public class DashboardTopCustomersViewComponent : DashboardWidgetViewComponentBa
 
         var reportByQuantity = await orderQuery
             .SelectAsTopCustomerReportLine(ReportSorting.ByQuantityDesc)
-            .Take(NUM_REPORT_LINES)
+            .Take(Math.Clamp(count, 1, 50))
             .ToListAsync();
 
         var reportByAmount = await orderQuery
             .SelectAsTopCustomerReportLine(ReportSorting.ByAmountDesc)
-            .Take(NUM_REPORT_LINES)
+            .Take(Math.Clamp(count, 1, 50))
             .ToListAsync();
 
         var model = new DashboardTopCustomersModel

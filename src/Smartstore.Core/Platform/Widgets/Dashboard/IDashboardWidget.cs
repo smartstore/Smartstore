@@ -1,6 +1,7 @@
 #nullable enable
 
 using System.Text.Json.Nodes;
+using Smartstore.Http;
 
 namespace Smartstore.Core.Widgets.Dashboard;
 
@@ -29,6 +30,9 @@ public interface IDashboardWidget
     /// <param name="instance">The concrete widget instance.</param>
     /// <returns>The renderable widget.</returns>
     Widget CreateWidget(DashboardWidgetContext context, DashboardWidgetInstance instance);
+
+    /// <summary>Gets the route that renders the widget configuration, or null for widgets without settings.</summary>
+    RouteInfo? GetConfigurationRoute() => null;
 
     /// <summary>
     /// Creates the optional renderable widget used to configure a concrete dashboard instance.

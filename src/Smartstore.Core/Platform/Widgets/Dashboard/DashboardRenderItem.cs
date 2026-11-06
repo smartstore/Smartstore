@@ -1,5 +1,7 @@
 #nullable enable
 
+using Smartstore.Http;
+
 namespace Smartstore.Core.Widgets.Dashboard;
 
 /// <summary>
@@ -30,5 +32,5 @@ public sealed class DashboardRenderItem
     /// <summary>
     /// Gets the optional configuration surface for an editable widget.
     /// </summary>
-    public Widget? ConfigurationWidget { get; init; }
+    public RouteInfo? ConfigurationRoute { get; init; }
 }

@@ -47,6 +47,7 @@ public class AdminDashboardLayoutProvider : IDashboardLayoutProvider
                 new DashboardWidgetInstance("bestsellers", BestsellersDashboardWidget.SystemName)
                 {
                     Order = 300,
+                    Policy = new() { AllowConfigure = true },
                     Positions =
                     [
                         At(DashboardBreakpoint.Xs, 0, 2, 12),
@@ -58,6 +59,7 @@ public class AdminDashboardLayoutProvider : IDashboardLayoutProvider
                 new DashboardWidgetInstance("top-customers", TopCustomersDashboardWidget.SystemName)
                 {
                     Order = 400,
+                    Policy = new() { AllowConfigure = true },
                     Positions =
                     [
                         At(DashboardBreakpoint.Xs, 0, 3, 12),
@@ -80,6 +82,7 @@ public class AdminDashboardLayoutProvider : IDashboardLayoutProvider
                 new DashboardWidgetInstance("latest-orders", LatestOrdersDashboardWidget.SystemName)
                 {
                     Order = 600,
+                    Policy = new() { AllowConfigure = true },
                     Positions =
                     [
                         At(DashboardBreakpoint.Xs, 0, 5, 12),

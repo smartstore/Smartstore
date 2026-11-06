@@ -27,7 +27,7 @@ public class DashboardContactRequestsViewComponent : SmartViewComponent
     /// <summary>
     /// Loads the newest marked contact messages from authorized stores.
     /// </summary>
-    public async Task<IViewComponentResult> InvokeAsync()
+    public async Task<IViewComponentResult> InvokeAsync(int count = 5)
     {
         if (!await Services.Permissions.AuthorizeAsync(RequiredPermission))
             return Empty();
@@ -36,7 +36,7 @@ public class DashboardContactRequestsViewComponent : SmartViewComponent
         var storeIds = _db.Stores.Select(x => x.Id);
         var query = _db.GenericAttributes
             .AsNoTracking()
-            .Where(x => x.KeyGroup == nameof(QueuedEmail) 
+            .Where(x => x.KeyGroup == nameof(QueuedEmail)
                 && x.Key == ContactRequestsDashboardHook.AttributeKey
                 && storeIds.Contains(x.StoreId));
 
@@ -44,7 +44,7 @@ public class DashboardContactRequestsViewComponent : SmartViewComponent
         {
             query = query.Where(x => authorizedStoreIds.Contains(x.StoreId));
         }
-        
+
         // TODO: (mh) I don't get it. QueuedEmails are deleted after sending.
         var messages = await _db.QueuedEmails
             .AsNoTracking()
@@ -54,7 +54,7 @@ public class DashboardContactRequestsViewComponent : SmartViewComponent
                 (message, attribute) => new { message.Id, Email = attribute.Value, message.CreatedOnUtc })
             .OrderByDescending(x => x.CreatedOnUtc)
             .ThenByDescending(x => x.Id)
-            .Take(ContactRequestsDashboardHook.MaxEntries)
+            .Take(Math.Clamp(count, 1, 50))
             .ToListAsync();
 
         var model = messages.Select(x => new DashboardContactRequestModel

@@ -154,14 +154,14 @@ public sealed class AdminDashboardTests
         permissions.Setup(x => x.AuthorizeAsync(Smartstore.Core.Security.Permissions.System.Message.Read, customer, false)).ReturnsAsync(allowed);
         (IDashboardWidget Widget, string Permission)[] widgets =
         [
-            (new BestsellersDashboardWidget(permissions.Object), Smartstore.Core.Security.Permissions.Dashboard.Widgets.Sales.Bestsellers),
+            (new BestsellersDashboardWidget(permissions.Object, new BestsellersDashboardWidgetValidator()), Smartstore.Core.Security.Permissions.Dashboard.Widgets.Sales.Bestsellers),
             (new IncompleteOrdersDashboardWidget(permissions.Object), Smartstore.Core.Security.Permissions.Dashboard.Widgets.Sales.IncompleteOrders),
             (new OrdersDashboardWidget(permissions.Object), Smartstore.Core.Security.Permissions.Dashboard.Widgets.Sales.Orders),
-            (new LatestOrdersDashboardWidget(permissions.Object), Smartstore.Core.Security.Permissions.Dashboard.Widgets.Sales.LatestOrders),
-            (new PaymentMethodsDashboardWidget(permissions.Object), Smartstore.Core.Security.Permissions.Dashboard.Widgets.Sales.PaymentMethods),
+            (new LatestOrdersDashboardWidget(permissions.Object, new LatestOrdersDashboardWidgetValidator()), Smartstore.Core.Security.Permissions.Dashboard.Widgets.Sales.LatestOrders),
+            (new PaymentMethodsDashboardWidget(permissions.Object, new PaymentMethodsDashboardWidgetValidator()), Smartstore.Core.Security.Permissions.Dashboard.Widgets.Sales.PaymentMethods),
             (new CookieConsentsDashboardWidget(permissions.Object), Smartstore.Core.Security.Permissions.Dashboard.Widgets.Customers.CookieConsents),
-            (new ContactRequestsDashboardWidget(permissions.Object), Smartstore.Core.Security.Permissions.Dashboard.Widgets.Customers.ContactRequests),
-            (new TopCustomersDashboardWidget(permissions.Object), Smartstore.Core.Security.Permissions.Dashboard.Widgets.Customers.TopCustomers),
+            (new ContactRequestsDashboardWidget(permissions.Object, new ContactRequestsDashboardWidgetValidator()), Smartstore.Core.Security.Permissions.Dashboard.Widgets.Customers.ContactRequests),
+            (new TopCustomersDashboardWidget(permissions.Object, new TopCustomersDashboardWidgetValidator()), Smartstore.Core.Security.Permissions.Dashboard.Widgets.Customers.TopCustomers),
             (new RegisteredCustomersDashboardWidget(permissions.Object), Smartstore.Core.Security.Permissions.Dashboard.Widgets.Customers.RegisteredCustomers)
         ];
         foreach (var (widget, permission) in widgets)
@@ -324,7 +324,7 @@ public sealed class AdminDashboardTests
     {
         var layout = new AdminDashboardLayoutProvider().GetDefaultLayout();
         var instance = GetInstance(layout, LatestOrdersDashboardWidget.SystemName);
-        var dashboardWidget = new LatestOrdersDashboardWidget(Moq.Mock.Of<IPermissionService>());
+        var dashboardWidget = new LatestOrdersDashboardWidget(Moq.Mock.Of<IPermissionService>(), new LatestOrdersDashboardWidgetValidator());
         var context = new DashboardWidgetContext
         {
             DashboardId = layout.Id,
@@ -607,9 +607,13 @@ public class DashboardContactRequestsViewComponentTests
     /// <summary>
     /// Rendering filters stores and missing messages before limiting the result, so older contacts can move up.
     /// </summary>
-    [TestCase(true)]
-    [TestCase(false)]
-    public async Task Rendering_Selects_Latest_Existing_Contacts_From_Authorized_Stores(bool restricted)
+    [TestCase(true, 2)]
+    [TestCase(false, 2)]
+    [TestCase(true, 5)]
+    [TestCase(false, 5)]
+    [TestCase(true, 50)]
+    [TestCase(false, 50)]
+    public async Task Rendering_Selects_Latest_Existing_Contacts_From_Authorized_Stores(bool restricted, int count)
     {
         await using var db = new ContactRequestsTestContext();
         db.Stores.AddRange(new Store { Id = 1, Name = "First", Url = "https://first.example" },
@@ -644,11 +648,11 @@ public class DashboardContactRequestsViewComponentTests
                 ViewContext = new ViewContext { HttpContext = new DefaultHttpContext { RequestServices = provider } }
             }
         };
-        var result = (ViewViewComponentResult)await component.InvokeAsync();
+        var result = (ViewViewComponentResult)await component.InvokeAsync(count);
         var model = (IReadOnlyList<DashboardContactRequestModel>)result.ViewData.Model;
         Assert.Multiple(() =>
         {
-            Assert.That(model.Select(x => x.MessageId), Is.EqualTo(restricted ? new[] { 6, 5, 4, 3, 2 } : new[] { 8, 6, 5, 4, 3 }));
+            Assert.That(model.Select(x => x.MessageId), Is.EqualTo((restricted ? new[] { 6, 5, 4, 3, 2, 1 } : new[] { 8, 6, 5, 4, 3, 2, 1 }).Take(count)));
             Assert.That(model.Select(x => x.Email), Is.All.EqualTo("form@example.com"));
         });
     }
