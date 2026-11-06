@@ -307,6 +307,283 @@ public class CartPriceCurrencyEdgeCaseTests
         }
     }
 
+
+    // Compare cart and Wishlist via their respective pricing paths rather than
+    // checking only a single isolated conversion result.
+    [TestCase(0.01)]
+    [TestCase(0.1)]
+    [TestCase(0.25)]
+    [TestCase(0.75)]
+    [TestCase(1.01)]
+    [TestCase(1.2345)]
+    [TestCase(2.5)]
+    [TestCase(4)]
+    [TestCase(10)]
+    [TestCase(100)]
+    public async Task Cart_primary_money_and_wishlist_preconverted_money_produce_identical_price_models(decimal rate)
+    {
+        using var fixture = new CurrencyMappingFixture(rate);
+        var primary = fixture.Primary;
+        var working = fixture.Working;
+        var cart = await fixture.MapAsync(
+            ShoppingCartType.ShoppingCart,
+            new Money(17.25m, primary),
+            new Money(51.75m, primary),
+            new Money(2.50m, primary),
+            new PriceSaving
+            {
+                HasSaving = true,
+                SavingPrice = new Money(20m, primary),
+                SavingAmount = new Money(2.75m, primary),
+                SavingPercent = 13.75f
+            },
+            taxFormat: "{0} incl. VAT",
+            quantity: 3);
+
+        var wishlist = await fixture.MapAsync(
+            ShoppingCartType.Wishlist,
+            new Money(17.25m * rate, working),
+            new Money(51.75m * rate, working),
+            new Money(2.50m * rate, working),
+            new PriceSaving
+            {
+                HasSaving = true,
+                SavingPrice = new Money(20m * rate, working),
+                SavingAmount = new Money(2.75m * rate, working),
+                SavingPercent = 13.75f
+            },
+            taxFormat: "{0} incl. VAT",
+            quantity: 3);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(cart.Price.UnitPrice.Amount, Is.EqualTo(wishlist.Price.UnitPrice.Amount));
+            Assert.That(cart.Price.SubTotal.Amount, Is.EqualTo(wishlist.Price.SubTotal.Amount));
+            Assert.That(cart.Price.TotalDiscount.Amount, Is.EqualTo(wishlist.Price.TotalDiscount.Amount));
+            Assert.That(cart.Price.Saving.SavingAmount?.Amount, Is.EqualTo(wishlist.Price.Saving.SavingAmount?.Amount));
+            Assert.That(cart.Price.Saving.SavingPrice.Amount, Is.EqualTo(wishlist.Price.Saving.SavingPrice.Amount));
+            Assert.That(cart.Price.Saving.SavingPercent, Is.EqualTo(wishlist.Price.Saving.SavingPercent));
+            Assert.That(wishlist.Price.UnitPrice.Amount, Is.EqualTo(17.25m * rate));
+            Assert.That(wishlist.Price.SubTotal.Amount, Is.EqualTo(51.75m * rate));
+            Assert.That(wishlist.Price.Quantity, Is.EqualTo(3));
+            Assert.That(cart.Price.UnitPrice.Currency, Is.SameAs(working));
+            Assert.That(wishlist.Price.UnitPrice.Currency, Is.SameAs(working));
+            Assert.That(cart.Price.SubTotal.Currency, Is.SameAs(working));
+            Assert.That(wishlist.Price.SubTotal.Currency, Is.SameAs(working));
+            Assert.That(cart.Price.UnitPrice.PostFormat, Is.EqualTo("{0} incl. VAT"));
+            Assert.That(wishlist.Price.UnitPrice.PostFormat, Is.EqualTo("{0} incl. VAT"));
+        }
+    }
+
+    [TestCase(0.2)]
+    [TestCase(0.8)]
+    [TestCase(1.2)]
+    [TestCase(2)]
+    [TestCase(4)]
+    public async Task Cart_and_wishlist_are_equal_when_both_price_pipelines_return_primary_currency(decimal rate)
+    {
+        using var fixture = new CurrencyMappingFixture(rate);
+        var primary = fixture.Primary;
+        var cart = await fixture.MapAsync(
+            ShoppingCartType.ShoppingCart,
+            new Money(12.50m, primary),
+            new Money(50m, primary),
+            new Money(3.25m, primary),
+            quantity: 4);
+        var wishlist = await fixture.MapAsync(
+            ShoppingCartType.Wishlist,
+            new Money(12.50m, primary),
+            new Money(50m, primary),
+            new Money(3.25m, primary),
+            quantity: 4);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(wishlist.Price.UnitPrice.Amount, Is.EqualTo(cart.Price.UnitPrice.Amount));
+            Assert.That(wishlist.Price.SubTotal.Amount, Is.EqualTo(cart.Price.SubTotal.Amount));
+            Assert.That(wishlist.Price.TotalDiscount.Amount, Is.EqualTo(cart.Price.TotalDiscount.Amount));
+            Assert.That(wishlist.Price.UnitPrice.Amount, Is.EqualTo(12.50m * rate));
+            Assert.That(wishlist.Price.SubTotal.Amount, Is.EqualTo(50m * rate));
+            Assert.That(wishlist.Price.Quantity, Is.EqualTo(4));
+            Assert.That(wishlist.Price.UnitPrice.Currency, Is.SameAs(fixture.Working));
+        }
+    }
+
+    [TestCase(0.125)]
+    [TestCase(0.5)]
+    [TestCase(1.75)]
+    [TestCase(3.75)]
+    [TestCase(20)]
+    public async Task Both_cart_types_preserve_existing_target_currency_amounts_without_reconversion(decimal rate)
+    {
+        using var fixture = new CurrencyMappingFixture(rate);
+        foreach (var type in new[] { ShoppingCartType.ShoppingCart, ShoppingCartType.Wishlist })
+        {
+            var model = await fixture.MapAsync(
+                type,
+                new Money(123.45678m, fixture.Working),
+                new Money(370.37034m, fixture.Working),
+                new Money(12.34567m, fixture.Working),
+                quantity: 3);
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(model.Price.UnitPrice.Amount, Is.EqualTo(123.45678m));
+                Assert.That(model.Price.SubTotal.Amount, Is.EqualTo(370.37034m));
+                Assert.That(model.Price.TotalDiscount.Amount, Is.EqualTo(12.34567m));
+                Assert.That(model.Price.UnitPrice.Currency, Is.SameAs(fixture.Working));
+                Assert.That(model.Price.SubTotal.Currency, Is.SameAs(fixture.Working));
+            }
+        }
+    }
+
+    [TestCase(0.5, 2)]
+    [TestCase(2, 0.5)]
+    [TestCase(2, 3)]
+    [TestCase(0.25, 1.25)]
+    [TestCase(3, 12)]
+    [TestCase(4, 1)]
+    public async Task Cross_currency_repricing_uses_source_rate_not_primary_currency_rate(decimal sourceRate, decimal workingRate)
+    {
+        using var fixture = new CurrencyMappingFixture(workingRate);
+        var source = new Currency { Id = 4, CurrencyCode = "CHF", Rate = sourceRate };
+        var result = await fixture.MapAsync(
+            ShoppingCartType.Wishlist,
+            new Money(16m, source),
+            new Money(48m, source),
+            new Money(4m, source),
+            quantity: 3);
+        var factor = workingRate / sourceRate;
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(result.Price.UnitPrice.Amount, Is.EqualTo(16m * factor));
+            Assert.That(result.Price.SubTotal.Amount, Is.EqualTo(48m * factor));
+            Assert.That(result.Price.TotalDiscount.Amount, Is.EqualTo(4m * factor));
+            Assert.That(result.Price.UnitPrice.Currency, Is.SameAs(fixture.Working));
+            Assert.That(result.Price.Quantity, Is.EqualTo(3));
+        }
+    }
+
+    [TestCase(0.25)]
+    [TestCase(0.5)]
+    [TestCase(1.5)]
+    [TestCase(2)]
+    [TestCase(4)]
+    public async Task Each_monetary_field_converts_independently_based_on_its_actual_source_currency(decimal rate)
+    {
+        using var fixture = new CurrencyMappingFixture(rate);
+        var result = await fixture.MapAsync(
+            ShoppingCartType.Wishlist,
+            new Money(80m * rate, fixture.Working),
+            new Money(160m * rate, fixture.Working),
+            new Money(5m, fixture.Primary),
+            new PriceSaving
+            {
+                HasSaving = true,
+                SavingPrice = new Money(90m, fixture.Primary),
+                SavingAmount = new Money(10m * rate, fixture.Working),
+                SavingPercent = 11.11f
+            },
+            taxFormat: "{0} including taxes");
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(result.Price.UnitPrice.Amount, Is.EqualTo(80m * rate));
+            Assert.That(result.Price.SubTotal.Amount, Is.EqualTo(160m * rate));
+            Assert.That(result.Price.TotalDiscount.Amount, Is.EqualTo(5m * rate));
+            Assert.That(result.Price.Saving.SavingPrice.Amount, Is.EqualTo(90m * rate));
+            Assert.That(result.Price.Saving.SavingAmount?.Amount, Is.EqualTo(10m * rate));
+            Assert.That(result.Price.Saving.SavingPercent, Is.EqualTo(11.11f));
+            Assert.That(result.Price.UnitPrice.PostFormat, Is.EqualTo("{0} including taxes"));
+            Assert.That(result.Price.TotalDiscount.PostFormat, Is.EqualTo("{0} including taxes"));
+        }
+    }
+
+    [TestCase(ShoppingCartType.ShoppingCart, 0.5)]
+    [TestCase(ShoppingCartType.ShoppingCart, 2)]
+    [TestCase(ShoppingCartType.Wishlist, 0.5)]
+    [TestCase(ShoppingCartType.Wishlist, 2)]
+    public async Task Bundle_subitems_are_consistent_with_equivalent_standalone_items(
+        ShoppingCartType cartType, decimal rate)
+    {
+        using var fixture = new CurrencyMappingFixture(rate);
+        var bundle = await fixture.MapAsync(
+            cartType,
+            new Money(11.50m * rate, fixture.Working),
+            new Money(34.50m * rate, fixture.Working),
+            new Money(2.25m * rate, fixture.Working),
+            bundleSubItem: true,
+            quantity: 3);
+        var standalone = await fixture.MapAsync(
+            cartType,
+            new Money(11.50m * rate, fixture.Working),
+            new Money(34.50m * rate, fixture.Working),
+            new Money(2.25m * rate, fixture.Working),
+            bundleSubItem: false,
+            quantity: 3);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(bundle.Price.UnitPrice.Amount, Is.EqualTo(standalone.Price.UnitPrice.Amount));
+            Assert.That(bundle.Price.SubTotal.Amount, Is.EqualTo(standalone.Price.SubTotal.Amount));
+            Assert.That(bundle.Price.TotalDiscount.Amount, Is.EqualTo(standalone.Price.TotalDiscount.Amount));
+            Assert.That(bundle.Price.UnitPrice.Currency, Is.SameAs(fixture.Working));
+            Assert.That(bundle.Price.IsBundlePart, Is.True);
+            Assert.That(standalone.Price.IsBundlePart, Is.False);
+        }
+    }
+
+    [TestCase(0.01)]
+    [TestCase(0.5)]
+    [TestCase(1.75)]
+    [TestCase(5)]
+    public async Task Call_for_price_skips_numeric_subtotals_in_both_cart_types(decimal rate)
+    {
+        using var fixture = new CurrencyMappingFixture(rate);
+        foreach (var type in new[] { ShoppingCartType.ShoppingCart, ShoppingCartType.Wishlist })
+        {
+            var model = await fixture.MapAsync(
+                type,
+                new Money(0m, fixture.Working).WithPostFormat("Contact us"),
+                new Money(999m, fixture.Working),
+                new Money(0m, fixture.Working),
+                callForPrice: true);
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(model.Price.UnitPrice.Amount, Is.Zero);
+                Assert.That(model.Price.SubTotal.Amount, Is.Zero);
+                Assert.That(model.Price.UnitPrice.PostFormat, Is.EqualTo("Contact us"));
+                Assert.That(model.Price.SubTotal.PostFormat, Is.EqualTo("Contact us"));
+                Assert.That(model.Price.UnitPrice.Currency, Is.SameAs(fixture.Working));
+            }
+        }
+    }
+
+    [TestCase(0.125)]
+    [TestCase(0.75)]
+    [TestCase(1.5)]
+    [TestCase(5)]
+    public async Task Zero_discounts_and_shipping_charges_do_not_create_spurious_amounts(decimal rate)
+    {
+        using var fixture = new CurrencyMappingFixture(rate);
+        var model = await fixture.MapAsync(
+            ShoppingCartType.ShoppingCart,
+            new Money(15m, fixture.Primary),
+            new Money(30m, fixture.Primary),
+            new Money(0m, fixture.Primary),
+            shippingCharge: 0m);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(model.Price.UnitPrice.Amount, Is.EqualTo(15m * rate));
+            Assert.That(model.Price.SubTotal.Amount, Is.EqualTo(30m * rate));
+            Assert.That(model.Price.TotalDiscount.Amount, Is.Zero);
+            Assert.That(model.Price.ShippingSurcharge, Is.Null);
+        }
+    }
+
     private sealed class CurrencyMappingFixture : IDisposable
     {
         private readonly SmartDbContext _db;
