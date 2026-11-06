@@ -83,7 +83,7 @@ public class HomeController : AdminController
                 {
                     throw new InvalidOperationException("A singleton widget already exists.");
                 }
-                int order = checked(draft.Widgets.Select(x => x.Order).DefaultIfEmpty(0).Max() + 100);
+                var order = checked(draft.Widgets.Select(x => x.Order).DefaultIfEmpty(0).Max() + 100);
                 var instance = DashboardEditorMapper.CreateWidgetInstance(widget, "widget-" + Guid.NewGuid().ToString("N"), order);
                 draft.Widgets.Add(instance with { Positions = DashboardEditorMapper.GetInsertionPositions(draft, widget.Descriptor.DefaultSize) });
                 reset = false;
@@ -216,8 +216,8 @@ public class HomeController : AdminController
         DashboardLayoutState state = null, bool reset = false, bool dirty = false, DashboardLayoutLayer? templateSource = null)
     {
         var customer = Services.WorkContext.CurrentCustomer;
-        bool canPersonalize = await Services.Permissions.AuthorizeAsync(Permissions.Dashboard.Personalize);
-        bool canManageGlobal = await Services.Permissions.AuthorizeAsync(Permissions.Dashboard.ManageGlobal);
+        var canPersonalize = await Services.Permissions.AuthorizeAsync(Permissions.Dashboard.Personalize);
+        var canManageGlobal = await Services.Permissions.AuthorizeAsync(Permissions.Dashboard.ManageGlobal);
         var selected = canManageGlobal
             ? _dashboardService.GetSelectedLayer(AdminDashboardLayoutProvider.Id, customer)
             : DashboardLayoutLayer.User;

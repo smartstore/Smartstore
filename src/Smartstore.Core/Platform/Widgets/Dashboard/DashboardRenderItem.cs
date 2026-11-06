@@ -26,4 +26,9 @@ public sealed class DashboardRenderItem
     /// Gets the renderable widget created for the dashboard instance.
     /// </summary>
     public required Widget Widget { get; init; }
+
+    /// <summary>
+    /// Gets the optional configuration surface for an editable widget.
+    /// </summary>
+    public Widget? ConfigurationWidget { get; init; }
 }

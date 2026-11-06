@@ -30,12 +30,12 @@ internal sealed class ContactRequestsDashboardHook : AsyncDbSaveHook<QueuedEmail
     public void HandleEvent(MessageQueuingEvent message)
     {
         var context = message.MessageContext;
-        string template = context?.MessageTemplate?.Name.NullEmpty() ?? context?.MessageTemplateName;
+        var template = context?.MessageTemplate?.Name.NullEmpty() ?? context?.MessageTemplateName;
         if (context == null || context.TestMode || !MessageTemplateNames.SystemContactUs.EqualsNoCase(template))
             return;
 
-        int storeId = context.Store?.Id ?? context.StoreId.GetValueOrDefault();
-        string email = message.MessageModel?.Evaluate("Message.SenderEmail") as string;
+        var storeId = context.Store?.Id ?? context.StoreId.GetValueOrDefault();
+        var email = message.MessageModel?.Evaluate("Message.SenderEmail") as string;
 
         if (storeId > 0 && email.HasValue())
         {

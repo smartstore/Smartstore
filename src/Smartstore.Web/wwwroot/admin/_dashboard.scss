@@ -1,5 +1,21 @@
 /// <reference path="references.scss" />
 
+// Named positions inherit from the preceding tier; Bootstrap owns the pixel thresholds.
+$dashboard-column: auto;
+$dashboard-row: auto;
+
+@each $breakpoint in map-keys($grid-breakpoints) {
+    $dashboard-column: var(--dashboard-column-#{$breakpoint}, #{$dashboard-column});
+    $dashboard-row: var(--dashboard-row-#{$breakpoint}, #{$dashboard-row});
+
+    @include media-breakpoint-up($breakpoint) {
+        .dashboard-widget {
+            grid-column: $dashboard-column;
+            grid-row: $dashboard-row;
+        }
+    }
+}
+
 .dashboard-page {
     --content-bg: transparent;
     --section-header-bg: var(--page-bg);
@@ -12,11 +28,6 @@
 
     .report.sticky-report {
         top: var(--sticky-offset);
-    }
-
-    .dashboard-header-options,
-    .dashboard-header-state {
-        min-width: 0;
     }
 
     // The desktop news rail must not impose fixed-width columns on stacked layouts.
@@ -436,11 +447,15 @@
 }
 
 @container (min-width: 450px) {
-    .report .incomplete-orders-container { width: 50%; }
+    .report .incomplete-orders-container {
+        width: 50%;
+    }
 }
 
 @container (min-width: 1000px) {
-    .report .incomplete-orders-container { width: 25%; }
+    .report .incomplete-orders-container {
+        width: 25%;
+    }
 }
 
 @media screen and (min-width: 1600px) {
@@ -551,4 +566,6 @@
     padding: 1.25rem 1.5rem;
 }
 
-.dashboard-widget, .dashboard-widget-body { min-width: 0; }
+.dashboard-widget, .dashboard-widget-body {
+    min-width: 0;
+}

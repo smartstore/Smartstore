@@ -8,12 +8,15 @@
     @if (Model.Layout.Id == "admin-dashboard" && Model.Widgets.FirstOrDefault(x => x.Instance.Id == "news-feed") is { } news)
     {
         var content = Model.Widgets.Where(x => x != news).ToArray();
-        var breakpoints = content.SelectMany(x => x.Instance.Positions).Select(x => x.MinViewportWidth).Append(0).Append(992).Distinct().Order();
-        foreach (int width in breakpoints)
+        foreach (var breakpoint in Enum.GetValues<DashboardBreakpoint>())
         {
-            int bottom = content.Select(x => x.Instance.GetPosition(width)).Select(x => x.Row + (x.Size.RowSpan ?? 1)).DefaultIfEmpty(0).Max();
-            string placement = width >= 992 ? $"1 / span {Math.Max(1, bottom)}" : $"{bottom + 1} / span 1";
-            @Html.Raw($"@media (min-width: {width}px) {{ #{Model.Layout.BuildWidgetId(news.Instance.Id)} {{ grid-row: {placement}; }} }}")
+            var bottom = content.Select(item => item.Instance.GetPosition(breakpoint))
+                .Select(position => position.Row + (position.Size.RowSpan ?? 1)).DefaultIfEmpty(0).Max();
+            var placement = breakpoint >= DashboardBreakpoint.Lg
+                ? $"1 / span {Math.Max(1, bottom)}"
+                : $"{bottom + 1} / span 1";
+            var tier = breakpoint.ToString().ToLowerInvariant();
+            @Html.Raw($"#{Model.Layout.BuildWidgetId(news.Instance.Id)} {{ --dashboard-row-{tier}: {placement}; }}")
         }
     }
 </style>
@@ -22,24 +25,30 @@
 <div id="@(Model.Layout.Id)-grid" style="display: grid; grid-template-columns: @Model.Layout.GridTemplateColumns; column-gap: @Model.Layout.ColumnGap; row-gap: @Model.Layout.RowGap; grid-auto-rows: @Model.Layout.GridAutoRows;">
     @foreach (var item in Model.Widgets)
     {
-        bool canEdit = Model.Context.IsEditMode && (item.Policy.AllowMove || item.Policy.AllowResize || !item.Policy.IsRequired);
+        var canConfigure = item.ConfigurationWidget != null;
+        var canEdit = Model.Context.IsEditMode && (item.Policy.AllowMove || item.Policy.AllowResize || !item.Policy.IsRequired || canConfigure);
         <div id="@Model.Layout.BuildWidgetId(item.Instance.Id)" class="dashboard-widget d-grid position-relative rounded-3 @item.Descriptor.CssClass"
+             attr-class='(canConfigure, "dashboard-widget-configurable")'
              data-instance-id="@item.Instance.Id"
              data-min-width="@item.Descriptor.MinSize.ColumnSpan" data-max-width="@item.Descriptor.MaxSize.ColumnSpan">
-            @if (canEdit)
-            {
-                <div class="dashboard-widget-overlay z-1 position-absolute top-0 start-0 w-100 h-100 rounded-3"
-                     tabindex="@(item.Policy.AllowMove ? "0" : null)"
-                     aria-label="@(item.Policy.AllowMove ? T("Admin.Dashboard.Editor.Move").ToString() : null)"
-                     aria-hidden="@(!item.Policy.AllowMove ? "true" : null)"></div>
-            }
-            <div class="dashboard-widget-body h-100">
-                @if (canEdit && !item.Policy.IsRequired)
-                {
-                    <div class="dashboard-widget-tools select2-selection-toolbar rounded position-absolute z-3 top-0 end-0 m-2">
-                        <button type="button" class="btn btn-xs btn-plain btn-flat btn-icon btn-destructive" data-dashboard-remove title="@T("Common.Remove")" aria-label="@T("Common.Remove")"><icon name="trash" /></button>
-                    </div>
-                }
+            <div class="dashboard-widget-body position-relative h-100">
+                <div sm-if="canEdit" class="dashboard-widget-overlay z-1 position-absolute top-0 start-0 w-100 h-100 rounded-3"
+                     attr-tabindex='(item.Policy.AllowMove, "0")'
+                     attr-aria-label='(item.Policy.AllowMove, T("Admin.Dashboard.Editor.Move").ToString())'
+                     attr-aria-hidden='(!item.Policy.AllowMove, "true")'></div>
+                <div sm-if="canEdit && (!item.Policy.IsRequired || canConfigure)"
+                     class="dashboard-widget-tools select2-selection-toolbar rounded position-absolute z-3 top-0 end-0 m-2">
+                    <button sm-if="canConfigure" type="button" class="btn btn-xs btn-plain btn-flat btn-icon"
+                            data-dashboard-configure
+                            title="@T("Admin.Dashboard.Editor.Configure")" aria-label="@T("Admin.Dashboard.Editor.Configure")" aria-expanded="false">
+                        <icon name="hi:settings-01" />
+                    </button>
+                    <button sm-if="Model.Context.IsEditMode && !item.Policy.IsRequired" type="button" class="btn btn-xs btn-plain btn-flat btn-icon btn-destructive"
+                            data-dashboard-remove
+                            title="@T("Common.Remove")" aria-label="@T("Common.Remove")">
+                        <icon name="trash" />
+                    </button>
+                </div>
                 @if (Model.Context.IsEditMode && item.Policy.AllowResize)
                 {
                     <button sm-if="item.Policy.AllowMove" type="button" class="dashboard-resize z-2 position-absolute border-0 bg-transparent p-0 top-0 start-0 h-100" data-dashboard-resize="width-start" aria-label="@T("Admin.Dashboard.Editor.Width")"></button>
@@ -48,6 +57,25 @@
                 }
                 @await item.Widget.InvokeAsync(ViewContext)
             </div>
+            <form sm-if="canConfigure" class="dashboard-widget-configuration card position-absolute top-0 start-0 w-100 h-100 rounded-3 overflow-hidden"
+                  data-dashboard-configuration novalidate inert>
+                <div class="card-header bg-white border-0 d-flex flex-wrap align-items-center gap-2 flex-shrink-0">
+                    <h5 class="card-title mb-0">@item.Descriptor.Title.Resolve(T)</h5>
+                    <div class="d-flex gap-2 ml-auto">
+                        <button type="button" class="btn btn-sm btn-light" data-dashboard-configuration-cancel>@T("Common.Cancel")</button>
+                        <button type="submit" class="btn btn-sm btn-primary">
+                            <icon name="check" />
+                            <span>@T("Admin.Common.Save")</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body overflow-auto">
+                    <div class="alert alert-warning d-none" data-dashboard-configuration-error role="alert"></div>
+                    <div class="adminContent">
+                        @await item.ConfigurationWidget.InvokeAsync(ViewContext)
+                    </div>
+                </div>
+            </form>
         </div>
     }
 </div>

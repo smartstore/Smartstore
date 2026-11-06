@@ -101,8 +101,8 @@
         const scrollContainer = document.getElementById('content');
         const form = document.getElementById('dashboard-draft-form');
         const elements = new Map();
-        const breakpoints = [...new Set([0, 768, 992, 1600,
-            ...config.layout.widgets.flatMap(widget => widget.positions.map(p => p.minViewportWidth))])].sort((a, b) => a - b);
+        const breakpoints = config.layout.rules.map(rule => rule.breakpoint);
+        const layoutRules = new Map(config.layout.rules.map(rule => [rule.breakpoint, rule]));
         let layout;
         let widgetsById;
         function setLayout(value) {
@@ -117,10 +117,11 @@
         let interaction;
         let undo = [];
         let redo = [];
-        const currentBreakpoint = () => breakpoints.filter(width => width <= window.innerWidth).at(-1);
+        const currentBreakpoint = () => ResponsiveBootstrapToolkit.current();
         let breakpoint = currentBreakpoint();
-        const position = (widget, width = breakpoint) => widget.positions.filter(p => p.minViewportWidth <= width)
-            .sort((a, b) => b.minViewportWidth - a.minViewportWidth)[0];
+        const position = (widget, tier = breakpoint) => widget.positions
+            .filter(position => breakpoints.indexOf(position.breakpoint) <= breakpoints.indexOf(tier))
+            .sort((a, b) => breakpoints.indexOf(b.breakpoint) - breakpoints.indexOf(a.breakpoint))[0];
         container.querySelectorAll('[data-instance-id]').forEach(el => {
             elements.set(el.dataset.instanceId, el);
             if (el.querySelector('.dashboard-widget-overlay')) {
@@ -133,17 +134,17 @@
         const unavailableIds = new Set(layout.widgets.filter(widget => !renderedIds.has(widget.id)).map(widget => widget.id));
         for (const widget of layout.widgets) {
             if (renderedIds.has(widget.id)) {
-                widget.positions = breakpoints.map(width => ({ ...structuredClone(position(widget, width)), minViewportWidth: width }));
+                widget.positions = breakpoints.map(tier => ({ ...structuredClone(position(widget, tier)), breakpoint: tier }));
             }
         }
         const visible = () => layout.widgets.filter(widget => renderedIds.has(widget.id));
         const isNews = widget => elements.get(widget.id).classList.contains('news-feed');
-        const columns = () => breakpoint >= 992 && visible().some(isNews) ? layout.columnCount - 2 : layout.columnCount;
+        const columns = (tier = breakpoint) => layoutRules.get(tier).columnCount;
         function bounds(widget) {
             const el = elements.get(widget.id);
             const available = widget.allowMove ? columns() : columns() - position(widget).column;
-            const max = breakpoint === 0 ? layout.columnCount : Math.min(available, Number(el.dataset.maxWidth));
-            const min = breakpoint === 0 ? max : Math.min(max, Number(el.dataset.minWidth));
+            const max = layoutRules.get(breakpoint).fullWidthWidgets ? layout.columnCount : Math.min(available, Number(el.dataset.maxWidth));
+            const min = layoutRules.get(breakpoint).fullWidthWidgets ? max : Math.min(max, Number(el.dataset.minWidth));
             const allowed = config.widgets.find(choice => choice.systemName === widget.widgetSystemName)?.allowedSizes;
             const widths = Array.from({ length: max - min + 1 }, (_, index) => min + index)
                 .filter(width => !allowed?.length || allowed.some(size =>
@@ -155,10 +156,10 @@
         let gridShape;
         const previewCells = [];
         layout.rowCounts = {};
-        function gridItems(width = breakpoint) {
+        function gridItems(tier = breakpoint) {
             return visible().filter(widget => !isNews(widget)).map(widget => {
                 const descriptor = config.widgets.find(choice => choice.systemName === widget.widgetSystemName);
-                return { ...structuredClone(position(widget, width)), id: widget.id, locked: !widget.allowMove,
+                return { ...structuredClone(position(widget, tier)), id: widget.id, locked: !widget.allowMove,
                     resizable: !!elements.get(widget.id).querySelector('[data-dashboard-resize="height"]'),
                     minSize: descriptor?.minSize, maxSize: descriptor?.maxSize, allowedSizes: descriptor?.allowedSizes };
             });
@@ -283,7 +284,7 @@
                         const positionAtWidth = position(w);
                         return positionAtWidth.row + (positionAtWidth.size.rowSpan || 1);
                     }));
-                    el.style.gridRow = breakpoint >= 992 ? `1 / span ${Math.max(1, bottom)}` : `${bottom + 1} / span 1`;
+                    el.style.gridRow = layoutRules.get(breakpoint).hasNewsRail ? `1 / span ${Math.max(1, bottom)}` : `${bottom + 1} / span 1`;
                 }
             }
             drawGrid();
@@ -471,6 +472,7 @@
 
         // A one-use, tab-local transfer keeps undo across server-rendered add/reset previews.
         // Only placement data is transferred; widget HTML, settings and credentials never enter storage.
+        let addedWidgetId;
         const transferToken = new URL(window.location.href).searchParams.get('dashboardHistory');
         if (transferToken) {
             const key = 'dashboard-history:' + transferToken;
@@ -483,6 +485,13 @@
                         undo = history.undo;
                         redo = history.redo;
                         dirty = history.dirty;
+                        if (history.addedWidget) {
+                            const previousWidgets = history.undo.at(-1)?.layout.widgets;
+                            if (Array.isArray(previousWidgets)) {
+                                addedWidgetId = layout.widgets.find(widget => widget.widgetSystemName === history.addedWidget
+                                    && !previousWidgets.some(previous => previous.id === widget.id))?.id;
+                            }
+                        }
                         layout.rowCounts = config.reset ? {} : history.rowCounts;
                     }
                 }
@@ -497,9 +506,9 @@
             clearExtensionPreview();
             // Keep empty editor rows until the user actually saves, including all responsive layouts.
             if (!action) {
-                for (const width of breakpoints) {
-                    const items = engine.compact(gridItems(width));
-                    for (const item of items) position(widgetsById.get(item.id), width).row = item.row;
+                for (const tier of breakpoints) {
+                    const items = engine.compact(gridItems(tier));
+                    for (const item of items) position(widgetsById.get(item.id), tier).row = item.row;
                 }
             }
             form.elements.changesJson.value = JSON.stringify({ widgets: layout.widgets.map(
@@ -512,6 +521,7 @@
                 const token = crypto.randomUUID();
                 try {
                     sessionStorage.setItem('dashboard-history:' + token, JSON.stringify({
+                        addedWidget: command === 'add' ? widget : null,
                         layer: config.layer, undo, redo, dirty, rowCounts: layout.rowCounts
                     }));
                 }
@@ -593,16 +603,32 @@
         });
         $(container).on('click', '[data-dashboard-remove]', function () {
             const el = this.closest('[data-instance-id]');
-            const before = capture();
-            setLayout({ ...layout, widgets: layout.widgets.filter(w => w.id !== el.dataset.instanceId) });
-            arrange(); render(false); remember(before);
+            confirm2({
+                message: root.dataset.removeWidgetConfirm,
+                icon: { type: 'delete' },
+                callback: accepted => {
+                    if (!accepted) return;
+
+                    const before = capture();
+                    setLayout({ ...layout, widgets: layout.widgets.filter(w => w.id !== el.dataset.instanceId) });
+                    arrange(); render(false); remember(before);
+                }
+            });
         });
         $(form).on('submit', event => { event.preventDefault(); save(); });
         $('#dashboard-cancel').on('click', () => guard(shouldSave => shouldSave ? save('cancel:') : navigate(config.cancelUrl)));
         $('#dashboard-reset').on('click', () => {
-            remember(capture(), true);
-            reset = true;
-            submit(config.previewUrl, 'reset', null, true);
+            confirm2({
+                message: root.dataset.resetConfirm,
+                icon: { type: 'warning' },
+                callback: accepted => {
+                    if (!accepted) return;
+
+                    remember(capture(), true);
+                    reset = true;
+                    submit(config.previewUrl, 'reset', null, true);
+                }
+            });
         });
         $('[data-add-widget]').on('click', function () {
             remember(capture(), true);
@@ -615,5 +641,18 @@
             render();
         });
         render();
+        if (addedWidgetId) {
+            const scrollToAddedWidget = () => requestAnimationFrame(() => {
+                const element = elements.get(addedWidgetId);
+                if (!element?.isConnected) return;
+
+                $(scrollContainer).scrollTo(element, {
+                    offset: { top: -$(scrollContainer).find('.section-header').outerHeight(true) },
+                    behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth'
+                });
+            });
+            if (document.readyState === 'complete') scrollToAddedWidget();
+            else window.addEventListener('load', scrollToAddedWidget, { once: true });
+        }
     });
 })(jQuery);

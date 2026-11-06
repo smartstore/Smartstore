@@ -121,7 +121,7 @@ public partial class DashboardService : IDashboardService
 
         var canonicalDashboardId = providerRegistration.Metadata.SystemName;
         var source = layer;
-        DashboardLayout? layout = layer == DashboardLayoutLayer.User
+        var layout = layer == DashboardLayoutLayer.User
             ? LoadUserLayout(canonicalDashboardId, customer) : null;
 
         if (layout == null && layer != DashboardLayoutLayer.System)
@@ -233,7 +233,7 @@ public partial class DashboardService : IDashboardService
         CancellationToken cancelToken)
     {
         var settings = (JsonObject)instance.Settings.DeepClone();
-        int settingsVersion = instance.SettingsVersion;
+        var settingsVersion = instance.SettingsVersion;
 
         if (settingsVersion != widget.Descriptor.SettingsVersion)
         {
@@ -503,7 +503,7 @@ public partial class DashboardService : IDashboardService
             if (instance.Settings is null || instance.Policy is null || instance.Positions is null)
                 throw new InvalidOperationException($"Dashboard widget instance '{instance.Id}' is incomplete.");
 
-            if (instance.Positions.Count == 0 || !instance.Positions.Any(x => x?.MinViewportWidth == 0))
+            if (instance.Positions.Count == 0 || !instance.Positions.Any(x => x?.Breakpoint == DashboardBreakpoint.Xs))
             {
                 throw new InvalidOperationException(
                     $"Dashboard widget instance '{instance.Id}' must declare a base position.");
@@ -515,7 +515,7 @@ public partial class DashboardService : IDashboardService
                     $"Dashboard widget instance '{instance.Id}' must declare a positive settings version.");
             }
 
-            if (instance.Positions.Where(x => x != null).GroupBy(x => x.MinViewportWidth).Any(x => x.Count() > 1))
+            if (instance.Positions.Where(x => x != null).GroupBy(x => x.Breakpoint).Any(x => x.Count() > 1))
             {
                 throw new InvalidOperationException(
                     $"Dashboard widget instance '{instance.Id}' declares a viewport breakpoint more than once.");
@@ -526,7 +526,7 @@ public partial class DashboardService : IDashboardService
                 if (position?.Size is null)
                     throw new InvalidOperationException($"Dashboard widget instance '{instance.Id}' contains an invalid grid position.");
 
-                if (position.MinViewportWidth < 0 || position.Column < 0 || position.Row < 0 ||
+                if (!Enum.IsDefined(position.Breakpoint) || position.Column < 0 || position.Row < 0 ||
                     (long)position.Column + position.Size.ColumnSpan > layout.ColumnCount)
                 {
                     throw new InvalidOperationException(

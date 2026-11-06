@@ -298,11 +298,49 @@ public class HomeControllerDashboardTests
 [TestFixture]
 public class DashboardEditorMapperTests
 {
+    /// <summary>
+    /// Server insertion and client editing receive the same named layout constraints.
+    /// </summary>
+    [Test]
+    public void Layout_Rules_Reserve_The_News_Rail_Only_On_Large_Tiers()
+    {
+        var layout = new AdminDashboardLayoutProvider().GetDefaultLayout();
+        var rules = DashboardEditorMapper.GetLayoutRules(layout);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(rules.Select(rule => rule.Breakpoint), Is.EqualTo(Enum.GetValues<DashboardBreakpoint>()));
+            Assert.That(rules.Where(rule => rule.Breakpoint < DashboardBreakpoint.Md).All(rule => rule.FullWidthWidgets), Is.True);
+            Assert.That(rules.Where(rule => rule.Breakpoint >= DashboardBreakpoint.Md).All(rule => !rule.FullWidthWidgets), Is.True);
+            Assert.That(rules.Where(rule => rule.Breakpoint < DashboardBreakpoint.Lg).All(rule => rule.ColumnCount == 12 && !rule.HasNewsRail), Is.True);
+            Assert.That(rules.Where(rule => rule.Breakpoint >= DashboardBreakpoint.Lg).All(rule => rule.ColumnCount == 10 && rule.HasNewsRail), Is.True);
+        });
+    }
+
+    /// <summary>
+    /// An empty dashboard can place widgets at every named tier without any pixel-based defaults.
+    /// </summary>
+    [Test]
+    public void Empty_Layout_Uses_All_Columns_And_Named_Insertion_Positions()
+    {
+        var layout = new DashboardLayout("test");
+        var positions = DashboardEditorMapper.GetInsertionPositions(layout, new DashboardWidgetSize(4, 2));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(DashboardEditorMapper.GetLayoutRules(layout).All(rule => rule.ColumnCount == 12 && !rule.HasNewsRail), Is.True);
+            Assert.That(positions.Select(position => position.Breakpoint), Is.EqualTo(Enum.GetValues<DashboardBreakpoint>()));
+            Assert.That(positions.All(position => position.Row == 0 && position.Column == 0 && position.Size.RowSpan == 2), Is.True);
+            Assert.That(positions.Where(position => position.Breakpoint < DashboardBreakpoint.Md).All(position => position.Size.ColumnSpan == 12), Is.True);
+            Assert.That(positions.Where(position => position.Breakpoint >= DashboardBreakpoint.Md).All(position => position.Size.ColumnSpan == 4), Is.True);
+        });
+    }
+
     [TestCase("minHeight", "700")]
     [TestCase("stretch", "false")]
     public void Rejects_Pixel_Height_Overrides(string property, string value)
     {
-        string json = "{\"widgets\":[{\"id\":\"a\",\"widgetSystemName\":\"Test\",\"positions\":[{\"size\":{\"columnSpan\":4},\"" + property + "\":" + value + "}]}]}";
+        var json = "{\"widgets\":[{\"id\":\"a\",\"widgetSystemName\":\"Test\",\"positions\":[{\"size\":{\"columnSpan\":4},\"" + property + "\":" + value + "}]}]}";
         Assert.Throws<JsonException>(() => DashboardEditorMapper.ReadChanges(json));
     }
 
@@ -314,7 +352,7 @@ public class DashboardEditorMapperTests
             w.Id, w.WidgetSystemName, [new DashboardWidgetPosition { Size = new DashboardWidgetSize(4, 2) }])).ToArray());
         var json = JsonSerializer.Serialize(changes, SmartJsonOptions.CamelCased);
         var result = DashboardEditorMapper.ApplyChanges(DashboardEditorMapper.ReadChanges(json), baseline, Mock.Of<IDashboardService>());
-        Assert.That(result.Widgets[0].GetPosition(0).Size.RowSpan, Is.EqualTo(2));
+        Assert.That(result.Widgets[0].GetPosition(DashboardBreakpoint.Xs).Size.RowSpan, Is.EqualTo(2));
     }
 
     [Test]
@@ -342,12 +380,12 @@ public class DashboardEditorMapperTests
         var copied = draft.Widgets.Single(x => x.Id == registrations.Id);
         Assert.Multiple(() =>
         {
-            Assert.That(copied.GetPosition(1600).Size.ColumnSpan, Is.EqualTo(7));
-            Assert.That(copied.GetPosition(768).Size.ColumnSpan, Is.EqualTo(12));
+            Assert.That(copied.GetPosition(DashboardBreakpoint.Xxl).Size.ColumnSpan, Is.EqualTo(7));
+            Assert.That(copied.GetPosition(DashboardBreakpoint.Md).Size.ColumnSpan, Is.EqualTo(12));
             Assert.That(copied.Settings["existingSetting"].GetValue<string>(), Is.EqualTo("keep"));
-            Assert.That(draft.Widgets.Single(x => x.Id == news.Id).GetPosition(0).Column, Is.EqualTo(10));
-            Assert.That(draft.Widgets.Single(x => x.Id == news.Id).GetPosition(0).Size.ColumnSpan, Is.EqualTo(2));
-            Assert.That(source.Widgets.Single(x => x.Id == news.Id).GetPosition(0).Column, Is.Zero);
+            Assert.That(draft.Widgets.Single(x => x.Id == news.Id).GetPosition(DashboardBreakpoint.Xs).Column, Is.EqualTo(10));
+            Assert.That(draft.Widgets.Single(x => x.Id == news.Id).GetPosition(DashboardBreakpoint.Xs).Size.ColumnSpan, Is.EqualTo(2));
+            Assert.That(source.Widgets.Single(x => x.Id == news.Id).GetPosition(DashboardBreakpoint.Xs).Column, Is.Zero);
         });
     }
 
@@ -377,15 +415,15 @@ public class DashboardEditorMapperTests
             Positions =
             [
                 new DashboardWidgetPosition { Column = 0, Row = 30, Size = new DashboardWidgetSize(4, 20) },
-                new DashboardWidgetPosition { MinViewportWidth = 992, Column = 8, Row = 10, Size = new DashboardWidgetSize(4, 30) }
+                new DashboardWidgetPosition { Breakpoint = DashboardBreakpoint.Lg, Column = 8, Row = 10, Size = new DashboardWidgetSize(4, 30) }
             ]
         };
         if (sourceContainsHidden)
             source.Widgets.Add(hidden with { Positions = [new DashboardWidgetPosition { Size = new DashboardWidgetSize(12) }] });
         if (targetContainsHidden)
             target.Widgets.Add(hidden);
-        string sourceBefore = JsonSerializer.Serialize(source);
-        string hiddenBefore = JsonSerializer.Serialize(hidden);
+        var sourceBefore = JsonSerializer.Serialize(source);
+        var hiddenBefore = JsonSerializer.Serialize(hidden);
         var service = new Mock<IDashboardService>(MockBehavior.Strict);
 
         var draft = DashboardEditorMapper.ApplyTemplate(source, target, [descriptor], service.Object);
@@ -407,13 +445,13 @@ public class DashboardEditorMapperTests
     [TestCase(10001, 0, 1)]
     [TestCase(0, 10001, 1)]
     [TestCase(0, 0, 1001)]
-    public void Changes_Reject_Positions_Beyond_Editor_Limits(int viewportWidth, int row, int rowSpan)
+    public void Changes_Reject_Positions_Beyond_Editor_Limits(int breakpoint, int row, int rowSpan)
     {
         var baseline = Baseline();
         var instance = baseline.Widgets[0];
         var changes = new DashboardLayoutChanges(
             [new DashboardWidgetPlacement(instance.Id, instance.WidgetSystemName,
-                [new DashboardWidgetPosition { MinViewportWidth = viewportWidth, Row = row, Size = new DashboardWidgetSize(4, rowSpan) }])]);
+                [new DashboardWidgetPosition { Breakpoint = (DashboardBreakpoint)breakpoint, Row = row, Size = new DashboardWidgetSize(4, rowSpan) }])]);
 
         Assert.Throws<ArgumentException>(() => DashboardEditorMapper.ApplyChanges(changes, baseline, new Mock<IDashboardService>(MockBehavior.Strict).Object));
         Assert.That(baseline.Widgets[0], Is.SameAs(instance));
@@ -472,17 +510,17 @@ public class DashboardEditorMapperTests
     [Test]
     public void Start_Data_Contains_Only_Editor_Fields()
     {
-        var data = DashboardEditorMapper.CreateData(EditorModel(Baseline()), "/edit", "/cancel", "/preview");
-        string json = JsonSerializer.Serialize(data, SmartJsonOptions.CamelCased);
+        var json = DashboardEditorMapper.CreateJson(EditorModel(Baseline()), "/edit", "/cancel", "/preview");
         using var document = JsonDocument.Parse(json);
+        var widgets = document.RootElement.GetProperty("layout").GetProperty("widgets").EnumerateArray().ToArray();
         Assert.Multiple(() =>
         {
             Assert.That(document.RootElement.GetProperty("layout").EnumerateObject().Select(x => x.Name),
-                Is.EquivalentTo(new[] { "id", "columnCount", "widgets" }));
+                Is.EquivalentTo(new[] { "id", "columnCount", "widgets", "rules" }));
             Assert.That(json, Does.Not.Contain("preserve-me").And.Not.Contain("serverSetting").And.Not.Contain("revision").And.Not.Contain("customerId"));
-            Assert.That(data.Layout.Widgets.Single(x => x.Id == "existing").AllowMove, Is.True);
-            Assert.That(data.Layout.Widgets.Single(x => x.Id == "unavailable").AllowMove, Is.False);
-            Assert.That(data.Layout.Widgets.Single(x => x.Id == "unavailable").Positions, Has.Count.EqualTo(1));
+            Assert.That(widgets.Single(x => x.GetProperty("id").GetString() == "existing").GetProperty("allowMove").GetBoolean(), Is.True);
+            Assert.That(widgets.Single(x => x.GetProperty("id").GetString() == "unavailable").GetProperty("allowMove").GetBoolean(), Is.False);
+            Assert.That(widgets.Single(x => x.GetProperty("id").GetString() == "unavailable").GetProperty("positions").GetArrayLength(), Is.EqualTo(1));
         });
     }
 
@@ -493,8 +531,7 @@ public class DashboardEditorMapperTests
     public void Start_Data_Encodes_Script_Closing_Sequences()
     {
         const string url = "</script><script>alert(1)</script>";
-        var data = DashboardEditorMapper.CreateData(EditorModel(Baseline()), url, "/cancel", "/preview");
-        string json = JsonSerializer.Serialize(data, SmartJsonOptions.CamelCased);
+        var json = DashboardEditorMapper.CreateJson(EditorModel(Baseline()), url, "/cancel", "/preview");
         Assert.That(json, Does.Not.Contain("</script>"));
         using var document = JsonDocument.Parse(json);
         Assert.That(document.RootElement.GetProperty("editUrl").GetString(), Is.EqualTo(url));

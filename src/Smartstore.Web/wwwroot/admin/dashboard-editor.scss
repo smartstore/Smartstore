@@ -79,6 +79,53 @@ $dashboard-resize-handle-size: 10px;
     outline: ($border-width * 2) dashed var(--primary);
 }
 
+// Configuration fields respond to the card width, independently of the viewport.
+.dashboard-widget-configuration {
+    container: dashboard-configuration / inline-size;
+}
+
+@container dashboard-configuration (max-width: 575.98px) {
+    .dashboard-widget-configuration .adminRow:not(.wide) {
+        flex-direction: column;
+
+        > .adminTitle,
+        > .adminData {
+            flex: 0 0 auto;
+            width: 100%;
+            max-width: 100%;
+        }
+
+        > .adminTitle {
+            text-align: start;
+        }
+    }
+}
+
+/* The back shares the front's dimensions without contributing another grid row. */
+.dashboard-widget-configurable {
+    perspective: 1200px;
+}
+.dashboard-widget-configurable > .dashboard-widget-body,
+.dashboard-widget-configuration {
+    backface-visibility: hidden;
+    transition: transform .3s ease;
+}
+.dashboard-widget-configuration {
+    transform: rotateY(180deg);
+}
+.dashboard-configuring > .dashboard-widget-body {
+    transform: rotateY(-180deg);
+}
+.dashboard-configuring > .dashboard-widget-configuration {
+    transform: rotateY(0);
+}
+@media (prefers-reduced-motion: reduce) {
+    .dashboard-widget-configurable > .dashboard-widget-body,
+    .dashboard-widget-configuration {
+        transition: none;
+    }
+}
+
 // These cells follow the native grid and only give empty editor targets a usable height.
 .dashboard-grid-cell {
     min-width: 0;

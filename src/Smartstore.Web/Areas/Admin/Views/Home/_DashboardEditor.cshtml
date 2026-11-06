@@ -1,8 +1,6 @@
-@using System.Text.Json
 @using Smartstore.Admin.Infrastructure.Dashboard
 @using Smartstore.Admin.Models.Dashboard
 @using Smartstore.Core.Widgets.Dashboard
-@using Smartstore.Json
 @model DashboardEditorModel
 @inject Smartstore.Core.Localization.ILocalizationService DashboardLocalization
 @inject IDashboardService DashboardService
@@ -11,6 +9,13 @@
 
 @if (Model.IsEditing)
 {
+    var editorJson = DashboardEditorMapper.CreateJson(Model,
+        Url.Action("Index", "Home", new { area = "Admin", edit = true }),
+        Url.Action("Index", "Home", new { area = "Admin" }),
+        Url.Action("DashboardPreview", "Home", new { area = "Admin" }));
+
+    <script id="dashboard-editor-data" type="application/json">@Html.Raw(editorJson)</script>
+
     <link rel="stylesheet" href="~/bundle/css/dashboard-editor.css" sm-target-zone="stylesheets" sm-key="dashboard-editor" />
     <script src="~/admin/js/smartstore.dashboard.js" sm-target-zone="scripts" sm-key="dashboard-editor"></script>
 }
@@ -18,44 +23,31 @@
 @{
     var dashboardKey = "Admin.Dashboard.Editor.Dashboard.";
 }
-<div class="section-header flex-column flex-md-row">
+<div class="section-header">
     <div class="title">
         <icon name="home" class="d-flex" />
         @T("Admin.Dashboard.StoreStatistics")
     </div>
-    <div class="options dashboard-header-options flex-shrink-1 flex-wrap justify-content-end">
-        <div class="dashboard-header-state d-flex flex-wrap justify-content-end align-items-center gap-2">
+    <div class="options">
+        <div sm-if="Model.IsEditing" class="hstack gap-2">
             <div class="dashboard-status d-flex align-items-center @(Model.IsDirty || Model.Reset ? null : "d-none")" aria-live="polite">
-                <span id="dashboard-reset-status" class="badge badge-warning d-inline-flex align-items-center gap-1 @(Model.Reset ? null : "d-none")" title="@T("Admin.Dashboard.Editor.ResetPending")" aria-label="@T("Admin.Dashboard.Editor.ResetPending")"><icon name="warning" /><span class="dashboard-status-label">@T("Admin.Dashboard.Editor.Status.Reset")</span></span>
-                <span id="dashboard-dirty-status" class="badge badge-warning d-inline-flex align-items-center gap-1 @(Model.IsDirty && !Model.Reset ? null : "d-none")" title="@T("Admin.Dashboard.Editor.Unsaved")" aria-label="@T("Admin.Dashboard.Editor.Unsaved")"><icon name="warning" /><span class="dashboard-status-label">@T("Admin.Dashboard.Editor.Status.Unsaved")</span></span>
-            </div>
-            <div sm-if="!Model.IsEditing && Model.CanManageGlobal" class="dropdown">
-                <button type="button" class="btn btn-light dropdown-toggle mw-100" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" aria-label="@T("Admin.Dashboard.Editor.View"): @T(dashboardKey + Model.State.Layer)">
-                    @T(dashboardKey + Model.State.Layer)
-                </button>
-                <div class="dropdown-menu">
-                    @foreach (var dashboardLayer in new[] { DashboardLayoutLayer.User, DashboardLayoutLayer.Global })
-                    {
-                        <button type="submit" form="dashboard-view-form" name="layer" value="@dashboardLayer" class="dropdown-item @(Model.State.Layer == dashboardLayer ? "active" : null)">
-                            @T(dashboardKey + dashboardLayer)
-                        </button>
-                    }
-                </div>
+                <span id="dashboard-reset-status" class="badge badge-warning badge-subtle badge-ring @(Model.Reset ? null : "d-none")" title="@T("Admin.Dashboard.Editor.ResetPending")" aria-label="@T("Admin.Dashboard.Editor.ResetPending")"><icon name="warning" /><span class="dashboard-status-label">@T("Admin.Dashboard.Editor.Status.Reset")</span></span>
+                <span id="dashboard-dirty-status" class="badge badge-warning badge-subtle badge-ring @(Model.IsDirty && !Model.Reset ? null : "d-none")" title="@T("Admin.Dashboard.Editor.Unsaved")" aria-label="@T("Admin.Dashboard.Editor.Unsaved")"><icon name="warning" /><span class="dashboard-status-label">@T("Admin.Dashboard.Editor.Status.Unsaved")</span></span>
             </div>
         </div>
         @if (Model.IsEditing)
         {
             var presentWidgets = Model.State.Layout.Widgets.Select(x => x.WidgetSystemName).ToHashSet(StringComparer.Ordinal);
-            string resetLabel = T(Model.State.Layer == DashboardLayoutLayer.User ? "Admin.Dashboard.Editor.ResetPersonal" : "Admin.Dashboard.Editor.ResetGlobal");
+            var resetLabel = (string)T(Model.State.Layer == DashboardLayoutLayer.User ? "Admin.Dashboard.Editor.ResetPersonal" : "Admin.Dashboard.Editor.ResetGlobal");
 
-            <form id="dashboard-draft-form" asp-area="Admin" asp-controller="Home" asp-action="DashboardSave" method="post" class="d-flex flex-wrap align-items-center justify-content-end gap-2 mb-0">
+            <form id="dashboard-draft-form" asp-area="Admin" asp-controller="Home" asp-action="DashboardSave" method="post" class="mb-0">
                 <input type="hidden" name="layer" value="@Model.State.Layer" />
                 <input type="hidden" name="templateSource" value="@Model.TemplateSource" />
                 <input type="hidden" name="changesJson" />
                 <input type="hidden" name="reset" value="@Model.Reset.ToString().ToLowerInvariant()" />
                 <input type="hidden" name="command" />
                 <input type="hidden" name="widgetSystemName" />
-                <div class="d-flex flex-wrap justify-content-end align-items-center gap-2 text-nowrap" role="toolbar" aria-label="@T("Admin.Dashboard.Editor.Customize")">
+                <div class="hstack gap-2 text-nowrap" role="toolbar" aria-label="@T("Admin.Dashboard.Editor.Customize")">
                     <div class="dropdown">
                         <button id="dashboard-picker-toggle" type="button" class="btn btn-light dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" aria-controls="dashboard-picker"><icon name="plus" /> @T("Admin.Dashboard.Editor.Widgets")</button>
                         <div id="dashboard-picker" class="dropdown-menu dropdown-menu-right" aria-labelledby="dashboard-picker-toggle">
@@ -76,7 +68,7 @@
                                         <div id="@menuId" class="dropdown-menu">
                                             @foreach (var widget in moduleGroup.Select(x => x.Widget))
                                             {
-                                                bool present = !widget.AllowMultipleInstances && presentWidgets.Contains(widget.SystemName);
+                                                var present = !widget.AllowMultipleInstances && presentWidgets.Contains(widget.SystemName);
                                                 <button type="button" class="dropdown-item" data-add-widget="@widget.SystemName" disabled="@present">
                                                     <icon name="@(widget.IconName ?? "widgets")" />
                                                     <span>@widget.Title.Resolve(T)</span>
@@ -92,7 +84,7 @@
                                         <h6 class="dropdown-header">@(group.Key?.Resolve(T))</h6>
                                         @foreach (var widget in group.Select(x => x.Widget))
                                         {
-                                            bool present = !widget.AllowMultipleInstances && presentWidgets.Contains(widget.SystemName);
+                                            var present = !widget.AllowMultipleInstances && presentWidgets.Contains(widget.SystemName);
                                             <button type="button" class="dropdown-item" data-add-widget="@widget.SystemName" disabled="@present">
                                                 <icon name="@(widget.IconName ?? "widgets")" />
                                                 <span>@widget.Title.Resolve(T)</span>
@@ -103,29 +95,29 @@
                             }
                         </div>
                     </div>
-                    <button type="button" class="btn btn-light" id="dashboard-undo" title="@T("Admin.Dashboard.Editor.Undo")" aria-label="@T("Admin.Dashboard.Editor.Undo")" disabled><icon name="undo" /></button>
-                    <button type="button" class="btn btn-light" id="dashboard-redo" title="@T("Admin.Dashboard.Editor.Redo")" aria-label="@T("Admin.Dashboard.Editor.Redo")" disabled><icon name="redo" /></button>
-                    <button type="button" class="btn btn-light" id="dashboard-reset" title="@resetLabel" aria-label="@resetLabel"><icon name="hi:rotate-ccw" /></button>
-                    <button type="button" class="btn btn-light" id="dashboard-cancel">@T("Common.Cancel")</button>
-                    <div class="btn-group">
-                        <div sm-if="Model.CanManageGlobal" class="btn-group">
-                            <button type="button" class="btn btn-light dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" aria-label="@T("Admin.Dashboard.Editor.View"): @T(dashboardKey + Model.State.Layer)">
-                                @T(dashboardKey + Model.State.Layer)
-                            </button>
-                            <div class="dropdown-menu dropdown-menu-right">
-                                <button sm-if="Model.CanPersonalize" type="button" class="dropdown-item @(Model.State.Layer == DashboardLayoutLayer.User ? "active" : null)" data-dashboard-edit="@DashboardLayoutLayer.User">
-                                    @T(dashboardKey + DashboardLayoutLayer.User)
-                                </button>
-                                <button type="button" class="dropdown-item @(Model.State.Layer == DashboardLayoutLayer.Global ? "active" : null)" data-dashboard-edit="@DashboardLayoutLayer.Global">
-                                    @T(dashboardKey + DashboardLayoutLayer.Global)
-                                </button>
-                            </div>
-                        </div>
-                        <button type="submit" class="btn btn-primary">
-                            <icon name="check" />
-                            <span>@T("Admin.Common.Save")</span>
-                        </button>
+                    <div class="btn-group" role="group">
+                        <button type="button" class="btn btn-light" id="dashboard-undo" title="@T("Admin.Dashboard.Editor.Undo")" aria-label="@T("Admin.Dashboard.Editor.Undo")" disabled><icon name="undo" /></button>
+                        <button type="button" class="btn btn-light" id="dashboard-redo" title="@T("Admin.Dashboard.Editor.Redo")" aria-label="@T("Admin.Dashboard.Editor.Redo")" disabled><icon name="redo" /></button>
                     </div>
+                    <button type="button" class="btn btn-light btn-destructive" id="dashboard-reset" title="@resetLabel" aria-label="@resetLabel"><icon name="hi:eraser!" /></button>
+                    <button type="button" class="btn btn-light" id="dashboard-cancel">@T("Common.Cancel")</button>
+                    <div sm-if="Model.CanManageGlobal" class="dropdown">
+                        <button type="button" class="btn btn-light dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" aria-label="@T("Admin.Dashboard.Editor.View"): @T(dashboardKey + Model.State.Layer)">
+                            @T(dashboardKey + Model.State.Layer)
+                        </button>
+                        <div class="dropdown-menu dropdown-menu-right">
+                            <button sm-if="Model.CanPersonalize" type="button" class="dropdown-item @(Model.State.Layer == DashboardLayoutLayer.User ? "active" : null)" data-dashboard-edit="@DashboardLayoutLayer.User">
+                                @T(dashboardKey + DashboardLayoutLayer.User)
+                            </button>
+                            <button type="button" class="dropdown-item @(Model.State.Layer == DashboardLayoutLayer.Global ? "active" : null)" data-dashboard-edit="@DashboardLayoutLayer.Global">
+                                @T(dashboardKey + DashboardLayoutLayer.Global)
+                            </button>
+                        </div>
+                    </div>
+                    <button type="submit" name="save" class="btn btn-primary">
+                        <icon name="check" />
+                        <span>@T("Admin.Common.Save")</span>
+                    </button>
                 </div>
             </form>
         }
@@ -140,19 +132,9 @@
     </div>
 </div>
 
-<form sm-if="!Model.IsEditing && Model.CanManageGlobal" id="dashboard-view-form" asp-area="Admin" asp-controller="Home" asp-action="DashboardSelect" method="post" class="d-none">
-</form>
-
-@if (Model.IsEditing)
-{
-    var editorData = DashboardEditorMapper.CreateData(Model,
-        Url.Action("Index", "Home", new { area = "Admin", edit = true }),
-        Url.Action("Index", "Home", new { area = "Admin" }),
-        Url.Action("DashboardPreview", "Home", new { area = "Admin" }));
-
-    <script id="dashboard-editor-data" type="application/json">@Html.Raw(JsonSerializer.Serialize(editorData, SmartJsonOptions.CamelCased))</script>
-}
 <div id="dashboard-editor" data-editor-config="dashboard-editor-data" data-editing="@Model.IsEditing.ToString().ToLowerInvariant()" data-error="@T("Admin.Dashboard.Editor.Invalid")"
+     data-remove-widget-confirm="@T("Admin.Dashboard.Editor.RemoveWidgetConfirm")"
+     data-reset-confirm="@T("Admin.Dashboard.Editor.ResetConfirm")"
      data-save-global-confirm="@T("Admin.Dashboard.Editor.SaveGlobalConfirm")" data-save-global-label="@T("Admin.Dashboard.Editor.SaveGlobal")">
     @if (Model.IsEditing && Model.TemplateSource.HasValue)
     {

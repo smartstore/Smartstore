@@ -32,6 +32,44 @@ namespace Smartstore.Core.Tests.Platform.Widgets;
 public sealed class DashboardServiceTests
 {
     /// <summary>
+    /// Missing tiers inherit the closest smaller explicit position.
+    /// </summary>
+    [Test]
+    public void Named_Tiers_Inherit_Positions()
+    {
+        var small = new DashboardWidgetPosition { Size = new DashboardWidgetSize(12) };
+        var medium = new DashboardWidgetPosition { Breakpoint = DashboardBreakpoint.Md, Size = new DashboardWidgetSize(6) };
+        var large = new DashboardWidgetPosition { Breakpoint = DashboardBreakpoint.Xxl, Size = new DashboardWidgetSize(4) };
+        var widget = new DashboardWidgetInstance("test", "Test") { Positions = [small, medium, large] };
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(widget.GetPosition(DashboardBreakpoint.Sm), Is.SameAs(small));
+            Assert.That(widget.GetPosition(DashboardBreakpoint.Lg), Is.SameAs(medium));
+            Assert.That(widget.GetPosition(DashboardBreakpoint.Xl), Is.SameAs(medium));
+            Assert.That(widget.GetPosition(DashboardBreakpoint.Xxl), Is.SameAs(large));
+        });
+    }
+
+    /// <summary>
+    /// Browser and persistence contracts use the same CSS tier names, without pixel widths.
+    /// </summary>
+    [Test]
+    public void Positions_Serialize_Named_Tiers()
+    {
+        var position = new DashboardWidgetPosition { Breakpoint = DashboardBreakpoint.Md, Size = new DashboardWidgetSize(6) };
+        var json = JsonSerializer.Serialize(position, SmartJsonOptions.CamelCased);
+        using var document = JsonDocument.Parse(json);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(document.RootElement.GetProperty("breakpoint").GetString(), Is.EqualTo("md"));
+            Assert.That(document.RootElement.TryGetProperty("minViewportWidth", out _), Is.False);
+            Assert.That(JsonSerializer.Deserialize<DashboardWidgetPosition>(json, SmartJsonOptions.CamelCased), Is.EqualTo(position));
+        });
+    }
+
+    /// <summary>
     /// Rendering resolves the effective layout without building the provider default twice.
     /// </summary>
     [Test]
@@ -59,7 +97,7 @@ public sealed class DashboardServiceTests
             Positions =
             [
                 new DashboardWidgetPosition { Row = 10001, Size = new DashboardWidgetSize(4, 1001) },
-                new DashboardWidgetPosition { MinViewportWidth = 10001, Size = new DashboardWidgetSize(4) }
+                new DashboardWidgetPosition { Breakpoint = DashboardBreakpoint.Lg, Size = new DashboardWidgetSize(4) }
             ]
         };
         var layout = CreateLayout(DashboardLayoutScope.Global, widgets: [instance]);
@@ -283,7 +321,7 @@ public sealed class DashboardServiceTests
                 },
                 new DashboardWidgetPosition
                 {
-                    MinViewportWidth = 992,
+                    Breakpoint = DashboardBreakpoint.Lg,
                     Column = 2,
                     Row = 1,
                     Size = new DashboardWidgetSize(6, 2)
@@ -619,7 +657,7 @@ public class DashboardLayoutPersistenceTests : ServiceTestBase
                 Positions =
                 [
                     new DashboardWidgetPosition { Size = new DashboardWidgetSize(4) },
-                    new DashboardWidgetPosition { MinViewportWidth = 992, Column = 4, Size = new DashboardWidgetSize(4) }
+                    new DashboardWidgetPosition { Breakpoint = DashboardBreakpoint.Lg, Column = 4, Size = new DashboardWidgetSize(4) }
                 ]
             }]
         };
@@ -695,7 +733,7 @@ public class DashboardLayoutPersistenceTests : ServiceTestBase
         legacy.Scope = layer == DashboardLayoutLayer.User ? DashboardLayoutScope.User : DashboardLayoutScope.Global;
         legacy.CustomerId = layer == DashboardLayoutLayer.User ? _customer.Id : 0;
         legacy.Widgets[0] = legacy.Widgets[0] with { SettingsVersion = 1 };
-        string stored = _service.Serialize(legacy);
+        var stored = _service.Serialize(legacy);
         if (layer == DashboardLayoutLayer.User)
         {
             _customer.GenericAttributes.Set("DashboardLayout.admin-dashboard", stored);
@@ -763,13 +801,13 @@ public class DashboardLayoutPersistenceTests : ServiceTestBase
         Assert.That((await State(DashboardLayoutLayer.User)).Layout.Widgets, Is.Empty);
         var inherited = await _service.GetLayoutStateAsync("admin-dashboard", second, DashboardLayoutLayer.User);
         Assert.That(inherited.Source, Is.EqualTo(DashboardLayoutLayer.Global));
-        Assert.That(inherited.Layout.Widgets.Single().GetPosition(0).Row, Is.EqualTo(2));
+        Assert.That(inherited.Layout.Widgets.Single().GetPosition(DashboardBreakpoint.Xs).Row, Is.EqualTo(2));
         Assert.That(_service.GetSelectedLayer("admin-dashboard", second), Is.EqualTo(DashboardLayoutLayer.System));
 
         await Save(await State(DashboardLayoutLayer.User, true), true);
         Assert.That((await State(DashboardLayoutLayer.User)).Source, Is.EqualTo(DashboardLayoutLayer.Global));
         Assert.That(_service.GetSelectedLayer("admin-dashboard", second), Is.EqualTo(DashboardLayoutLayer.System));
-        Assert.That((await _service.GetEffectiveLayoutAsync("admin-dashboard", second)).Widgets.Single().GetPosition(0).Row, Is.EqualTo(2));
+        Assert.That((await _service.GetEffectiveLayoutAsync("admin-dashboard", second)).Widgets.Single().GetPosition(DashboardBreakpoint.Xs).Row, Is.EqualTo(2));
     }
 
     /// <summary>
@@ -787,7 +825,7 @@ public class DashboardLayoutPersistenceTests : ServiceTestBase
         personal.Layout.Widgets.Add(DefaultLayout().Widgets.Single());
         await Save(personal);
         await _service.SelectLayerAsync("admin-dashboard", _customer, selected);
-        int customerId = _customer.Id;
+        var customerId = _customer.Id;
         DbContext.ChangeTracker.Clear();
         _customer = LoadCustomer(customerId);
         _cache.Dispose();
@@ -825,7 +863,7 @@ public class DashboardLayoutPersistenceTests : ServiceTestBase
 
         await Save(first);
         await Save(second);
-        Assert.That((await State(layer)).Layout.Widgets.Single().GetPosition(0).Row, Is.EqualTo(3));
+        Assert.That((await State(layer)).Layout.Widgets.Single().GetPosition(DashboardBreakpoint.Xs).Row, Is.EqualTo(3));
     }
 
     /// <summary>
@@ -905,7 +943,7 @@ public class DashboardLayoutPersistenceTests : ServiceTestBase
     {
         var layout = new DashboardLayout("admin-dashboard");
         var widgets = new List<Lazy<IDashboardWidget, DashboardMetadata>>();
-        foreach (string id in new[] { "visible", "hidden" })
+        foreach (var id in new[] { "visible", "hidden" })
         {
             var widget = new Mock<IDashboardWidget>();
             widget.SetupGet(x => x.Descriptor).Returns(new DashboardWidgetDescriptor(id, id)
@@ -943,7 +981,7 @@ public class DashboardLayoutPersistenceTests : ServiceTestBase
             Mock.Get(registration.Value).Verify(x => x.IsAvailableAsync(It.IsAny<DashboardWidgetContext>(), It.IsAny<CancellationToken>()), Times.Once);
         }
         var saved = (await State(DashboardLayoutLayer.User)).Layout;
-        Assert.That(saved.Widgets[0].GetPosition(0).Row, Is.Zero);
+        Assert.That(saved.Widgets[0].GetPosition(DashboardBreakpoint.Xs).Row, Is.Zero);
         Assert.That(saved.Widgets[1].Positions, Is.EqualTo(hidden.Positions));
         Assert.That(saved.Widgets[1].SettingsVersion, Is.EqualTo(hidden.SettingsVersion));
         if (!hiddenAvailable)
@@ -1098,17 +1136,17 @@ public class DashboardLayoutPersistenceTests : ServiceTestBase
         var instance = state.Layout.Widgets.Single();
         state.Layout.Widgets[0] = instance with
         {
-            Positions = instance.Positions.Select(p => p.MinViewportWidth == 992 ? p with { Size = new DashboardWidgetSize(p.Size.ColumnSpan, 2) } : p).ToArray()
+            Positions = instance.Positions.Select(p => p.Breakpoint == DashboardBreakpoint.Lg ? p with { Size = new DashboardWidgetSize(p.Size.ColumnSpan, 2) } : p).ToArray()
         };
         await Save(state);
         var stored = (await State(layer)).Layout.Widgets.Single();
-        Assert.That(stored.GetPosition(992).Size.RowSpan, Is.EqualTo(2));
+        Assert.That(stored.GetPosition(DashboardBreakpoint.Lg).Size.RowSpan, Is.EqualTo(2));
         var rendered = await _service.PrepareDashboardAsync((await State(layer)).Layout, _customer, false);
-        string css = new DashboardCssBuilder().Build(rendered);
+        var css = new DashboardCssBuilder().Build(rendered);
         Assert.That(css, Does.Not.Contain("align-self:"));
         Assert.That(css, Does.Not.Contain("min-height:"));
         if (layer == DashboardLayoutLayer.User)
-            Assert.That((await State(DashboardLayoutLayer.Global)).Layout.Widgets.Single().GetPosition(992).Size.RowSpan, Is.Not.EqualTo(2));
+            Assert.That((await State(DashboardLayoutLayer.Global)).Layout.Widgets.Single().GetPosition(DashboardBreakpoint.Lg).Size.RowSpan, Is.Not.EqualTo(2));
     }
 
     /// <summary>
@@ -1131,7 +1169,7 @@ public class DashboardLayoutPersistenceTests : ServiceTestBase
         var instance = state.Layout.Widgets.Single();
         state.Layout.Widgets[0] = instance with
         {
-            Positions = instance.Positions.Select(position => position.MinViewportWidth == 0 ? position with { Row = 2 } : position).ToArray()
+            Positions = instance.Positions.Select(position => position.Breakpoint == DashboardBreakpoint.Xs ? position with { Row = 2 } : position).ToArray()
         };
 
         await Save(state);
@@ -1146,8 +1184,8 @@ public class DashboardLayoutPersistenceTests : ServiceTestBase
             Assert.That(stored.ColumnGap, Is.EqualTo(trusted.ColumnGap));
             Assert.That(stored.RowGap, Is.EqualTo(trusted.RowGap));
             Assert.That(stored.Version, Is.EqualTo(trusted.Version));
-            Assert.That(stored.Widgets.Single().GetPosition(0).Row, Is.EqualTo(2));
-            Assert.That(stored.Widgets.Single().GetPosition(1200), Is.EqualTo(instance.GetPosition(1200)));
+            Assert.That(stored.Widgets.Single().GetPosition(DashboardBreakpoint.Xs).Row, Is.EqualTo(2));
+            Assert.That(stored.Widgets.Single().GetPosition(DashboardBreakpoint.Xl), Is.EqualTo(instance.GetPosition(DashboardBreakpoint.Xl)));
         });
     }
 

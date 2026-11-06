@@ -21,7 +21,7 @@
         </nav>
     </div>
     <div class="tab-content" id="paymentmethods-tabcontent">
-        @for (int i = 0; i < rankings.Length; i++)
+        @for (var i = 0; i < rankings.Length; i++)
         {
             <div class="tab-pane fade @(i == 0 ? "show active" : null)" id="paymentmethods-@tabNames[i]" role="tabpanel" aria-labelledby="paymentmethods-@tabNames[i]-tab">
                 <div class="table-responsive table-dashboard">

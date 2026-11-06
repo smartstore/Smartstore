@@ -105,7 +105,7 @@ public partial class DashboardService
         var context = new DashboardWidgetContext { DashboardId = layout.Id, Customer = customer, IsEditMode = true };
         var remaining = baseline.Widgets.ToDictionary(x => x.Id, StringComparer.Ordinal);
         var singletons = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-        for (int i = 0; i < layout.Widgets.Count; i++)
+        for (var i = 0; i < layout.Widgets.Count; i++)
         {
             var instance = layout.Widgets[i];
             remaining.Remove(instance.Id, out var previous);
@@ -149,12 +149,12 @@ public partial class DashboardService
             if (previous != null)
             {
                 var policy = DashboardWidgetPolicy.Combine(descriptor.Policy, previous.Policy);
-                foreach (int breakpoint in previous.Positions.Concat(instance.Positions).Select(x => x.MinViewportWidth).Distinct())
+                foreach (var breakpoint in previous.Positions.Concat(instance.Positions).Select(x => x.Breakpoint).Distinct())
                 {
                     var position = instance.GetPosition(breakpoint);
                     var original = previous.GetPosition(breakpoint);
-                    bool moved = original.Column != position.Column || original.Row != position.Row || instance.Order != previous.Order;
-                    bool resized = original.Size.ColumnSpan != position.Size.ColumnSpan
+                    var moved = original.Column != position.Column || original.Row != position.Row || instance.Order != previous.Order;
+                    var resized = original.Size.ColumnSpan != position.Size.ColumnSpan
                         || original.Size.RowSpan != position.Size.RowSpan;
 
                     if ((!policy.AllowMove && moved) || (!policy.AllowResize && resized))
@@ -173,16 +173,16 @@ public partial class DashboardService
             foreach (var position in instance.Positions)
             {
                 // Existing responsive placements can be narrower than the editor's resize presets.
-                if (previous != null && previous.GetPosition(position.MinViewportWidth).Size == position.Size)
+                if (previous != null && previous.GetPosition(position.Breakpoint).Size == position.Size)
                 {
                     continue;
                 }
-                bool invalidWidth = position.Size.ColumnSpan < descriptor.MinSize.ColumnSpan
+                var invalidWidth = position.Size.ColumnSpan < descriptor.MinSize.ColumnSpan
                     || position.Size.ColumnSpan > descriptor.MaxSize.ColumnSpan;
-                bool invalidHeight = position.Size.RowSpan is int rows
+                var invalidHeight = position.Size.RowSpan is int rows
                     && ((descriptor.MinSize.RowSpan is int minRows && rows < minRows)
                         || (descriptor.MaxSize.RowSpan is int maxRows && rows > maxRows));
-                bool unsupportedSize = descriptor.AllowedSizes.Count > 0 && !descriptor.AllowedSizes.Contains(position.Size);
+                var unsupportedSize = descriptor.AllowedSizes.Count > 0 && !descriptor.AllowedSizes.Contains(position.Size);
 
                 if (invalidWidth || invalidHeight || unsupportedSize)
                 {

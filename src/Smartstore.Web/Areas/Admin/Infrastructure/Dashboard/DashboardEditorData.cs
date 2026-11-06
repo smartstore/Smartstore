@@ -29,7 +29,25 @@ public sealed record DashboardEditorData(
 /// <param name="Id">The dashboard's DOM identifier.</param>
 /// <param name="ColumnCount">The number of grid columns.</param>
 /// <param name="Widgets">The widget placements, including preserved placements of unavailable instances that do not occupy grid space.</param>
-public sealed record DashboardEditorLayout(string Id, int ColumnCount, IReadOnlyCollection<DashboardEditorWidget> Widgets);
+/// <param name="Rules">The placement constraints for each responsive layout tier.</param>
+public sealed record DashboardEditorLayout(
+    string Id,
+    int ColumnCount,
+    IReadOnlyCollection<DashboardEditorWidget> Widgets,
+    IReadOnlyCollection<DashboardEditorLayoutRule> Rules);
+
+/// <summary>
+/// Describes the grid constraints of one named editor layout tier.
+/// </summary>
+/// <param name="Breakpoint">The responsive layout tier.</param>
+/// <param name="ColumnCount">The number of columns available to movable widgets.</param>
+/// <param name="FullWidthWidgets">Whether widgets fill the content width.</param>
+/// <param name="HasNewsRail">Whether the fixed news widget occupies a side rail.</param>
+public sealed record DashboardEditorLayoutRule(
+    DashboardBreakpoint Breakpoint,
+    int ColumnCount,
+    bool FullWidthWidgets,
+    bool HasNewsRail);
 
 /// <summary>
 /// Describes one editable placement without exposing widget settings or persisted metadata.

@@ -99,13 +99,13 @@ public sealed class AdminDashboardTests
         var positions = DashboardEditorMapper.GetInsertionPositions(layout, new DashboardWidgetSize(6));
         Assert.Multiple(() =>
         {
-            Assert.That(positions.Single(x => x.MinViewportWidth == 0).Row, Is.EqualTo(3));
-            Assert.That(positions.Single(x => x.MinViewportWidth == 768).Row, Is.EqualTo(2));
-            Assert.That(positions.Single(x => x.MinViewportWidth == 768).Column, Is.EqualTo(6));
-            Assert.That(positions.Single(x => x.MinViewportWidth == 992).Row, Is.EqualTo(2));
-            Assert.That(positions.Single(x => x.MinViewportWidth == 992).Column, Is.EqualTo(4));
-            Assert.That(positions.Single(x => x.MinViewportWidth == 1600).Row, Is.EqualTo(4));
-            Assert.That(positions.Where(x => x.MinViewportWidth >= 992).All(x => x.Column + x.Size.ColumnSpan <= 10), Is.True);
+            Assert.That(positions.Single(x => x.Breakpoint == DashboardBreakpoint.Xs).Row, Is.EqualTo(3));
+            Assert.That(positions.Single(x => x.Breakpoint == DashboardBreakpoint.Md).Row, Is.EqualTo(2));
+            Assert.That(positions.Single(x => x.Breakpoint == DashboardBreakpoint.Md).Column, Is.EqualTo(6));
+            Assert.That(positions.Single(x => x.Breakpoint == DashboardBreakpoint.Lg).Row, Is.EqualTo(2));
+            Assert.That(positions.Single(x => x.Breakpoint == DashboardBreakpoint.Lg).Column, Is.EqualTo(4));
+            Assert.That(positions.Single(x => x.Breakpoint == DashboardBreakpoint.Xxl).Row, Is.EqualTo(4));
+            Assert.That(positions.Where(x => x.Breakpoint >= DashboardBreakpoint.Lg).All(x => x.Column + x.Size.ColumnSpan <= 10), Is.True);
         });
     }
 
@@ -132,7 +132,7 @@ public sealed class AdminDashboardTests
             ]
         };
         var position = DashboardEditorMapper.GetInsertionPositions(layout, new DashboardWidgetSize(4, height))
-            .Single(x => x.MinViewportWidth == 992);
+            .Single(x => x.Breakpoint == DashboardBreakpoint.Lg);
         Assert.Multiple(() =>
         {
             Assert.That(position.Row, Is.EqualTo(expectedRow));
@@ -221,45 +221,45 @@ public sealed class AdminDashboardTests
             Assert.That(layout.GridTemplateColumns, Is.EqualTo("repeat(10, minmax(0, 1fr)) repeat(2, 130px)"));
             Assert.That(layout.Widgets, Has.Count.EqualTo(8));
 
-            AssertPosition(incompleteOrders.GetPosition(0), 0, 0, 12);
-            AssertPosition(incompleteOrders.GetPosition(768), 0, 0, 12);
-            AssertPosition(incompleteOrders.GetPosition(992), 0, 0, 10);
-            AssertPosition(incompleteOrders.GetPosition(1600), 0, 0, 10);
+            AssertPosition(incompleteOrders.GetPosition(DashboardBreakpoint.Xs), 0, 0, 12);
+            AssertPosition(incompleteOrders.GetPosition(DashboardBreakpoint.Md), 0, 0, 12);
+            AssertPosition(incompleteOrders.GetPosition(DashboardBreakpoint.Lg), 0, 0, 10);
+            AssertPosition(incompleteOrders.GetPosition(DashboardBreakpoint.Xxl), 0, 0, 10);
 
-            AssertPosition(orders.GetPosition(0), 0, 1, 12);
-            AssertPosition(orders.GetPosition(768), 0, 1, 12);
-            AssertPosition(orders.GetPosition(992), 0, 1, 10);
-            AssertPosition(orders.GetPosition(1600), 0, 1, 7);
+            AssertPosition(orders.GetPosition(DashboardBreakpoint.Xs), 0, 1, 12);
+            AssertPosition(orders.GetPosition(DashboardBreakpoint.Md), 0, 1, 12);
+            AssertPosition(orders.GetPosition(DashboardBreakpoint.Lg), 0, 1, 10);
+            AssertPosition(orders.GetPosition(DashboardBreakpoint.Xxl), 0, 1, 7);
 
-            AssertPosition(bestsellers.GetPosition(0), 0, 2, 12);
-            AssertPosition(bestsellers.GetPosition(768), 0, 2, 6);
-            AssertPosition(bestsellers.GetPosition(992), 0, 2, 4);
-            AssertPosition(bestsellers.GetPosition(1600), 7, 1, 3);
+            AssertPosition(bestsellers.GetPosition(DashboardBreakpoint.Xs), 0, 2, 12);
+            AssertPosition(bestsellers.GetPosition(DashboardBreakpoint.Md), 0, 2, 6);
+            AssertPosition(bestsellers.GetPosition(DashboardBreakpoint.Lg), 0, 2, 4);
+            AssertPosition(bestsellers.GetPosition(DashboardBreakpoint.Xxl), 7, 1, 3);
 
-            AssertPosition(topCustomers.GetPosition(0), 0, 3, 12);
-            AssertPosition(topCustomers.GetPosition(768), 6, 2, 6);
-            AssertPosition(topCustomers.GetPosition(992), 4, 2, 6);
-            AssertPosition(topCustomers.GetPosition(1600), 0, 2, 3);
+            AssertPosition(topCustomers.GetPosition(DashboardBreakpoint.Xs), 0, 3, 12);
+            AssertPosition(topCustomers.GetPosition(DashboardBreakpoint.Md), 6, 2, 6);
+            AssertPosition(topCustomers.GetPosition(DashboardBreakpoint.Lg), 4, 2, 6);
+            AssertPosition(topCustomers.GetPosition(DashboardBreakpoint.Xxl), 0, 2, 3);
 
-            AssertPosition(registeredCustomers.GetPosition(0), 0, 4, 12);
-            AssertPosition(registeredCustomers.GetPosition(768), 0, 3, 12);
-            AssertPosition(registeredCustomers.GetPosition(992), 0, 3, 10);
-            AssertPosition(registeredCustomers.GetPosition(1600), 3, 2, 7);
+            AssertPosition(registeredCustomers.GetPosition(DashboardBreakpoint.Xs), 0, 4, 12);
+            AssertPosition(registeredCustomers.GetPosition(DashboardBreakpoint.Md), 0, 3, 12);
+            AssertPosition(registeredCustomers.GetPosition(DashboardBreakpoint.Lg), 0, 3, 10);
+            AssertPosition(registeredCustomers.GetPosition(DashboardBreakpoint.Xxl), 3, 2, 7);
 
-            AssertPosition(latestOrders.GetPosition(0), 0, 5, 12);
-            AssertPosition(latestOrders.GetPosition(768), 0, 4, 12);
-            AssertPosition(latestOrders.GetPosition(992), 0, 4, 10);
-            AssertPosition(latestOrders.GetPosition(1600), 0, 3, 6);
+            AssertPosition(latestOrders.GetPosition(DashboardBreakpoint.Xs), 0, 5, 12);
+            AssertPosition(latestOrders.GetPosition(DashboardBreakpoint.Md), 0, 4, 12);
+            AssertPosition(latestOrders.GetPosition(DashboardBreakpoint.Lg), 0, 4, 10);
+            AssertPosition(latestOrders.GetPosition(DashboardBreakpoint.Xxl), 0, 3, 6);
 
-            AssertPosition(storeReport.GetPosition(0), 0, 6, 12);
-            AssertPosition(storeReport.GetPosition(768), 0, 5, 12);
-            AssertPosition(storeReport.GetPosition(992), 0, 5, 10);
-            AssertPosition(storeReport.GetPosition(1600), 6, 3, 4);
+            AssertPosition(storeReport.GetPosition(DashboardBreakpoint.Xs), 0, 6, 12);
+            AssertPosition(storeReport.GetPosition(DashboardBreakpoint.Md), 0, 5, 12);
+            AssertPosition(storeReport.GetPosition(DashboardBreakpoint.Lg), 0, 5, 10);
+            AssertPosition(storeReport.GetPosition(DashboardBreakpoint.Xxl), 6, 3, 4);
 
-            AssertPosition(newsFeed.GetPosition(0), 0, 7, 12);
-            AssertPosition(newsFeed.GetPosition(768), 0, 6, 12);
-            AssertPosition(newsFeed.GetPosition(992), 10, 0, 2, 6);
-            AssertPosition(newsFeed.GetPosition(1600), 10, 0, 2, 4);
+            AssertPosition(newsFeed.GetPosition(DashboardBreakpoint.Xs), 0, 7, 12);
+            AssertPosition(newsFeed.GetPosition(DashboardBreakpoint.Md), 0, 6, 12);
+            AssertPosition(newsFeed.GetPosition(DashboardBreakpoint.Lg), 10, 0, 2, 6);
+            AssertPosition(newsFeed.GetPosition(DashboardBreakpoint.Xxl), 10, 0, 2, 4);
         });
     }
 
@@ -353,11 +353,11 @@ public sealed class AdminDashboardTests
             Assert.That(layout.BuildWidgetId(instance.Id), Is.EqualTo("admin-dashboard__latest-orders"));
             Assert.That(
                 css,
-                Does.Contain("#admin-dashboard__latest-orders { grid-column: 1 / span 12; grid-row: 6 / span 1; }"));
+                Does.Contain("#admin-dashboard__latest-orders { --dashboard-column-xs: 1 / span 12; --dashboard-row-xs: 6 / span 1; }"));
             Assert.That(css, Does.Not.Contain("#admin-dashboard-grid >"));
-            Assert.That(css, Does.Contain("@media screen and (min-width: 768px)"));
-            Assert.That(css, Does.Contain("@media screen and (min-width: 992px)"));
-            Assert.That(css, Does.Contain("@media screen and (min-width: 1600px)"));
+            Assert.That(css, Does.Contain("--dashboard-column-md:"));
+            Assert.That(css, Does.Contain("--dashboard-column-lg:"));
+            Assert.That(css, Does.Contain("--dashboard-column-xxl:"));
         });
     }
 
@@ -533,7 +533,7 @@ public class DashboardCookieConsentsViewComponentTests
     private static async Task<DashboardCookieConsentModel> RenderReportAsync(params string[] decisions)
     {
         await using var db = new ConsentTestContext();
-        for (int i = 0; i < decisions.Length; i++)
+        for (var i = 0; i < decisions.Length; i++)
         {
             db.Customers.Add(new Customer { Id = i + 1 });
             db.GenericAttributes.Add(new GenericAttribute
@@ -614,7 +614,7 @@ public class DashboardContactRequestsViewComponentTests
         await using var db = new ContactRequestsTestContext();
         db.Stores.AddRange(new Store { Id = 1, Name = "First", Url = "https://first.example" },
             new Store { Id = 2, Name = "Second", Url = "https://second.example" });
-        foreach (int id in Enumerable.Range(1, 8))
+        foreach (var id in Enumerable.Range(1, 8))
         {
             db.QueuedEmails.Add(new QueuedEmail
             {
@@ -841,7 +841,7 @@ public class ContactRequestsDashboardHookTests
         var hook = new ContactRequestsDashboardHook(attributes, db);
         attributes.GetAttributesForEntity(nameof(QueuedEmail), 1).Set("Unrelated", "preserve-me");
 
-        foreach (int id in Enumerable.Range(1, 8).Concat([8]))
+        foreach (var id in Enumerable.Range(1, 8).Concat([8]))
         {
             var message = Contact();
             hook.HandleEvent(message);

@@ -58,16 +58,16 @@ public sealed record DashboardWidgetInstance
     public IReadOnlyCollection<DashboardWidgetPosition> Positions { get; init; } = [];
 
     /// <summary>
-    /// Gets the most specific grid position that applies to a viewport width.
+    /// Gets the most specific grid position that applies to a layout tier.
     /// </summary>
-    /// <param name="viewportWidth">The viewport width in pixels.</param>
+    /// <param name="breakpoint">The named layout tier.</param>
     /// <returns>The applicable responsive grid position.</returns>
-    /// <exception cref="InvalidOperationException">No position applies to the specified viewport width.</exception>
-    public DashboardWidgetPosition GetPosition(int viewportWidth = 0)
+    /// <exception cref="InvalidOperationException">No position applies to the specified layout tier.</exception>
+    public DashboardWidgetPosition GetPosition(DashboardBreakpoint breakpoint = DashboardBreakpoint.Xs)
     {
         return Positions
-            .Where(x => x.MinViewportWidth <= viewportWidth)
-            .OrderByDescending(x => x.MinViewportWidth)
+            .Where(x => x.Breakpoint <= breakpoint)
+            .OrderByDescending(x => x.Breakpoint)
             .First();
     }
 }

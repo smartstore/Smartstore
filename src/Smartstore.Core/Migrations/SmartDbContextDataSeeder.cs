@@ -756,7 +756,10 @@ public class SmartDbContextDataSeeder : IDataSeeder<SmartDbContext>
         builder.AddOrUpdate("Admin.Dashboard.Editor.Customize", "Customize dashboard", "Dashboard anpassen");
         builder.AddOrUpdate("Admin.Dashboard.Editor.View", "Dashboard view", "Dashboard-Ansicht");
         builder.AddOrUpdate("Admin.Dashboard.Editor.Editing", "Editing", "Bearbeiten");
-        builder.AddOrUpdate("Admin.Dashboard.Editor.Widgets", "Widgets", "Widgets");
+        builder.AddOrUpdate("Admin.Dashboard.Editor.Configure", "Configure widget", "Widget konfigurieren");
+        builder.AddOrUpdate("Admin.Dashboard.Editor.RemoveWidgetConfirm", "Really remove this widget?", "Dieses Widget wirklich entfernen?");
+        builder.AddOrUpdate("Admin.Dashboard.Editor.ResetConfirm", "Really reset the dashboard?", "Das Dashboard wirklich zurücksetzen?");
+        builder.AddOrUpdate("Admin.Dashboard.Editor.Widgets", "Select widget", "Widget auswählen");
         builder.AddOrUpdate("Admin.Dashboard.Editor.AddWidget", "Add widget", "Widget hinzufügen");
         builder.AddOrUpdate("Admin.Dashboard.Editor.Search", "Search widgets", "Widgets suchen");
         builder.AddOrUpdate("Admin.Dashboard.Editor.ResetPersonal", "Reset to the shared dashboard", "Auf gemeinsame Vorgabe zurücksetzen");

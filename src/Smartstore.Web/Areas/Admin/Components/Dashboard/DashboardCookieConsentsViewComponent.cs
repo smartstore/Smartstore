@@ -114,9 +114,9 @@ public class DashboardCookieConsentsViewComponent : SmartViewComponent
             }
 
             var answers = new JsonValueKind[_fields.Length];
-            for (int i = 0; i < _fields.Length; i++)
+            for (var i = 0; i < _fields.Length; i++)
             {
-                bool exists = properties.TryGetValue(_fields[i].Property, out var answer);
+                var exists = properties.TryGetValue(_fields[i].Property, out var answer);
                 if ((!exists && _fields[i].Required)
                     || (exists && answer.ValueKind is not (JsonValueKind.True or JsonValueKind.False)))
                 {
@@ -128,7 +128,7 @@ public class DashboardCookieConsentsViewComponent : SmartViewComponent
             }
 
             model.TotalConsents++;
-            for (int i = 0; i < answers.Length; i++)
+            for (var i = 0; i < answers.Length; i++)
             {
                 if (answers[i] == JsonValueKind.True)
                 {

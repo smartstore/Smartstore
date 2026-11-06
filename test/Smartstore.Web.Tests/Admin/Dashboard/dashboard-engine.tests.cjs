@@ -92,15 +92,15 @@ function keyboardEditor({ direction = 'ltr', blockedStorage = false, allowedSize
     };
     const scrollContainer = { scrollTop: 0, getBoundingClientRect: () => ({ top: 0, bottom: 900 }) };
     const config = {
-        layout: { id: 'dashboard', columnCount: 12, widgets: [
+        layout: { id: 'dashboard', columnCount: 12, rules: ['xs', 'sm', 'md', 'lg', 'xl', 'xxl'].map(breakpoint => ({ breakpoint, columnCount: 12, fullWidthWidgets: ['xs', 'sm'].includes(breakpoint), hasNewsRail: false })), widgets: [
             { id: 'a', widgetSystemName: 'Test', allowMove: true,
-                positions: [{ minViewportWidth: 0, column: 2, row: 1, size: { columnSpan: 4, rowSpan: 1 } }] }
+                positions: [{ breakpoint: 'xs', column: 2, row: 1, size: { columnSpan: 4, rowSpan: 1 } }] }
         ] },
         maxHeight: 310, widgets: [{ systemName: 'Test', allowedSizes }], layer, dirty: false, reset: false
     };
     if (belowPosition) {
         config.layout.widgets.push({ id: 'b', widgetSystemName: 'Test', allowMove: true,
-            positions: [{ minViewportWidth: 0, column: 2, row: 2, size: { columnSpan: 4, rowSpan: 1 }, minHeight: 200, ...belowPosition }] });
+            positions: [{ breakpoint: 'xs', column: 2, row: 2, size: { columnSpan: 4, rowSpan: 1 }, minHeight: 200, ...belowPosition }] });
     }
     let confirmation;
     let submissions = 0;
@@ -138,7 +138,7 @@ function keyboardEditor({ direction = 'ltr', blockedStorage = false, allowedSize
         return controls.get(selector);
     }
     const sandbox = {
-        Smartstore: { Admin: {} }, jQuery: jquery, document, structuredClone, URL,
+        Smartstore: { Admin: {} }, ResponsiveBootstrapToolkit: { current: () => 'xl' }, jQuery: jquery, document, structuredClone, URL,
         HTMLFormElement: { prototype: { submit() { submissions++; } } },
         confirm2(options) { confirmation = options; return { find: () => ({ text() {} }) }; },
         window: { innerWidth: 1200, innerHeight: 900, scrollY: 0, location: { href: 'https://example.test/admin?dashboardHistory=test' },
