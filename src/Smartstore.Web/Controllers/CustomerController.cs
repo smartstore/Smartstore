@@ -167,7 +167,9 @@ public class CustomerController : PublicController
             }
             else
             {
-                result.Errors.Select(x => x.Description).Distinct()
+                result.Errors
+                    .Select(x => x.Description)
+                    .Distinct()
                     .Each(x => ModelState.AddModelError(nameof(model.Email), x));
             }
         }
@@ -185,7 +187,9 @@ public class CustomerController : PublicController
             }
             else
             {
-                result.Errors.Select(x => x.Description).Distinct()
+                result.Errors
+                    .Select(x => x.Description)
+                    .Distinct()
                     .Each(x => ModelState.AddModelError(nameof(model.Username), x));
             }
         }
@@ -326,7 +330,7 @@ public class CustomerController : PublicController
         var usernameAvailable = false;
         string statusText = null;
 
-        if (_customerSettings.CustomerLoginType != CustomerLoginType.Email && username.HasValue())
+        if (_customerSettings.SupportsUsernames() && username.HasValue())
         {
             var customer = Services.WorkContext.CurrentCustomer;
             if (customer != null && customer.Username != null && customer.Username.EqualsNoCase(username))
@@ -1030,7 +1034,7 @@ public class CustomerController : PublicController
         }
         else
         {
-            if (_customerSettings.CustomerLoginType != CustomerLoginType.Email && !_customerSettings.AllowUsersToChangeUsernames)
+            if (_customerSettings.SupportsUsernames() && !_customerSettings.CanEditUsernames())
             {
                 model.Username = customer.Username;
             }
@@ -1040,10 +1044,10 @@ public class CustomerController : PublicController
         if (_customerSettings.CountryEnabled && _customerSettings.StateProvinceEnabled)
         {
             var stateProvinces = await _db.StateProvinces.GetStateProvincesByCountryIdAsync(model.CountryId);
-            ViewBag.AvailableStates = stateProvinces.ToSelectListItems(model.StateProvinceId) ?? new List<SelectListItem>
-            {
+            ViewBag.AvailableStates = stateProvinces.ToSelectListItems(model.StateProvinceId) ??
+            [
                 new() { Text = T("Address.OtherNonUS"), Value = "0" }
-            };
+            ];
         }
 
         model.FirstNameRequired = _customerSettings.FirstNameRequired;

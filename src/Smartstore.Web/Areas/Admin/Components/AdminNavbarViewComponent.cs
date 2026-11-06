@@ -20,7 +20,7 @@ public class AdminNavbarViewComponent : SmartViewComponent
     {
         var currentCustomer = Services.WorkContext.CurrentCustomer;
 
-        ViewBag.UserName = _customerSettings.CustomerLoginType != CustomerLoginType.Email ? currentCustomer.Username : currentCustomer.Email;
+        ViewBag.UserName = _customerSettings.SupportsUsernames() ? currentCustomer.Username : currentCustomer.Email;
         ViewBag.Stores = Services.StoreContext.GetAllStores();
         if (await Services.Permissions.AuthorizeAsync(Permissions.System.Maintenance.Read))
         {

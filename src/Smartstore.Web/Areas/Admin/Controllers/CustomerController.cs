@@ -163,7 +163,7 @@ public class CustomerController : AdminController
         model.AllowCustomersToSetTimeZone = _dateTimeSettings.AllowCustomersToSetTimeZone;
         model.AllowManagingCustomerRoles = await Services.Permissions.AuthorizeAsync(Permissions.Customer.EditRole);
         model.CustomerNumberEnabled = _customerSettings.CustomerNumberMethod != CustomerNumberMethod.Disabled;
-        model.UsernamesEnabled = _customerSettings.CustomerLoginType != CustomerLoginType.Email;
+        model.UsernamesEnabled = _customerSettings.SupportsUsernames();
         model.SelectedStoreIds = await _storeMappingService.GetAuthorizedStoreIdsAsync(customer);
 
         if (customer != null)
@@ -449,7 +449,7 @@ public class CustomerController : AdminController
 
         var listModel = new CustomerListModel
         {
-            UsernamesEnabled = _customerSettings.CustomerLoginType != CustomerLoginType.Email,
+            UsernamesEnabled = _customerSettings.SupportsUsernames(),
             DateOfBirthEnabled = _customerSettings.DateOfBirthEnabled,
             CompanyEnabled = _customerSettings.CompanyEnabled,
             PhoneEnabled = _customerSettings.PhoneEnabled,
@@ -714,8 +714,7 @@ public class CustomerController : AdminController
 
         // Username.
         if (ModelState.IsValid
-            && _customerSettings.CustomerLoginType != CustomerLoginType.Email
-            && _customerSettings.AllowUsersToChangeUsernames
+            && _customerSettings.CanEditUsernames()
             && !newUsername.EqualsNoCase(customer.Username))
         {
             var result = await _userManager.SetUserNameAsync(customer, newUsername);
@@ -1331,7 +1330,7 @@ public class CustomerController : AdminController
     [Permission(Permissions.Customer.Read)]
     public async Task<IActionResult> Reports()
     {
-        ViewBag.UsernamesEnabled = _customerSettings.CustomerLoginType != CustomerLoginType.Email;
+        ViewBag.UsernamesEnabled = _customerSettings.SupportsUsernames();
         ViewBag.AvailableOrderStatuses = OrderStatus.Pending.ToSelectList(false).ToList();
         ViewBag.AvailablePaymentStatuses = PaymentStatus.Pending.ToSelectList(false).ToList();
         ViewBag.AvailableShippingStatuses = ShippingStatus.NotYetShipped.ToSelectList(false).ToList();

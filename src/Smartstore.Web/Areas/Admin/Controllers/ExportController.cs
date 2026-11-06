@@ -504,7 +504,7 @@ public class ExportController : AdminController
             EntityType = provider.Value.EntityType,
             Icon = GetProviderIcon(provider),
             LogFileExists = logFile.Exists,
-            UsernamesEnabled = _customerSettings.CustomerLoginType != CustomerLoginType.Email
+            UsernamesEnabled = _customerSettings.SupportsUsernames()
         };
 
         return View(model);

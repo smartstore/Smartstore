@@ -28,7 +28,7 @@ public class ShopBarViewComponent : SmartViewComponent
         var model = new ShopBarModel
         {
             IsAuthenticated = isRegistered,
-            CustomerEmailUsername = isRegistered ? (_customerSettings.CustomerLoginType != CustomerLoginType.Email ? customer.Username : customer.Email) : string.Empty,
+            CustomerEmailUsername = isRegistered ? (_customerSettings.SupportsUsernames() ? customer.Username : customer.Email) : string.Empty,
             IsCustomerImpersonated = Services.WorkContext.CurrentImpersonator != null,
             DisplayAdminLink = await Services.Permissions.AuthorizeAsync(Permissions.System.AccessBackend),
             ShoppingCartEnabled = await Services.Permissions.AuthorizeAsync(Permissions.Cart.AccessShoppingCart) && _shoppingCartSettings.MiniShoppingCartEnabled,

@@ -21,4 +21,25 @@ public class CustomerSettingsTests
 
         settings.SupportsUsernames().ShouldEqual(expected);
     }
+
+    [TestCase(CustomerLoginType.Username, CustomerNameFormat.ShowFirstName, true, true)]
+    [TestCase(CustomerLoginType.Username, CustomerNameFormat.ShowFirstName, false, false)]
+    [TestCase(CustomerLoginType.Email, CustomerNameFormat.ShowUsernames, true, true)]
+    [TestCase(CustomerLoginType.Email, CustomerNameFormat.ShowUsernames, false, false)]
+    [TestCase(CustomerLoginType.Email, CustomerNameFormat.ShowFirstName, true, false)]
+    public void Can_edit_usernames(
+        CustomerLoginType loginType,
+        CustomerNameFormat nameFormat,
+        bool allowUsersToChangeUsernames,
+        bool expected)
+    {
+        var settings = new CustomerSettings
+        {
+            CustomerLoginType = loginType,
+            CustomerNameFormat = nameFormat,
+            AllowUsersToChangeUsernames = allowUsersToChangeUsernames
+        };
+
+        settings.CanEditUsernames().ShouldEqual(expected);
+    }
 }
