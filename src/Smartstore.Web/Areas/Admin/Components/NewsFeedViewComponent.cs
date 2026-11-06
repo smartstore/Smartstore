@@ -23,7 +23,7 @@ public class NewsFeedViewComponent : SmartViewComponent
         _webHelper = webHelper;
     }
 
-    public async Task<IViewComponentResult> InvokeAsync()
+    public async Task<IViewComponentResult> InvokeAsync(bool refresh = false)
     {
         if (!await Services.Permissions.AuthorizeAsync(RequiredPermission))
         {
@@ -31,7 +31,13 @@ public class NewsFeedViewComponent : SmartViewComponent
         }
 
         var lang = Services.WorkContext.WorkingLanguage;
-        var result = await Services.Cache.GetAsync($"admin:newsfeed{lang.UniqueSeoCode}", async ctx =>
+        var cacheKey = $"admin:newsfeed{lang.UniqueSeoCode}";
+        if (refresh)
+        {
+            await Services.Cache.RemoveAsync(cacheKey);
+        }
+
+        var result = await Services.Cache.GetAsync(cacheKey, async ctx =>
         {
             ctx.ExpiresIn(TimeSpan.FromHours(4));
 

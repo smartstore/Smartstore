@@ -569,3 +569,40 @@ $dashboard-row: auto;
 .dashboard-widget, .dashboard-widget-body {
     min-width: 0;
 }
+
+.dashboard-widget-tools {
+    opacity: 0;
+    pointer-events: none;
+
+    // Multiple actions share a surface; a single button occupies the same outer bounds.
+    &:has(> .btn ~ .btn) {
+        background-color: var(--body-bg);
+        border: var(--border-width) solid var(--gray-400);
+        padding: map-get($spacers, 1);
+    }
+
+    > .btn:only-child {
+        --btn-bg: var(--body-bg);
+        --btn-border-color: var(--gray-400);
+        --btn-border-radius: var(--border-radius);
+        height: calc(var(--btn-height) + #{map-get($spacers, 1) * 2} + 2 * var(--border-width));
+    }
+
+    .btn:focus-visible {
+        box-shadow: inset 0 0 0 var(--border-width) currentColor;
+    }
+
+    @media (hover: none) {
+        opacity: 1;
+        pointer-events: auto;
+    }
+}
+
+.dashboard-widget:hover,
+.dashboard-widget:focus-within,
+.dashboard-interacting {
+    .dashboard-widget-tools {
+        opacity: 1;
+        pointer-events: auto;
+    }
+}

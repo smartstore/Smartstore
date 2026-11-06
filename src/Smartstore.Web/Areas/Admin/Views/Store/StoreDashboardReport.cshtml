@@ -71,7 +71,7 @@
     </div>
 </div>
 
-<script sm-target-zone="scripts" data-origin="DashboardStoreReport">
+<script sm-target-zone="scripts" sm-render-on-ajax="true" data-origin="DashboardStoreReport">
     $(function () {
         $.ajax({
             url: "@(Url.Action("StoreDashboardReport", "Store"))",

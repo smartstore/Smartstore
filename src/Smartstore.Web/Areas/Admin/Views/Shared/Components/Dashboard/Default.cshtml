@@ -21,8 +21,10 @@
     }
 </style>
 
+<script src="~/admin/js/smartstore.dashboard.widgets.js" asp-append-version="true" sm-target-zone="scripts" sm-key="dashboard-widgets"></script>
 <zone name="dashboard_top"></zone>
-<div id="@(Model.Layout.Id)-grid" style="display: grid; grid-template-columns: @Model.Layout.GridTemplateColumns; column-gap: @Model.Layout.ColumnGap; row-gap: @Model.Layout.RowGap; grid-auto-rows: @Model.Layout.GridAutoRows;">
+<div id="@(Model.Layout.Id)-grid" data-dashboard-load-url="@Url.Action("DashboardWidget", "Home", new { area = "Admin" })"
+     data-dashboard-load-error="@T("Admin.Dashboard.RefreshFailed")" style="display: grid; grid-template-columns: @Model.Layout.GridTemplateColumns; column-gap: @Model.Layout.ColumnGap; row-gap: @Model.Layout.RowGap; grid-auto-rows: @Model.Layout.GridAutoRows;">
     @foreach (var item in Model.Widgets)
     {
         var canConfigure = item.ConfigurationRoute != null;
@@ -36,8 +38,12 @@
                      attr-tabindex='(item.Policy.AllowMove, "0")'
                      attr-aria-label='(item.Policy.AllowMove, T("Admin.Dashboard.Editor.Move").ToString())'
                      attr-aria-hidden='(!item.Policy.AllowMove, "true")'></div>
-                <div sm-if="canEdit && (!item.Policy.IsRequired || canConfigure)"
+                <div sm-if="!Model.Context.IsEditMode || (canEdit && (!item.Policy.IsRequired || canConfigure))"
                      class="dashboard-widget-tools select2-selection-toolbar rounded position-absolute z-3 top-0 end-0 m-2">
+                    <button sm-if="!Model.Context.IsEditMode" type="button" class="btn btn-xs btn-plain btn-flat btn-icon"
+                            data-dashboard-refresh title="@T("Common.Refresh")" aria-label="@T("Common.Refresh")">
+                        <icon name="refresh" />
+                    </button>
                     <button sm-if="canConfigure" type="button" class="btn btn-xs btn-plain btn-flat btn-icon"
                             data-dashboard-configure
                             title="@T("Admin.Dashboard.Editor.Configure")" aria-label="@T("Admin.Dashboard.Editor.Configure")" aria-expanded="false">
@@ -55,7 +61,10 @@
                     <button type="button" class="dashboard-resize z-2 position-absolute border-0 bg-transparent p-0 top-0 end-0 h-100" data-dashboard-resize="width" aria-label="@T("Admin.Dashboard.Editor.Width")"></button>
                     <button type="button" class="dashboard-resize z-2 position-absolute border-0 bg-transparent p-0 bottom-0 start-0 w-100" data-dashboard-resize="height" aria-label="@T("Admin.Dashboard.Editor.Height")"></button>
                 }
-                @await item.Widget.InvokeAsync(ViewContext)
+                <div class="dashboard-widget-content h-100">
+                    @await item.Widget.InvokeAsync(ViewContext)
+                </div>
+                <div class="alert alert-warning m-2 d-none" data-dashboard-load-error role="alert"></div>
             </div>
             <form sm-if="canConfigure" class="dashboard-widget-configuration card position-absolute top-0 start-0 w-100 h-100 rounded-3 overflow-hidden"
                   data-dashboard-configuration data-configuration-url="@Url.Action(item.ConfigurationRoute)"

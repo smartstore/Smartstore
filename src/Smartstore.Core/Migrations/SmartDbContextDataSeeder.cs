@@ -119,6 +119,7 @@ public class SmartDbContextDataSeeder : IDataSeeder<SmartDbContext>
     private static void MigrateDashboardAndNavigationResources(LocaleResourcesBuilder builder)
     {
         builder.AddOrUpdate("Permissions.DisplayName.CookieConsents", "Cookie consent", "Cookie-Zustimmungen");
+        builder.AddOrUpdate("Admin.Dashboard.RefreshFailed", "The widget could not be updated. Please try again.", "Das Widget konnte nicht aktualisiert werden. Bitte versuche es erneut.");
         builder.AddOrUpdate("Admin.Dashboard.CookieConsents", "Cookie consent", "Cookie-Zustimmungen");
 
         string prefix = "Admin.Dashboard.CookieConsents.";

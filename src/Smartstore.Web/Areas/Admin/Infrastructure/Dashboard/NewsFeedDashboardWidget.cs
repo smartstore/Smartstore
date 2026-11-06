@@ -3,6 +3,7 @@
 using Smartstore.Admin.Components;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Security;
+using Smartstore.Core.Widgets;
 using Smartstore.Core.Widgets.Dashboard;
 using Smartstore.Engine.Modularity;
 
@@ -39,4 +40,7 @@ public sealed class NewsFeedDashboardWidget(IPermissionService permissions)
 
     /// <inheritdoc />
     public override DashboardWidgetDescriptor Descriptor => _descriptor;
+    /// <inheritdoc />
+    public override Widget CreateWidget(DashboardWidgetContext context, DashboardWidgetInstance instance)
+        => new ComponentWidget<NewsFeedViewComponent>(new { refresh = context.Refresh }) { Key = instance.Id };
 }

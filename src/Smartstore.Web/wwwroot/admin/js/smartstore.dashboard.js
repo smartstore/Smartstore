@@ -114,6 +114,7 @@
         let reset = config.reset;
         let leaving = false;
         let pending;
+        let previewing = false;
         let interaction;
         let undo = [];
         let redo = [];
@@ -578,20 +579,37 @@
 
         function historyStep(from, to) {
             finish(true);
-            if (!from.length) return;
-            to.push(capture());
-            const state = from.pop();
-            const settingsChanged = state.layout.widgets.some(widget =>
+            if (previewing || !from.length) return;
+            const previous = capture();
+            const state = from[from.length - 1];
+            const settingsChanged = state.layout.widgets.filter(widget =>
                 !_.isEqual(widget.settings, widgetsById.get(widget.id)?.settings));
-            setLayout(structuredClone(state.layout));
-            reset = state.reset;
-            dirty = state.dirty;
-            if (settingsChanged || layout.widgets.some(w => !elements.has(w.id) && !unavailableIds.has(w.id))) {
-                // A reset can introduce widgets not rendered on this page. Use their normal server lifecycle.
-                submit(config.previewUrl, null, null, true);
-                return;
+            const missing = state.layout.widgets.some(w => !elements.has(w.id) && !unavailableIds.has(w.id));
+            const apply = () => {
+                to.push(previous);
+                from.pop();
+                setLayout(structuredClone(state.layout));
+                reset = state.reset;
+                dirty = state.dirty;
+                if (missing) {
+                    // A reset can introduce widgets not rendered on this page. Use their normal server lifecycle.
+                    submit(config.previewUrl, null, null, true);
+                }
+                else render();
+            };
+            if (!missing && settingsChanged.length) {
+                previewing = true;
+                root.inert = true;
+                const requests = settingsChanged.filter(widget => elements.get(widget.id)?.isConnected).map(widget =>
+                    Smartstore.Admin.Dashboard.loadWidget(elements.get(widget.id), false, {}, {
+                        changesJson: JSON.stringify({ widgets: state.layout.widgets.map(
+                            ({ id, widgetSystemName, positions, settings }) => ({ id, widgetSystemName, positions, settings })) }), layer: config.layer, reset: state.reset
+                    }));
+                Promise.allSettled(requests).then(results => {
+                    if (results.every(result => result.status === 'fulfilled')) apply();
+                }).finally(() => { previewing = false; root.inert = false; });
             }
-            render();
+            else apply();
         }
         $('#dashboard-undo').on('click', () => historyStep(undo, redo));
         $('#dashboard-redo').on('click', () => historyStep(redo, undo));
@@ -679,7 +697,7 @@
                     return this.getAttribute('href') === '#' + invalidPane.id;
                 }).tab('show');
             }
-            if (!this.reportValidity()) return;
+            if (previewing || !this.reportValidity()) return;
             const el = this.closest('[data-instance-id]');
             const widget = widgetsById.get(el.dataset.instanceId);
             const before = capture();
@@ -695,9 +713,22 @@
                         : input.type === 'number' ? input.valueAsNumber : input.value;
                 }
             });
-            widget.settings = settings;
-            remember(before);
-            submit(config.previewUrl, null, null, true);
+            previewing = true;
+            root.inert = true;
+            const draft = structuredClone(layout);
+            draft.widgets.find(item => item.id === widget.id).settings = settings;
+            Smartstore.Admin.Dashboard.loadWidget(el, false, {}, {
+                changesJson: JSON.stringify({ widgets: draft.widgets.map(
+                    ({ id, widgetSystemName, positions, settings }) => ({ id, widgetSystemName, positions, settings })) }), layer: config.layer, reset: false
+            }).done(() => {
+                root.inert = false;
+                widget.settings = settings;
+                remember(before);
+                flipConfiguration(el, false);
+            }).always(() => {
+                previewing = false;
+                root.inert = false;
+            });
         });
         $(form).on('submit', event => { event.preventDefault(); save(); });
         $('#dashboard-cancel').on('click', () => guard(shouldSave => shouldSave ? save('cancel:') : navigate(config.cancelUrl)));

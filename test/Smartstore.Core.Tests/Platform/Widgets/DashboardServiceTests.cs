@@ -458,6 +458,47 @@ public sealed class DashboardServiceTests
             async () => await service.GetDashboardAsync("admin-dashboard", null));
     }
 
+    [Test]
+    public async Task Single_Widget_Load_Preserves_Settings_And_Passes_Refresh_And_Display_Parameters()
+    {
+        var widget = new Mock<IDashboardWidget>();
+        widget.SetupGet(x => x.Descriptor).Returns(new TestDashboardWidget().Descriptor);
+        widget.Setup(x => x.IsAvailableAsync(It.IsAny<DashboardWidgetContext>(), It.IsAny<CancellationToken>())).ReturnsAsync(true);
+        widget.Setup(x => x.ValidateSettingsAsync(It.IsAny<JsonObject>(), It.IsAny<CancellationToken>())).Returns(ValueTask.CompletedTask);
+        widget.Setup(x => x.CreateWidget(It.IsAny<DashboardWidgetContext>(), It.IsAny<DashboardWidgetInstance>()))
+            .Returns(new HtmlWidget("loaded"));
+        var instance = CreateInstance() with { SettingsVersion = 2, Settings = new JsonObject { ["count"] = 10 } };
+        var layout = CreateLayout(DashboardLayoutScope.Global, widgets: [instance]);
+        var service = CreateService([widget.Object], [new TestLayoutProvider(layout)]);
+        var customer = CreateTestCustomer();
+        var parameters = new Dictionary<string, string> { ["period"] = "30", ["count"] = "999" };
+
+        var result = await service.PrepareWidgetAsync(layout, instance.Id, customer, true, parameters);
+
+        Assert.That(result, Is.Not.Null);
+        Assert.That(result!.Instance.Settings["count"]!.GetValue<int>(), Is.EqualTo(10));
+        Assert.That(result.ConfigurationRoute, Is.Null);
+        widget.Verify(x => x.CreateWidget(
+            It.Is<DashboardWidgetContext>(c => c.Refresh && !c.IsEditMode && c.Customer == customer && c.Parameters["period"] == "30"),
+            It.IsAny<DashboardWidgetInstance>()), Times.Once);
+        Assert.That(instance.Settings.ToJsonString(), Is.EqualTo("{\"count\":10}"));
+    }
+
+    [TestCase("missing", true)]
+    [TestCase("test-widget", false)]
+    public async Task Single_Widget_Load_Does_Not_Render_Missing_Or_Unauthorized_Instances(string id, bool available)
+    {
+        var widget = new Mock<IDashboardWidget>();
+        widget.SetupGet(x => x.Descriptor).Returns(new TestDashboardWidget().Descriptor);
+        widget.Setup(x => x.IsAvailableAsync(It.IsAny<DashboardWidgetContext>(), It.IsAny<CancellationToken>())).ReturnsAsync(available);
+        var layout = CreateLayout(DashboardLayoutScope.Global, widgets: [CreateInstance()]);
+        var service = CreateService([widget.Object], [new TestLayoutProvider(layout)]);
+
+        Assert.That(await service.PrepareWidgetAsync(layout, id, CreateTestCustomer(), true), Is.Null);
+        widget.Verify(x => x.CreateWidget(It.IsAny<DashboardWidgetContext>(), It.IsAny<DashboardWidgetInstance>()), Times.Never);
+        widget.Verify(x => x.ValidateSettingsAsync(It.IsAny<JsonObject>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
     /// <summary>
     /// Verifies that identifiers are normalized for safe use in CSS selectors.
     /// </summary>

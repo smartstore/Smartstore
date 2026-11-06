@@ -62,7 +62,8 @@ public sealed class PaymentMethodsDashboardWidget(
         {
             feeValues = settings.FeeValues,
             feeIsPercentage = settings.FeeIsPercentage,
-            count = settings.Count
+            count = settings.Count,
+            refresh = context.Refresh
         };
 
     /// <inheritdoc />

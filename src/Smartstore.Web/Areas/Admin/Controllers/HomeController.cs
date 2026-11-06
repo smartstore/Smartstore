@@ -86,6 +86,81 @@ public class HomeController : AdminController
     }
 
     /// <summary>
+    /// Reloads one widget from the selected dashboard or a validated, unpersisted draft.
+    /// </summary>
+    [HttpPost, ValidateAntiForgeryToken, Permission(Permissions.Dashboard.Read), RequestSizeLimit(262144)]
+    public async Task<IActionResult> DashboardWidget(
+        string instanceId,
+        bool refresh = false,
+        Dictionary<string, string> parameters = null,
+        string changesJson = null,
+        DashboardLayoutLayer? layer = null,
+        bool reset = false)
+    {
+        if (!ModelState.IsValid || !instanceId.HasValue())
+        {
+            return BadRequest();
+        }
+
+        var customer = Services.WorkContext.CurrentCustomer;
+        if (changesJson != null)
+        {
+            if (!layer.HasValue)
+            {
+                return BadRequest();
+            }
+
+            await AuthorizeDashboardEditAsync(layer.Value);
+        }
+
+        try
+        {
+            DashboardLayoutState state;
+            if (changesJson != null)
+            {
+                state = await ReadDashboardDraftAsync(changesJson, layer.Value, reset);
+                await _dashboardService.ValidateDraftAsync(state.Layout, customer, layer.Value, HttpContext.RequestAborted);
+            }
+            else
+            {
+                state = await _dashboardService.GetLayoutStateAsync(
+                    AdminDashboardLayoutProvider.Id,
+                    customer,
+                    await GetDashboardViewLayerAsync(),
+                    cancelToken: HttpContext.RequestAborted);
+            }
+
+            var item = await _dashboardService.PrepareWidgetAsync(
+                state.Layout,
+                instanceId,
+                customer,
+                refresh,
+                parameters,
+                HttpContext.RequestAborted);
+
+            if (item == null)
+            {
+                return NotFound();
+            }
+
+            return PartialView("_DashboardWidget", item);
+        }
+        catch (Exception ex) when (ex is JsonException or ArgumentException or InvalidOperationException or KeyNotFoundException)
+        {
+            return BadRequest();
+        }
+    }
+
+    private async Task<DashboardLayoutLayer> GetDashboardViewLayerAsync()
+    {
+        var selected = await Services.Permissions.AuthorizeAsync(Permissions.Dashboard.ManageGlobal)
+            ? _dashboardService.GetSelectedLayer(AdminDashboardLayoutProvider.Id, Services.WorkContext.CurrentCustomer)
+            : DashboardLayoutLayer.User;
+
+        return selected == DashboardLayoutLayer.Global ? selected : DashboardLayoutLayer.User;
+    }
+
+    /// <summary>
     /// Changes only the current user's dashboard view selection.
     /// </summary>
     [HttpPost, Permission(Permissions.Dashboard.Read)]
@@ -274,13 +349,7 @@ public class HomeController : AdminController
         var customer = Services.WorkContext.CurrentCustomer;
         var canPersonalize = await Services.Permissions.AuthorizeAsync(Permissions.Dashboard.Personalize);
         var canManageGlobal = await Services.Permissions.AuthorizeAsync(Permissions.Dashboard.ManageGlobal);
-        var selected = canManageGlobal
-            ? _dashboardService.GetSelectedLayer(AdminDashboardLayoutProvider.Id, customer)
-            : DashboardLayoutLayer.User;
-        if (selected == DashboardLayoutLayer.System)
-        {
-            selected = DashboardLayoutLayer.User;
-        }
+        var selected = await GetDashboardViewLayerAsync();
         var target = editing ? layer ?? selected : selected;
         if (editing && layer == null && target == DashboardLayoutLayer.User && !canPersonalize && canManageGlobal)
         {

@@ -59,6 +59,18 @@ public interface IDashboardService
     ValueTask<DashboardRenderModel> PrepareDashboardAsync(DashboardLayout layout, Customer? customer, bool isEditMode = false, CancellationToken cancelToken = default);
 
     /// <summary>
+    /// Prepares one available widget from a server-resolved layout, including its saved settings.
+    /// Returns null when the instance is missing or unavailable to the customer.
+    /// </summary>
+    ValueTask<DashboardRenderItem?> PrepareWidgetAsync(
+        DashboardLayout layout,
+        string instanceId,
+        Customer? customer,
+        bool refresh = false,
+        IReadOnlyDictionary<string, string>? parameters = null,
+        CancellationToken cancelToken = default);
+
+    /// <summary>
     /// Gets the descriptors of all registered dashboard widget types.
     /// </summary>
     /// <returns>The widget descriptors in their declared display order.</returns>

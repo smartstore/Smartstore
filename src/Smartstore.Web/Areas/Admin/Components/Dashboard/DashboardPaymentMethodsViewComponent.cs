@@ -34,7 +34,7 @@ public class DashboardPaymentMethodsViewComponent : SmartViewComponent
     /// <summary>
     /// Builds the payment method ranking across all order dates and statuses.
     /// </summary>
-    public async Task<IViewComponentResult> InvokeAsync(IReadOnlyDictionary<string, decimal> feeValues = null, bool configure = false, int count = 10,
+    public async Task<IViewComponentResult> InvokeAsync(IReadOnlyDictionary<string, decimal> feeValues = null, bool configure = false, int count = 10, bool refresh = false,
         IReadOnlyDictionary<string, bool> feeIsPercentage = null)
     {
         if (!await Services.Permissions.AuthorizeAsync(RequiredPermission))
@@ -74,6 +74,11 @@ public class DashboardPaymentMethodsViewComponent : SmartViewComponent
         var authorizedStoreIds = await Services.StoreMappingService.GetAuthorizedStoreIdsAsync(nameof(Customer), Services.WorkContext.CurrentCustomer.Id);
         var storeKey = authorizedStoreIds.Length == 0 ? "all" : string.Join("-", authorizedStoreIds.Order());
         var cacheKey = $"admin:dashboard:paymentmethods:v2:{storeKey}";
+        if (refresh)
+        {
+            await Services.Cache.RemoveAsync(cacheKey);
+        }
+
         var totals = await Services.Cache.GetAsync(cacheKey, async ctx =>
         {
             ctx.ExpiresIn(TimeSpan.FromMinutes(5));

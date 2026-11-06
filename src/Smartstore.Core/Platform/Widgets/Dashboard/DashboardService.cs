@@ -204,18 +204,7 @@ public partial class DashboardService : IDashboardService
                 continue;
             }
 
-            var runtimeInstance = await PrepareWidgetInstanceAsync(dashboardWidget, instance, cancelToken);
-            var policy = DashboardWidgetPolicy.Combine(descriptor.Policy, runtimeInstance.Policy);
-
-            items.Add(new DashboardRenderItem
-            {
-                Instance = runtimeInstance,
-                Descriptor = descriptor,
-                Policy = policy,
-                Widget = dashboardWidget.CreateWidget(context, runtimeInstance),
-                ConfigurationRoute = context.IsEditMode && policy.AllowConfigure
-                    ? dashboardWidget.GetConfigurationRoute() : null
-            });
+            items.Add(await PrepareRenderItemAsync(dashboardWidget, instance, context, cancelToken));
         }
 
         return new DashboardRenderModel
@@ -223,6 +212,58 @@ public partial class DashboardService : IDashboardService
             Layout = layout,
             Context = context,
             Widgets = items
+        };
+    }
+
+    /// <inheritdoc />
+    public virtual async ValueTask<DashboardRenderItem?> PrepareWidgetAsync(
+        DashboardLayout layout,
+        string instanceId,
+        Customer? customer,
+        bool refresh = false,
+        IReadOnlyDictionary<string, string>? parameters = null,
+        CancellationToken cancelToken = default)
+    {
+        Guard.NotEmpty(instanceId);
+        ValidateLayout(layout, layout.Id, customer);
+        var instance = layout.Widgets.FirstOrDefault(x => x.Id == instanceId);
+        if (instance == null || !Widgets.TryGetValue(instance.WidgetSystemName, out var registration))
+        {
+            return null;
+        }
+
+        var context = new DashboardWidgetContext
+        {
+            DashboardId = layout.Id,
+            Customer = customer,
+            Refresh = refresh,
+            Parameters = parameters ?? new Dictionary<string, string>()
+        };
+        var widget = ResolveWidget(registration);
+        if (!await widget.IsAvailableAsync(context, cancelToken))
+        {
+            return null;
+        }
+
+        return await PrepareRenderItemAsync(widget, instance, context, cancelToken);
+    }
+
+    private async ValueTask<DashboardRenderItem> PrepareRenderItemAsync(
+        IDashboardWidget widget,
+        DashboardWidgetInstance instance,
+        DashboardWidgetContext context,
+        CancellationToken cancelToken)
+    {
+        var runtimeInstance = await PrepareWidgetInstanceAsync(widget, instance, cancelToken);
+        var policy = DashboardWidgetPolicy.Combine(widget.Descriptor.Policy, runtimeInstance.Policy);
+        return new DashboardRenderItem
+        {
+            Instance = runtimeInstance,
+            Descriptor = widget.Descriptor,
+            Policy = policy,
+            Widget = widget.CreateWidget(context, runtimeInstance),
+            ConfigurationRoute = context.IsEditMode && policy.AllowConfigure
+                ? widget.GetConfigurationRoute() : null
         };
     }
 

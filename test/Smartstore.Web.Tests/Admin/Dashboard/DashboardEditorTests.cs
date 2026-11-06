@@ -1,3 +1,6 @@
+using System.Text.Encodings.Web;
+using Microsoft.AspNetCore.Razor.TagHelpers;
+using Smartstore.Web.TagHelpers.Shared;
 using FluentValidation;
 using Smartstore.Engine.Modularity;
 using Smartstore.Core.Data;
@@ -110,6 +113,81 @@ public class HomeControllerDashboardTests
         Assert.That(result, Is.TypeOf<NotFoundResult>());
         dashboard.Verify(x => x.ValidateDraftAsync(It.IsAny<DashboardLayout>(), It.IsAny<Customer>(), DashboardLayoutLayer.User,
             It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [TestCase(false, DashboardLayoutLayer.Global, DashboardLayoutLayer.User)]
+    [TestCase(true, DashboardLayoutLayer.Global, DashboardLayoutLayer.Global)]
+    [TestCase(true, DashboardLayoutLayer.System, DashboardLayoutLayer.User)]
+    public async Task Refresh_Uses_The_Authorized_Selected_View(bool manageGlobal, DashboardLayoutLayer selected, DashboardLayoutLayer expected)
+    {
+        Mock<IDashboardService> service = null;
+        var controller = CreateController(false, manageGlobal, selected, mock => service = mock);
+        var result = await controller.DashboardWidget("missing", true);
+        Assert.That(result, Is.TypeOf<NotFoundResult>());
+        service.Verify(x => x.GetLayoutStateAsync("admin-dashboard", It.IsAny<Customer>(), expected, false, It.IsAny<CancellationToken>()), Times.Once());
+        service.Verify(x => x.PrepareWidgetAsync(It.IsAny<DashboardLayout>(), "missing", It.IsAny<Customer>(), true,
+            It.IsAny<IReadOnlyDictionary<string, string>>(), It.IsAny<CancellationToken>()), Times.Once());
+        service.Verify(x => x.SaveLayoutAsync(It.IsAny<DashboardLayout>(), It.IsAny<Customer>(), It.IsAny<DashboardLayoutLayer>(),
+            It.IsAny<bool>(), It.IsAny<CancellationToken>()), Times.Never());
+    }
+
+    [Test]
+    public async Task Widget_Draft_Is_Validated_Without_Persisting()
+    {
+        Mock<IDashboardService> service = null;
+        var controller = CreateController(true, false, DashboardLayoutLayer.User, mock => service = mock);
+        var result = await controller.DashboardWidget("missing", changesJson: "{\"widgets\":[]}", layer: DashboardLayoutLayer.User);
+        Assert.That(result, Is.TypeOf<NotFoundResult>());
+        service.Verify(x => x.ValidateDraftAsync(It.IsAny<DashboardLayout>(), It.IsAny<Customer>(), DashboardLayoutLayer.User,
+            It.IsAny<CancellationToken>()), Times.Once());
+        service.Verify(x => x.SaveLayoutAsync(It.IsAny<DashboardLayout>(), It.IsAny<Customer>(), It.IsAny<DashboardLayoutLayer>(),
+            It.IsAny<bool>(), It.IsAny<CancellationToken>()), Times.Never());
+    }
+
+    [Test]
+    public async Task Widget_Preview_Passes_Draft_Settings_To_The_Existing_Renderer()
+    {
+        Mock<IDashboardService> service = null;
+        var widget = new LatestOrdersDashboardWidget(Mock.Of<IPermissionService>(), new LatestOrdersDashboardWidgetValidator());
+        var controller = CreateController(true, false, DashboardLayoutLayer.User, mock =>
+        {
+            service = mock;
+            mock.Setup(x => x.GetWidget(LatestOrdersDashboardWidget.SystemName)).Returns(widget);
+        });
+        var changes = new DashboardLayoutChanges([new DashboardWidgetPlacement("latest", LatestOrdersDashboardWidget.SystemName,
+            [new DashboardWidgetPosition { Size = new DashboardWidgetSize(4) }], new JsonObject { ["count"] = 12 })]);
+        await controller.DashboardWidget("latest", changesJson: JsonSerializer.Serialize(changes, SmartJsonOptions.CamelCased),
+            layer: DashboardLayoutLayer.User);
+        service.Verify(x => x.PrepareWidgetAsync(
+            It.Is<DashboardLayout>(layout => layout.Widgets.Single().Settings["count"].GetValue<int>() == 12),
+            "latest", It.IsAny<Customer>(), false, It.IsAny<IReadOnlyDictionary<string, string>>(), It.IsAny<CancellationToken>()), Times.Once());
+        service.Verify(x => x.SaveLayoutAsync(It.IsAny<DashboardLayout>(), It.IsAny<Customer>(), It.IsAny<DashboardLayoutLayer>(),
+            It.IsAny<bool>(), It.IsAny<CancellationToken>()), Times.Never());
+    }
+
+    [Test]
+    public void Widget_Draft_Requires_Edit_Permission()
+    {
+        var controller = CreateController(false, false, DashboardLayoutLayer.User);
+        Assert.ThrowsAsync<AccessDeniedException>(async () => await controller.DashboardWidget("widget",
+            changesJson: "{\"widgets\":[]}", layer: DashboardLayoutLayer.User));
+    }
+
+    [Test]
+    public async Task Widget_Draft_Rejects_Invalid_Json()
+    {
+        var controller = CreateController(true, false, DashboardLayoutLayer.User);
+        Assert.That(await controller.DashboardWidget("widget", changesJson: "invalid", layer: DashboardLayoutLayer.User),
+            Is.TypeOf<BadRequestResult>());
+    }
+
+    [Test]
+    public void Refresh_Endpoint_Requires_Read_Permission_Post_And_Antiforgery()
+    {
+        var method = typeof(HomeController).GetMethod(nameof(HomeController.DashboardWidget));
+        Assert.That(method.GetCustomAttribute<HttpPostAttribute>(), Is.Not.Null);
+        Assert.That(method.GetCustomAttribute<ValidateAntiForgeryTokenAttribute>(), Is.Not.Null);
+        Assert.That(method.GetCustomAttribute<PermissionAttribute>(), Is.Not.Null);
     }
 
     [TestCase(false, DashboardLayoutLayer.System)]
@@ -1064,5 +1142,34 @@ public class PaymentMethodsConfigurationTests
 
         public override Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default)
             => SaveChangesCoreAsync(acceptAllChangesOnSuccess, cancellationToken);
+    }
+}
+
+[TestFixture]
+public class WidgetAjaxRenderingTests
+{
+    [TestCase(false)]
+    [TestCase(true)]
+    public async Task Ajax_Only_Renders_Explicitly_Opted_In_Initialization(bool renderOnAjax)
+    {
+        var provider = new Mock<IWidgetProvider>();
+        var http = new DefaultHttpContext();
+        http.Request.Headers["X-Requested-With"] = "XMLHttpRequest";
+        var helper = new HtmlWidgetTagHelper(provider.Object)
+        {
+            TargetZone = "scripts",
+            RenderOnAjax = renderOnAjax,
+            ViewContext = new ViewContext { HttpContext = http }
+        };
+        var context = new TagHelperContext("script", new TagHelperAttributeList(), new Dictionary<object, object>(), "init");
+        var output = new TagHelperOutput("script", new TagHelperAttributeList(), (_, _) =>
+            Task.FromResult<TagHelperContent>(new DefaultTagHelperContent().SetHtmlContent("initializeChart();")));
+
+        await helper.ProcessAsync(context, output);
+
+        using var writer = new System.IO.StringWriter();
+        output.WriteTo(writer, HtmlEncoder.Default);
+        Assert.That(writer.ToString(), Is.EqualTo(renderOnAjax ? "<script>initializeChart();</script>" : ""));
+        provider.VerifyNoOtherCalls();
     }
 }

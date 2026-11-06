@@ -51,7 +51,7 @@
     </div>
 </div>
 
-<script sm-target-zone="scripts" data-origin="DashboardOrders">
+<script sm-target-zone="scripts" sm-render-on-ajax="true" data-origin="DashboardOrders">
     $(function () {
         const data = @Html.Raw(jsonData);
         if (document.documentElement.getAttribute('dir') == 'rtl') {

@@ -34,14 +34,20 @@ public class DashboardCookieConsentsViewComponent : SmartViewComponent
     /// <summary>
     /// Reads consent attributes in bounded batches and renders their aggregate counts.
     /// </summary>
-    public async Task<IViewComponentResult> InvokeAsync()
+    public async Task<IViewComponentResult> InvokeAsync(bool refresh = false)
     {
         if (!await Services.Permissions.AuthorizeAsync(RequiredPermission))
         {
             return Empty();
         }
 
-        var model = await Services.Cache.GetAsync("admin:dashboard:cookieconsents", async ctx =>
+        const string cacheKey = "admin:dashboard:cookieconsents";
+        if (refresh)
+        {
+            await Services.Cache.RemoveAsync(cacheKey);
+        }
+
+        var model = await Services.Cache.GetAsync(cacheKey, async ctx =>
         {
             ctx.ExpiresIn(TimeSpan.FromHours(24));
 
