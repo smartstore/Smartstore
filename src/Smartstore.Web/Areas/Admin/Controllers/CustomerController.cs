@@ -1515,6 +1515,10 @@ public class CustomerController : AdminController
         ModelState.Clear();
 
         var csm = model.CustomerSettings;
+        csm.CustomerNameAllowedCharacters = csm.CustomerNameAllowedCharacters == null
+            ? null
+            : new string(csm.CustomerNameAllowedCharacters.Distinct().ToArray());
+
         var identityOptionsChanged = csm.PasswordMinLength != customerSettings.PasswordMinLength
             || csm.PasswordRequireDigit != customerSettings.PasswordRequireDigit
             || csm.PasswordRequireUppercase != customerSettings.PasswordRequireUppercase

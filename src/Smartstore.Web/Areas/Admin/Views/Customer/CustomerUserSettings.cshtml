@@ -109,10 +109,14 @@
                     </div>
                     <div class="adminData wide">
                         <setting-editor asp-for="CustomerSettings.CustomerNameAllowedCharacters"></setting-editor>
-                        <span class="d-inline-block text-muted pt-2">
-                            @T("Admin.Configuration.Settings.CustomerUser.CustomerNameAllowedCharacters.AdminHint")
-                            <code>a-z</code>, <code>A-Z</code>, <code>0-9</code>, <code>-</code>, <code>.</code>, <code>_</code>, <code>@@</code>, <code>+</code>
-                        </span>
+                        <div class="form-text text-muted" aria-live="polite">
+                            <div id="username-all-characters-hint">
+                                @T("Admin.Configuration.Settings.CustomerUser.CustomerNameAllowedCharacters.AllCharactersHint")
+                            </div>
+                            <div id="username-restricted-characters-hint">
+                                @Html.Raw(T("Admin.Configuration.Settings.CustomerUser.CustomerNameAllowedCharacters.AdminHint"))
+                            </div>
+                        </div>
                         <span asp-validation-for="CustomerSettings.CustomerNameAllowedCharacters"></span>
                     </div>
                 </div>
@@ -908,5 +912,14 @@
 
         $elLoginType.add($elNameFormat).on('change', toggleUsernameSettings);
         toggleUsernameSettings();
+
+        $('#@Html.IdFor(x => x.CustomerSettings.CustomerNameAllowedCharacters)').on('input', (e) => {
+            const additionalChars = [...new Set($(e.currentTarget).val().trim().split(''))].join('');
+            const restricted = additionalChars.length > 0;
+
+            $('#username-all-characters-hint').toggle(!restricted);
+            $('#username-restricted-characters-hint').toggle(restricted);
+            $('#username-additional-characters').text(additionalChars);
+        }).trigger('input');
     });
 </script>

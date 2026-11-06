@@ -428,6 +428,25 @@ public class SmartDbContextDataSeeder : IDataSeeder<SmartDbContext>
             "Specify the entries available for salutation selection when entering an address.",
             "Bestimmen Sie hier die Einträge, die bei der Adresserfassung als Anrede ausgewählt werden können.");
 
+        builder.AddOrUpdate("Admin.Configuration.Settings.CustomerUser.CustomerNameAllowedCharacters",
+            "Additional username characters",
+            "Zusätzliche Zeichen für Benutzernamen",
+            "When this field contains a value, usernames may contain the default characters a-z, A-Z, 0-9, space, -, ., _, @ and +, as well as the characters entered here."
+            + " Leave empty to allow all characters.",
+            "Wenn dieses Feld einen Wert enthält, dürfen Benutzernamen die Standardzeichen a-z, A-Z, 0-9, Leerzeichen, -, ., _, @ und + sowie die hier eingegebenen Zeichen enthalten."
+            + " Leer lassen, um alle Zeichen zu erlauben.");
+
+        const string defaultCharsStr = "<code>a-z</code>, <code>A-Z</code>, <code>0-9</code>, <code>-</code>, <code>.</code>, <code>_</code>, <code>@</code>, <code>+</code>";
+        const string additionalCharsStr = "<code id=\"username-additional-characters\"></code>";
+
+        builder.AddOrUpdate("Admin.Configuration.Settings.CustomerUser.CustomerNameAllowedCharacters.AdminHint",
+            $"Allowed default characters: {defaultCharsStr}, including spaces. Additionally allowed: {additionalCharsStr}.",
+            $"Erlaubte Standardzeichen: {defaultCharsStr}, einschließlich Leerzeichen. Zusätzlich erlaubt: {additionalCharsStr}.");
+
+        builder.AddOrUpdate("Admin.Configuration.Settings.CustomerUser.CustomerNameAllowedCharacters.AllCharactersHint",
+            "All characters are allowed.",
+            "Alle Zeichen sind erlaubt.");
+
         builder.AddOrUpdate(prefix + "DisplayAllImagesNumber",
             "Show all product images up to",
             "Alle Produktbilder anzeigen bis",
