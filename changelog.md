@@ -31,6 +31,7 @@
 - #1032 Add an option to also offer Amazon Pay on the payment method page in checkout.
 - #1564 MegaSearch: Added a setting to determine the relevance of a search hit using the best matching field.
 - #1580 Allow checkout attributes to be conditionally displayed using cart rules.
+- #1551 Allow users to set an alias username in the *My Account* section.
 - Dimension Pricing plugin (commercial module)
 	- Calculates product and shipping prices based on customer-entered dimensions and weight.
 	- Supports formulas, packing rules, girth and volumetric limits, rate tiers and surcharges.
@@ -178,6 +179,7 @@
 - #1576 GoogleAnalytics: purchase event has no product-ID token (mismatch with Merchant Center feed id).
 - Sorting by creation date in the product grid did not work when the catalog search was enabled in the backend.
 - Fixed the discount calculation when the quantity of an order item is subsequently changed.
+- Fixed identity options were not applied when they were changed in the backend.
 
 ## Smartstore 6.4.0
 
