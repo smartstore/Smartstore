@@ -57,9 +57,14 @@
                 </div>
                 @if (Model.Context.IsEditMode && item.Policy.AllowResize)
                 {
-                    <button sm-if="item.Policy.AllowMove" type="button" class="dashboard-resize z-2 position-absolute border-0 bg-transparent p-0 top-0 start-0 h-100" data-dashboard-resize="width-start" aria-label="@T("Admin.Dashboard.Editor.Width")"></button>
-                    <button type="button" class="dashboard-resize z-2 position-absolute border-0 bg-transparent p-0 top-0 end-0 h-100" data-dashboard-resize="width" aria-label="@T("Admin.Dashboard.Editor.Width")"></button>
-                    <button type="button" class="dashboard-resize z-2 position-absolute border-0 bg-transparent p-0 bottom-0 start-0 w-100" data-dashboard-resize="height" aria-label="@T("Admin.Dashboard.Editor.Height")"></button>
+                    <button sm-if="item.Policy.AllowMove" type="button" class="dashboard-resize z-2 position-absolute border-0 bg-transparent p-0 top-0 start-0 h-100"
+                            data-dashboard-resize="width-start" aria-label="@T("Admin.Dashboard.Editor.Width")"></button>
+                    <button type="button" class="dashboard-resize z-2 position-absolute border-0 bg-transparent p-0 top-0 end-0 h-100"
+                            data-dashboard-resize="width" aria-label="@T("Admin.Dashboard.Editor.Width")"></button>
+                    <button type="button" class="dashboard-resize z-2 position-absolute border-0 bg-transparent p-0 bottom-0 start-0 w-100"
+                            data-dashboard-resize="height" aria-label="@T("Admin.Dashboard.Editor.Height")"></button>
+                    <button sm-if="item.Policy.AllowMove" type="button" class="dashboard-resize z-2 position-absolute border-0 bg-transparent p-0 top-0 start-0 w-100"
+                            data-dashboard-resize="height-start" aria-label="@T("Admin.Dashboard.Editor.Height")"></button>
                 }
                 <div class="dashboard-widget-content h-100">
                     @await item.Widget.InvokeAsync(ViewContext)

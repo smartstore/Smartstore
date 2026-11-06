@@ -24,23 +24,25 @@
                     size.columnSpan === item.size.columnSpan && size.rowSpan === span));
         }
 
-        // Resize only into existing, unoccupied cells. Inserting a row is an explicit button action.
-        static resizeRows(items, id, span) {
+        // Resize into existing, unoccupied cells, keeping the opposite edge fixed.
+        static resizeRows(items, id, span, fromStart = false) {
             const item = items.find(item => item.id === id);
             if (!item || !this.allowsSpan(item, span)) return null;
-            const target = { ...item, size: { ...item.size, rowSpan: span } };
+            const target = { ...item, row: fromStart ? item.row + (item.size.rowSpan || 1) - span : item.row,
+                size: { ...item.size, rowSpan: span } };
+            if (target.row < 0) return null;
             if (items.some(other => other.id !== id && this.overlaps(target, other))) return null;
             return items.map(other => other.id === id ? target : { ...other, size: { ...other.size } });
         }
 
-        static extend(items, id, rowCount) {
+        static extend(items, id, rowCount, fromStart = false) {
             const item = items.find(item => item.id === id);
             if (!item) return null;
             const span = (item.size.rowSpan || 1) + 1;
             if (!this.allowsSpan(item, span)) return null;
-            const row = item.row + span - 1;
-            const expanded = this.resizeRows(items, id, span);
-            if (row < rowCount && expanded) return expanded;
+            const row = fromStart ? item.row : item.row + span - 1;
+            const expanded = this.resizeRows(items, id, span, fromStart);
+            if ((fromStart ? item.row > 0 : row < rowCount) && expanded) return expanded;
 
             const proposed = items.map(other => ({ ...other, size: { ...other.size } }));
             for (const other of proposed) {
@@ -56,6 +58,34 @@
                 }
             }
             return proposed;
+        }
+
+        // Each gesture extends by one adjacent row, reusing free cells before inserting a row.
+        static resizeEdge(items, id, span, rowCount, fromStart = false, columns) {
+            const original = items.find(item => item.id === id);
+            if (span <= (original.size.rowSpan || 1)) {
+                return { items: this.resizeRows(items, id, span, fromStart), insertionRow: null };
+            }
+            if (fromStart && original.row === 0 && original.column === 0 && original.size.columnSpan === columns &&
+                !items.some(item => item.id !== id && item.row === 0)) {
+                const blocked = items.some(item => item.locked || item.row >= 10000);
+                return {
+                    items: blocked ? null : items.map(item => ({ ...item, row: item.row + 1, size: { ...item.size } })),
+                    insertionRow: 0
+                };
+            }
+            const next = (original.size.rowSpan || 1) + 1;
+            const row = fromStart ? original.row : original.row + next - 1;
+            const free = this.resizeRows(items, id, next, fromStart);
+            if ((fromStart ? original.row > 0 : row < rowCount) && free) {
+                return { items: free, insertionRow: null };
+            }
+            return { items: this.extend(items, id, rowCount, fromStart), insertionRow: row };
+        }
+
+        static fits(items, target, columns) {
+            return target.row >= 0 && target.column >= 0 && target.column + target.size.columnSpan <= columns &&
+                !items.some(other => other.id !== target.id && this.overlaps(target, other));
         }
 
         // Compact only on save. Rows preceding locked placements must retain their indices.
@@ -75,8 +105,6 @@
         }
 
         static arrange(items, columns, changedId) {
-            const overlap = (a, b) => a.column < b.column + b.size.columnSpan && b.column < a.column + a.size.columnSpan &&
-                a.row < b.row + (b.size.rowSpan || 1) && b.row < a.row + (a.size.rowSpan || 1);
             const ordered = [...items].sort((a, b) => Number(!!b.locked) - Number(!!a.locked) ||
                 Number(b.id === changedId) - Number(a.id === changedId) || a.row - b.row || a.column - b.column);
             const placed = [];
@@ -85,7 +113,7 @@
                     item.size.columnSpan = Math.min(columns, item.size.columnSpan);
                     item.column = Math.max(0, Math.min(columns - item.size.columnSpan, item.column));
                     item.row = Math.max(0, item.row);
-                    while (placed.some(other => overlap(item, other))) item.row++;
+                    while (placed.some(other => this.overlaps(item, other))) item.row++;
                 }
                 placed.push(item);
             }
@@ -125,8 +153,9 @@
             .sort((a, b) => breakpoints.indexOf(b.breakpoint) - breakpoints.indexOf(a.breakpoint))[0];
         container.querySelectorAll('[data-instance-id]').forEach(el => {
             elements.set(el.dataset.instanceId, el);
+            el.classList.add('z-1');
             if (el.querySelector('.dashboard-widget-overlay')) {
-                el.querySelectorAll('.dashboard-widget-body > :not(.dashboard-widget-tools):not(.dashboard-resize):not(.dashboard-extend)').forEach(content => {
+                el.querySelectorAll('.dashboard-widget-body > :not(.dashboard-widget-tools):not(.dashboard-resize):not(.dashboard-widget-overlay)').forEach(content => {
                     content.inert = true;
                 });
             }
@@ -155,8 +184,8 @@
         const engine = Smartstore.Admin.DashboardEngine;
         const gridCells = [];
         let gridShape;
-        const previewCells = [];
         layout.rowCounts = {};
+        layout.rowMinimums = {};
         function gridItems(tier = breakpoint) {
             return visible().filter(widget => !isNews(widget)).map(widget => {
                 const descriptor = config.widgets.find(choice => choice.systemName === widget.widgetSystemName);
@@ -176,6 +205,11 @@
         function drawGrid() {
             const bottom = Math.max(1, ...gridItems().map(item => item.row + (item.size.rowSpan || 1)));
             const count = layout.rowCounts[breakpoint] = Math.max(layout.rowCounts[breakpoint] || 0, bottom);
+            const minimums = layout.rowMinimums[breakpoint];
+            const occupied = new Set(gridItems().flatMap(item =>
+                Array.from({ length: item.size.rowSpan || 1 }, (_, offset) => item.row + offset)));
+            container.style.gridTemplateRows = minimums ? Array.from({ length: count }, (_, row) =>
+                `minmax(${occupied.has(row) ? Math.max(minimumRowHeight(), minimums[row] || 0) : minimumRowHeight()}px, auto)`).join(' ') : '';
             const shape = `${columns()}:${count}`;
             if (shape === gridShape) return;
             gridShape = shape;
@@ -184,7 +218,7 @@
             for (let row = 0; row < count; row++) {
                 for (let column = 0; column < columns(); column++) {
                     const cell = document.createElement('div');
-                    cell.className = 'dashboard-grid-cell rounded pe-none';
+                    cell.className = 'dashboard-grid-cell rounded pe-none z-0';
                     cell.setAttribute('aria-hidden', 'true');
                     cell.style.gridArea = `${row + 1} / ${column + 1}`;
                     container.appendChild(cell);
@@ -192,76 +226,23 @@
                 }
             }
         }
-        function clearExtensionPreview() {
-            previewCells.forEach(cell => cell.remove());
-            previewCells.length = 0;
+        function minimumRowHeight() {
+            return parseFloat(getComputedStyle(gridCells[0]).minHeight);
         }
-        function extensionPreview(button) {
-            if (interaction) return;
-            clearExtensionPreview();
-            const id = button.closest('[data-instance-id]').dataset.instanceId;
-            const items = gridItems();
-            const proposed = engine.extend(items, id, layout.rowCounts[breakpoint]);
-            button.disabled = !proposed;
-            if (!proposed) return;
-            const item = items.find(item => item.id === id);
-            const row = item.row + (item.size.rowSpan || 1);
-            const reuse = row < layout.rowCounts[breakpoint] && engine.resizeRows(items, id, (item.size.rowSpan || 1) + 1);
-            const rect = elements.get(id).getBoundingClientRect();
-            const gap = parseFloat(getComputedStyle(container).rowGap) || 0;
-            const first = gridCells[row * columns() + item.column]?.getBoundingClientRect();
-            const top = reuse ? first.top : rect.bottom;
-            const height = reuse ? first.height : gap;
-            function mark(left, width, insertion = false) {
-                const marker = document.createElement('div');
-                marker.className = 'dashboard-grid-preview position-fixed border border-primary rounded pe-none z-3';
-                marker.classList.toggle('dashboard-grid-insertion', insertion);
-                marker.setAttribute('aria-hidden', 'true');
-                Object.assign(marker.style, { left: `${left}px`, top: `${top}px`, width: `${width}px`, height: `${height}px` });
-                document.body.appendChild(marker);
-                previewCells.push(marker);
-            }
-            // Fixed overlays cannot create tracks or contribute to the grid's intrinsic row heights.
-            if (!reuse) {
-                const start = gridCells[0].getBoundingClientRect();
-                const end = gridCells[columns() - 1].getBoundingClientRect();
-                mark(Math.min(start.left, end.left), Math.max(start.right, end.right) - Math.min(start.left, end.left), true);
-            }
-            mark(rect.left, rect.width);
+        function reserveRows(rows, insertionRow) {
+            const minimums = rows.map(row => row.bottom - row.top);
+            if (insertionRow !== null) minimums.splice(insertionRow, 0, minimumRowHeight());
+            layout.rowMinimums[breakpoint] = minimums;
         }
-        container.addEventListener('pointerover', event => {
-            const button = event.target.closest('[data-dashboard-extend]');
-            if (button && !button.contains(event.relatedTarget)) extensionPreview(button);
-        });
-        container.addEventListener('pointerout', event => {
-            const button = event.target.closest('[data-dashboard-extend]');
-            if (button && !button.contains(event.relatedTarget)) clearExtensionPreview();
-        });
-        container.addEventListener('focusin', event => {
-            const button = event.target.closest('[data-dashboard-extend]');
-            if (button) extensionPreview(button);
-        });
-        container.addEventListener('focusout', clearExtensionPreview);
-        document.addEventListener('scroll', clearExtensionPreview, true);
-        container.addEventListener('click', event => {
-            const button = event.target.closest('[data-dashboard-extend]');
-            if (!button || interaction) return;
-            clearExtensionPreview();
-            const items = gridItems();
-            const id = button.closest('[data-instance-id]').dataset.instanceId;
-            const proposed = engine.extend(items, id, layout.rowCounts[breakpoint]);
-            if (!proposed) return;
-            const before = capture();
-            const item = items.find(item => item.id === id);
-            const end = item.row + (item.size.rowSpan || 1);
-            if (end >= layout.rowCounts[breakpoint] || !engine.resizeRows(items, id, (item.size.rowSpan || 1) + 1)) {
-                layout.rowCounts[breakpoint]++;
+        function clearInsertionPreview(state) {
+            state.insertionPreview?.remove();
+            state.insertionPreview = null;
+            for (const [element, translate] of state.translated || []) {
+                if (translate === undefined) delete element.style.translate;
+                else element.style.translate = translate;
             }
-            applyItems(proposed);
-            render(false);
-            remember(before);
-        });
-
+            state.translated = [];
+        }
         function arrange(changedId) {
             const items = visible().filter(widget => !isNews(widget)).map(widget => ({
                 ...structuredClone(position(widget)), id: widget.id, locked: !widget.allowMove
@@ -289,13 +270,9 @@
                 }
             }
             drawGrid();
-            const items = gridItems();
-            for (const button of container.querySelectorAll('[data-dashboard-extend]')) {
-                button.disabled = !engine.extend(items, button.closest('[data-instance-id]').dataset.instanceId, layout.rowCounts[breakpoint]);
-            }
             if (updateToolbar) updateControls();
         }
-        // Geometry is already stored in the draft; never infer heights from stretched grid cells.
+        // History includes editor-only row minimums; saving submits only widget placements and settings.
         function capture() { return structuredClone({ layout, reset, dirty }); }
         function remember(state, preview = false) {
             if (!preview && _.isEqual(state.layout, layout) && state.reset === reset) return;
@@ -320,7 +297,6 @@
 
         function start(event, widget, kind) {
             if (interaction || (event.button !== undefined && event.button !== 0)) return;
-            clearExtensionPreview();
             const el = elements.get(widget.id);
             const gridRect = container.getBoundingClientRect();
             const style = getComputedStyle(container);
@@ -338,8 +314,10 @@
                 return track;
             });
             interaction = { before: capture(), id: widget.id, kind, x: event.clientX, y: event.clientY,
-                starts, rows, scroll: scrollContainer.scrollTop, pointer: event.pointerId,
-                original: structuredClone(position(widget)), target: event.currentTarget };
+                starts, rows, gap, rowGap, scroll: scrollContainer.scrollTop, pointer: event.pointerId,
+                original: structuredClone(position(widget)), target: event.currentTarget, cursor: document.body.style.cursor };
+            document.body.style.cursor = kind === 'move' ? 'move' : kind.startsWith('height') ? 'ns-resize' : 'ew-resize';
+            document.body.classList.add('dashboard-dragging');
             if (event.pointerId !== undefined) event.currentTarget.setPointerCapture(event.pointerId);
             el.classList.add('dashboard-interacting');
             event.preventDefault();
@@ -359,15 +337,37 @@
         }
         function applyPointer(event) {
             const state = interaction;
-            if (state.kind === 'height') {
+            if (state.kind === 'height' || state.kind === 'height-start') {
                 setLayout(structuredClone(state.before.layout));
+                const fromStart = state.kind === 'height-start';
                 const y = event.clientY + scrollContainer.scrollTop - state.scroll;
-                const row = state.rows.reduce((best, track) =>
-                    Math.abs(track.bottom - y) < Math.abs(best.bottom - y) ? track : best, state.rows[state.original.row]);
-                const proposed = engine.resizeRows(gridItems(), state.id, row.row + 1 - state.original.row);
-                if (proposed) applyItems(proposed);
-                render(false);
+                const originalEnd = state.original.row + (state.original.size.rowSpan || 1);
+                const edge = fromStart ? state.rows[state.original.row].top : state.rows[originalEnd - 1].bottom;
+                const expanding = fromStart ? y < edge - 12 : y > edge + 12;
+                let span;
+                if (expanding) {
+                    span = (state.original.size.rowSpan || 1) + 1;
+                }
+                else {
+                    const row = state.rows.reduce((best, track) =>
+                        Math.abs((fromStart ? track.top : track.bottom) - y) <
+                        Math.abs((fromStart ? best.top : best.bottom) - y) ? track : best,
+                        state.rows[fromStart ? state.original.row : originalEnd - 1]);
+                    span = fromStart ? originalEnd - row.row : row.row + 1 - state.original.row;
+                }
+                const result = engine.resizeEdge(gridItems(), state.id, span, layout.rowCounts[breakpoint], fromStart, columns());
+                state.valid = !!result.items;
+                state.insertionRow = result.items ? result.insertionRow : null;
+                if (result.items) {
+                    applyItems(result.items);
+                    const resized = position(widgetsById.get(state.id));
+                    if (resized.row !== state.original.row || resized.size.rowSpan !== state.original.size.rowSpan) {
+                        reserveRows(state.rows, result.insertionRow);
+                    }
+                    if (result.insertionRow !== null) layout.rowCounts[breakpoint]++;
+                }
                 scrollDuringInteraction(event.clientY);
+                drawInteractionPreview(state, position(widgetsById.get(state.id)));
                 return;
             }
             const widget = widgetsById.get(state.id);
@@ -379,14 +379,12 @@
             if (state.kind === 'width-start') {
                 const column = nearest(state.starts[state.original.column] + event.clientX - state.x);
                 Smartstore.Admin.DashboardEngine.resizeStart(target, column, limits.min, limits.max, limits.widths);
-                arrange(state.id);
             }
             else if (state.kind === 'width') {
                 target.size.columnSpan = Math.max(limits.min, Math.min(limits.max,
                     nearest(state.starts[state.original.column + state.original.size.columnSpan] + event.clientX - state.x) - target.column));
                 target.size.columnSpan = limits.widths.reduce((best, width) =>
                     Math.abs(width - target.size.columnSpan) < Math.abs(best - target.size.columnSpan) ? width : best, state.original.size.columnSpan);
-                arrange(state.id);
             }
             else {
                 const y = event.clientY + scrollContainer.scrollTop - state.scroll;
@@ -394,11 +392,86 @@
                     nearest(state.starts[state.original.column] + event.clientX - state.x)));
                 const row = state.rows.find(item => y <= item.bottom);
                 target.row = row ? row.row : state.rows.length;
-                arrange(state.id);
             }
-            render(false);
+            state.valid = engine.fits(gridItems(), { ...target, id: state.id }, columns());
             scrollDuringInteraction(event.clientY);
+            drawInteractionPreview(state, target);
         }
+        function drawInteractionPreview(state, target) {
+            if (!state.valid) {
+                state.preview?.remove();
+                clearInsertionPreview(state);
+                state.preview = null;
+                return;
+            }
+            if (!state.preview) {
+                state.preview = document.createElement('div');
+                state.preview.className = 'dashboard-grid-preview position-fixed border border-primary rounded pe-none z-3';
+                state.preview.setAttribute('aria-hidden', 'true');
+                document.body.appendChild(state.preview);
+            }
+            const last = state.rows.at(-1);
+            const rowTop = row => state.rows[row]?.top ?? last.bottom + state.rowGap +
+                (row - state.rows.length) * (last.bottom - last.top + state.rowGap);
+            const start = state.starts[target.column];
+            const end = state.starts[target.column + target.size.columnSpan];
+            const insertion = state.insertionRow != null;
+            const height = minimumRowHeight();
+            // Map the proposed rows to the frozen tracks, including the new minimum-height row.
+            const previewRow = row => {
+                if (insertion && row === state.insertionRow) return { top: rowTop(row), height };
+                const shifted = insertion && row > state.insertionRow;
+                const source = shifted ? row - 1 : row;
+                return {
+                    top: rowTop(source) + (shifted ? height + state.rowGap : 0),
+                    height: rowTop(source + 1) - rowTop(source) - state.rowGap
+                };
+            };
+            const top = previewRow(target.row).top;
+            const bottomRow = previewRow(target.row + (target.size.rowSpan || 1) - 1);
+            const bottom = bottomRow.top + bottomRow.height;
+            Object.assign(state.preview.style, {
+                left: `${Math.min(start, end) + (start > end ? state.gap : 0)}px`,
+                top: `${top - (scrollContainer.scrollTop - state.scroll)}px`,
+                width: `${Math.abs(end - start) - state.gap}px`,
+                height: `${bottom - top}px`
+            });
+            clearInsertionPreview(state);
+            if (insertion) {
+                const marker = document.createElement('div');
+                marker.className = 'dashboard-grid-insertion position-fixed d-grid pe-none z-3';
+                marker.setAttribute('aria-hidden', 'true');
+                Object.assign(marker.style, {
+                    top: `${rowTop(state.insertionRow) - (scrollContainer.scrollTop - state.scroll)}px`,
+                    height: `${height}px`,
+                    gridTemplateColumns: `repeat(${columns()}, minmax(0, 1fr))`,
+                    columnGap: `${state.gap}px`,
+                    direction: state.starts[0] > state.starts[1] ? 'rtl' : 'ltr',
+                    left: `${Math.min(state.starts[0], state.starts[columns()]) + (state.starts[0] > state.starts[1] ? state.gap : 0)}px`,
+                    width: `${Math.abs(state.starts[columns()] - state.starts[0]) - state.gap}px`
+                });
+                for (let column = 0; column < columns(); column++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'dashboard-grid-cell rounded';
+                    marker.appendChild(cell);
+                }
+                // Open a visual slot without moving grid tracks; the container retains pointer capture.
+                const translate = element => {
+                    state.translated.push([element, element.style.translate]);
+                    element.style.translate = `0 ${height + state.rowGap}px`;
+                };
+                for (const widget of state.before.layout.widgets) {
+                    const element = elements.get(widget.id);
+                    if (element && !isNews(widget) && position(widget).row >= state.insertionRow) translate(element);
+                }
+                gridCells.forEach((cell, index) => {
+                    if (Math.floor(index / columns()) >= state.insertionRow) translate(cell);
+                });
+                document.body.appendChild(marker);
+                state.insertionPreview = marker;
+            }
+        }
+
         function scrollDuringInteraction(y) {
             const rect = scrollContainer.getBoundingClientRect();
             if (y > rect.bottom - 60) scrollContainer.scrollTop += 15;
@@ -414,9 +487,13 @@
             if (!cancel && pointer) applyPointer(pointer);
             const state = interaction;
             interaction = null;
+            document.body.classList.remove('dashboard-dragging');
+            document.body.style.cursor = state.cursor;
+            state.preview?.remove();
+            clearInsertionPreview(state);
             elements.get(state.id).classList.remove('dashboard-interacting');
             if (state.pointer !== undefined && state.target.hasPointerCapture(state.pointer)) state.target.releasePointerCapture(state.pointer);
-            if (cancel) setLayout(state.before.layout);
+            if (cancel || state.valid === false) setLayout(state.before.layout);
             else {
                 remember(state.before);
             }
@@ -427,7 +504,7 @@
             if (!handle) return;
             const widget = widgetsById.get(handle.closest('[data-instance-id]').dataset.instanceId);
             const kind = handle.dataset.dashboardResize || 'move';
-            if ((kind === 'move' || kind === 'width-start') && !widget.allowMove) return;
+            if ((kind === 'move' || kind === 'width-start' || kind === 'height-start') && !widget.allowMove) return;
             start(event, widget, kind);
         });
         container.addEventListener('pointermove', move);
@@ -442,18 +519,23 @@
             const kind = handle.dataset.dashboardResize;
             const horizontal = event.key === 'ArrowLeft' || event.key === 'ArrowRight';
             const vertical = event.key === 'ArrowUp' || event.key === 'ArrowDown';
-            if (kind === 'height' ? !vertical && event.key !== 'Home' : kind ? !horizontal : !horizontal && !vertical) return;
-            if ((!kind || kind === 'width-start') && !widget.allowMove) return;
+            if (kind === 'height' || kind === 'height-start' ? !vertical && event.key !== 'Home' : kind ? !horizontal : !horizontal && !vertical) return;
+            if ((!kind || kind === 'width-start' || kind === 'height-start') && !widget.allowMove) return;
             event.preventDefault();
             const before = capture(), p = position(widget), limits = bounds(widget);
             const direction = getComputedStyle(container).direction === 'rtl' ? -1 : 1;
             const delta = (event.key === 'ArrowLeft' || event.key === 'ArrowUp' ? -1 : 1) * (horizontal ? direction : 1);
-            if (kind === 'height') {
-                const span = event.key === 'Home' ? 1 : (p.size.rowSpan || 1) + delta;
-                if (p.row + span > layout.rowCounts[breakpoint]) return;
-                const proposed = engine.resizeRows(gridItems(), widget.id, span);
-                if (!proposed) return;
-                applyItems(proposed);
+            if (kind === 'height' || kind === 'height-start') {
+                const fromStart = kind === 'height-start';
+                const span = event.key === 'Home' ? 1 : (p.size.rowSpan || 1) + delta * (fromStart ? -1 : 1);
+                const result = engine.resizeEdge(gridItems(), widget.id, span, layout.rowCounts[breakpoint], fromStart, columns());
+                if (!result.items) return;
+                const resized = result.items.find(item => item.id === widget.id);
+                if (resized.row === p.row && resized.size.rowSpan === p.size.rowSpan) return;
+                const rows = getComputedStyle(container).gridTemplateRows.split(' ').map(height => ({ top: 0, bottom: parseFloat(height) }));
+                applyItems(result.items);
+                reserveRows(rows, result.insertionRow);
+                if (result.insertionRow !== null) layout.rowCounts[breakpoint]++;
             }
             else if (kind === 'width-start' || kind === 'width') {
                 const change = kind === 'width-start' ? -delta : delta;
@@ -466,13 +548,17 @@
             else if (horizontal) p.column = Math.max(0, Math.min(columns() - p.size.columnSpan, p.column + delta));
             else p.row = Math.max(0, p.row + delta);
             if (_.isEqual(before.layout, layout)) return;
-            if (kind !== 'height') arrange(widget.id);
+            if (kind !== 'height' && kind !== 'height-start' &&
+                !engine.fits(gridItems(), { ...p, id: widget.id }, columns())) {
+                setLayout(before.layout);
+                return;
+            }
             render(false);
             remember(before);
         });
 
         // A one-use, tab-local transfer keeps undo across server-rendered add/reset previews.
-        // Only layout data and editable settings are transferred; widget HTML and credentials never enter storage.
+        // Only placement data is transferred; widget HTML, settings and credentials never enter storage.
         let addedWidgetId;
         const transferToken = new URL(window.location.href).searchParams.get('dashboardHistory');
         if (transferToken) {
@@ -494,17 +580,21 @@
                             }
                         }
                         layout.rowCounts = config.reset ? {} : history.rowCounts;
+                        layout.rowMinimums = config.reset ? {} : history.rowMinimums;
                     }
                 }
             }
             catch { /* Continue without transferred history when storage is unavailable or invalid. */ }
-            const url = new URL(window.location.href);
-            url.searchParams.delete('dashboardHistory');
-            window.history.replaceState(null, '', url);
+        }
+
+        // Preview and failed-save responses use POST-only routes. Reload must use the normal editor GET.
+        const editorUrl = new URL(config.editUrl, window.location.href);
+        editorUrl.searchParams.set('layer', config.layer);
+        if (window.location.href !== editorUrl.href) {
+            window.history.replaceState(null, '', editorUrl);
         }
 
         function submit(action, command, widget, transfer = false) {
-            clearExtensionPreview();
             // Keep empty editor rows until the user actually saves, including all responsive layouts.
             if (!action) {
                 for (const tier of breakpoints) {
@@ -523,7 +613,7 @@
                 try {
                     sessionStorage.setItem('dashboard-history:' + token, JSON.stringify({
                         addedWidget: command === 'add' ? widget : null,
-                        layer: config.layer, undo, redo, dirty, rowCounts: layout.rowCounts
+                        layer: config.layer, undo, redo, dirty, rowCounts: layout.rowCounts, rowMinimums: layout.rowMinimums
                     }));
                 }
                 catch {
@@ -751,7 +841,6 @@
         });
         window.addEventListener('resize', () => {
             finish(true);
-            clearExtensionPreview();
             breakpoint = currentBreakpoint();
             render();
         });

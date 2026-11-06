@@ -1,9 +1,10 @@
+using System.Text.Json;
 using Smartstore.Admin.Infrastructure.Dashboard;
 using Smartstore.Admin.Models.Dashboard;
 using Smartstore.Core.Security;
 using Smartstore.Core.Web;
 using Smartstore.Core.Widgets.Dashboard;
-using System.Text.Json;
+using Smartstore.Engine.Modularity;
 
 namespace Smartstore.Admin.Controllers;
 
@@ -13,12 +14,21 @@ public class HomeController : AdminController
     private readonly IUserAgent _userAgent;
     private readonly IDashboardService _dashboardService;
 
-    public HomeController(IUserAgentFactory userAgentFactory, IUserAgent userAgent,
-        IDashboardService dashboardService)
+    private readonly IModuleCatalog _moduleCatalog;
+    private readonly ModuleManager _moduleManager;
+
+    public HomeController(
+        IUserAgentFactory userAgentFactory,
+        IUserAgent userAgent,
+        IDashboardService dashboardService,
+        IModuleCatalog moduleCatalog,
+        ModuleManager moduleManager)
     {
         _userAgentFactory = userAgentFactory;
         _userAgent = userAgent;
         _dashboardService = dashboardService;
+        _moduleCatalog = moduleCatalog;
+        _moduleManager = moduleManager;
     }
 
     #region Dashboard
@@ -182,38 +192,53 @@ public class HomeController : AdminController
     /// Renders a draft, optionally adding a widget or previewing a reset; never persists it.
     /// </summary>
     [HttpPost, Permission(Permissions.Dashboard.Read), RequestSizeLimit(262144)]
-    public async Task<IActionResult> DashboardPreview(DashboardLayoutLayer layer, string changesJson, bool reset, string command, string widgetSystemName, DashboardLayoutLayer? templateSource = null)
+    public async Task<IActionResult> DashboardPreview(
+        DashboardLayoutLayer layer, 
+        string changesJson, 
+        bool reset, 
+        string command, 
+        string widgetSystemName, 
+        DashboardLayoutLayer? templateSource = null)
     {
         if (!ModelState.IsValid)
         {
             return BadRequest();
         }
+        
         await AuthorizeDashboardEditAsync(layer);
+
         try
         {
             reset = reset || command == "reset";
+            
             if (reset)
             {
                 templateSource = null;
             }
+            
             var state = await ReadDashboardDraftAsync(changesJson, layer, reset);
             var draft = state.Layout;
+
             if (!reset)
             {
                 await _dashboardService.ValidateDraftAsync(draft, Services.WorkContext.CurrentCustomer, layer, HttpContext.RequestAborted);
             }
+
             if (command == "add")
             {
                 var widget = _dashboardService.GetWidget(widgetSystemName);
                 var context = new DashboardWidgetContext { DashboardId = draft.Id, Customer = Services.WorkContext.CurrentCustomer, IsEditMode = true };
+
                 if (!await widget.IsAvailableAsync(context, HttpContext.RequestAborted))
                 {
                     return Forbid();
                 }
+
                 if (!widget.Descriptor.AllowMultipleInstances && draft.Widgets.Any(x => x.WidgetSystemName == widgetSystemName))
                 {
                     throw new InvalidOperationException("A singleton widget already exists.");
                 }
+
                 var order = checked(draft.Widgets.Select(x => x.Order).DefaultIfEmpty(0).Max() + 100);
                 var instance = DashboardEditorMapper.CreateWidgetInstance(widget, "widget-" + Guid.NewGuid().ToString("N"), order);
                 draft.Widgets.Add(instance with { Positions = DashboardEditorMapper.GetInsertionPositions(draft, widget.Descriptor.DefaultSize) });
@@ -233,12 +258,19 @@ public class HomeController : AdminController
     /// Commits or resets exactly one authorized layer, retaining the draft on write errors.
     /// </summary>
     [HttpPost, Permission(Permissions.Dashboard.Read), RequestSizeLimit(262144)]
-    public async Task<IActionResult> DashboardSave(DashboardLayoutLayer layer, string changesJson, bool reset, string next = null, DashboardLayoutLayer? templateSource = null, DashboardLayoutLayer? saveLayer = null)
+    public async Task<IActionResult> DashboardSave(
+        DashboardLayoutLayer layer, 
+        string changesJson, 
+        bool reset, 
+        string next = null, 
+        DashboardLayoutLayer? templateSource = null, 
+        DashboardLayoutLayer? saveLayer = null)
     {
         if (!ModelState.IsValid)
         {
             return BadRequest();
         }
+
         await AuthorizeDashboardEditAsync(layer);
         var target = saveLayer ?? layer;
         if (target != layer)
@@ -255,8 +287,13 @@ public class HomeController : AdminController
                 {
                     await _dashboardService.ValidateDraftAsync(state.Layout, Services.WorkContext.CurrentCustomer, layer, HttpContext.RequestAborted);
                 }
-                var targetState = await _dashboardService.GetLayoutStateAsync(AdminDashboardLayoutProvider.Id,
-                    Services.WorkContext.CurrentCustomer, target, cancelToken: HttpContext.RequestAborted);
+
+                var targetState = await _dashboardService.GetLayoutStateAsync(
+                    AdminDashboardLayoutProvider.Id,
+                    Services.WorkContext.CurrentCustomer, 
+                    target, 
+                    cancelToken: HttpContext.RequestAborted);
+
                 var catalog = await GetAvailableDashboardWidgetsAsync();
                 DashboardEditorMapper.ApplyTemplate(state.Layout, targetState.Layout, catalog, _dashboardService);
                 state = targetState;
@@ -281,15 +318,17 @@ public class HomeController : AdminController
             NotifyError(T("Admin.Dashboard.Editor.Invalid"));
             return View("Index", await BuildDashboardModelAsync(layer, true, state, reset, true, templateSource));
         }
-        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or Smartstore.IO.FileSystemException or Microsoft.EntityFrameworkCore.DbUpdateException)
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or IO.FileSystemException or DbUpdateException)
         {
             Logger.Error(ex, "Failed to save dashboard layout.");
             NotifyError(T("Admin.Dashboard.Editor.SaveFailed"));
             return View("Index", await BuildDashboardModelAsync(layer, true, state, reset, true, templateSource));
         }
+
         NotifySuccess(T("Admin.Dashboard.Editor.Saved"));
         var transition = next?.Split(':');
         DashboardLayoutLayer? editLayer = null;
+
         if (transition?.Length == 2 && transition[0] == "edit" &&
             Enum.TryParse<DashboardLayoutLayer>(transition[1], out var nextLayer) &&
             Enum.IsDefined(nextLayer) && nextLayer != DashboardLayoutLayer.System)
@@ -373,6 +412,7 @@ public class HomeController : AdminController
             State = state,
             Dashboard = await _dashboardService.PrepareDashboardAsync(state.Layout, customer, editing, HttpContext.RequestAborted),
             Catalog = catalog,
+            WidgetGroups = PrepareWidgetGroups(catalog),
             CanPersonalize = canPersonalize,
             CanManageGlobal = canManageGlobal,
             IsEditing = editing,
@@ -380,6 +420,46 @@ public class HomeController : AdminController
             IsDirty = dirty,
             TemplateSource = !reset && templateSource.HasValue && Enum.IsDefined(templateSource.Value) ? templateSource : null
         };
+    }
+
+    private List<DashboardWidgetGroupModel> PrepareWidgetGroups(IEnumerable<DashboardWidgetDescriptor> catalog)
+    {
+        var groups = new List<DashboardWidgetGroupModel>();
+        var moduleGroups = catalog
+            .Where(x => !x.Policy.IsRequired)
+            .Select(widget => new
+            {
+                Widget = widget,
+                Module = _moduleCatalog.GetModuleByAssembly(_dashboardService.GetWidget(widget.SystemName).GetType().Assembly)
+            })
+            .GroupBy(x => x.Module);
+
+        foreach (var moduleGroup in moduleGroups)
+        {
+            if (moduleGroup.Key is { } module)
+            {
+                groups.Add(new DashboardWidgetGroupModel
+                {
+                    MenuId = "dashboard-picker-" + module.SystemName,
+                    Title = Services.Localization.GetResource(module.ResourceRootKey + ".Dashboard.Group",
+                        logIfNotFound: false, defaultValue: _moduleManager.GetLocalizedFriendlyName(module)),
+                    Widgets = moduleGroup.Select(x => x.Widget).ToArray()
+                });
+            }
+            else
+            {
+                foreach (var group in moduleGroup.GroupBy(x => x.Widget.Group))
+                {
+                    groups.Add(new DashboardWidgetGroupModel
+                    {
+                        Title = group.Key?.Resolve(T),
+                        Widgets = group.Select(x => x.Widget).ToArray()
+                    });
+                }
+            }
+        }
+
+        return groups;
     }
 
     private async Task<List<DashboardWidgetDescriptor>> GetAvailableDashboardWidgetsAsync()

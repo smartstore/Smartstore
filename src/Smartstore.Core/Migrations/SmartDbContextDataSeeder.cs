@@ -814,7 +814,6 @@ public class SmartDbContextDataSeeder : IDataSeeder<SmartDbContext>
             "Admin.Dashboard.PaymentMethods.Fields.FeePercentage", "Admin.Dashboard.PaymentMethods.Fields.FeePercentage.Hint");
         builder.AddOrUpdate("Admin.Dashboard.Editor.Width", "Change widget width", "Widget-Breite ändern");
         builder.AddOrUpdate("Admin.Dashboard.Editor.Height", "Change widget row span (Home: one row)", "Widget-Zeilenspanne ändern (Pos1: eine Zeile)");
-        builder.AddOrUpdate("Admin.Dashboard.Editor.ExtendRow", "Extend widget by one row", "Widget um eine Zeile erweitern");
         builder.Delete("Permissions.DisplayName.dashboard.personalize", "Permissions.DisplayName.dashboard.manageglobal");
         builder.AddOrUpdate("Permissions.DisplayName.Personalize", "Customize own dashboard", "Eigenes Dashboard anpassen");
         builder.AddOrUpdate("Permissions.DisplayName.ManageGlobal", "Manage shared dashboard", "Gemeinsames Dashboard verwalten");

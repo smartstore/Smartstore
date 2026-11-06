@@ -81,9 +81,9 @@ public static class DashboardEditorMapper
     /// Applies template placements to the supplied target draft while retaining its metadata and widget restrictions.
     /// </summary>
     public static DashboardLayout ApplyTemplate(
-        DashboardLayout source,
+        DashboardLayout source, 
         DashboardLayout target,
-        IReadOnlyCollection<DashboardWidgetDescriptor> availableWidgets,
+        IReadOnlyCollection<DashboardWidgetDescriptor> availableWidgets, 
         IDashboardService dashboardService)
     {
         var descriptors = availableWidgets.ToDictionary(x => x.SystemName, StringComparer.OrdinalIgnoreCase);
@@ -122,7 +122,7 @@ public static class DashboardEditorMapper
             if (descriptors.ContainsKey(widget.WidgetSystemName))
             {
                 placements.Add(new(widget.Id, widget.WidgetSystemName, positions));
-            }
+            }       
         }
 
         var includedIds = placements.Select(x => x.Id).ToHashSet(StringComparer.Ordinal);
@@ -193,7 +193,7 @@ public static class DashboardEditorMapper
                 {
                     throw new InvalidOperationException("This widget cannot be configured.");
                 }
-
+                    
                 instance = instance with { Settings = (System.Text.Json.Nodes.JsonObject)placement.Settings.DeepClone() };
             }
 

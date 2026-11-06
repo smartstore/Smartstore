@@ -20,6 +20,11 @@ public class DashboardEditorModel
     /// </summary>
     public IReadOnlyCollection<DashboardWidgetDescriptor> Catalog { get; set; } = [];
     /// <summary>
+    /// Gets or sets the prepared groups for the widget picker.
+    /// </summary>
+    public IReadOnlyCollection<DashboardWidgetGroupModel> WidgetGroups { get; set; } = [];
+
+    /// <summary>
     /// Gets or sets whether a personal draft may be edited.
     /// </summary>
     public bool CanPersonalize { get; set; }
@@ -44,4 +49,26 @@ public class DashboardEditorModel
     /// Gets or sets the view whose placements were used to start this draft.
     /// </summary>
     public DashboardLayoutLayer? TemplateSource { get; set; }
+}
+
+
+/// <summary>
+/// Contains a widget picker section or a module submenu.
+/// </summary>
+public class DashboardWidgetGroupModel
+{
+    /// <summary>
+    /// Gets or sets the submenu ID, or null for an inline section.
+    /// </summary>
+    public string MenuId { get; set; }
+
+    /// <summary>
+    /// Gets or sets the localized group title.
+    /// </summary>
+    public string Title { get; set; }
+
+    /// <summary>
+    /// Gets or sets the widgets in this group.
+    /// </summary>
+    public IReadOnlyCollection<DashboardWidgetDescriptor> Widgets { get; set; } = [];
 }
