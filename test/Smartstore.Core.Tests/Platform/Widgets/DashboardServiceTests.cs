@@ -1059,41 +1059,25 @@ public class DashboardLayoutPersistenceTests : ServiceTestBase
     }
 
     /// <summary>
-    /// Changing row spans or a requested minimum height requires resize permission.
-    /// </summary>
-    [TestCase(false)]
-    [TestCase(true)]
-    public async Task Rejects_Locked_Height_Changes(bool minimumHeight)
-    {
-        var state = await State(DashboardLayoutLayer.User);
-        var widget = state.Layout.Widgets.Single();
-        state.Layout.Widgets[0] = widget with
-        {
-            Positions = widget.Positions.Select(p => minimumHeight ? p with { MinHeight = 700 } : p with { Size = new DashboardWidgetSize(p.Size.ColumnSpan, 27) }).ToArray()
-        };
-        Assert.ThrowsAsync<InvalidOperationException>(async () => await Save(state));
-    }
-    /// <summary>
-    /// Disabling automatic stretching is also a protected height change.
+    /// Changing row spans requires resize permission.
     /// </summary>
     [Test]
-    public async Task Rejects_Locked_Stretch_Changes()
+    public async Task Rejects_Locked_Height_Changes()
     {
         var state = await State(DashboardLayoutLayer.User);
         var widget = state.Layout.Widgets.Single();
         state.Layout.Widgets[0] = widget with
         {
-            Positions = widget.Positions.Select(p => p with { Stretch = false }).ToArray()
+            Positions = widget.Positions.Select(p => p with { Size = new DashboardWidgetSize(p.Size.ColumnSpan, 27) }).ToArray()
         };
         Assert.ThrowsAsync<InvalidOperationException>(async () => await Save(state));
     }
-
     /// <summary>
-    /// Requested heights survive storage and remain independent between responsive placements and layers.
+    /// Row spans survive storage and remain independent between responsive placements and layers.
     /// </summary>
     [TestCase(DashboardLayoutLayer.User)]
     [TestCase(DashboardLayoutLayer.Global)]
-    public async Task Requested_Height_Roundtrips_Through_Storage(DashboardLayoutLayer layer)
+    public async Task Row_Span_Roundtrips_Through_Storage(DashboardLayoutLayer layer)
     {
         var widget = new Mock<IDashboardWidget>();
         widget.SetupGet(x => x.Descriptor).Returns(new DashboardWidgetDescriptor(TestDashboardWidget.SystemName,
@@ -1114,21 +1098,17 @@ public class DashboardLayoutPersistenceTests : ServiceTestBase
         var instance = state.Layout.Widgets.Single();
         state.Layout.Widgets[0] = instance with
         {
-            Positions = instance.Positions.Select(p => p.MinViewportWidth == 992 ? p with { MinHeight = 700, Stretch = false, Size = new DashboardWidgetSize(p.Size.ColumnSpan, 2) } : p).ToArray()
+            Positions = instance.Positions.Select(p => p.MinViewportWidth == 992 ? p with { Size = new DashboardWidgetSize(p.Size.ColumnSpan, 2) } : p).ToArray()
         };
         await Save(state);
         var stored = (await State(layer)).Layout.Widgets.Single();
-        Assert.That(stored.GetPosition(992).MinHeight, Is.EqualTo(700));
-        Assert.That(stored.GetPosition(992).Stretch, Is.False);
         Assert.That(stored.GetPosition(992).Size.RowSpan, Is.EqualTo(2));
-        Assert.That(stored.GetPosition(0).Stretch, Is.True);
         var rendered = await _service.PrepareDashboardAsync((await State(layer)).Layout, _customer, false);
         string css = new DashboardCssBuilder().Build(rendered);
-        Assert.That(css, Does.Contain("align-self: start"));
-        Assert.That(css, Does.Contain("align-self: stretch"));
-        Assert.That(stored.GetPosition(0).MinHeight, Is.Null);
+        Assert.That(css, Does.Not.Contain("align-self:"));
+        Assert.That(css, Does.Not.Contain("min-height:"));
         if (layer == DashboardLayoutLayer.User)
-            Assert.That((await State(DashboardLayoutLayer.Global)).Layout.Widgets.Single().GetPosition(992).MinHeight, Is.Null);
+            Assert.That((await State(DashboardLayoutLayer.Global)).Layout.Widgets.Single().GetPosition(992).Size.RowSpan, Is.Not.EqualTo(2));
     }
 
     /// <summary>

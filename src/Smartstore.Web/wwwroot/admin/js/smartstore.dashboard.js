@@ -12,63 +12,66 @@
             position.size.columnSpan = width;
         }
 
-        // Split only on drop. Until then the shortened card still occupies its original grid area.
-        static insertBelow(items, anchorId, changedId, column, height = 0, splitRow = null) {
-            const anchor = items.find(item => item.id === anchorId);
-            const changed = items.find(item => item.id === changedId);
-            if (!anchor || !changed || changed.locked || anchor.stretch !== false) return null;
-            const width = anchor.size.columnSpan;
-            const fill = changed.resizable && width >= (changed.minSize?.columnSpan ?? 1) &&
-                width <= (changed.maxSize?.columnSpan ?? 12) &&
-                (!changed.allowedSizes?.length || changed.allowedSizes.some(size =>
-                    size.columnSpan === width && size.rowSpan === changed.size.rowSpan));
-            if (column < anchor.column || (!fill && column + changed.size.columnSpan > anchor.column + width)) return null;
-            const end = anchor.row + (anchor.size.rowSpan || 1);
-            const row = splitRow ?? end;
-            const count = changed.size.rowSpan || 1;
-            const reuse = row < end;
-            if (reuse && (!anchor.resizable || row <= anchor.row || row + count > end ||
-                row - anchor.row < (anchor.minSize?.rowSpan ?? 1) ||
-                (anchor.allowedSizes?.length && !anchor.allowedSizes.some(size =>
-                    size.columnSpan === width && size.rowSpan === row - anchor.row)))) return null;
-            const proposed = items.map(item => ({ ...item, size: { ...item.size } }));
-            for (const item of proposed) {
-                if (item.id === changedId) {
-                    item.column = column;
-                    item.row = row;
-                    if (item.resizable) {
-                        item.stretch = true;
-                        item.minHeight = height;
-                        if (fill) {
-                            item.column = anchor.column;
-                            item.size.columnSpan = width;
-                        }
-                    }
+        static overlaps(a, b) {
+            return a.column < b.column + b.size.columnSpan && b.column < a.column + a.size.columnSpan &&
+                a.row < b.row + (b.size.rowSpan || 1) && b.row < a.row + (a.size.rowSpan || 1);
+        }
+
+        static allowsSpan(item, span) {
+            return item.resizable && item.size.columnSpan >= (item.minSize?.columnSpan ?? 1) &&
+                item.size.columnSpan <= (item.maxSize?.columnSpan ?? 12) && span >= (item.minSize?.rowSpan ?? 1) && span <= (item.maxSize?.rowSpan ?? 1000) &&
+                (!item.allowedSizes?.length || item.allowedSizes.some(size =>
+                    size.columnSpan === item.size.columnSpan && size.rowSpan === span));
+        }
+
+        // Resize only into existing, unoccupied cells. Inserting a row is an explicit button action.
+        static resizeRows(items, id, span) {
+            const item = items.find(item => item.id === id);
+            if (!item || !this.allowsSpan(item, span)) return null;
+            const target = { ...item, size: { ...item.size, rowSpan: span } };
+            if (items.some(other => other.id !== id && this.overlaps(target, other))) return null;
+            return items.map(other => other.id === id ? target : { ...other, size: { ...other.size } });
+        }
+
+        static extend(items, id, rowCount) {
+            const item = items.find(item => item.id === id);
+            if (!item) return null;
+            const span = (item.size.rowSpan || 1) + 1;
+            if (!this.allowsSpan(item, span)) return null;
+            const row = item.row + span - 1;
+            const expanded = this.resizeRows(items, id, span);
+            if (row < rowCount && expanded) return expanded;
+
+            const proposed = items.map(other => ({ ...other, size: { ...other.size } }));
+            for (const other of proposed) {
+                if (other.id === id) other.size.rowSpan = span;
+                else if (other.row >= row) {
+                    if (other.locked || other.row >= 10000) return null;
+                    other.row++;
                 }
-                else if (reuse) {
-                    if (item.id === anchorId) {
-                        item.size.rowSpan = row - anchor.row;
-                        item.stretch = true;
-                    }
-                    else if (item.column < (fill ? anchor.column + width : column + changed.size.columnSpan) &&
-                        item.column + item.size.columnSpan > (fill ? anchor.column : column) &&
-                        item.row < row + count && item.row + (item.size.rowSpan || 1) > row) return null;
-                }
-                else if (item.row >= row) {
-                    if (item.locked) return null;
-                    item.row += count;
-                }
-                else if (item.id !== anchorId && item.row + (item.size.rowSpan || 1) >= row) {
-                    const span = (item.size.rowSpan || 1) + count;
-                    if (!item.resizable || span > (item.maxSize?.rowSpan ?? 1000) || span < (item.minSize?.rowSpan ?? 1) ||
-                        item.size.columnSpan < (item.minSize?.columnSpan ?? 1) || item.size.columnSpan > (item.maxSize?.columnSpan ?? 12) ||
-                        (item.allowedSizes?.length && !item.allowedSizes.some(size =>
-                            size.columnSpan === item.size.columnSpan && size.rowSpan === span))) return null;
-                    item.size.rowSpan = span;
-                    item.stretch = true;
+                else if (other.row + (other.size.rowSpan || 1) > row) {
+                    const rows = (other.size.rowSpan || 1) + 1;
+                    if (!this.allowsSpan(other, rows)) return null;
+                    other.size.rowSpan = rows;
                 }
             }
             return proposed;
+        }
+
+        // Compact only on save. Rows preceding locked placements must retain their indices.
+        static compact(items) {
+            const fixedBottom = Math.max(0, ...items.filter(item => item.locked).map(item => item.row + (item.size.rowSpan || 1)));
+            const occupied = new Set();
+            for (const item of items) {
+                for (let row = item.row; row < item.row + (item.size.rowSpan || 1); row++) occupied.add(row);
+            }
+            const rows = [...occupied].sort((a, b) => a - b);
+            for (const item of items) {
+                if (!item.locked && item.row >= fixedBottom) {
+                    item.row = fixedBottom + rows.filter(row => row >= fixedBottom && row < item.row).length;
+                }
+            }
+            return items;
         }
 
         static arrange(items, columns, changedId) {
@@ -85,15 +88,6 @@
                     while (placed.some(other => overlap(item, other))) item.row++;
                 }
                 placed.push(item);
-            }
-            // Remove empty rows as a group, retaining shared rows rather than packing individual cards upward.
-            const rows = [...new Set(items.map(item => item.row))].sort((a, b) => a - b);
-            let bottom = 0;
-            for (const row of rows) {
-                const group = items.filter(item => item.row === row);
-                const target = group.some(item => item.locked) ? row : Math.min(row, bottom);
-                group.forEach(item => { item.row = target; });
-                bottom = Math.max(bottom, ...group.map(item => item.row + (item.size.rowSpan || 1)));
             }
             return items;
         }
@@ -130,7 +124,7 @@
         container.querySelectorAll('[data-instance-id]').forEach(el => {
             elements.set(el.dataset.instanceId, el);
             if (el.querySelector('.dashboard-widget-overlay')) {
-                el.querySelectorAll('.dashboard-widget-body > :not(.dashboard-widget-tools):not(.dashboard-resize)').forEach(content => {
+                el.querySelectorAll('.dashboard-widget-body > :not(.dashboard-widget-tools):not(.dashboard-resize):not(.dashboard-extend)').forEach(content => {
                     content.inert = true;
                 });
             }
@@ -156,6 +150,116 @@
                     size.columnSpan === width && size.rowSpan === position(widget).size.rowSpan));
             return { min, max, widths };
         }
+        const engine = Smartstore.Admin.DashboardEngine;
+        const gridCells = [];
+        let gridShape;
+        const previewCells = [];
+        layout.rowCounts = {};
+        function gridItems(width = breakpoint) {
+            return visible().filter(widget => !isNews(widget)).map(widget => {
+                const descriptor = config.widgets.find(choice => choice.systemName === widget.widgetSystemName);
+                return { ...structuredClone(position(widget, width)), id: widget.id, locked: !widget.allowMove,
+                    resizable: !!elements.get(widget.id).querySelector('[data-dashboard-resize="height"]'),
+                    minSize: descriptor?.minSize, maxSize: descriptor?.maxSize, allowedSizes: descriptor?.allowedSizes };
+            });
+        }
+        function applyItems(items) {
+            for (const item of items) {
+                const p = position(widgetsById.get(item.id));
+                p.column = item.column;
+                p.row = item.row;
+                p.size = item.size;
+            }
+        }
+        function drawGrid() {
+            const bottom = Math.max(1, ...gridItems().map(item => item.row + (item.size.rowSpan || 1)));
+            const count = layout.rowCounts[breakpoint] = Math.max(layout.rowCounts[breakpoint] || 0, bottom);
+            const shape = `${columns()}:${count}`;
+            if (shape === gridShape) return;
+            gridShape = shape;
+            gridCells.forEach(cell => cell.remove());
+            gridCells.length = 0;
+            for (let row = 0; row < count; row++) {
+                for (let column = 0; column < columns(); column++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'dashboard-grid-cell rounded pe-none';
+                    cell.setAttribute('aria-hidden', 'true');
+                    cell.style.gridArea = `${row + 1} / ${column + 1}`;
+                    container.appendChild(cell);
+                    gridCells.push(cell);
+                }
+            }
+        }
+        function clearExtensionPreview() {
+            previewCells.forEach(cell => cell.remove());
+            previewCells.length = 0;
+        }
+        function extensionPreview(button) {
+            if (interaction) return;
+            clearExtensionPreview();
+            const id = button.closest('[data-instance-id]').dataset.instanceId;
+            const items = gridItems();
+            const proposed = engine.extend(items, id, layout.rowCounts[breakpoint]);
+            button.disabled = !proposed;
+            if (!proposed) return;
+            const item = items.find(item => item.id === id);
+            const row = item.row + (item.size.rowSpan || 1);
+            const reuse = row < layout.rowCounts[breakpoint] && engine.resizeRows(items, id, (item.size.rowSpan || 1) + 1);
+            const rect = elements.get(id).getBoundingClientRect();
+            const gap = parseFloat(getComputedStyle(container).rowGap) || 0;
+            const first = gridCells[row * columns() + item.column]?.getBoundingClientRect();
+            const top = reuse ? first.top : rect.bottom;
+            const height = reuse ? first.height : gap;
+            function mark(left, width, insertion = false) {
+                const marker = document.createElement('div');
+                marker.className = 'dashboard-grid-preview position-fixed border border-primary rounded pe-none z-3';
+                marker.classList.toggle('dashboard-grid-insertion', insertion);
+                marker.setAttribute('aria-hidden', 'true');
+                Object.assign(marker.style, { left: `${left}px`, top: `${top}px`, width: `${width}px`, height: `${height}px` });
+                document.body.appendChild(marker);
+                previewCells.push(marker);
+            }
+            // Fixed overlays cannot create tracks or contribute to the grid's intrinsic row heights.
+            if (!reuse) {
+                const start = gridCells[0].getBoundingClientRect();
+                const end = gridCells[columns() - 1].getBoundingClientRect();
+                mark(Math.min(start.left, end.left), Math.max(start.right, end.right) - Math.min(start.left, end.left), true);
+            }
+            mark(rect.left, rect.width);
+        }
+        container.addEventListener('pointerover', event => {
+            const button = event.target.closest('[data-dashboard-extend]');
+            if (button && !button.contains(event.relatedTarget)) extensionPreview(button);
+        });
+        container.addEventListener('pointerout', event => {
+            const button = event.target.closest('[data-dashboard-extend]');
+            if (button && !button.contains(event.relatedTarget)) clearExtensionPreview();
+        });
+        container.addEventListener('focusin', event => {
+            const button = event.target.closest('[data-dashboard-extend]');
+            if (button) extensionPreview(button);
+        });
+        container.addEventListener('focusout', clearExtensionPreview);
+        document.addEventListener('scroll', clearExtensionPreview, true);
+        container.addEventListener('click', event => {
+            const button = event.target.closest('[data-dashboard-extend]');
+            if (!button || interaction) return;
+            clearExtensionPreview();
+            const items = gridItems();
+            const id = button.closest('[data-instance-id]').dataset.instanceId;
+            const proposed = engine.extend(items, id, layout.rowCounts[breakpoint]);
+            if (!proposed) return;
+            const before = capture();
+            const item = items.find(item => item.id === id);
+            const end = item.row + (item.size.rowSpan || 1);
+            if (end >= layout.rowCounts[breakpoint] || !engine.resizeRows(items, id, (item.size.rowSpan || 1) + 1)) {
+                layout.rowCounts[breakpoint]++;
+            }
+            applyItems(proposed);
+            render(false);
+            remember(before);
+        });
+
         function arrange(changedId) {
             const items = visible().filter(widget => !isNews(widget)).map(widget => ({
                 ...structuredClone(position(widget)), id: widget.id, locked: !widget.allowMove
@@ -174,8 +278,6 @@
                 const p = position(widget);
                 el.style.gridColumn = `${p.column + 1} / span ${p.size.columnSpan}`;
                 el.style.gridRow = `${p.row + 1} / span ${p.size.rowSpan || 1}`;
-                el.style.minHeight = `${p.minHeight || 0}px`;
-                el.style.alignSelf = p.stretch === false ? 'start' : 'stretch';
                 if (isNews(widget)) {
                     const bottom = Math.max(0, ...visible().filter(w => !isNews(w)).map(w => {
                         const positionAtWidth = position(w);
@@ -183,6 +285,11 @@
                     }));
                     el.style.gridRow = breakpoint >= 992 ? `1 / span ${Math.max(1, bottom)}` : `${bottom + 1} / span 1`;
                 }
+            }
+            drawGrid();
+            const items = gridItems();
+            for (const button of container.querySelectorAll('[data-dashboard-extend]')) {
+                button.disabled = !engine.extend(items, button.closest('[data-instance-id]').dataset.instanceId, layout.rowCounts[breakpoint]);
             }
             if (updateToolbar) updateControls();
         }
@@ -211,8 +318,8 @@
 
         function start(event, widget, kind) {
             if (interaction || (event.button !== undefined && event.button !== 0)) return;
+            clearExtensionPreview();
             const el = elements.get(widget.id);
-            const rect = el.getBoundingClientRect();
             const gridRect = container.getBoundingClientRect();
             const style = getComputedStyle(container);
             const gap = parseFloat(style.columnGap) || 0;
@@ -222,37 +329,15 @@
             tracks.forEach(width => starts.push(starts.at(-1) + direction * (width + gap)));
             const rowGap = parseFloat(style.rowGap) || 0;
             let top = gridRect.top;
-            const rows = kind === 'move' ? style.gridTemplateRows.split(' ').map((value, row) => {
+            const rows = style.gridTemplateRows.split(' ').map((value, row) => {
                 const bottom = top + parseFloat(value);
                 const track = { row, top, bottom };
                 top = bottom + rowGap;
                 return track;
-            }) : [];
-            const items = kind === 'move' ? visible().filter(w => !isNews(w)).map(w => {
-                const element = elements.get(w.id);
-                const descriptor = config.widgets.find(choice => choice.systemName === w.widgetSystemName);
-                return { ...structuredClone(position(w)), id: w.id, locked: !w.allowMove,
-                    resizable: !!element.querySelector('[data-dashboard-resize="height"]'),
-                    minSize: descriptor?.minSize, maxSize: descriptor?.maxSize,
-                    allowedSizes: descriptor?.allowedSizes,
-                    rect: element.getBoundingClientRect() };
-            }) : [];
+            });
             interaction = { before: capture(), id: widget.id, kind, x: event.clientX, y: event.clientY,
-                height: rect.height, starts, rows, items, rowGap, scroll: scrollContainer.scrollTop, pointer: event.pointerId,
+                starts, rows, scroll: scrollContainer.scrollTop, pointer: event.pointerId,
                 original: structuredClone(position(widget)), target: event.currentTarget };
-            if (kind === 'height') {
-                const p = position(widget);
-                const below = visible().find(candidate => {
-                    const next = position(candidate);
-                    return !isNews(candidate) && next.row === p.row + (p.size.rowSpan || 1) &&
-                        next.column === p.column && next.size.columnSpan === p.size.columnSpan &&
-                        elements.get(candidate.id).querySelector('[data-dashboard-resize="height"]');
-                });
-                if (below) {
-                    interaction.below = { id: below.id, minHeight: position(below).minHeight,
-                        gap: Math.max(0, elements.get(below.id).getBoundingClientRect().top - rowGap - rect.bottom) };
-                }
-            }
             if (event.pointerId !== undefined) event.currentTarget.setPointerCapture(event.pointerId);
             el.classList.add('dashboard-interacting');
             event.preventDefault();
@@ -273,24 +358,13 @@
         function applyPointer(event) {
             const state = interaction;
             if (state.kind === 'height') {
-                // CSS Grid stretches the shared row itself; no packing or toolbar work is needed.
-                const target = position(widgetsById.get(state.id));
-                const height = Math.max(0, Math.min(config.maxHeight, Math.round(state.height + event.clientY - state.y + scrollContainer.scrollTop - state.scroll)));
-                if (target.minHeight !== height) {
-                    target.minHeight = height;
-                    target.stretch = height < state.height ? false : state.original.stretch;
-                    const element = elements.get(state.id);
-                    element.style.minHeight = `${height}px`;
-                    element.style.alignSelf = target.stretch === false ? 'start' : 'stretch';
-                }
-                if (state.below) {
-                    // Release the lower card's requested space before growing the combined rows.
-                    // Always use the original value so reversing the drag restores it exactly.
-                    const below = position(widgetsById.get(state.below.id));
-                    const growth = Math.max(0, height - state.height - state.below.gap);
-                    below.minHeight = growth > 0 ? Math.max(0, (state.below.minHeight || 0) - growth) : state.below.minHeight;
-                    elements.get(state.below.id).style.minHeight = `${below.minHeight || 0}px`;
-                }
+                setLayout(structuredClone(state.before.layout));
+                const y = event.clientY + scrollContainer.scrollTop - state.scroll;
+                const row = state.rows.reduce((best, track) =>
+                    Math.abs(track.bottom - y) < Math.abs(best.bottom - y) ? track : best, state.rows[state.original.row]);
+                const proposed = engine.resizeRows(gridItems(), state.id, row.row + 1 - state.original.row);
+                if (proposed) applyItems(proposed);
+                render(false);
                 scrollDuringInteraction(event.clientY);
                 return;
             }
@@ -300,8 +374,6 @@
             // Every preview starts from the same draft so dragging back cannot accumulate displacement.
             setLayout(structuredClone(state.before.layout));
             const target = position(widgetsById.get(state.id));
-            state.drop = null;
-            if (state.marker) state.marker.hidden = true;
             if (state.kind === 'width-start') {
                 const column = nearest(state.starts[state.original.column] + event.clientX - state.x);
                 Smartstore.Admin.DashboardEngine.resizeStart(target, column, limits.min, limits.max, limits.widths);
@@ -316,44 +388,11 @@
             }
             else {
                 const y = event.clientY + scrollContainer.scrollTop - state.scroll;
-                const anchor = state.items.find(item => item.id !== state.id && item.stretch === false &&
-                    event.clientX >= item.rect.left && event.clientX <= item.rect.right && y > item.rect.bottom &&
-                    y <= state.rows[item.row + (item.size.rowSpan || 1) - 1]?.bottom);
-                if (anchor) {
-                    const column = Math.max(anchor.column, Math.min(
-                        nearest(state.starts[state.original.column] + event.clientX - state.x),
-                        anchor.column + anchor.size.columnSpan - target.size.columnSpan));
-                    const bottom = state.rows[anchor.row + (anchor.size.rowSpan || 1) - 1].bottom;
-                    const split = state.rows.find(row => row.row > anchor.row &&
-                        row.row + (target.size.rowSpan || 1) <= anchor.row + (anchor.size.rowSpan || 1) &&
-                        row.top >= anchor.rect.bottom + state.rowGap - 1);
-                    const top = split ? split.top : anchor.rect.bottom + state.rowGap;
-                    const height = Math.max(0, Math.min(config.maxHeight, Math.round(bottom - top)));
-                    state.drop = Smartstore.Admin.DashboardEngine.insertBelow(state.items, anchor.id, state.id, column, height, split?.row);
-                    if (state.drop) {
-                        if (!state.marker) {
-                            state.marker = document.createElement('div');
-                            state.marker.className = 'position-fixed border border-primary rounded-3 pe-none z-3';
-                            state.marker.setAttribute('aria-hidden', 'true');
-                            document.body.appendChild(state.marker);
-                        }
-                        const dropped = state.drop.find(item => item.id === state.id);
-                        const start = state.starts[dropped.column];
-                        const end = state.starts[dropped.column + dropped.size.columnSpan];
-                        const gap = parseFloat(getComputedStyle(container).columnGap) || 0;
-                        Object.assign(state.marker.style, { left: `${Math.min(start, end) + (start > end ? gap : 0)}px`,
-                            top: `${top - scrollContainer.scrollTop + state.scroll}px`,
-                            width: `${Math.abs(end - start) - gap}px`, height: `${Math.max(0, bottom - top)}px` });
-                        state.marker.hidden = false;
-                    }
-                }
-                else {
-                    target.column = Math.min(columns() - target.size.columnSpan, Math.max(0,
-                        nearest(state.starts[state.original.column] + event.clientX - state.x)));
-                    const row = state.rows.find(item => y <= item.bottom);
-                    target.row = row ? row.row : state.rows.length;
-                    arrange(state.id);
-                }
+                target.column = Math.min(columns() - target.size.columnSpan, Math.max(0,
+                    nearest(state.starts[state.original.column] + event.clientX - state.x)));
+                const row = state.rows.find(item => y <= item.bottom);
+                target.row = row ? row.row : state.rows.length;
+                arrange(state.id);
             }
             render(false);
             scrollDuringInteraction(event.clientY);
@@ -375,16 +414,8 @@
             interaction = null;
             elements.get(state.id).classList.remove('dashboard-interacting');
             if (state.pointer !== undefined && state.target.hasPointerCapture(state.pointer)) state.target.releasePointerCapture(state.pointer);
-            state.marker?.remove();
             if (cancel) setLayout(state.before.layout);
             else {
-                if (state.drop) {
-                    for (const item of state.drop) {
-                        const p = position(widgetsById.get(item.id));
-                        p.column = item.column; p.row = item.row; p.size = item.size; p.stretch = item.stretch; p.minHeight = item.minHeight;
-                    }
-                    arrange(state.id);
-                }
                 remember(state.before);
             }
             render();
@@ -416,10 +447,11 @@
             const direction = getComputedStyle(container).direction === 'rtl' ? -1 : 1;
             const delta = (event.key === 'ArrowLeft' || event.key === 'ArrowUp' ? -1 : 1) * (horizontal ? direction : 1);
             if (kind === 'height') {
-                p.minHeight = event.key === 'Home' ? null : Math.max(0, Math.min(config.maxHeight,
-                    (p.minHeight ?? elements.get(widget.id).offsetHeight) + delta * 10));
-                if (event.key === 'Home') p.stretch = true;
-                else if (delta < 0) p.stretch = false;
+                const span = event.key === 'Home' ? 1 : (p.size.rowSpan || 1) + delta;
+                if (p.row + span > layout.rowCounts[breakpoint]) return;
+                const proposed = engine.resizeRows(gridItems(), widget.id, span);
+                if (!proposed) return;
+                applyItems(proposed);
             }
             else if (kind === 'width-start' || kind === 'width') {
                 const change = kind === 'width-start' ? -delta : delta;
@@ -451,6 +483,7 @@
                         undo = history.undo;
                         redo = history.redo;
                         dirty = history.dirty;
+                        layout.rowCounts = config.reset ? {} : history.rowCounts;
                     }
                 }
             }
@@ -461,6 +494,14 @@
         }
 
         function submit(action, command, widget, transfer = false) {
+            clearExtensionPreview();
+            // Keep empty editor rows until the user actually saves, including all responsive layouts.
+            if (!action) {
+                for (const width of breakpoints) {
+                    const items = engine.compact(gridItems(width));
+                    for (const item of items) position(widgetsById.get(item.id), width).row = item.row;
+                }
+            }
             form.elements.changesJson.value = JSON.stringify({ widgets: layout.widgets.map(
                 ({ id, widgetSystemName, positions }) => ({ id, widgetSystemName, positions })) });
             form.elements.reset.value = reset ? 'true' : 'false';
@@ -471,7 +512,7 @@
                 const token = crypto.randomUUID();
                 try {
                     sessionStorage.setItem('dashboard-history:' + token, JSON.stringify({
-                        layer: config.layer, undo, redo, dirty
+                        layer: config.layer, undo, redo, dirty, rowCounts: layout.rowCounts
                     }));
                 }
                 catch {
@@ -569,6 +610,7 @@
         });
         window.addEventListener('resize', () => {
             finish(true);
+            clearExtensionPreview();
             breakpoint = currentBreakpoint();
             render();
         });

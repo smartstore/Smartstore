@@ -88,10 +88,6 @@ public sealed class DashboardCssBuilder : IDashboardCssBuilder
                 .Append(position.Size.RowSpan.Value.ToString(CultureInfo.InvariantCulture));
         }
 
-        builder.Append("; min-height: ")
-            .Append((position.MinHeight ?? 0).ToString(CultureInfo.InvariantCulture))
-            .Append("px; align-self: ")
-            .Append(position.Stretch ? "stretch" : "start")
-            .AppendLine("; }");
+        builder.AppendLine("; }");
     }
 }

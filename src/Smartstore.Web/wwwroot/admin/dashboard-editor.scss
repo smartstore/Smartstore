@@ -78,3 +78,39 @@ $dashboard-resize-handle-size: 10px;
 .dashboard-interacting {
     outline: ($border-width * 2) dashed var(--primary);
 }
+
+// These cells follow the native grid and only give empty editor targets a usable height.
+.dashboard-grid-cell {
+    min-width: 0;
+    min-height: 4rem;
+    border: $border-width dashed var(--gray-400);
+}
+
+.dashboard-grid-preview {
+    background: rgba($primary, .12);
+
+    &.dashboard-grid-insertion {
+        border-style: dashed !important;
+        background: transparent;
+    }
+}
+
+.dashboard-extend {
+    left: 50%;
+    transform: translateX(-50%);
+    opacity: 0;
+    pointer-events: none;
+
+    @media (hover: none) {
+        opacity: 1;
+        pointer-events: auto;
+    }
+}
+
+.dashboard-widget:hover,
+.dashboard-widget:focus-within {
+    .dashboard-extend {
+        opacity: 1;
+        pointer-events: auto;
+    }
+}

@@ -353,7 +353,7 @@ public sealed class AdminDashboardTests
             Assert.That(layout.BuildWidgetId(instance.Id), Is.EqualTo("admin-dashboard__latest-orders"));
             Assert.That(
                 css,
-                Does.Contain("#admin-dashboard__latest-orders { grid-column: 1 / span 12; grid-row: 6 / span 1; min-height: 0px; align-self: stretch; }"));
+                Does.Contain("#admin-dashboard__latest-orders { grid-column: 1 / span 12; grid-row: 6 / span 1; }"));
             Assert.That(css, Does.Not.Contain("#admin-dashboard-grid >"));
             Assert.That(css, Does.Contain("@media screen and (min-width: 768px)"));
             Assert.That(css, Does.Contain("@media screen and (min-width: 992px)"));

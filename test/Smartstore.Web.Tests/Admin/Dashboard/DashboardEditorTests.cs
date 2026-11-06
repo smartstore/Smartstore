@@ -298,25 +298,23 @@ public class HomeControllerDashboardTests
 [TestFixture]
 public class DashboardEditorMapperTests
 {
-    [TestCase(-1)]
-    [TestCase(10001)]
-    public void Rejects_Invalid_Minimum_Height(int height)
+    [TestCase("minHeight", "700")]
+    [TestCase("stretch", "false")]
+    public void Rejects_Pixel_Height_Overrides(string property, string value)
     {
-        var baseline = Baseline();
-        var changes = new DashboardLayoutChanges(baseline.Widgets.Select(w => new DashboardWidgetPlacement(
-            w.Id, w.WidgetSystemName, [new DashboardWidgetPosition { MinHeight = height, Size = new DashboardWidgetSize(4) }])).ToArray());
-        Assert.Throws<ArgumentException>(() => DashboardEditorMapper.ApplyChanges(changes, baseline, Mock.Of<IDashboardService>()));
+        string json = "{\"widgets\":[{\"id\":\"a\",\"widgetSystemName\":\"Test\",\"positions\":[{\"size\":{\"columnSpan\":4},\"" + property + "\":" + value + "}]}]}";
+        Assert.Throws<JsonException>(() => DashboardEditorMapper.ReadChanges(json));
     }
 
     [Test]
-    public void Minimum_Height_Roundtrips_Through_Editor_Contract()
+    public void Row_Span_Roundtrips_Through_Editor_Contract()
     {
         var baseline = Baseline();
         var changes = new DashboardLayoutChanges(baseline.Widgets.Select(w => new DashboardWidgetPlacement(
-            w.Id, w.WidgetSystemName, [new DashboardWidgetPosition { MinHeight = 700, Size = new DashboardWidgetSize(4) }])).ToArray());
+            w.Id, w.WidgetSystemName, [new DashboardWidgetPosition { Size = new DashboardWidgetSize(4, 2) }])).ToArray());
         var json = JsonSerializer.Serialize(changes, SmartJsonOptions.CamelCased);
         var result = DashboardEditorMapper.ApplyChanges(DashboardEditorMapper.ReadChanges(json), baseline, Mock.Of<IDashboardService>());
-        Assert.That(result.Widgets[0].GetPosition(0).MinHeight, Is.EqualTo(700));
+        Assert.That(result.Widgets[0].GetPosition(0).Size.RowSpan, Is.EqualTo(2));
     }
 
     [Test]

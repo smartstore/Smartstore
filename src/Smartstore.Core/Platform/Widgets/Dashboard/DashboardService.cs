@@ -527,7 +527,6 @@ public partial class DashboardService : IDashboardService
                     throw new InvalidOperationException($"Dashboard widget instance '{instance.Id}' contains an invalid grid position.");
 
                 if (position.MinViewportWidth < 0 || position.Column < 0 || position.Row < 0 ||
-                    position.MinHeight is < 0 or > DashboardWidgetPosition.MaxRequestedHeight ||
                     (long)position.Column + position.Size.ColumnSpan > layout.ColumnCount)
                 {
                     throw new InvalidOperationException(

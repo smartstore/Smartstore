@@ -76,8 +76,6 @@ public static class DashboardEditorMapper
                             MinViewportWidth = width,
                             Column = policy.AllowMove ? desired.Column : original.Column,
                             Row = policy.AllowMove ? desired.Row : original.Row,
-                            MinHeight = policy.AllowResize ? desired.MinHeight : original.MinHeight,
-                            Stretch = policy.AllowResize ? desired.Stretch : original.Stretch,
                             Size = new DashboardWidgetSize(
                                 policy.AllowResize ? desired.Size.ColumnSpan : original.Size.ColumnSpan,
                                 policy.AllowResize ? desired.Size.RowSpan : original.Size.RowSpan)
@@ -114,7 +112,7 @@ public static class DashboardEditorMapper
                 throw new ArgumentException("Invalid widget placement.");
 
             if (placement.Positions.Any(position => position.MinViewportWidth > MaxEditorViewportWidth ||
-                position.Row > MaxEditorRow || position.Size.RowSpan > MaxEditorRowSpan || position.MinHeight is < 0 or > DashboardWidgetPosition.MaxRequestedHeight))
+                position.Row > MaxEditorRow || position.Size.RowSpan > MaxEditorRowSpan))
                 throw new ArgumentException("Widget placement exceeds the dashboard editor limits.");
 
             if (existing.TryGetValue(placement.Id, out var instance))

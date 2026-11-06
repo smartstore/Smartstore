@@ -155,7 +155,7 @@ public partial class DashboardService
                     var original = previous.GetPosition(breakpoint);
                     bool moved = original.Column != position.Column || original.Row != position.Row || instance.Order != previous.Order;
                     bool resized = original.Size.ColumnSpan != position.Size.ColumnSpan
-                        || original.Size.RowSpan != position.Size.RowSpan || original.MinHeight != position.MinHeight || original.Stretch != position.Stretch;
+                        || original.Size.RowSpan != position.Size.RowSpan;
 
                     if ((!policy.AllowMove && moved) || (!policy.AllowResize && resized))
                     {

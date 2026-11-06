@@ -21,13 +21,7 @@ public sealed record DashboardEditorData(
     string EditUrl,
     string CancelUrl,
     string PreviewUrl,
-    IReadOnlyCollection<DashboardEditorWidgetChoice> Widgets)
-{
-    /// <summary>
-    /// Gets the maximum requested widget height accepted by the server.
-    /// </summary>
-    public int MaxHeight => DashboardWidgetPosition.MaxRequestedHeight;
-}
+    IReadOnlyCollection<DashboardEditorWidgetChoice> Widgets);
 
 /// <summary>
 /// Contains only the layout information used by the browser's placement algorithm.

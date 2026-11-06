@@ -8,16 +8,10 @@ vm.createContext(context);
 vm.runInContext(fs.readFileSync(path.resolve(__dirname, '../../../../src/Smartstore.Web/wwwroot/admin/js/smartstore.dashboard.js'), 'utf8'), context);
 const Engine = context.Smartstore.Admin.DashboardEngine;
 const item = (id, column, row, width, extra = {}) => ({ id, column, row, size: { columnSpan: width, rowSpan: 1 }, ...extra });
-test('neighbors retain a shared row regardless of their requested heights', () => {
-    const items = [item('a', 0, 0, 6, { minHeight: 700 }), item('b', 6, 0, 6, { minHeight: 300 }), item('c', 0, 1, 12)];
-    Engine.arrange(items, 12, 'a');
-    assert.deepEqual(items.map(x => x.row), [0, 0, 1]);
-    assert.equal(items[0].minHeight, 700);
-});
 test('moving into an occupied cell pushes the other card to the next row', () => {
     const items = [item('a', 0, 1, 6), item('b', 0, 1, 6), item('c', 6, 1, 6)];
     Engine.arrange(items, 12, 'a');
-    assert.deepEqual(items.map(x => x.row), [0, 1, 0]);
+    assert.deepEqual(items.map(x => x.row), [1, 2, 1]);
 });
 test('reserved sidebar columns cannot be occupied', () => {
     const items = [item('a', 9, 0, 6)];
@@ -28,11 +22,6 @@ test('locked cards are preserved when a movable card collides', () => {
     const items = [item('fixed', 0, 0, 6, { locked: true }), item('a', 0, 0, 6)];
     Engine.arrange(items, 12, 'a');
     assert.deepEqual(items.map(x => x.row), [0, 1]);
-});
-test('empty rows close together without splitting neighboring cards', () => {
-    const items = [item('a', 0, 4, 6), item('b', 6, 4, 6), item('c', 0, 9, 12)];
-    Engine.arrange(items, 12);
-    assert.deepEqual(items.map(x => x.row), [0, 0, 1]);
 });
 test('row spans prevent collisions with following rows', () => {
     const items = [item('a', 0, 0, 6, { size: { columnSpan: 6, rowSpan: 2 } }), item('b', 0, 1, 6)];
@@ -84,17 +73,20 @@ test('expanding left displaces a neighbor without moving the opposite edge', () 
 function keyboardEditor({ direction = 'ltr', blockedStorage = false, allowedSizes = [], layer = 'User', belowPosition } = {}) {
     const handlers = new Map();
     const controls = new Map();
+    const extension = { inert: false };
     const element = {
         dataset: { instanceId: 'a', minWidth: '2', maxWidth: '6' },
         style: {}, isConnected: true, offsetHeight: 300,
         classList: { contains: () => false, add() {}, remove() {} },
         getBoundingClientRect: () => ({ top: 0, bottom: 300, height: 300 }),
-        querySelector: () => null, querySelectorAll: () => []
+        querySelector: selector => selector.includes('resize') || selector === '.dashboard-widget-overlay' ? {} : null,
+        querySelectorAll: selector => selector.includes(':not(.dashboard-extend)') ? [] : [extension]
     };
     const belowElement = { ...element, dataset: { ...element.dataset, instanceId: 'b' }, style: {},
         querySelector: () => ({}), getBoundingClientRect: () => ({ top: 300, bottom: 500, height: 200 }) };
     const container = {
-        querySelectorAll: () => belowPosition ? [element, belowElement] : [element],
+        appendChild() {},
+        querySelectorAll: selector => selector === '[data-instance-id]' ? (belowPosition ? [element, belowElement] : [element]) : [],
         addEventListener: (name, callback) => handlers.set(name, [callback]),
         getBoundingClientRect: () => ({ left: 0, right: 1200, top: 0 })
     };
@@ -117,6 +109,7 @@ function keyboardEditor({ direction = 'ltr', blockedStorage = false, allowedSize
         elements: Object.fromEntries(['changesJson', 'reset', 'command', 'widgetSystemName'].map(name => [name, { value: '' }]))
     };
     const document = {
+        createElement: () => ({ style: {}, setAttribute() {}, remove() {} }),
         getElementById: id => ({
             'dashboard-editor': { dataset: { editing: 'true', editorConfig: 'config' } },
             config: { textContent: JSON.stringify(config) },
@@ -154,7 +147,7 @@ function keyboardEditor({ direction = 'ltr', blockedStorage = false, allowedSize
             getItem() { if (blockedStorage) throw new Error('Storage blocked'); return null; },
             removeItem() {}
         },
-        getComputedStyle: () => ({ direction, gridTemplateColumns: Array(12).fill(100).join(' ') }),
+        getComputedStyle: () => ({ direction, gridTemplateRows: '150px 150px 150px 150px', gridTemplateColumns: Array(12).fill(100).join(' ') }),
         requestAnimationFrame: callback => { sandbox.frame = callback; return 1; },
         cancelAnimationFrame() {}
     };
@@ -162,6 +155,7 @@ function keyboardEditor({ direction = 'ltr', blockedStorage = false, allowedSize
     vm.runInContext(fs.readFileSync(path.resolve(__dirname, '../../../../src/Smartstore.Web/wwwroot/lib/underscore/underscore.js'), 'utf8'), sandbox);
     vm.runInContext(fs.readFileSync(path.resolve(__dirname, '../../../../src/Smartstore.Web/wwwroot/admin/js/smartstore.dashboard.js'), 'utf8'), sandbox);
     return {
+        extension,
         style: element.style,
         belowStyle: belowElement.style,
         scrollContainer,
@@ -169,6 +163,7 @@ function keyboardEditor({ direction = 'ltr', blockedStorage = false, allowedSize
         confirm: accepted => confirmation.callback(accepted),
         hasConfirmation: () => !!confirmation,
         submissions: () => submissions,
+        submitted: () => JSON.parse(form.elements.changesJson.value),
         undo: () => controls.get('#dashboard-undo').click(),
         redo: () => controls.get('#dashboard-redo').click(),
         canUndo: () => !controls.get('#dashboard-undo').disabled,
@@ -224,18 +219,6 @@ test('width limit does not add a redundant undo step and redo restores the chang
     assert.equal(editor.style.gridColumn, '3 / span 6');
 });
 
-test('height uses the server limit and Home restores automatic height', () => {
-    const editor = keyboardEditor();
-    editor.press('height', 'ArrowDown');
-    editor.press('height', 'ArrowDown');
-    assert.equal(editor.style.minHeight, '310px');
-    editor.undo();
-    assert.equal(editor.style.minHeight, '0px');
-    editor.redo();
-    editor.press('height', 'Home');
-    assert.equal(editor.style.minHeight, '0px');
-});
-
 test('RTL start resizing keeps the opposite edge fixed even with blocked history storage', () => {
     const editor = keyboardEditor({ direction: 'rtl', blockedStorage: true });
     editor.press('width-start', 'ArrowRight');
@@ -245,105 +228,6 @@ test('RTL start resizing keeps the opposite edge fixed even with blocked history
 });
 
 // A gap is only converted into grid rows when the drop is committed.
-test('dropping below a shortened card spans its neighbor and retains the original during preview', () => {
-    const items = [item('a', 0, 0, 6, { resizable: true }),
-        item('b', 6, 0, 6, { stretch: false, minHeight: 200 }), item('c', 0, 1, 6), item('d', 0, 2, 12)];
-    const before = JSON.stringify(items);
-    const proposed = Engine.insertBelow(items, 'b', 'c', 6);
-    assert.equal(JSON.stringify(items), before);
-    Engine.arrange(proposed, 12, 'c');
-    assert.equal(proposed[0].size.rowSpan, 2);
-    assert.equal(proposed[0].stretch, true);
-    assert.equal(proposed[1].size.rowSpan, 1);
-    assert.equal(proposed[2].row, 1);
-    assert.equal(proposed[2].column, 6);
-    assert.equal(proposed[3].row, 2);
-});
-
-test('gap insertion rejects locked neighbors, locked following rows and unsupported spans atomically', () => {
-    for (const restrictions of [{ resizable: false }, { resizable: true, maxSize: { rowSpan: 1 } },
-        { resizable: true, allowedSizes: [{ columnSpan: 6, rowSpan: 1 }] }]) {
-        const items = [item('a', 0, 0, 6, restrictions), item('b', 6, 0, 6, { stretch: false }), item('c', 0, 1, 6)];
-        const before = JSON.stringify(items);
-        assert.equal(Engine.insertBelow(items, 'b', 'c', 6), null);
-        assert.equal(JSON.stringify(items), before);
-    }
-    const items = [item('a', 0, 0, 6, { resizable: true }), item('b', 6, 0, 6, { stretch: false }),
-        item('c', 0, 2, 6), item('locked', 0, 1, 12, { locked: true })];
-    assert.equal(Engine.insertBelow(items, 'b', 'c', 6), null);
-    assert.equal(Engine.insertBelow(items, 'b', 'c', 5), null);
-});
-
-test('dropping a two-row widget extends crossing neighbors by two rows', () => {
-    const items = [item('a', 0, 0, 6, { resizable: true }), item('b', 6, 0, 6, { stretch: false }),
-        item('c', 0, 2, 6, { size: { columnSpan: 6, rowSpan: 2 } })];
-    const proposed = Engine.insertBelow(items, 'b', 'c', 6);
-    Engine.arrange(proposed, 12, 'c');
-    assert.equal(proposed[0].size.rowSpan, 3);
-    assert.equal(proposed[2].row, 1);
-    assert.equal(proposed[2].size.rowSpan, 2);
-});
-
-test('shortening leaves the row unchanged and undo, redo and Home restore stretching', () => {
-    const editor = keyboardEditor();
-    const row = editor.style.gridRow;
-    editor.press('height', 'ArrowUp');
-    assert.equal(editor.style.alignSelf, 'start');
-    assert.equal(editor.style.gridRow, row);
-    editor.undo();
-    assert.equal(editor.style.alignSelf, 'stretch');
-    editor.redo();
-    assert.equal(editor.style.alignSelf, 'start');
-    editor.press('height', 'Home');
-    assert.equal(editor.style.alignSelf, 'stretch');
-});
-
-
-test('returning the lower edge to its original height restores stretching and history', () => {
-    const editor = keyboardEditor();
-    editor.dragHeight(250, 300);
-    assert.equal(editor.style.alignSelf, 'stretch');
-    assert.equal(editor.style.minHeight, '300px');
-    editor.undo();
-    assert.equal(editor.style.minHeight, '0px');
-    editor.redo();
-    assert.equal(editor.style.alignSelf, 'stretch');
-    editor.press('height', 'ArrowUp');
-    editor.dragHeight(250, 300);
-    assert.equal(editor.style.alignSelf, 'start');
-});
-
-test('a dropped resizable widget fills the gap using its existing width and minimum height fields', () => {
-    const items = [item('a', 0, 0, 6, { resizable: true }),
-        item('b', 6, 0, 6, { stretch: false }), item('c', 0, 1, 4, { resizable: true })];
-    const proposed = Engine.insertBelow(items, 'b', 'c', 8, 480);
-    assert.equal(proposed[2].column, 6);
-    assert.equal(proposed[2].size.columnSpan, 6);
-    assert.equal(proposed[2].minHeight, 480);
-    assert.equal(proposed[2].stretch, true);
-    items[2].maxSize = { columnSpan: 4 };
-    assert.equal(Engine.insertBelow(items, 'b', 'c', 8, 480)[2].size.columnSpan, 4);
-    items[2].resizable = false;
-    const fixed = Engine.insertBelow(items, 'b', 'c', 8, 480)[2];
-    assert.equal(fixed.size.columnSpan, 4);
-    assert.equal(fixed.minHeight, undefined);
-});
-
-
-test('a larger resizable widget can fill a narrower gap without bypassing size restrictions', () => {
-    const items = [item('a', 0, 0, 6, { resizable: true }),
-        item('b', 6, 0, 4, { stretch: false }),
-        item('c', 0, 1, 6, { resizable: true, minSize: { columnSpan: 3, rowSpan: 1 }, maxSize: { columnSpan: 12 } })];
-    const proposed = Engine.insertBelow(items, 'b', 'c', 6, 300);
-    assert.equal(proposed[2].column, 6);
-    assert.equal(proposed[2].size.columnSpan, 4);
-    items[2].allowedSizes = [{ columnSpan: 6, rowSpan: 1 }];
-    assert.equal(Engine.insertBelow(items, 'b', 'c', 6, 300), null);
-    items[2].allowedSizes = [];
-    items[2].resizable = false;
-    assert.equal(Engine.insertBelow(items, 'b', 'c', 6, 300), null);
-});
-
 test('pointer and keyboard resizing use only allowed widths and keep the opposite edge fixed', () => {
     const allowedSizes = [{ columnSpan: 4, rowSpan: 1 }, { columnSpan: 6, rowSpan: 1 }];
     for (const direction of ['ltr', 'rtl']) {
@@ -360,15 +244,6 @@ test('pointer and keyboard resizing use only allowed widths and keep the opposit
         editor.drag('width-start', { clientX: direction === 'ltr' ? 90 : 510 });
         assert.equal(editor.style.gridColumn, '1 / span 6');
     }
-});
-
-test('height dragging accounts for content scrolling and scrolls the content at its edge', () => {
-    const editor = keyboardEditor();
-    editor.drag('height', { clientY: 250, scrollTop: 40 });
-    assert.equal(editor.style.minHeight, '290px');
-    editor.undo();
-    editor.drag('height', { clientY: 880 });
-    assert.equal(editor.scrollContainer.scrollTop, 55);
 });
 
 test('personal dashboard saves immediately without a confirmation', () => {
@@ -390,69 +265,92 @@ test('global dashboard only saves after confirmation and can be cancelled', () =
     assert.equal(editor.submissions(), 1);
 });
 
-test('height growth releases space below and undo/redo restores both cards', () => {
-    const editor = keyboardEditor({ belowPosition: {} });
-    editor.dragHeight(310);
-    assert.equal(editor.style.minHeight, '310px');
-    assert.equal(editor.belowStyle.minHeight, '190px');
-    editor.undo();
-    assert.equal(editor.style.minHeight, '0px');
-    assert.equal(editor.belowStyle.minHeight, '200px');
-    editor.redo();
-    assert.equal(editor.style.minHeight, '310px');
-    assert.equal(editor.belowStyle.minHeight, '190px');
+test('extend reuses only the immediate free cells without moving following widgets', () => {
+    const items = [item('a', 0, 0, 6, { resizable: true }), item('b', 6, 0, 6), item('c', 6, 1, 6), item('d', 0, 2, 12)];
+    const before = JSON.stringify(items);
+    const proposed = Engine.extend(items, 'a', 3);
+    assert.equal(proposed[0].size.rowSpan, 2);
+    assert.deepEqual(Array.from(proposed, x => x.row), [0, 0, 1, 2]);
+    assert.equal(JSON.stringify(items), before);
 });
 
-test('reversing a height drag restores the lower minimum without accumulating changes', () => {
-    const editor = keyboardEditor({ belowPosition: {} });
-    editor.dragHeight(310, 305, 310, 300);
-    assert.equal(editor.belowStyle.minHeight, '200px');
+test('partially occupied cells insert a row and extend only neighbors crossing its boundary', () => {
+    const items = [item('a', 0, 0, 6, { resizable: true }),
+        item('crossing', 6, 0, 6, { resizable: true, size: { columnSpan: 6, rowSpan: 3 } }),
+        item('occupied', 4, 1, 2), item('below', 0, 3, 12)];
+    const proposed = Engine.extend(items, 'a', 4);
+    assert.deepEqual(Array.from(proposed, x => x.row), [0, 0, 2, 4]);
+    assert.equal(proposed[0].size.rowSpan, 2);
+    assert.equal(proposed[1].size.rowSpan, 4);
 });
 
-test('height growth leaves lower cards with different columns or nonadjacent rows alone', () => {
-    for (const belowPosition of [{ column: 3 }, { row: 3 }, { size: { columnSpan: 3, rowSpan: 1 } }]) {
-        const editor = keyboardEditor({ belowPosition });
-        editor.dragHeight(310);
-        assert.equal(editor.belowStyle.minHeight, '200px');
-    }
-});
-
-
-test('moving cities upward reuses the unused realtime row without extending neighbors', () => {
-    const items = [
-        item('devices', 0, 5, 3, { resizable: true, size: { columnSpan: 3, rowSpan: 7 } }),
-        item('realtime', 3, 6, 3, { resizable: true, stretch: false, minHeight: 273, size: { columnSpan: 3, rowSpan: 2 } }),
-        item('cities', 3, 8, 3, { resizable: true }),
-        item('events', 6, 7, 4, { resizable: true, size: { columnSpan: 4, rowSpan: 5 } }),
-        item('following', 0, 12, 4)
-    ];
-    const original = JSON.stringify(items);
-    const proposed = Engine.insertBelow(items, 'realtime', 'cities', 3, 129, 7);
-    assert.ok(proposed);
+test('a neighbor ending at the insertion boundary keeps its span', () => {
+    const proposed = Engine.extend([item('a', 0, 0, 6, { resizable: true }), item('b', 6, 0, 6)], 'a', 1);
     assert.equal(proposed[1].size.rowSpan, 1);
-    assert.equal(proposed[1].stretch, true);
-    assert.equal(proposed[1].minHeight, 273);
-    assert.equal(proposed[2].row, 7);
-    assert.equal(proposed[0].size.rowSpan, 7);
-    assert.equal(proposed[3].size.rowSpan, 5);
-    assert.equal(proposed[4].row, 12);
-    assert.equal(JSON.stringify(items), original);
-    assert.equal(Engine.insertBelow(proposed, 'realtime', 'cities', 3, 129, 7), null);
+    assert.equal(proposed[0].size.rowSpan, 2);
 });
 
-test('reusing rows respects anchor size limits and occupied cells without modifying the layout', () => {
-    for (const restrictions of [
-        { resizable: false },
-        { minSize: { rowSpan: 2 } },
-        { allowedSizes: [{ columnSpan: 3, rowSpan: 2 }] }
-    ]) {
-        const items = [item('anchor', 0, 0, 3, { resizable: true, stretch: false,
-            size: { columnSpan: 3, rowSpan: 2 }, ...restrictions }), item('moving', 0, 2, 3, { resizable: true })];
-        const original = JSON.stringify(items);
-        assert.equal(Engine.insertBelow(items, 'anchor', 'moving', 0, 100, 1), null);
-        assert.equal(JSON.stringify(items), original);
+test('insertion respects locked placements and row-span limits atomically', () => {
+    for (const restriction of [{ locked: true }, { row: 0, resizable: false, size: { columnSpan: 6, rowSpan: 3 } },
+        { row: 0, resizable: true, maxSize: { rowSpan: 3 }, size: { columnSpan: 6, rowSpan: 3 } }]) {
+        const items = [item('a', 0, 0, 6, { resizable: true }), item('blocker', 0, 1, 6, restriction)];
+        const before = JSON.stringify(items);
+        assert.equal(Engine.extend(items, 'a', 3), null);
+        assert.equal(JSON.stringify(items), before);
     }
-    const items = [item('anchor', 0, 0, 3, { resizable: true, stretch: false, size: { columnSpan: 3, rowSpan: 2 } }),
-        item('moving', 0, 2, 3, { resizable: true }), item('occupied', 0, 1, 3, { locked: true })];
-    assert.equal(Engine.insertBelow(items, 'anchor', 'moving', 0, 100, 1), null);
+    assert.equal(Engine.extend([item('a', 0, 0, 6, { resizable: true, allowedSizes: [{ columnSpan: 6, rowSpan: 1 }] })], 'a', 1), null);
+});
+
+test('resize releases occupied rows without compacting and cannot cover another widget', () => {
+    const items = [item('a', 0, 0, 6, { resizable: true, size: { columnSpan: 6, rowSpan: 2 } }), item('b', 0, 2, 6)];
+    const proposed = Engine.resizeRows(items, 'a', 1);
+    assert.equal(proposed[0].size.rowSpan, 1);
+    assert.equal(proposed[1].row, 2);
+    assert.equal(Engine.resizeRows(items, 'a', 3), null);
+    Engine.compact(proposed);
+    assert.equal(proposed[1].row, 1);
+});
+
+test('save compaction retains rows occupied by spanning widgets and respects locked anchors', () => {
+    const items = [item('a', 0, 0, 6, { size: { columnSpan: 6, rowSpan: 3 } }), item('b', 6, 2, 6), item('c', 0, 5, 12)];
+    Engine.compact(items);
+    assert.deepEqual(items.map(x => x.row), [0, 2, 3]);
+    const locked = [item('a', 0, 3, 6, { locked: true }), item('b', 6, 6, 6)];
+    Engine.compact(locked);
+    assert.deepEqual(locked.map(x => x.row), [3, 4]);
+});
+
+test('keyboard row resizing and history never produce pixel heights', () => {
+    const editor = keyboardEditor({ belowPosition: { column: 6 } });
+    editor.press('height', 'ArrowDown');
+    assert.equal(editor.style.gridRow, '2 / span 2');
+    assert.equal(editor.style.minHeight, undefined);
+    editor.undo();
+    assert.equal(editor.style.gridRow, '2 / span 1');
+    editor.redo();
+    assert.equal(editor.style.gridRow, '2 / span 2');
+    editor.press('height', 'Home');
+    assert.equal(editor.style.gridRow, '2 / span 1');
+});
+
+test('pointer resizing snaps to rows and undo restores the row span', () => {
+    const editor = keyboardEditor({ belowPosition: { column: 6 } });
+    editor.dragHeight(450);
+    assert.equal(editor.style.gridRow, '2 / span 2');
+    editor.undo();
+    assert.equal(editor.style.gridRow, '2 / span 1');
+    editor.redo();
+    editor.dragHeight(300);
+    assert.equal(editor.style.gridRow, '2 / span 1');
+});
+
+test('saving compacts every responsive layout without removing occupied spans', () => {
+    const editor = keyboardEditor();
+    assert.equal(editor.style.gridRow, '2 / span 1');
+    editor.save();
+    for (const p of editor.submitted().widgets[0].positions) assert.equal(p.row, 0);
+});
+
+test('the extension button remains interactive while widget contents are inert', () => {
+    assert.equal(keyboardEditor().extension.inert, false);
 });
