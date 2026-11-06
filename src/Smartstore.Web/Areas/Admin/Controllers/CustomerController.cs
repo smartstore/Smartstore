@@ -1514,16 +1514,18 @@ public class CustomerController : AdminController
         }
         ModelState.Clear();
 
-        await MapperFactory.MapAsync(model.CustomerSettings, customerSettings);
-
         var csm = model.CustomerSettings;
-        if (csm.PasswordMinLength != customerSettings.PasswordMinLength
+        var identityOptionsChanged = csm.PasswordMinLength != customerSettings.PasswordMinLength
             || csm.PasswordRequireDigit != customerSettings.PasswordRequireDigit
             || csm.PasswordRequireUppercase != customerSettings.PasswordRequireUppercase
             || csm.PasswordRequiredUniqueChars != customerSettings.PasswordRequiredUniqueChars
             || csm.PasswordRequireLowercase != customerSettings.PasswordRequireLowercase
             || csm.PasswordRequireNonAlphanumeric != customerSettings.PasswordRequireNonAlphanumeric
-            || csm.CustomerNameAllowedCharacters != customerSettings.CustomerNameAllowedCharacters)
+            || csm.CustomerNameAllowedCharacters != customerSettings.CustomerNameAllowedCharacters;
+
+        await MapperFactory.MapAsync(model.CustomerSettings, customerSettings);
+
+        if (identityOptionsChanged)
         {
             // Save customerSettings now so new values can be applied in IdentityOptionsConfigurer.
             await Services.SettingFactory.SaveSettingsAsync(customerSettings, storeScope);
