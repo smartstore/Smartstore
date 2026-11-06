@@ -761,7 +761,6 @@ public class SmartDbContextDataSeeder : IDataSeeder<SmartDbContext>
 
         builder.AddOrUpdate(prefix + "Title", "Migrate icons", "Icons migrieren");
         builder.AddOrUpdate(prefix + "Start", "Start migration", "Migration starten");
-        builder.AddOrUpdate(prefix + "Hint",
         builder.Delete("Admin.Dashboard.Editor.Layer.System", "Admin.Dashboard.Editor.Layer.Global", "Admin.Dashboard.Editor.Layer.User",
             "Admin.Dashboard.Editor.Using", "Admin.Dashboard.Editor.SharedHint");
 

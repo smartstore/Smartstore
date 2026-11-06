@@ -341,7 +341,9 @@ public class HomeControllerDashboardTests
                 Widgets = []
             }));
         configure?.Invoke(dashboard);
-        return new HomeController(Mock.Of<IUserAgentFactory>(), Mock.Of<IUserAgent>(), dashboard.Object)
+        var modules = new ModuleManager(null, null, null, Mock.Of<ILocalizationService>(), null, null, null, null);
+        return new HomeController(Mock.Of<IUserAgentFactory>(), Mock.Of<IUserAgent>(), dashboard.Object,
+            Mock.Of<IModuleCatalog>(), modules)
         {
             Services = services.Object,
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
