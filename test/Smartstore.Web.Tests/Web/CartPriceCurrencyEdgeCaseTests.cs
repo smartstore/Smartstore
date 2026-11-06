@@ -449,17 +449,17 @@ public class CartPriceCurrencyEdgeCaseTests
         var source = new Currency { Id = 4, CurrencyCode = "CHF", Rate = sourceRate };
         var result = await fixture.MapAsync(
             ShoppingCartType.Wishlist,
-            new Money(16m, source),
-            new Money(48m, source),
-            new Money(4m, source),
+            new Money(24m, source),
+            new Money(72m, source),
+            new Money(12m, source),
             quantity: 3);
         var factor = workingRate / sourceRate;
 
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(result.Price.UnitPrice.Amount, Is.EqualTo(16m * factor));
-            Assert.That(result.Price.SubTotal.Amount, Is.EqualTo(48m * factor));
-            Assert.That(result.Price.TotalDiscount.Amount, Is.EqualTo(4m * factor));
+            Assert.That(result.Price.UnitPrice.Amount, Is.EqualTo(24m * factor));
+            Assert.That(result.Price.SubTotal.Amount, Is.EqualTo(72m * factor));
+            Assert.That(result.Price.TotalDiscount.Amount, Is.EqualTo(12m * factor));
             Assert.That(result.Price.UnitPrice.Currency, Is.SameAs(fixture.Working));
             Assert.That(result.Price.Quantity, Is.EqualTo(3));
         }
