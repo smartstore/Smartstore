@@ -94,8 +94,8 @@
             </div>
             <div class="adminData">
                 <setting-editor asp-for="AdditionalFee" additional-for="AdditionalFeePercentage">
-                    <amount-or-percent asp-for="AdditionalFee" percentage-for="AdditionalFeePercentage"
-                                       unit="@ViewBag.CurrentCurrencyCode" />
+                    <fixed-or-percent asp-for="AdditionalFee" asp-for-percentage="AdditionalFeePercentage"
+                                       sm-postfix="@ViewBag.CurrentCurrencyCode" />
                 </setting-editor>
                 <span asp-validation-for="AdditionalFee"></span>
                 <span asp-validation-for="AdditionalFeePercentage"></span>

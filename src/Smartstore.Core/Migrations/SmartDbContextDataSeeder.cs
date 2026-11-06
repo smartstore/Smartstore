@@ -148,8 +148,8 @@ public class SmartDbContextDataSeeder : IDataSeeder<SmartDbContext>
         builder.AddOrUpdate("Admin.Dashboard.PaymentMethods.Description", "The top ten payment methods by order count or order total, including tax and shipping, across all order dates and statuses.", "Die zehn führenden Zahlungsarten nach Bestellanzahl oder Bestellgesamtbetrag einschließlich Steuer und Versand über alle Bestellzeiträume und Bestellstatus hinweg.");
         builder.AddOrUpdate("Admin.Dashboard.PaymentMethods.Name", "Payment method", "Zahlungsart");
         builder.AddOrUpdate("Admin.Dashboard.PaymentMethods.OrderCount", "Orders", "Bestellungen");
-        builder.AddOrUpdate("Common.AmountOrPercent.Absolute", "Fixed value", "Fester Wert");
-        builder.AddOrUpdate("Common.AmountOrPercent.Percentage", "Percentage", "Prozent");
+        builder.AddOrUpdate("FixedValueOrPercent.Absolute", "Fixed value", "Fester Wert");
+        builder.AddOrUpdate("FixedValueOrPercent.Percentage", "Percentage", "Prozent");
 
         builder.AddOrUpdate("Permissions.DisplayName.Dashboard", "Dashboard", "Dashboard");
         builder.AddOrUpdate("Permissions.DisplayName.Widgets", "Widgets", "Widgets");
