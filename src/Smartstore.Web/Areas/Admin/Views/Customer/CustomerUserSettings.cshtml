@@ -107,9 +107,9 @@
                     <div class="adminTitle">
                         <smart-label asp-for="CustomerSettings.CustomerNameAllowedCharacters" />
                     </div>
-                    <div class="adminData wide">
+                    <div class="adminData">
                         <setting-editor asp-for="CustomerSettings.CustomerNameAllowedCharacters"></setting-editor>
-                        <div class="form-text text-muted" aria-live="polite">
+                        <div class="form-text text-muted" style="width: max-content;">
                             <div id="username-all-characters-hint">
                                 @T("Admin.Configuration.Settings.CustomerUser.CustomerNameAllowedCharacters.AllCharactersHint")
                             </div>
