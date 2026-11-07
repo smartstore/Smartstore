@@ -39,7 +39,7 @@ public class DefaultDbHookRegistry : IDbHookRegistry
                     // Double check
                     if (!_hookCache.TryGetValue(cacheKey, out hooks))
                     {
-                        _hookCache[cacheKey] = hooks = SelectHooks(_allMetadata, entry.EntityType).ToArray();
+                        _hookCache[cacheKey] = hooks = SelectHooks(_allMetadata, entry.EntityType, cacheKey.Item2).ToArray();
                     }
                 }
             }
@@ -80,22 +80,24 @@ public class DefaultDbHookRegistry : IDbHookRegistry
         }
     }
 
-    private static IEnumerable<HookMetadata> SelectHooks(HookMetadata[] source, Type entityType)
+    private static IEnumerable<HookMetadata> SelectHooks(HookMetadata[] source, Type entityType, Type dbContextType)
     {
         return source
             // Reduce by entity types which can be processed by this hook
-            .Where(x => x.HookedType.IsAssignableFrom(entityType));
+            // Context-free mock entries preserve legacy selection behavior.
+            .Where(x => x.HookedType.IsAssignableFrom(entityType)
+                && (dbContextType == null || x.DbContextType == null || x.DbContextType.IsAssignableFrom(dbContextType)));
     }
 
-    class HookKey : Tuple<Type, EntityState, HookStage>
+    class HookKey : Tuple<Type, Type, EntityState, HookStage>
     {
         public HookKey(IHookedEntity entry, HookStage stage)
-            : base(entry.EntityType, entry.InitialState, stage)
+            : base(entry.EntityType, entry.DbContext?.GetType(), entry.InitialState, stage)
         {
         }
 
-        public HookKey(Type entityType, EntityState state, HookStage stage)
-            : base(entityType, state, stage)
+        public HookKey(Type entityType, Type dbContextType, EntityState state, HookStage stage)
+            : base(entityType, dbContextType, state, stage)
         {
         }
     }
