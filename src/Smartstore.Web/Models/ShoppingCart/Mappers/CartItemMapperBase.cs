@@ -340,7 +340,7 @@ public abstract class CartItemMapperBase<TModel> : Mapper<OrganizedShoppingCartI
 
         Money ConvertMoney(Money money, string postFormat = null)
         {
-            return _services.CurrencyService.ConvertFromPrimaryCurrency(money.Amount, currency).WithPostFormat(postFormat);
+            return _services.CurrencyService.ConvertToCurrency(money, currency).WithPostFormat(postFormat);
         }
     }
 
