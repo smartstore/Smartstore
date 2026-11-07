@@ -91,7 +91,7 @@ button:where(.reset) {
     white-space: nowrap;
     align-items: center;
     justify-content: center;
-    gap: 0.5em;
+    gap: var(--btn-gap, 0.5em);
     min-height: var(--btn-height);
 
     // The button gap already separates the label from the dropdown chevron.

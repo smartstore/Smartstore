@@ -41,7 +41,7 @@
             }
 
             let $group = $(this).addClass("numberinput-initialized");
-            let $input = $group.find(".numberinput");
+            let $input = $group.find(".numberinput, [data-numberinput-value]").first();
             let $formatted = $group.find(".numberinput-formatted");
 
             if ($input.data("step-interval") >>> 0) {
@@ -60,6 +60,10 @@
 
             var autoDelayHandler = null;
             var autoIntervalHandler = null;
+            const $form = $($input.prop("form"));
+            // Store overrides change the input attributes directly; keep buttons and hidden fields in sync.
+            const observer = new MutationObserver(updateUnits);
+            observer.observe($input[0], { attributes: true, attributeFilter: ["disabled", "readonly"] });
 
             var min = $input.attr("min");
             var max = $input.attr("max");
@@ -79,10 +83,29 @@
                 $group.removeClass("numberinput-initialized");
                 this["number-input"] = undefined;
                 resetTimer();
+                observer.disconnect();
+                $form.off("reset.ni", onFormReset);
                 $input.off(".ni");
                 $group.off(".ni");
                 $(document.body).off(".ni");
             }
+
+            // Unit selection shares the existing initialization and destroy lifecycle.
+            updateUnits();
+            $form.on("reset.ni", onFormReset);
+            $group.on("click.ni", "[data-numberinput-unit-option]", function () {
+                const $unit = $group.find("[data-numberinput-unit]");
+                if ($input.is(":disabled, [readonly]") || $unit.prop("disabled") || $(this).prop("disabled")) return;
+                const unit = $(this).attr("data-numberinput-unit-option");
+                if ($unit.val() !== unit) $unit.val(unit).trigger("change");
+            }).on("change.ni", "[data-numberinput-unit]", updateUnits)
+                .on("show.bs.dropdown.ni", ".numberinput-unit-selector", function (e) {
+                    updateUnits();
+                    if ($group.find(".numberinput-unit-toggle").prop("disabled")) e.preventDefault();
+                });
+
+            // Native inputs need unit behavior, but keep their browser's numeric editing.
+            if (!$input.hasClass("numberinput")) return;
 
             $input.on("paste.ni input.ni change.ni focusout.ni", function (e) {
                 var newValue = parseValue($input[0].value);
@@ -204,6 +227,32 @@
             function updateDisplay(newValue, invariant) {
                 let text = isNaN(newValue) ? "" : renderValue(newValue, invariant);
                 $formatted.text(text);
+            }
+
+            function updateUnits() {
+                const disabled = $input.prop("disabled");
+                const locked = disabled || $input.prop("readOnly");
+                $group.find("button.numberinput-stepper").prop("disabled", locked);
+                $group.find('input[type="hidden"]').prop("disabled", disabled);
+                const $toggle = $group.find(".numberinput-unit-toggle");
+                if (!$toggle.length) return;
+                if (locked && !$toggle.prop("disabled")) $toggle.dropdown("hide");
+                $toggle.prop("disabled", locked);
+                const unit = $group.find("[data-numberinput-unit]").val();
+                const $options = $group.find("[data-numberinput-unit-option]");
+                const $selected = $options.filter(function () { return $(this).attr("data-numberinput-unit-option") === unit; });
+                $options.removeClass("active").attr("aria-pressed", "false").prop("disabled", locked);
+                $selected.addClass("active").attr("aria-pressed", "true");
+                $toggle.find(".numberinput-unit-label").text($selected.length ? $selected.text() : unit);
+            }
+
+            function onFormReset(e) {
+                // Default values are restored after the reset event has finished.
+                setTimeout(() => {
+                    if (e.isDefaultPrevented()) return;
+                    updateUnits();
+                    $input.trigger("change.ni");
+                }, 0);
             }
 
             function resetTimer() {

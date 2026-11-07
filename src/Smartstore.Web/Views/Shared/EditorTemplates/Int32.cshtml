@@ -11,6 +11,7 @@
        attrs="attributes"
        sm-decimals="@(GetMetadata<uint?>("decimals") ?? 0)"
        sm-prefix="@(GetMetadata<string>("prefix"))"
+       sm-units="@(GetMetadata<string[]>("units")?.Select(x => new AmountUnit(x)).ToArray())"
        sm-postfix="@(GetMetadata<string>("postfix"))"
        min="@(GetMetadata<int?>("min"))"
        max="@(GetMetadata<int?>("max"))"

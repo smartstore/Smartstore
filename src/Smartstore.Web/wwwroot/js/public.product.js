@@ -41,7 +41,7 @@
 
                 let inputCtrl = $(this);
                 let inputId = inputCtrl.attr('id');
-                let isNumberInput = inputCtrl.parent(".numberinput-group").length > 0;
+                let isNumberInput = inputCtrl.closest(".numberinput-group").length > 0;
                 let isFileUpload = inputCtrl.data("fileupload");
                 let isDateTime = inputCtrl.hasClass("date-part");
                 let ctx = inputCtrl.closest('.update-container');

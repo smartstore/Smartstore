@@ -1,8 +1,14 @@
 /// <reference path="references.scss" />
 
-.numberinput-group {
-    overflow: hidden;
+.numberinput-group,
+.numberinput-native,
+.numberinput-prefix-group {
+    position: relative;
+    display: flex;
     flex-wrap: nowrap;
+    width: 100%;
+    min-width: 0;
+    overflow: hidden;
     --ni-height: #{$input-height-inner};
     --ni-font-size: #{$font-size-base};
     --ni-line-height: #{$input-line-height};
@@ -10,27 +16,43 @@
     --ni-padding-y: #{$input-btn-padding-y};
     --ni-border-radius: #{$input-border-radius};
     --ni-addon-width: var(--ni-height);
+    --ni-stepper-font-size: 1rem;
 
     &.numberinput-addon-sm {
         --ni-addon-width: 1.5rem;
     }
 
-    &.input-group-lg {
+    &.input-group-lg,
+    &.numberinput-group-lg {
         --ni-height: #{$input-height-lg};
         --ni-font-size: #{$font-size-lg};
         --ni-line-height: #{$input-line-height-lg};
         --ni-padding-x: #{$input-btn-padding-x-lg};
         --ni-padding-y: #{$input-btn-padding-y-lg};
         --ni-border-radius: #{$input-border-radius-lg};
+
+        > :is(.form-control, .form-control-plaintext) {
+            height: $input-height-lg;
+            font-size: $input-font-size-lg;
+            line-height: $input-line-height-lg;
+        }
     }
 
-    &.input-group-sm {
+    &.input-group-sm,
+    &.numberinput-group-sm {
         --ni-height: #{$input-height-sm};
         --ni-font-size: #{$font-size-sm};
         --ni-line-height: #{$input-line-height-sm};
         --ni-padding-x: #{$input-btn-padding-x-sm};
         --ni-padding-y: #{$input-btn-padding-y-sm};
         --ni-border-radius: #{$input-border-radius-sm};
+        --ni-stepper-font-size: .875rem;
+
+        > :is(.form-control, .form-control-plaintext) {
+            height: $input-height-sm;
+            font-size: $input-font-size-sm;
+            line-height: $input-line-height-sm;
+        }
     }
 }
 
@@ -122,78 +144,6 @@
 }
 
 //
-// Default Styling
-// -------------------------------------
-
-.numberinput-default {
-    &:after {
-        // Mimic input group addon
-        position: absolute;
-        z-index: 5;
-        content: ' ';
-        display: block;
-        background: $input-group-addon-bg;
-        border: 0 solid $input-group-addon-border-color;
-        border-inline-start-width: 1px;
-        inset-inline: auto 1px;
-        top: 1px;
-        bottom: 1px;
-        width: var(--ni-addon-width);
-        border-start-end-radius: var(--ni-border-radius);
-        border-end-end-radius: var(--ni-border-radius);
-        @if $enable-shadows {
-            box-shadow: $btn-box-shadow;
-        }
-    }
-
-    > .numberinput-formatted {
-        justify-content: center;
-        inset-inline-start: 1px;
-        height: 100%;
-        align-items: center;
-        padding: 0 var(--ni-padding-x);
-    }
-
-    > .numberinput-postfix {
-        top: 1px;
-        bottom: 1px;
-        inset-inline-end: var(--ni-addon-width);
-        padding-inline-end: var(--ni-padding-x);
-    }
-
-    > .numberinput-stepper {
-        inset-inline-end: 1px;
-        width: calc(var(--ni-addon-width) - 1px);
-        height: calc(50% - 1px);
-        color: inherit;
-
-        > .icon {
-            font-size: 1rem;
-        }
-
-        &.numberinput-up {
-            top: 1px;
-        }
-
-        &.numberinput-down {
-            bottom: 1px;
-        }
-    }
-
-    > .numberinput:not(:disabled) ~ .numberinput-stepper,
-    > .numberinput:not(:read-only) ~ .numberinput-stepper {
-        &:hover {
-            background-color: rgba(#000, 0.05);
-        }
-
-        &:active {
-            background-color: rgba(#000, 0.08);
-        }
-    }
-}
-
-
-//
 // Centered Styling
 // -------------------------------------
 
@@ -207,12 +157,12 @@
         --ni-number-offset: calc((var(--ni-padding-y) / 2) + 0.175rem);
     }
 
-    &.has-postfix.input-group-lg {
+    &.has-postfix:is(.input-group-lg, .numberinput-group-lg) {
         --ni-number-offset: calc(var(--ni-padding-y) / 1.5);
         --ni-font-size: #{$font-size-base};
     }
 
-    &.has-postfix.input-group-sm {
+    &.has-postfix:is(.input-group-sm, .numberinput-group-sm) {
         --ni-number-top: 0px;
         --ni-number-bottom: calc(var(--ni-padding-y) * 2);
     }
@@ -245,7 +195,7 @@
         background-color: transparent !important;
     }
 
-    &.input-group-lg > .numberinput-postfix {
+    &:is(.input-group-lg, .numberinput-group-lg) > .numberinput-postfix {
         bottom: 5px;
     }
 
@@ -280,7 +230,7 @@
     }
 }
 
-.numberinput-group.input-group-sm > .numberinput-stepper > .icon,
+.numberinput-group:is(.input-group-sm, .numberinput-group-sm) > .numberinput-stepper > .icon,
 .numberinput.form-control-sm ~ .numberinput-stepper > .icon {
     font-size: 14px;
 }
@@ -294,5 +244,208 @@
 
     .input-group-text {
         border-radius: var(--border-radius-sm) 0 0 var(--border-radius-sm);
+    }
+}
+
+:is(.numberinput-group, .numberinput-native),
+.numberinput-prefix-group {
+    > .input-addon-plain {
+        flex: none;
+        margin-inline-end: 0;
+
+        > .input-group-text {
+            // Match the number's bottom inset to keep a shared optical baseline.
+            padding: 0 0 2px;
+            padding-inline-start: var(--ni-padding-x);
+            font: inherit;
+            font-size: var(--ni-font-size);
+            border: 0;
+            background-color: transparent;
+        }
+    }
+
+    > :is(.form-control, .form-control-plaintext),
+    > .numberinput-group {
+        flex: 1 1 auto;
+        width: 1%;
+        min-width: 0;
+        margin-bottom: 0;
+    }
+}
+
+.numberinput-prefix-group {
+    overflow: visible;
+}
+
+:is(.numberinput-group, .numberinput-native) {
+    overflow: visible;
+    padding: 0;
+
+    &.numberinput-default {
+        height: calc(var(--ni-line-height) * 1em + var(--ni-padding-y) * 2 + #{$input-border-width * 2});
+        font-size: var(--ni-font-size);
+        line-height: normal; // Match the native input's text metrics.
+        color: $input-color;
+        background-color: $input-bg;
+        border: $input-border-width solid $input-border-color;
+        border-radius: var(--ni-border-radius);
+
+        &:after {
+            // Stepper background shares the number field's frame.
+            position: absolute;
+            z-index: 5;
+            content: ' ';
+            display: block;
+            background: $input-group-addon-bg;
+            border: 0 solid $input-group-addon-border-color;
+            border-inline-start-width: 1px;
+            inset-inline: auto 0;
+            inset-block: 0;
+            width: var(--ni-addon-width);
+            border-start-end-radius: var(--ni-border-radius);
+            border-end-end-radius: var(--ni-border-radius);
+            @if $enable-shadows {
+                box-shadow: $btn-box-shadow;
+            }
+        }
+    }
+
+    .numberinput-unit-toggle {
+        --btn-color: var(--muted);
+        --btn-gap: 2px;
+        --btn-padding-x: 0.25rem;
+    }
+
+    &.numberinput-group-sm .numberinput-unit-toggle {
+        --btn-padding-y: 1px;
+    }
+
+    > .numberinput-unit-selector {
+        z-index: 8;
+        justify-content: center;
+
+        &.dropdown {
+            pointer-events: auto;
+        }
+
+        &.show {
+            z-index: $zindex-dropdown;
+        }
+
+        .dropdown-menu {
+            --dropdown-item-padding-y: 0.125rem;
+            --dropdown-border-radius: var(--border-radius-md);
+            --dropdown-item-border-radius: var(--border-radius-sm);
+            min-width: 100%;
+        }
+    }
+
+    &:not(.numberinput-centered) > .numberinput-unit-selector {
+        position: relative;
+        flex: none;
+        inset: auto;
+        padding-inline-end: var(--ni-padding-x, 0.75rem);
+
+        &.dropdown {
+            padding-inline-end: 0.375rem;
+        }
+    }
+
+    .numberinput-number {
+        position: relative;
+        flex: 1 1 0;
+        min-width: 0;
+        background-color: inherit;
+        margin-inline: var(--ni-padding-x, 0.75rem);
+
+        // Match the plain addon's 2px bottom inset so all text stays aligned.
+        > :is(.form-control, .form-control-plaintext) {
+            height: 100%;
+            padding: 0 0 2px;
+            font: inherit;
+            border: 0;
+            box-shadow: none;
+        }
+
+        > .numberinput-formatted {
+            inset: 0;
+            height: auto;
+            padding-inline: 0;
+            padding-block-end: 2px;
+            line-height: inherit;
+            overflow: hidden;
+            align-items: center;
+            background-color: inherit;
+        }
+    }
+
+    > .input-addon-plain + .numberinput-number {
+        margin-inline-start: 0.5em;
+    }
+
+    &.numberinput-initialized > .numberinput-number:not(:focus-within) > .numberinput-formatted:not(:empty) {
+        display: flex;
+    }
+
+    .numberinput-stepper-stack {
+        display: flex;
+        flex-direction: column;
+        flex: 0 0 var(--ni-addon-width);
+        min-height: 0;
+
+        > .btn {
+            --btn-padding-x: 0;
+            --btn-padding-y: 0;
+            --btn-border-radius: 0;
+            --btn-border-width: 0;
+            --btn-font-size: var(--ni-stepper-font-size);
+            --icon-min-size: 0px;
+            --btn-hover-bg: #{rgba(#000, 0.05)};
+            --btn-active-bg: #{rgba(#000, 0.08)};
+            position: relative;
+            flex: 1;
+            min-height: 0;
+        }
+    }
+
+    &:has(input:focus) {
+        border-color: var(--primary);
+    }
+
+    &:has(.input-validation-error) {
+        border-color: var(--danger);
+    }
+
+    &:has(input:is(:disabled, [readonly])) {
+        background-color: $input-disabled-bg;
+    }
+
+    &.numberinput-centered > .numberinput-unit-selector {
+        width: auto;
+
+        .numberinput-unit-toggle {
+            --btn-font-size: 11px;
+            --btn-padding-y: 0;
+            --btn-border-width: 0;
+        }
+    }
+
+    &.numberinput-plaintext {
+        border: 0;
+        background-color: transparent;
+    }
+
+    &.numberinput-native:after {
+        display: none;
+    }
+}
+
+.input-group > .input-addon-plain + .numberinput-group.numberinput-default {
+    border-inline-start: 0;
+    border-start-start-radius: 0;
+    border-end-start-radius: 0;
+
+    > .numberinput-number {
+        margin-inline-start: 0;
     }
 }
