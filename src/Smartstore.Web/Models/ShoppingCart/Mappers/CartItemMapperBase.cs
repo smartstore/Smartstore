@@ -317,17 +317,12 @@ public abstract class CartItemMapperBase<TModel> : Mapper<OrganizedShoppingCartI
             }
 
             // Single unit base price info (PanGV)
-            if (
-                _shoppingCartSettings.ShowBasePrice &&
-                priceModel.UnitPrice != decimal.Zero &&
-                product.BasePriceEnabled &&
-                !(product.ProductType == ProductType.BundledProduct && product.BundlePerItemPricing))
+            if (_shoppingCartSettings.ShowBasePrice
+                && priceModel.UnitPrice != decimal.Zero
+                && product.BasePriceEnabled
+                && !(product.ProductType == ProductType.BundledProduct && product.BundlePerItemPricing))
             {
-                priceModel.BasePriceInfo = _priceCalculationService.GetBasePriceInfo(
-                    product: product,
-                    price: priceModel.UnitPrice,
-                    targetCurrency: priceModel.UnitPrice.Currency,
-                    displayTaxSuffix: false);
+                priceModel.BasePriceInfo = _priceCalculationService.GetBasePriceInfo(product, priceModel.UnitPrice, priceModel.UnitPrice.Currency, displayTaxSuffix: false);
             }
 
             // Shipping surcharge
