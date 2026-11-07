@@ -1,5 +1,4 @@
-﻿using System.Reflection;
-using Microsoft.AspNetCore.Mvc.Abstractions;
+﻿using Microsoft.AspNetCore.Mvc.Abstractions;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Smartstore.Core.Configuration;
 using Smartstore.Core.Stores;
@@ -135,22 +134,9 @@ internal class LoadSettingFilter : IAsyncActionFilter
                 return;
             }
 
-            var rootModelType = rootModel.GetType();
-
             foreach (var param in _settingParams)
             {
-                var settingInstance = param.Instance;
-                var settingType = param.Parameter.ParameterType;
-                var childModel = rootModelType.GetProperty(settingType.Name, BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase)?.GetValue(rootModel);
-
-                if (childModel == null)
-                {
-                    await _settingHelper.DetectOverrideKeysAsync(settingInstance, rootModel, true);
-                }
-                else
-                {
-                    await _settingHelper.DetectOverrideKeysAsync(settingInstance, childModel, false);
-                }
+                await _settingHelper.PrepareModelAsync(param.Instance, rootModel);
             }
         }
     }

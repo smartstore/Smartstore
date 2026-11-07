@@ -1,6 +1,7 @@
 ﻿#nullable enable
 
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using System.Reflection;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
@@ -9,6 +10,7 @@ using Smartstore.Core.Configuration;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Stores;
 using Smartstore.Core.Web;
+using Smartstore.Utilities;
 
 namespace Smartstore.Web.Modelling.Settings;
 
@@ -110,8 +112,11 @@ public class MultiStoreSettingHelper
         string fieldName, // SomePropName
         bool isRootModel,
         bool allowEmpty,
-        Func<string, Task<string>> storeAccessor)
+        Func<string, Task<string>> storeAccessor,
+        string? overrideFieldName = null)
     {
+        // Storage uses the backing setting's name; the form can use a shared composite editor name.
+        var formFieldName = overrideFieldName ?? fieldName;
         var request = _httpContextAccessor.HttpContext?.Request;
 
         if (request == null || !request.HasFormContentType || request.Form == null)
@@ -122,13 +127,13 @@ public class MultiStoreSettingHelper
             var overridden = allowEmpty ? storedValue != null : storedValue.HasValue();
             if (overridden)
             {
-                return isRootModel ? fieldPrefix.Grow(fieldName, ".") : key;
+                return isRootModel ? fieldPrefix.Grow(formFieldName, ".") : settingName + "." + formFieldName;
             }
         }
         else
         {
             // A POST operation. Only check form.
-            if (IsOverrideChecked(fieldPrefix ?? settingName, fieldName, request.Form, out var key))
+            if (IsOverrideChecked(fieldPrefix ?? settingName, formFieldName, request.Form, out var key))
             {
                 return key;
             }
@@ -273,43 +278,56 @@ public class MultiStoreSettingHelper
         var modelProperties = modelType.GetProperties(BindingFlags.Public | BindingFlags.Instance);
         var localizedModelLocal = model as ILocalizedLocaleModel;
 
+        // Several persisted settings can belong to one editor. Any overridden backing setting
+        // activates that editor's single checkbox, including existing independently stored overrides.
+        var bindings = GetSettingBindings(settings, model, propertyNameMapper).ToLookup(x => x.ModelPropertyName);
+
         foreach (var prop in modelProperties)
         {
-            string? key = null;
-            var fieldName = propertyNameMapper?.Invoke(prop.Name) ?? prop.Name;
-            var settingProperty = settingType.GetProperty(fieldName, BindingFlags.Public | BindingFlags.Instance);
+            var composite = bindings.Contains(prop.Name);
+            var fieldNames = composite
+                ? bindings[prop.Name].Select(x => x.Property.Name)
+                : new[] { propertyNameMapper?.Invoke(prop.Name) ?? prop.Name };
 
-            if (settingProperty == null)
+            foreach (var fieldName in fieldNames)
             {
-                // Setting is not configurable or missing or whatever... however we don't need the override info.
-                continue;
-            }
+                if (settingType.GetProperty(fieldName, BindingFlags.Public | BindingFlags.Instance) == null)
+                {
+                    continue;
+                }
 
-            if (localizedModelLocal == null)
-            {
-                key = await FindOverridenSettingKey(
-                    settingName,
-                    fieldPrefix,
-                    fieldName,
-                    isRootModel: isRootModel,
-                    allowEmpty: true,
-                    storeAccessor: x => _settingService.GetSettingByKeyAsync<string>(x, storeId: _data!.StoreScope));
-            }
-            else if (localeIndex.HasValue)
-            {
-                var localeKey = $"Locales[{localeIndex.Value}].{fieldName}";
-                key = await FindOverridenSettingKey(
-                    settingName,
-                    fieldPrefix,
-                    localeKey,
-                    isRootModel: isRootModel,
-                    allowEmpty: true,
-                    storeAccessor: x => _leService.GetLocalizedValueAsync(localizedModelLocal.LanguageId, _data!.StoreScope, settingName, fieldName));
-            }
+                string? key = null;
+                // Report the outer model field, never a separate checkbox for each composite member.
+                var overrideFieldName = composite ? prop.Name : fieldName;
+                if (localizedModelLocal == null)
+                {
+                    key = await FindOverridenSettingKey(
+                        settingName,
+                        fieldPrefix,
+                        fieldName,
+                        isRootModel: isRootModel,
+                        allowEmpty: true,
+                        storeAccessor: x => _settingService.GetSettingByKeyAsync<string>(x, storeId: _data!.StoreScope),
+                        overrideFieldName: overrideFieldName);
+                }
+                else if (localeIndex.HasValue)
+                {
+                    var localeKey = $"Locales[{localeIndex.Value}].{fieldName}";
+                    key = await FindOverridenSettingKey(
+                        settingName,
+                        fieldPrefix,
+                        localeKey,
+                        isRootModel: isRootModel,
+                        allowEmpty: true,
+                        storeAccessor: x => _leService.GetLocalizedValueAsync(localizedModelLocal.LanguageId, _data!.StoreScope, settingName, fieldName),
+                        overrideFieldName: $"Locales[{localeIndex.Value}].{overrideFieldName}");
+                }
 
-            if (key != null)
-            {
-                _data!.OverriddenKeys.Add(key);
+                if (key != null)
+                {
+                    _data!.OverriddenKeys.Add(key);
+                    break;
+                }
             }
         }
 
@@ -376,10 +394,50 @@ public class MultiStoreSettingHelper
     /// <param fieldName="form">Form value collection.</param>
     /// <param fieldName="settingService">Setting service.</param>
     /// <param fieldName="propertyNameMapper">Function to map property names. Return <c>string.Empty</c> to skip a property.</param>
-    public async Task UpdateSettingsAsync(
+    public Task UpdateSettingsAsync(
         object settings,
         IFormCollection form,
         Func<string, string>? propertyNameMapper = null)
+        => UpdateSettingsCoreAsync(settings, form, propertyNameMapper);
+
+    /// <summary>
+    /// Called by SaveSetting after the action: maps composite values onto the settings copy,
+    /// then persists ordinary and composite settings through the same update path.
+    /// </summary>
+    internal async Task UpdateSettingsAsync(object settings, IFormCollection form, IEnumerable<object?> models)
+    {
+        CheckContextualized();
+
+        // Each composite model property supplies its own conversions. All of its backing
+        // settings use the outer model property's single override checkbox.
+        var overrideNames = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        var settingType = settings.GetType();
+        // The filter supplies its action arguments. A settings page may expose its configuration
+        // directly or inside a child model named after the settings class.
+        foreach (var rootModel in models.OfType<ModelBase>())
+        {
+            var model = GetSettingsModel(settingType, rootModel);
+            var prefix = ReferenceEquals(model, rootModel) ? null : settingType.Name;
+            foreach (var binding in SaveBindings(settings, model))
+            {
+                var formKey = prefix.Grow(binding.Value, ".");
+                // Reject competing editors rather than letting the last model silently win.
+                if (overrideNames.TryGetValue(binding.Key, out var existing) && existing != formKey)
+                {
+                    throw new InvalidOperationException($"Setting '{binding.Key}' has conflicting model bindings.");
+                }
+                overrideNames[binding.Key] = formKey;
+            }
+        }
+
+        await UpdateSettingsCoreAsync(settings, form, overrideNames: overrideNames);
+    }
+
+    private async Task UpdateSettingsCoreAsync(
+        object settings,
+        IFormCollection form,
+        Func<string, string>? propertyNameMapper = null,
+        IReadOnlyDictionary<string, string>? overrideNames = null)
     {
         CheckContextualized();
 
@@ -398,7 +456,10 @@ public class MultiStoreSettingHelper
 
             var key = settingName + "." + name;
 
-            if (_data!.StoreScope == 0 || IsOverrideChecked(settingName, name, form, out _))
+            // Alias only the checkbox lookup. Database keys remain the original settings keys;
+            // all members of a composite are saved or removed under the same checkbox state.
+            var overrideName = overrideNames?.GetValueOrDefault(prop.Name) ?? name;
+            if (_data!.StoreScope == 0 || IsOverrideChecked(settingName, overrideName, form, out _))
             {
                 await ApplySettingAsync(key, prop, _data.StoreScope);
             }
@@ -462,6 +523,122 @@ public class MultiStoreSettingHelper
         }
     }
 
+    /// <summary>
+    /// Called by LoadSetting before rendering: populates composite model values and prepares
+    /// their store override state without requiring controller-specific mapping code.
+    /// </summary>
+    internal async Task PrepareModelAsync(object settings, object rootModel)
+    {
+        CheckContextualized();
+        var model = GetSettingsModel(settings.GetType(), rootModel);
+
+        // Populate the initialized provider instances, preserving their server-side mapping
+        // configuration, then detect one override for all backing settings of each provider.
+        LoadBindings(settings, model);
+        await DetectOverrideKeysAsync(settings, model, ReferenceEquals(model, rootModel));
+    }
+
+    // Settings pages can contain child models named after their settings class.
+    private static object GetSettingsModel(Type settingType, object rootModel)
+        => rootModel.GetType().GetProperty(settingType.Name, BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase)
+            ?.GetValue(rootModel) ?? rootModel;
+
+    /// <summary>
+    /// Reads backing settings into the initialized model providers. Each setter performs
+    /// the conversion supplied by its provider; the helper has no knowledge of concrete value types.
+    /// </summary>
+    private static void LoadBindings(object settings, object model)
+    {
+        foreach (var (_, property, binding) in GetSettingBindings(settings, model))
+        {
+            binding.SetValue(property.GetValue(settings));
+        }
+    }
+
+    /// <summary>
+    /// Writes provider values onto the settings copy without persisting them. Returns a map
+    /// from each backing settings property to its outer model field for shared override lookup.
+    /// </summary>
+    private static IReadOnlyDictionary<string, string> SaveBindings(object settings, object model)
+    {
+        var overrideNames = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        foreach (var (modelPropertyName, property, binding) in GetSettingBindings(settings, model))
+        {
+            if (!ConvertUtility.TryConvert(binding.GetValue(), property.Property.PropertyType, CultureInfo.InvariantCulture, out var value))
+            {
+                throw new ArgumentException($"The binding value cannot be converted to setting '{property.Name}'.", nameof(model));
+            }
+
+            property.SetValue(settings, value);
+            overrideNames.Add(property.Name, modelPropertyName);
+        }
+
+        return overrideNames;
+    }
+
+    /// <summary>
+    /// Resolves provider-declared target names against the current settings type and validates
+    /// their ownership and accessors. Bindings capture model instances and are never globally cached.
+    /// </summary>
+    private static IEnumerable<(string ModelPropertyName, FastProperty Property, SettingBinding Binding)> GetSettingBindings(
+        object settings,
+        object model,
+        Func<string, string>? propertyNameMapper = null)
+    {
+        var settingProperties = FastProperty.GetProperties(settings.GetType());
+        var targets = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+        foreach (var property in FastProperty.GetProperties(model.GetType()).Values)
+        {
+            // Only opt-in composite properties participate; scalar mapping remains unchanged.
+            if (!typeof(ISettingBindingProvider).IsAssignableFrom(property.Property.PropertyType))
+            {
+                continue;
+            }
+            if (property.GetValue(model) is not ISettingBindingProvider provider)
+            {
+                throw new ArgumentException($"Setting binding provider '{property.Name}' must be initialized.", nameof(model));
+            }
+
+            var fieldName = propertyNameMapper?.Invoke(property.Name) ?? property.Name;
+            if (fieldName.IsEmpty())
+            {
+                continue;
+            }
+
+            // Pass the outer model property name. Target settings names come from the provider.
+            var bindings = Guard.NotNull(provider.GetBindings(property.Name)).ToArray();
+            // A root model can configure multiple settings classes. Ignore groups with no targets
+            // in this class; a matching group must resolve completely in the validation below.
+            if (!bindings.Any(binding => binding != null && settingProperties.ContainsKey(
+                binding.TargetPropertyName == property.Name ? fieldName : binding.TargetPropertyName)))
+            {
+                continue;
+            }
+
+            foreach (var binding in bindings)
+            {
+                Guard.NotNull(binding);
+                Guard.NotEmpty(binding.TargetPropertyName);
+                Guard.NotNull(binding.GetValue);
+                Guard.NotNull(binding.SetValue);
+
+                var targetName = binding.TargetPropertyName == property.Name ? fieldName : binding.TargetPropertyName;
+                if (!settingProperties.TryGetValue(targetName, out var target)
+                    || !target.IsPublicSettable || target.Property.GetMethod?.IsPublic != true)
+                {
+                    throw new ArgumentException($"Setting '{targetName}' must be a public readable and writable property.", nameof(settings));
+                }
+                if (!targets.Add(target.Name))
+                {
+                    throw new ArgumentException($"Setting '{target.Name}' is bound more than once.", nameof(model));
+                }
+
+                yield return (property.Name, target, binding);
+            }
+        }
+    }
+
     /// <inheritdoc cref="MapModelAsync{TModel, TSetting}(TModel, TSetting, IFormCollection, string, Action{TSetting})" />
     public async Task<TSetting> MapModelAsync<TModel, TSetting>(
         TModel model,
@@ -506,12 +683,16 @@ public class MultiStoreSettingHelper
         var mapper = MapperFactory.GetMapper<TModel, TSetting>();
         await mapper.MapAsync(model, settings);
 
+        // Supplement ordinary mapping with provider conversions, then use one editor name
+        // for every backing settings property when evaluating the submitted override switches.
+        var overrideNames = SaveBindings(settings, model);
+
         var settingProps = FastProperty.GetProperties(typeof(TSetting)).Values;
 
         foreach (var prop in settingProps)
         {
             await ApplySettingAsync(
-                $"{prefix}.{prop.Name}",
+                prefix.Grow(overrideNames.GetValueOrDefault(prop.Name, prop.Name), "."),
                 prop.Property,
                 settings,
                 form);
@@ -541,6 +722,7 @@ public class MultiStoreSettingHelper
         var storeScope = EnsureContextualized();
         var settings = await _settingFactory.LoadSettingsAsync<TSetting>(storeScope);
         var model = await MapperFactory.MapAsync<TSetting, TModel>(settings);
+        LoadBindings(settings, model);
 
         await DetectOverrideKeysAsync(settings, model);
 

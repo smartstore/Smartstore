@@ -176,15 +176,15 @@ fieldset.content-group {
 }
 
 
+// Plain addons share their appearance across Bootstrap and number input groups.
+.input-addon-plain > .input-group-text {
+    background-color: $input-bg;
+    color: var(--muted);
+    @include transition($input-transition);
+}
+
 // Plain addons visually extend the adjacent input without affecting other addons.
 .input-group {
-    // Match the input background and mute the addon text.
-    > .input-addon-plain > .input-group-text {
-        background-color: $input-bg;
-        color: var(--muted);
-        @include transition($input-transition);
-    }
-
     // Remove the inner end border at each plain addon/input seam.
     > .input-group-prepend.input-addon-plain > .input-group-text,
     > .form-control:has(+ .input-group-append.input-addon-plain) {
@@ -225,7 +225,7 @@ fieldset.content-group {
     }
 
     // Extend the adjacent input focus border across the plain addon.
-    > .input-group-prepend.input-addon-plain:has(+ .form-control:focus, + .numberinput-group > .form-control:focus),
+    > .input-group-prepend.input-addon-plain:has(+ .form-control:focus, + .numberinput-group .form-control:focus),
     > .form-control:focus + .input-group-append.input-addon-plain {
         > .input-group-text {
             background-color: $input-focus-bg;
@@ -234,7 +234,7 @@ fieldset.content-group {
     }
 
     // Match the adjacent disabled input background.
-    > .input-group-prepend.input-addon-plain:has(+ .form-control:disabled, + .numberinput-group > .form-control:disabled),
+    > .input-group-prepend.input-addon-plain:has(+ .form-control:disabled, + .numberinput-group .form-control:disabled),
     > .form-control:disabled + .input-group-append.input-addon-plain {
         > .input-group-text {
             background-color: $input-disabled-bg;

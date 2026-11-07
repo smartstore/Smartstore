@@ -52,7 +52,7 @@
         function (ctx) {
             if ($.fn.numberInput === undefined)
                 return;
-            ctx.find(".numberinput-group").numberInput();
+            ctx.find(".numberinput-group, .numberinput-native").numberInput();
         },
         // QuantityInput
         function (ctx) {

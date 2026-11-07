@@ -66,7 +66,7 @@ internal class SaveSettingFilter : LoadSettingFilter
             {
                 foreach (var param in _settingParams)
                 {
-                    await _settingHelper.UpdateSettingsAsync(param.Instance, _form);
+                    await _settingHelper.UpdateSettingsAsync(param.Instance, _form, context.ActionArguments.Values);
                 }
             }
         }
