@@ -1,8 +1,13 @@
-﻿@{
+﻿@inject Smartstore.Core.Seo.SeoSettings SeoSettings
+
+@{
     Assets.BodyAttributes.AppendCssClass("home");
     Assets.AppendTitleParts((string)ViewBag.MetaTitle);
     Assets.AppendMetaDescriptionParts((string)ViewBag.MetaDescription);
     Assets.AppendMetaKeywordsParts((string)ViewBag.MetaKeywords);
+
+    Smartstore.Web.Infrastructure.Seo.HomepageCanonical.Register(
+        Assets, SeoSettings, Url, Context.Request.Scheme);
 }
 
 <div class="page home-page">
