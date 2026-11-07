@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -101,6 +101,29 @@ public class DbContextHookIsolationExtendedReproTests
         var registry = Registry(Metadata(typeof(CustomOnlyHook), typeof(CustomContext)));
         var category = new HookedEntityMock(new Category(), EntityState.Added, custom);
         Assert.That(registry.SelectHooks(category, HookStage.PreSave), Is.Empty);
+    }
+
+    [Test]
+    public void Mock_without_DbContext_keeps_legacy_hook_selection_behavior()
+    {
+        var registry = Registry(Metadata(typeof(SmartOnlyHook), typeof(SmartDbContext)));
+        var entry = new HookedEntityMock(new Product(), EntityState.Added, null);
+        Assert.That(registry.SelectHooks(entry, HookStage.PreSave), Has.Length.EqualTo(1),
+            "Older isolated tests may not attach a real context to mock entries.");
+    }
+
+    [Test]
+    public void Metadata_without_context_restriction_matches_both_real_contexts()
+    {
+        using var smart = Smart();
+        using var custom = new CustomContext();
+        var registry = Registry(Metadata(typeof(SmartOnlyHook), null));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(registry.SelectHooks(Entry(smart), HookStage.PreSave), Has.Length.EqualTo(1));
+            Assert.That(registry.SelectHooks(Entry(custom), HookStage.PreSave), Has.Length.EqualTo(1));
+        });
     }
 
     [Test]
