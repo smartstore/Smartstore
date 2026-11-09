@@ -68,7 +68,7 @@
                 <Value>Webhook erstellen</Value>
             </LocaleResource>
             <LocaleResource Name="WebhookUrl.Hint">
-                <Value>Hinterlegen Sie diese URL in Ihrem Stripe-Konto als Endpoint-URL für den Webhook.</Value>
+                <Value>Beim Klick auf „Webhook erstellen“ wird diese URL automatisch bei Stripe hinterlegt. Kopieren Sie die URL nur, wenn Sie den Webhook manuell im Stripe-Dashboard einrichten möchten.</Value>
             </LocaleResource>
             <LocaleResource Name="AdditionalFee">
 				<Value>Zusätzliche Gebühren</Value>

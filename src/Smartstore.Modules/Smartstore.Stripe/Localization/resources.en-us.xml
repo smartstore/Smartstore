@@ -65,7 +65,7 @@
                 <Value>Endpoint URL</Value>
             </LocaleResource>
             <LocaleResource Name="WebhookUrl.Hint">
-                <Value>Store this URL in your Stripe account as the endpoint URL for the webhook.</Value>
+                <Value>Clicking “Create webhook” automatically registers this URL with Stripe. Only copy the URL if you want to configure the webhook manually in the Stripe Dashboard.</Value>
             </LocaleResource>
             <LocaleResource Name="CreateWebhook">
                 <Value>Create webhook</Value>
