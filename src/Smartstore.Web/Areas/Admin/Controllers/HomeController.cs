@@ -136,7 +136,7 @@ public class HomeController : AdminController
                 state = await _dashboardService.GetLayoutStateAsync(
                     AdminDashboardLayoutProvider.Id,
                     customer,
-                    await GetDashboardViewLayerAsync(),
+                    GetDashboardViewLayer(await Services.Permissions.AuthorizeAsync(Permissions.Dashboard.ManageGlobal)),
                     cancelToken: HttpContext.RequestAborted);
             }
 
@@ -161,9 +161,9 @@ public class HomeController : AdminController
         }
     }
 
-    private async Task<DashboardLayoutLayer> GetDashboardViewLayerAsync()
+    private DashboardLayoutLayer GetDashboardViewLayer(bool canManageGlobal)
     {
-        var selected = await Services.Permissions.AuthorizeAsync(Permissions.Dashboard.ManageGlobal)
+        var selected = canManageGlobal
             ? _dashboardService.GetSelectedLayer(AdminDashboardLayoutProvider.Id, Services.WorkContext.CurrentCustomer)
             : DashboardLayoutLayer.User;
 
@@ -388,7 +388,7 @@ public class HomeController : AdminController
         var customer = Services.WorkContext.CurrentCustomer;
         var canPersonalize = await Services.Permissions.AuthorizeAsync(Permissions.Dashboard.Personalize);
         var canManageGlobal = await Services.Permissions.AuthorizeAsync(Permissions.Dashboard.ManageGlobal);
-        var selected = await GetDashboardViewLayerAsync();
+        var selected = GetDashboardViewLayer(canManageGlobal);
         var target = editing ? layer ?? selected : selected;
         if (editing && layer == null && target == DashboardLayoutLayer.User && !canPersonalize && canManageGlobal)
         {
@@ -412,7 +412,7 @@ public class HomeController : AdminController
             State = state,
             Dashboard = await _dashboardService.PrepareDashboardAsync(state.Layout, customer, editing, HttpContext.RequestAborted),
             Catalog = catalog,
-            WidgetGroups = PrepareWidgetGroups(catalog),
+            WidgetGroups = editing ? PrepareWidgetGroups(catalog) : [],
             CanPersonalize = canPersonalize,
             CanManageGlobal = canManageGlobal,
             IsEditing = editing,

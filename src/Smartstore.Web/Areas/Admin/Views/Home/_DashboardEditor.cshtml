@@ -9,52 +9,39 @@
     var editorKey = dashboardKey + "Editor.";
 }
 
-@if (Model.IsEditing)
-{
-    var editorJson = DashboardEditorMapper.CreateJson(Model,
-        Url.Action("Index", "Home", new { area = "Admin", edit = true }),
-        Url.Action("Index", "Home", new { area = "Admin" }),
-        Url.Action("DashboardPreview", "Home", new { area = "Admin" }));
-
-    <script id="dashboard-editor-data" type="application/json">@Html.Raw(editorJson)</script>
-
-    <link rel="stylesheet" href="~/bundle/css/dashboard-editor.css" sm-target-zone="stylesheets" sm-key="dashboard-editor" />
-    <script src="~/admin/js/smartstore.dashboard.js" asp-append-version="true" sm-target-zone="scripts" sm-key="dashboard-editor"></script>
-}
-
 <div class="section-header">
     <div class="title">
         <icon name="home" class="d-flex" />
         @T(dashboardKey + "StoreStatistics")
     </div>
     <div class="options">
-        <div sm-if="Model.IsEditing" class="hstack gap-2">
-            <div class="dashboard-status d-flex align-items-center" attr-class='(!Model.IsDirty && !Model.Reset, "d-none")' aria-live="polite">
-                <span id="dashboard-reset-status" 
-                      class="badge badge-warning badge-subtle badge-ring"
-                      attr-class='(!Model.Reset, "d-none")'
-                      title="@T(editorKey + "ResetPending")" 
-                      aria-label="@T(editorKey + "ResetPending")">
-                    <icon name="warning" />
-                    <span class="dashboard-status-label">@T(editorKey + "Status.Reset")</span>
-                </span>
-                <span id="dashboard-dirty-status" 
-                      class="badge badge-warning badge-subtle badge-ring"
-                      attr-class='(!Model.IsDirty || Model.Reset, "d-none")'
-                      title="@T(editorKey + "Unsaved")" 
-                      aria-label="@T(editorKey + "Unsaved")">
-                    <icon name="warning" />
-                    <span class="dashboard-status-label">@T(editorKey + "Status.Unsaved")</span>
-                </span>
-            </div>
-        </div>
         @if (Model.IsEditing)
         {
             var presentWidgets = Model.State.Layout.Widgets.Select(x => x.WidgetSystemName).ToHashSet(StringComparer.Ordinal);
-            var resetLabel = (string)T(editorKey + (Model.State.Layer == DashboardLayoutLayer.User ? "ResetPersonal" : "ResetGlobal"));
+            var resetLabel = T(editorKey + (Model.State.Layer == DashboardLayoutLayer.User ? "ResetPersonal" : "ResetGlobal")).Value;
 
-            <form id="dashboard-draft-form" asp-area="Admin" asp-controller="Home" asp-action="DashboardSave" method="post"
-                  class="mb-0">
+            <div class="hstack gap-2">
+                <div class="dashboard-status d-flex align-items-center" attr-class='(!Model.IsDirty && !Model.Reset, "d-none")' aria-live="polite">
+                    <span id="dashboard-reset-status"
+                          class="badge badge-warning badge-subtle badge-ring"
+                          attr-class='(!Model.Reset, "d-none")'
+                          title="@T(editorKey + "ResetPending")"
+                          aria-label="@T(editorKey + "ResetPending")">
+                        <icon name="warning" />
+                        <span class="dashboard-status-label">@T(editorKey + "Status.Reset")</span>
+                    </span>
+                    <span id="dashboard-dirty-status"
+                          class="badge badge-warning badge-subtle badge-ring"
+                          attr-class='(!Model.IsDirty || Model.Reset, "d-none")'
+                          title="@T(editorKey + "Unsaved")"
+                          aria-label="@T(editorKey + "Unsaved")">
+                        <icon name="warning" />
+                        <span class="dashboard-status-label">@T(editorKey + "Status.Unsaved")</span>
+                    </span>
+                </div>
+            </div>
+
+            <form id="dashboard-draft-form" asp-area="Admin" asp-controller="Home" asp-action="DashboardSave" method="post" class="mb-0">
                 <input type="hidden" name="layer" value="@Model.State.Layer" />
                 <input type="hidden" name="templateSource" value="@Model.TemplateSource" />
                 <input type="hidden" name="changesJson" />
@@ -121,23 +108,23 @@
                     </button>
                     <button type="button" class="btn btn-light" id="dashboard-cancel">@T("Common.Cancel")</button>
                     <div sm-if="Model.CanManageGlobal" class="dropdown">
-                        <button type="button" 
+                        <button type="button"
                                 class="btn btn-light dropdown-toggle"
                                 data-toggle="dropdown"
-                                aria-haspopup="true" 
-                                aria-expanded="false" 
+                                aria-haspopup="true"
+                                aria-expanded="false"
                                 aria-label="@T(editorKey + "View"): @T(editorKey + "Dashboard." + Model.State.Layer)">
                             @T(editorKey + "Dashboard." + Model.State.Layer)
                         </button>
                         <div class="dropdown-menu dropdown-menu-right">
-                            <button sm-if="Model.CanPersonalize" 
-                                    type="button" 
+                            <button sm-if="Model.CanPersonalize"
+                                    type="button"
                                     class="dropdown-item"
                                     attr-class='(Model.State.Layer == DashboardLayoutLayer.User, "active")'
                                     data-dashboard-edit="@DashboardLayoutLayer.User">
                                 @T(editorKey + "Dashboard." + DashboardLayoutLayer.User)
                             </button>
-                            <button type="button" 
+                            <button type="button"
                                     class="dropdown-item"
                                     attr-class='(Model.State.Layer == DashboardLayoutLayer.Global, "active")'
                                     data-dashboard-edit="@DashboardLayoutLayer.Global">
@@ -152,38 +139,53 @@
                 </div>
             </form>
         }
-        <a sm-if="!Model.IsEditing && (Model.CanPersonalize || Model.CanManageGlobal)"
-           asp-action="Index" 
-           asp-controller="Home"
-           asp-area="Admin" 
-           asp-route-edit="true"
-           class="btn btn-light btn-customize-dashboard">
-            <icon name="dashboard-circle-settings" stroke-scale="0.75" />
-            <span>@T(dashboardKey + "Customize")</span>
-        </a>
+        else if (Model.CanPersonalize || Model.CanManageGlobal)
+        {
+            <a asp-action="Index"
+               asp-controller="Home"
+               asp-area="Admin"
+               asp-route-edit="true"
+               class="btn btn-light btn-customize-dashboard">
+                <icon name="dashboard-circle-settings" stroke-scale="0.75" />
+                <span>@T(dashboardKey + "Customize")</span>
+            </a>
+        }
     </div>
 </div>
 
-<div id="dashboard-editor"
-        data-editor-config="dashboard-editor-data" 
-        data-editing="@Model.IsEditing.ToString().ToLowerInvariant()" 
-        data-error="@T(editorKey + "Invalid")"
-        data-remove-widget-confirm="@T(editorKey + "RemoveWidgetConfirm")"
-        data-reset-confirm="@T(editorKey + "ResetConfirm")"
-        data-save-global-confirm="@T(editorKey + "SaveGlobalConfirm")" 
-        data-save-global-label="@T(editorKey + "SaveGlobal")">
-    
-    <div sm-if="Model.IsEditing && Model.TemplateSource.HasValue" class="alert alert-info" role="status">
-        @T(editorKey + "TemplateNotice", T(editorKey + "Dashboard." + Model.TemplateSource.Value), T(editorKey + "Dashboard." + Model.State.Layer))
-    </div>
-</div>
+@if (Model.IsEditing)
+{
+    var editorJson = DashboardEditorMapper.CreateJson(Model,
+        Url.Action("Index", "Home", new { area = "Admin", edit = true }),
+        Url.Action("Index", "Home", new { area = "Admin" }),
+        Url.Action("DashboardPreview", "Home", new { area = "Admin" }));
 
-<modal sm-if="Model.IsEditing" id="dashboard-leave" sm-size="Large" sm-center-vertically="true">
-    <modal-header sm-title="@T(editorKey + "Unsaved")" sm-show-close="false"></modal-header>
-    <modal-body>@T(editorKey + "UnsavedHint")</modal-body>
-    <modal-footer class="flex-nowrap">
-        <button type="button" class="btn btn-light" data-dismiss="modal">@T(editorKey + "KeepEditing")</button>
-        <button type="button" class="btn btn-secondary" id="dashboard-discard">@T(editorKey + "Discard")</button>
-        <button type="button" class="btn btn-primary" id="dashboard-save-leave">@T(editorKey + "SaveAndSwitch")</button>
-    </modal-footer>
-</modal>
+    <script id="dashboard-editor-data" type="application/json">@Html.Raw(editorJson)</script>
+
+    <link rel="stylesheet" href="~/bundle/css/dashboard-editor.css" sm-target-zone="stylesheets" sm-key="dashboard-editor" />
+    <script src="~/admin/js/smartstore.dashboard.js" asp-append-version="true" sm-target-zone="scripts" sm-key="dashboard-editor"></script>
+
+    <div id="dashboard-editor"
+            data-editor-config="dashboard-editor-data"
+            data-editing="true"
+            data-error="@T(editorKey + "Invalid")"
+            data-remove-widget-confirm="@T(editorKey + "RemoveWidgetConfirm")"
+            data-reset-confirm="@T(editorKey + "ResetConfirm")"
+            data-save-global-confirm="@T(editorKey + "SaveGlobalConfirm")"
+            data-save-global-label="@T(editorKey + "SaveGlobal")">
+
+        <div sm-if="Model.TemplateSource.HasValue" class="alert alert-info" role="status">
+            @T(editorKey + "TemplateNotice", T(editorKey + "Dashboard." + Model.TemplateSource.Value), T(editorKey + "Dashboard." + Model.State.Layer))
+        </div>
+    </div>
+
+    <modal id="dashboard-leave" sm-size="Large" sm-center-vertically="true">
+        <modal-header sm-title="@T(editorKey + "Unsaved")" sm-show-close="false"></modal-header>
+        <modal-body>@T(editorKey + "UnsavedHint")</modal-body>
+        <modal-footer class="flex-nowrap">
+            <button type="button" class="btn btn-light" data-dismiss="modal">@T(editorKey + "KeepEditing")</button>
+            <button type="button" class="btn btn-secondary" id="dashboard-discard">@T(editorKey + "Discard")</button>
+            <button type="button" class="btn btn-primary" id="dashboard-save-leave">@T(editorKey + "SaveAndSwitch")</button>
+        </modal-footer>
+    </modal>
+}

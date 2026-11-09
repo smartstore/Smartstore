@@ -32,7 +32,8 @@
         <div id="@Model.Layout.BuildWidgetId(item.Instance.Id)" class="dashboard-widget d-grid position-relative rounded-3 @item.Descriptor.CssClass"
              attr-class='(canConfigure, "dashboard-widget-configurable")'
              data-instance-id="@item.Instance.Id"
-             data-min-width="@item.Descriptor.MinSize.ColumnSpan" data-max-width="@item.Descriptor.MaxSize.ColumnSpan">
+             attr-data-min-width='(Model.Context.IsEditMode, item.Descriptor.MinSize.ColumnSpan.ToString())'
+             attr-data-max-width='(Model.Context.IsEditMode, item.Descriptor.MaxSize.ColumnSpan.ToString())'>
             <div class="dashboard-widget-body position-relative h-100">
                 <div sm-if="canEdit" class="dashboard-widget-overlay z-1 position-absolute top-0 start-0 w-100 h-100 rounded-3"
                      attr-tabindex='(item.Policy.AllowMove, "0")'
