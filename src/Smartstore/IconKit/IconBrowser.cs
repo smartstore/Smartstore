@@ -43,7 +43,6 @@ public sealed class IconBrowser(IconService icons, IconKitService kits, IHttpCon
         Guard.NotNegative(query.Skip);
         Guard.InRange(query.Take, 1, 500);
 
-        cancelToken.ThrowIfCancellationRequested();
         var catalog = icons.Catalog;
         IconBrowserResult result;
         if (kit != null)

@@ -1002,8 +1002,8 @@ public class PaymentMethodsConfigurationTests
         Assert.That(model.PaymentMethods.Select(x => x.SystemName), Is.EqualTo(new[] { "Payments.Active", "Payments.Current" }));
         var fee = model.PaymentMethods.Single(x => x.SystemName == "Payments.Current").FeeValue;
         Assert.That(fee.Value, Is.EqualTo(2.75m));
-        Assert.That(fee.Unit, Is.EqualTo("%"));
-        Assert.That(model.PaymentMethods.Single(x => x.SystemName == "Payments.Active").FeeValue.Unit, Is.EqualTo("%"));
+        Assert.That(fee.IsPercentage(), Is.True);
+        Assert.That(model.PaymentMethods.Single(x => x.SystemName == "Payments.Active").FeeValue.IsPercentage(), Is.True);
     }
 
     [TestCase("0")]

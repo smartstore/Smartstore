@@ -31,6 +31,9 @@ public class Amount : ISettingBindingProvider
     /// <summary>Gets or sets the unit identifier understood by the consuming view model.</summary>
     public string? Unit { get; set; }
 
+    /// <summary>Returns whether the amount uses the percentage unit.</summary>
+    public bool IsPercentage() => Unit == "%";
+
     /// <inheritdoc />
     public IEnumerable<SettingBinding> GetBindings(string modelPropertyName)
     {
@@ -45,7 +48,7 @@ public class Amount : ISettingBindingProvider
         {
             yield return new SettingBinding(
                 _unitField,
-                () => Unit == "%",
+                () => IsPercentage(),
                 value => Unit = Convert.ToBoolean(value, CultureInfo.InvariantCulture) ? "%" : null);
         }
     }
