@@ -2,17 +2,18 @@
 @model Smartstore.Admin.Models.Dashboard.DashboardPaymentMethodsConfigurationModel
 
 @{
+    ViewData["size"] = "sm";
     var resourceKey = "Admin.Dashboard.PaymentMethods.";
 }
 
 <tabstrip id="dashboard-paymentmethods-configuration" sm-nav-style="Material">
     <tab sm-title="@T(resourceKey + "DisplaySettings")" sm-selected="true">
-        <div class="adminRow">
-            <div class="adminTitle">
-                <smart-label asp-for="Count" />
+        <div class="form-group form-row">
+            <div class="col-6">
+                <smart-label class="col-form-label col-form-label-sm" asp-for="Count" />
             </div>
-            <div class="adminData">
-                <input asp-for="Count" type="number" sm-numberinput-group-class="overflow-visible" data-dashboard-setting="count" min="1" max="50" step="1" placeholder="10" required />
+            <div class="col-6">
+                <input sm-control-size="Small" asp-for="Count" type="number" sm-numberinput-group-class="overflow-visible" data-dashboard-setting="count" min="1" max="50" step="1" placeholder="10" required />
                 <span asp-validation-for="Count"></span>
             </div>
         </div>
@@ -22,12 +23,12 @@
 
         @for (var i = 0; i < Model.PaymentMethods.Count; i++)
         {
-            <div class="adminRow">
-                <div class="adminTitle">
-                    <smart-label asp-for="PaymentMethods[i].FeeValue" sm-text="@Model.PaymentMethods[i].Name" />
+            <div class="form-group form-row">
+                <div class="col-6">
+                    <smart-label class="col-form-label col-form-label-sm" asp-for="PaymentMethods[i].FeeValue" sm-text="@Model.PaymentMethods[i].Name" />
                 </div>
-                <div class="adminData">
-                    <fixed-or-percent asp-for="PaymentMethods[i].FeeValue" asp-for-percentage="PaymentMethods[i].FeeIsPercentage"
+                <div class="col-6">
+                    <fixed-or-percent class="input-group-sm" asp-for="PaymentMethods[i].FeeValue" asp-for-percentage="PaymentMethods[i].FeeIsPercentage"
                                        sm-postfix="@Model.CurrencyCode"
                                        value-data-dashboard-setting="@(PaymentMethodsDashboardWidget.FeeValuePrefix + Model.PaymentMethods[i].SystemName)"
                                        percentage-data-dashboard-setting="@(PaymentMethodsDashboardWidget.FeeIsPercentagePrefix + Model.PaymentMethods[i].SystemName)"

@@ -40,29 +40,6 @@ $dashboard-resize-handle-size: 10px;
     outline: ($border-width * 2) dashed var(--primary);
 }
 
-// Configuration fields respond to the card width, independently of the viewport.
-.dashboard-widget-configuration {
-    container: dashboard-configuration / inline-size;
-}
-
-@container dashboard-configuration (max-width: 575.98px) {
-    .dashboard-widget-configuration .adminRow:not(.wide) {
-        flex-direction: column;
-
-        > .adminTitle,
-        > .adminData {
-            flex: 0 0 auto;
-            width: 100%;
-            max-width: 100%;
-        }
-
-        > .adminTitle {
-            text-align: start;
-        }
-    }
-}
-
-/* The back shares the front's dimensions without contributing another grid row. */
 .dashboard-widget-configurable {
     perspective: 1200px;
 }
