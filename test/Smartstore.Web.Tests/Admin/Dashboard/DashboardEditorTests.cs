@@ -1000,7 +1000,10 @@ public class PaymentMethodsConfigurationTests
     {
         var model = (DashboardPaymentMethodsConfigurationModel)await RenderAsync(true);
         Assert.That(model.PaymentMethods.Select(x => x.SystemName), Is.EqualTo(new[] { "Payments.Active", "Payments.Current" }));
-        Assert.That(model.PaymentMethods.Single(x => x.SystemName == "Payments.Current").FeeValue, Is.EqualTo(2.75m));
+        var fee = model.PaymentMethods.Single(x => x.SystemName == "Payments.Current").FeeValue;
+        Assert.That(fee.Value, Is.EqualTo(2.75m));
+        Assert.That(fee.Unit, Is.EqualTo("%"));
+        Assert.That(model.PaymentMethods.Single(x => x.SystemName == "Payments.Active").FeeValue.Unit, Is.EqualTo("%"));
     }
 
     [TestCase("0")]
@@ -1051,8 +1054,8 @@ public class PaymentMethodsConfigurationTests
         });
         var configuration = (DashboardPaymentMethodsConfigurationModel)await RenderAsync(true, fixedFee: true);
         var fee = configuration.PaymentMethods.Single(x => x.SystemName == "Payments.Current");
-        Assert.That(fee.FeeIsPercentage, Is.False);
-        Assert.That(fee.FeeValue, Is.EqualTo(0.35m));
+        Assert.That(fee.FeeValue.Unit, Is.EqualTo(configuration.CurrencyCode));
+        Assert.That(fee.FeeValue.Value, Is.EqualTo(0.35m));
     }
 
     [TestCase("feeValue.Payments.Example", "-1")]

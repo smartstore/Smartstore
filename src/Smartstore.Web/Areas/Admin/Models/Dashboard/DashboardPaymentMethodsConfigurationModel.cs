@@ -1,4 +1,5 @@
 using Smartstore.Web.Modelling;
+using Smartstore.Web.Models;
 
 namespace Smartstore.Admin.Models.Dashboard;
 
@@ -43,9 +44,5 @@ public class DashboardPaymentMethodFeeModel
 
     /// <summary>Gets or sets the fee value in percent or the primary currency.</summary>
     [LocalizedDisplay("*Fee")]
-    public decimal FeeValue { get; set; }
-
-    /// <summary>Gets or sets whether the fee value is a percentage.</summary>
-    [LocalizedDisplay("*FeePercentage")]
-    public bool FeeIsPercentage { get; set; } = true;
+    public Amount FeeValue { get; set; } = new() { Unit = "%" };
 }

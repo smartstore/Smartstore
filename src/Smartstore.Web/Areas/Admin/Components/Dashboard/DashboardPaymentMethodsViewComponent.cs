@@ -63,8 +63,11 @@ public class DashboardPaymentMethodsViewComponent : SmartViewComponent
                 {
                     SystemName = systemName,
                     Name = names[systemName],
-                    FeeValue = feeValues?.GetValueOrDefault(systemName) ?? 0,
-                    FeeIsPercentage = feeIsPercentage?.GetValueOrDefault(systemName, true) ?? true
+                    FeeValue = new()
+                    {
+                        Value = feeValues?.GetValueOrDefault(systemName) ?? 0,
+                        Unit = (feeIsPercentage?.GetValueOrDefault(systemName, true) ?? true) ? "%" : currencyCode
+                    }
                 });
             }
 

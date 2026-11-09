@@ -452,3 +452,53 @@ test('free destinations stay free placements and full-width widgets can exchange
     Engine.move([moved, neighbor], 4, 'a', item('a', 0, 2, 4));
     assert.deepEqual([moved.row, neighbor.row], [1, 2]);
 });
+
+test('payment fees are collected from current Amount values without synchronized fields', () => {
+    const view = fs.readFileSync(path.resolve(__dirname,
+        '../../../../src/Smartstore.Web/Areas/Admin/Views/Shared/Components/DashboardPaymentMethods/Configure.cshtml'), 'utf8');
+    const script = view.match(/<script>([\s\S]*?)<\/script>/)[1];
+    let collect;
+    const $ = target => {
+        if (typeof target === 'function') return target();
+        assert.equal(target, '#dashboard-paymentmethods-configuration');
+        return { on(event, handler) {
+            assert.equal(event, 'dashboard:collectsettings');
+            collect = handler;
+        } };
+    };
+    vm.runInNewContext(script, { $ });
+    const fee = (provider, amount, unit) => ({
+        dataset: { feeValueSetting: `feeValue.${provider}`, feePercentageSetting: `feeIsPercentage.${provider}` },
+        amount: { value: String(amount), valueAsNumber: amount },
+        unit: { value: unit },
+        querySelector(selector) {
+            assert.ok(['[data-numberinput-value]', '[data-numberinput-unit]'].includes(selector));
+            return selector === '[data-numberinput-value]' ? this.amount : this.unit;
+        }
+    });
+    const percentage = fee('Payments.A', 2.75, '%');
+    const fixed = fee('Payments.B', 0.35, 'EUR');
+    const viewElement = { querySelectorAll(selector) {
+        assert.equal(selector, '[data-dashboard-payment-fee]');
+        return [percentage, fixed];
+    } };
+    const settings = { count: 3 };
+    collect.call(viewElement, {}, settings);
+    assert.deepEqual(settings, {
+        count: 3,
+        'feeValue.Payments.A': 2.75, 'feeIsPercentage.Payments.A': true,
+        'feeValue.Payments.B': 0.35, 'feeIsPercentage.Payments.B': false
+    });
+
+    // The next save must read changes directly, without any change event.
+    percentage.amount = { value: '4.5', valueAsNumber: 4.5 };
+    percentage.unit.value = 'EUR';
+    fixed.amount.value = '';
+    fixed.unit.value = '%';
+    collect.call(viewElement, {}, settings);
+    assert.equal(settings['feeValue.Payments.A'], 4.5);
+    assert.equal(settings['feeIsPercentage.Payments.A'], false);
+    assert.equal(settings['feeIsPercentage.Payments.B'], true);
+    assert.equal('feeValue.Payments.B' in settings, false);
+    assert.equal(settings.count, 3);
+});

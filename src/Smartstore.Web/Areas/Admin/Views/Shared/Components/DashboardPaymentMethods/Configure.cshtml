@@ -6,7 +6,7 @@
     var resourceKey = "Admin.Dashboard.PaymentMethods.";
 }
 
-<tabstrip id="dashboard-paymentmethods-configuration" sm-nav-style="Material">
+<tabstrip id="dashboard-paymentmethods-configuration" sm-nav-style="Material" data-dashboard-settings>
     <tab sm-title="@T(resourceKey + "DisplaySettings")" sm-selected="true">
         <div class="form-group form-row">
             <div class="col-6">
@@ -27,13 +27,13 @@
                 <div class="col-6">
                     <smart-label class="col-form-label col-form-label-sm" asp-for="PaymentMethods[i].FeeValue" sm-text="@Model.PaymentMethods[i].Name" />
                 </div>
-                <div class="col-6">
-                    <fixed-or-percent class="input-group-sm" asp-for="PaymentMethods[i].FeeValue" asp-for-percentage="PaymentMethods[i].FeeIsPercentage"
-                                       sm-postfix="@Model.CurrencyCode"
-                                       value-data-dashboard-setting="@(PaymentMethodsDashboardWidget.FeeValuePrefix + Model.PaymentMethods[i].SystemName)"
-                                       percentage-data-dashboard-setting="@(PaymentMethodsDashboardWidget.FeeIsPercentagePrefix + Model.PaymentMethods[i].SystemName)"
-                                       value-min="0" value-max="1000000" value-required="required" value-placeholder="0" />
-                    <span asp-validation-for="PaymentMethods[i].FeeValue"></span>
+                <div class="col-6" data-dashboard-payment-fee
+                     data-fee-value-setting="@(PaymentMethodsDashboardWidget.FeeValuePrefix + Model.PaymentMethods[i].SystemName)"
+                     data-fee-percentage-setting="@(PaymentMethodsDashboardWidget.FeeIsPercentagePrefix + Model.PaymentMethods[i].SystemName)">
+                    <editor asp-for="PaymentMethods[i].FeeValue"
+                            asp-additional-viewdata='new { units = new[] { Model.CurrencyCode, "%" }, min = 0, max = 1000000, placeholder = "0" }'
+                            required="required" />
+                    <span asp-validation-for="PaymentMethods[i].FeeValue.Value"></span>
                 </div>
             </div>
         }
@@ -41,3 +41,21 @@
         <p sm-if="Model.PaymentMethods.Count == 0" class="text-muted">@T("Admin.DataGrid.NoData")</p>
     </tab>
 </tabstrip>
+
+<script>
+    $(function () {
+        $('#dashboard-paymentmethods-configuration').on('dashboard:collectsettings', function (event, settings) {
+            this.querySelectorAll('[data-dashboard-payment-fee]').forEach(editor => {
+                const value = editor.querySelector('[data-numberinput-value]');
+                const unit = editor.querySelector('[data-numberinput-unit]');
+                if (value.value === '') {
+                    delete settings[editor.dataset.feeValueSetting];
+                }
+                else {
+                    settings[editor.dataset.feeValueSetting] = value.valueAsNumber;
+                }
+                settings[editor.dataset.feePercentageSetting] = unit.value === '%';
+            });
+        });
+    });
+</script>

@@ -1,4 +1,6 @@
-﻿using Smartstore.Web.Modelling;
+﻿using Smartstore.StripeElements.Settings;
+using Smartstore.Web.Modelling;
+using Smartstore.Web.Models;
 
 namespace Smartstore.StripeElements.Models;
 
@@ -21,10 +23,7 @@ public class ConfigurationModel : ModelBase
     public string CaptureMethod { get; set; }
 
     [LocalizedDisplay("*AdditionalFee")]
-    public decimal AdditionalFee { get; set; }
-
-    [LocalizedDisplay("*AdditionalFeePercentage")]
-    public bool AdditionalFeePercentage { get; set; }
+    public Amount AdditionalFee { get; set; } = new(unitField: nameof(StripeSettings.AdditionalFeePercentage));
 
     [LocalizedDisplay("*ShowButtonInMiniShoppingCart")]
     public bool ShowButtonInMiniShoppingCart { get; set; }

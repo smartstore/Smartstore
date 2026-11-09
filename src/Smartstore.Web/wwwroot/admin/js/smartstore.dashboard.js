@@ -793,6 +793,7 @@
                 }
             }).done(html => {
                 $(back).find('[data-dashboard-configuration-content]').html(html);
+                initializeEditControls(back);
                 $(back).find('[data-fixed-or-percent]').fixedOrPercent();
                 save.disabled = false;
                 if (el.classList.contains('dashboard-configuring')) back.querySelector('input')?.focus();
@@ -836,6 +837,7 @@
                         : input.type === 'number' ? input.valueAsNumber : input.value;
                 }
             });
+            $(this).find('[data-dashboard-settings]').trigger('dashboard:collectsettings', [settings]);
             previewing = true;
             root.inert = true;
             const draft = structuredClone(layout);

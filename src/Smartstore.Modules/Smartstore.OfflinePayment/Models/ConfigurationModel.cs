@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc.Rendering;
 using Smartstore.OfflinePayment.Settings;
+using Smartstore.Web.Models;
 
 namespace Smartstore.OfflinePayment.Models;
 
@@ -9,10 +10,7 @@ public abstract class ConfigurationModelBase : ModelBase
     public string PrimaryStoreCurrencyCode { get; set; }
 
     [LocalizedDisplay("Admin.Configuration.Payment.Methods.AdditionalFee")]
-    public decimal AdditionalFee { get; set; }
-
-    [LocalizedDisplay("Admin.Configuration.Payment.Methods.AdditionalFeePercentage")]
-    public bool AdditionalFeePercentage { get; set; }
+    public Amount AdditionalFee { get; set; } = new(unitField: nameof(PaymentSettingsBase.AdditionalFeePercentage));
 
     [LocalizedDisplay("Plugins.Payments.Manual.Fields.TransactMode")]
     public TransactMode TransactMode { get; set; }
