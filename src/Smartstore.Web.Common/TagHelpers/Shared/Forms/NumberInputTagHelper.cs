@@ -181,7 +181,10 @@ public class NumberInputTagHelper : SmartTagHelper
                 && (!bound || attribute.Name is not ("name" or ValueAttributeName))
                 && !(attribute.Value is false && attribute.Name is "disabled" or "readonly" or "required"))
             {
-                attributes[attribute.Name] = attribute.Value;
+                // TagBuilder encodes attribute values, so convert HTML content back to plain text first.
+                attributes[attribute.Name] = attribute.Value is IHtmlContent
+                    ? attribute.ValueAsString().HtmlDecode()
+                    : attribute.Value;
             }
         }
 
