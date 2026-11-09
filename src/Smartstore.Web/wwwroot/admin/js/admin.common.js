@@ -42,8 +42,6 @@ Smartstore.Admin = {
                 checked ? input.removeAttr('disabled') : input.attr('disabled', true);
             }
         });
-
-        parent.find('[data-fixed-or-percent]').fixedOrPercent();
     },
     movePluginActionButtons: function () {
         // Move plugin specific action buttons (like 'Save') to top header section
@@ -68,12 +66,10 @@ Smartstore.Admin = {
 
         // Switch between the currency code and the percent sign in the postfix 
         // of the amount control.
-        let usePercentCheckbox = $('#AdditionalFeePercentage, .sync-postfix-percent').filter(function () {
-            return !this.closest('[data-fixed-or-percent]');
-        });
+        let usePercentCheckbox = $('#AdditionalFeePercentage, .sync-postfix-percent');
         let amountPostfix = $('#AdditionalFee, .sync-postfix-amount').parent().find('.numberinput-postfix').first();
 
-        if (usePercentCheckbox.length && amountPostfix.length) {
+        if (amountPostfix.length) {
             let currencyCode = amountPostfix.text();
 
             // Update the postfix text depending on the checkbox state.

@@ -58,7 +58,6 @@
             ctx.find('.multi-store-override-option').each(function (i, el) {
                 Smartstore.Admin.checkOverriddenStoreValue(el);
             });
-            ctx.find('[data-fixed-or-percent]').fixedOrPercent();
         },
         // Copy to clipboard button
         function (ctx) {

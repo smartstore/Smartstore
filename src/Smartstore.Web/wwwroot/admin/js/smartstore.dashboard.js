@@ -794,7 +794,6 @@
             }).done(html => {
                 $(back).find('[data-dashboard-configuration-content]').html(html);
                 initializeEditControls(back);
-                $(back).find('[data-fixed-or-percent]').fixedOrPercent();
                 save.disabled = false;
                 if (el.classList.contains('dashboard-configuring')) back.querySelector('input')?.focus();
             }).fail(() => {

@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 using Microsoft.AspNetCore.Routing;
 using Smartstore.Web.Modelling.Settings;
@@ -22,12 +21,6 @@ public class SettingEditorTagHelper : BaseFormTagHelper
     {
         _settingHelper = settingHelper;
     }
-
-    /// <summary>
-    /// Gets or sets an additional property sharing the same shop override as the primary property.
-    /// </summary>
-    [HtmlAttributeName("additional-for")]
-    public ModelExpression AdditionalFor { get; set; }
 
     /// <summary>
     /// Specifies the editor template which will be used to render the field.
@@ -127,11 +120,7 @@ public class SettingEditorTagHelper : BaseFormTagHelper
             settingKey = fieldPrefix + "." + settingKey;
         }
 
-        string additionalKey = AdditionalFor == null
-            ? null
-            : HtmlHelper.ViewData.TemplateInfo.GetFullHtmlFieldName(AdditionalFor.Name);
-        var overrideForStore = data.OverriddenKeys.Contains(settingKey)
-            || (additionalKey != null && data.OverriddenKeys.Contains(additionalKey));
+        var overrideForStore = data.OverriddenKeys.Contains(settingKey);
         var fieldId = settingKey.EnsureEndsWith("_OverrideForStore");
 
         var switchContainer = new TagBuilder("div");
@@ -141,11 +130,7 @@ public class SettingEditorTagHelper : BaseFormTagHelper
         overrideInput.Attributes["class"] = "form-check-input multi-store-override-option";
         overrideInput.Attributes["type"] = "checkbox";
         overrideInput.Attributes["id"] = fieldId.SanitizeHtmlId();
-        overrideInput.Attributes["name"] = additionalKey == null ? fieldId : MultiStoreSettingHelper.GroupedOverridesFormKey;
-        if (additionalKey != null)
-        {
-            overrideInput.Attributes["value"] = settingKey + "," + additionalKey;
-        }
+        overrideInput.Attributes["name"] = fieldId;
         overrideInput.Attributes["onclick"] = "Smartstore.Admin.checkOverriddenStoreValue(this)";
         overrideInput.Attributes["data-parent-selector"] = ParentSelector.EmptyNull();
 

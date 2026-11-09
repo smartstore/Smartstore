@@ -157,8 +157,8 @@ public class SmartDbContextDataSeeder : IDataSeeder<SmartDbContext>
         builder.AddOrUpdate("Admin.Dashboard.PaymentMethods.FeeNotice",
             "The widget uses these settings to estimate payment fees for all paid orders. Changes also apply to past orders. The calculation includes tax and shipping but does not account for refunds.",
             "Mit diesen Angaben schätzt das Widget die Zahlungsgebühren für alle bezahlten Bestellungen. Änderungen gelten auch für frühere Bestellungen. Steuern und Versand gehören zur Berechnungsgrundlage; Erstattungen werden nicht berücksichtigt.");
-        builder.AddOrUpdate("FixedValueOrPercent.Absolute", "Fixed value", "Fester Wert");
-        builder.AddOrUpdate("FixedValueOrPercent.Percentage", "Percentage", "Prozent");
+        builder.Delete("FixedValueOrPercent.Absolute", "FixedValueOrPercent.Percentage",
+            "Common.AmountOrPercent.Absolute", "Common.AmountOrPercent.Percentage");
         builder.AddOrUpdate("Admin.Dashboard.PaymentMethods.FixedFee", "Fixed fee per paid order", "Feste Gebühr je bezahlter Bestellung");
         builder.AddOrUpdate("Admin.Dashboard.PaymentMethods.Fee",
             "Fee",
