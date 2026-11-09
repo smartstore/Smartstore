@@ -83,8 +83,9 @@ function keyboardEditor({ direction = 'ltr', blockedStorage = false, allowedSize
         querySelectorAll: selector => selector.includes(':not(.dashboard-extend)') ? [] : [extension]
     };
     const belowElement = { ...element, dataset: { ...element.dataset, instanceId: 'b' }, style: {},
-        querySelector: () => ({}), getBoundingClientRect: () => ({ top: 300, bottom: 500, height: 200 }) };
+        querySelector: element.querySelector, getBoundingClientRect: () => ({ top: 300, bottom: 500, height: 200 }) };
     const container = {
+        style: {},
         appendChild() {},
         querySelectorAll: selector => selector === '[data-instance-id]' ? (belowPosition ? [element, belowElement] : [element]) : [],
         addEventListener: (name, callback) => handlers.set(name, [callback]),
@@ -109,7 +110,8 @@ function keyboardEditor({ direction = 'ltr', blockedStorage = false, allowedSize
         elements: Object.fromEntries(['changesJson', 'reset', 'command', 'widgetSystemName'].map(name => [name, { value: '' }]))
     };
     const document = {
-        createElement: () => ({ style: {}, setAttribute() {}, remove() {} }),
+        body: { style: {}, classList: { add() {}, remove() {} }, appendChild() {} },
+        createElement: () => ({ style: {}, setAttribute() {}, remove() {}, appendChild() {}, replaceChildren() {} }),
         getElementById: id => ({
             'dashboard-editor': { dataset: { editing: 'true', editorConfig: 'config' } },
             config: { textContent: JSON.stringify(config) },
@@ -147,7 +149,7 @@ function keyboardEditor({ direction = 'ltr', blockedStorage = false, allowedSize
             getItem() { if (blockedStorage) throw new Error('Storage blocked'); return null; },
             removeItem() {}
         },
-        getComputedStyle: () => ({ direction, gridTemplateRows: '150px 150px 150px 150px', gridTemplateColumns: Array(12).fill(100).join(' ') }),
+        getComputedStyle: () => ({ minHeight: '64px', direction, gridTemplateRows: '150px 150px 150px 150px', gridTemplateColumns: Array(12).fill(100).join(' ') }),
         requestAnimationFrame: callback => { sandbox.frame = callback; return 1; },
         cancelAnimationFrame() {}
     };
@@ -175,8 +177,9 @@ function keyboardEditor({ direction = 'ltr', blockedStorage = false, allowedSize
                 if (point.scrollTop !== undefined) scrollContainer.scrollTop = point.scrollTop;
                 handlers.get('pointermove')[0]({ clientX: 300, clientY: 300, ...point });
                 sandbox.frame();
+                point.inspect?.();
             }
-            handlers.get('pointerup')[0]();
+            handlers.get(points.at(-1)?.cancel ? 'pointercancel' : 'pointerup')[0]();
         },
         dragHeight(...heights) {
             const handle = { dataset: { dashboardResize: 'height' }, closest: () => element };
@@ -351,6 +354,101 @@ test('saving compacts every responsive layout without removing occupied spans', 
     for (const p of editor.submitted().widgets[0].positions) assert.equal(p.row, 0);
 });
 
-test('the extension button remains interactive while widget contents are inert', () => {
-    assert.equal(keyboardEditor().extension.inert, false);
+test('widget contents are inert while editing', () => {
+    assert.equal(keyboardEditor().extension.inert, true);
+});
+
+
+test('adjacent widgets exchange order in both directions without changing their sizes', () => {
+    for (const reverse of [false, true]) {
+        const original = item('a', reverse ? 6 : 0, 0, 4);
+        const moved = item('a', reverse ? 4 : 2, 0, 4);
+        const neighbor = item('b', reverse ? 0 : 4, 0, 6);
+        const below = item('c', 0, 1, 10);
+        Engine.move([moved, neighbor, below], 10, 'a', original);
+        assert.equal(moved.column, reverse ? 0 : 6);
+        assert.equal(neighbor.column, reverse ? 4 : 0);
+        assert.equal(moved.row, 0);
+        assert.equal(neighbor.row, 0);
+        assert.equal(below.row, 1);
+        assert.equal(moved.size.columnSpan, 4);
+        assert.equal(neighbor.size.columnSpan, 6);
+    }
+});
+
+test('diagonal swap falls back to displacement when the replacement would hit other widgets', () => {
+    const original = item('top', 0, 2, 4, { size: { columnSpan: 4, rowSpan: 2 } });
+    const moved = { ...original, column: 4, row: 0 };
+    const target = item('incomplete', 4, 0, 6, { size: { columnSpan: 6, rowSpan: 2 } });
+    const registered = item('registered', 4, 2, 6);
+    const orders = item('orders', 4, 3, 6);
+    Engine.move([moved, target, registered, orders], 10, 'top', original);
+    assert.deepEqual([moved.row, target.row, registered.row, orders.row], [0, 2, 4, 5]);
+    assert.equal(target.column, 4);
+});
+
+test('diagonal swap preserves spanning widgets when both destinations fit', () => {
+    const original = item('a', 0, 2, 4, { size: { columnSpan: 4, rowSpan: 2 } });
+    const moved = { ...original, column: 4, row: 0 };
+    const target = item('b', 4, 0, 4, { size: { columnSpan: 4, rowSpan: 2 } });
+    Engine.move([moved, target], 10, 'a', original);
+    assert.deepEqual([moved.column, moved.row, target.column, target.row], [4, 0, 0, 2]);
+});
+
+test('moving over a locked widget preserves its placement', () => {
+    const moved = item('a', 0, 0, 4);
+    const fixed = item('fixed', 0, 0, 6, { locked: true });
+    Engine.move([moved, fixed], 10, 'a', item('a', 6, 0, 4));
+    assert.deepEqual([fixed.column, fixed.row, moved.row], [0, 0, 1]);
+});
+
+test('keyboard movement swaps occupied cells and undo restores both widgets', () => {
+    const editor = keyboardEditor({ belowPosition: { row: 0 } });
+    editor.press(undefined, 'ArrowUp');
+    assert.equal(editor.style.gridRow, '1 / span 1');
+    assert.equal(editor.belowStyle.gridRow, '2 / span 1');
+    editor.undo();
+    assert.equal(editor.style.gridRow, '2 / span 1');
+    assert.equal(editor.belowStyle.gridRow, '1 / span 1');
+    editor.redo();
+    assert.equal(editor.style.gridRow, '1 / span 1');
+    assert.equal(editor.belowStyle.gridRow, '2 / span 1');
+});
+
+
+test('pointer swap keeps the grid stable until drop and cancellation restores the draft', () => {
+    const editor = keyboardEditor({ belowPosition: { row: 0 } });
+    const before = { ...editor.style };
+    const neighbor = { ...editor.belowStyle };
+    const inspect = () => {
+        assert.deepEqual(editor.style, before);
+        assert.deepEqual(editor.belowStyle, neighbor);
+    };
+    editor.drag(undefined, { clientY: 100, inspect, cancel: true });
+    inspect();
+    assert.equal(editor.canUndo(), false);
+    editor.drag(undefined, { clientY: 100, inspect });
+    assert.equal(editor.style.gridRow, '1 / span 1');
+    assert.equal(editor.belowStyle.gridRow, '2 / span 1');
+    editor.undo();
+    inspect();
+});
+
+test('moving onto multiple widgets displaces them without overlaps', () => {
+    const original = item('a', 0, 2, 8);
+    const moved = { ...original, row: 0 };
+    const items = [moved, item('b', 0, 0, 4), item('c', 4, 0, 4), item('d', 0, 1, 8)];
+    Engine.move(items, 8, 'a', original);
+    assert.deepEqual(items.map(x => x.row), [0, 1, 1, 2]);
+    for (const widget of items) assert.equal(Engine.fits(items, widget, 8), true);
+});
+
+test('free destinations stay free placements and full-width widgets can exchange rows', () => {
+    const moved = item('a', 0, 2, 4);
+    const neighbor = item('b', 0, 1, 4);
+    Engine.move([moved, neighbor], 4, 'a', item('a', 0, 0, 4));
+    assert.deepEqual([moved.row, neighbor.row], [2, 1]);
+    moved.row = 1;
+    Engine.move([moved, neighbor], 4, 'a', item('a', 0, 2, 4));
+    assert.deepEqual([moved.row, neighbor.row], [1, 2]);
 });

@@ -104,6 +104,36 @@
             return items;
         }
 
+        static move(items, columns, changedId, original) {
+            const moved = items.find(item => item.id === changedId);
+            if (moved.locked) return items;
+            const collisions = items.filter(item => item.id !== changedId && this.overlaps(moved, item));
+            if (collisions.length === 1 && !collisions[0].locked) {
+                const neighbor = collisions[0];
+                const destination = { ...moved, column: neighbor.column, row: neighbor.row };
+                const replacement = { ...neighbor, column: original.column, row: original.row };
+                // Adjacent cards exchange order within their combined width, keeping their sizes.
+                if (original.row === neighbor.row && moved.row === neighbor.row) {
+                    if (original.column + original.size.columnSpan === neighbor.column) {
+                        destination.column = original.column + neighbor.size.columnSpan;
+                    }
+                    else if (neighbor.column + neighbor.size.columnSpan === original.column) {
+                        replacement.column = neighbor.column + moved.size.columnSpan;
+                    }
+                }
+                const others = items.filter(item => item.id !== changedId && item.id !== neighbor.id);
+                if (!this.overlaps(destination, replacement) &&
+                    this.fits(others, destination, columns) && this.fits(others, replacement, columns)) {
+                    moved.column = destination.column;
+                    moved.row = destination.row;
+                    neighbor.column = replacement.column;
+                    neighbor.row = replacement.row;
+                    return items;
+                }
+            }
+            return this.arrange(items, columns, changedId);
+        }
+
         static arrange(items, columns, changedId) {
             const ordered = [...items].sort((a, b) => Number(!!b.locked) - Number(!!a.locked) ||
                 Number(b.id === changedId) - Number(a.id === changedId) || a.row - b.row || a.column - b.column);
@@ -243,11 +273,12 @@
             }
             state.translated = [];
         }
-        function arrange(changedId) {
+        function arrange(changedId, original) {
             const items = visible().filter(widget => !isNews(widget)).map(widget => ({
                 ...structuredClone(position(widget)), id: widget.id, locked: !widget.allowMove
             }));
-            Smartstore.Admin.DashboardEngine.arrange(items, columns(), changedId);
+            if (original) engine.move(items, columns(), changedId, original);
+            else engine.arrange(items, columns(), changedId);
             for (const item of items) {
                 const p = position(widgetsById.get(item.id));
                 p.column = item.column; p.row = item.row; p.size = item.size;
@@ -318,6 +349,7 @@
                 original: structuredClone(position(widget)), target: event.currentTarget, cursor: document.body.style.cursor };
             document.body.style.cursor = kind === 'move' ? 'move' : kind.startsWith('height') ? 'ns-resize' : 'ew-resize';
             document.body.classList.add('dashboard-dragging');
+            if (kind === 'move') document.body.classList.add('dashboard-moving');
             if (event.pointerId !== undefined) event.currentTarget.setPointerCapture(event.pointerId);
             el.classList.add('dashboard-interacting');
             event.preventDefault();
@@ -393,6 +425,7 @@
                 const row = state.rows.find(item => y <= item.bottom);
                 target.row = row ? row.row : state.rows.length;
             }
+            if (state.kind === 'move') arrange(state.id, state.original);
             state.valid = engine.fits(gridItems(), { ...target, id: state.id }, columns());
             scrollDuringInteraction(event.clientY);
             drawInteractionPreview(state, target);
@@ -413,8 +446,6 @@
             const last = state.rows.at(-1);
             const rowTop = row => state.rows[row]?.top ?? last.bottom + state.rowGap +
                 (row - state.rows.length) * (last.bottom - last.top + state.rowGap);
-            const start = state.starts[target.column];
-            const end = state.starts[target.column + target.size.columnSpan];
             const insertion = state.insertionRow != null;
             const height = minimumRowHeight();
             // Map the proposed rows to the frozen tracks, including the new minimum-height row.
@@ -427,14 +458,15 @@
                     height: rowTop(source + 1) - rowTop(source) - state.rowGap
                 };
             };
+            const start = state.starts[target.column];
+            const end = state.starts[target.column + target.size.columnSpan];
             const top = previewRow(target.row).top;
             const bottomRow = previewRow(target.row + (target.size.rowSpan || 1) - 1);
-            const bottom = bottomRow.top + bottomRow.height;
             Object.assign(state.preview.style, {
                 left: `${Math.min(start, end) + (start > end ? state.gap : 0)}px`,
                 top: `${top - (scrollContainer.scrollTop - state.scroll)}px`,
                 width: `${Math.abs(end - start) - state.gap}px`,
-                height: `${bottom - top}px`
+                height: `${bottomRow.top + bottomRow.height - top}px`
             });
             clearInsertionPreview(state);
             if (insertion) {
@@ -487,7 +519,7 @@
             if (!cancel && pointer) applyPointer(pointer);
             const state = interaction;
             interaction = null;
-            document.body.classList.remove('dashboard-dragging');
+            document.body.classList.remove('dashboard-dragging', 'dashboard-moving');
             document.body.style.cursor = state.cursor;
             state.preview?.remove();
             clearInsertionPreview(state);
@@ -548,6 +580,7 @@
             else if (horizontal) p.column = Math.max(0, Math.min(columns() - p.size.columnSpan, p.column + delta));
             else p.row = Math.max(0, p.row + delta);
             if (_.isEqual(before.layout, layout)) return;
+            if (!kind) arrange(widget.id, position(before.layout.widgets.find(item => item.id === widget.id)));
             if (kind !== 'height' && kind !== 'height-start' &&
                 !engine.fits(gridItems(), { ...p, id: widget.id }, columns())) {
                 setLayout(before.layout);

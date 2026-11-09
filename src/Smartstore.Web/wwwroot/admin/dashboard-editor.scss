@@ -36,7 +36,7 @@ $dashboard-resize-handle-size: 10px;
     }
 }
 
-.dashboard-interacting {
+.dashboard-dragging:not(.dashboard-moving) .dashboard-interacting {
     outline: ($border-width * 2) dashed var(--primary);
 }
 
@@ -92,6 +92,10 @@ $dashboard-resize-handle-size: 10px;
     min-width: 0;
     min-height: 4rem;
     border: $border-width dashed var(--gray-400);
+}
+
+.dashboard-moving .dashboard-grid-cell {
+    visibility: hidden;
 }
 
 .dashboard-grid-preview {
