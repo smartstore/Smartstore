@@ -13,7 +13,7 @@
     </button>
 </widget>
 
-<div class="alert alert-info alert-dismissible">
+<div class="alert alert-info alert-dismissible fade show">
     <button type="button" class="btn-close" data-dismiss="alert"></button>
     <a class="d-inline-block mb-3 mw-100" style="max-width: 268px" href="https://www.clickatell.com/" target="_blank">
         <img class="img-fluid alert-branding" src="@Url.Content("~/Modules/Smartstore.Clickatell/branding.png")" alt="Clickatell" />
@@ -74,7 +74,7 @@
             <div class="adminTitle">
             </div>
             <div class="adminData">
-                <div class="alert @(Model.TestSucceeded ? "alert-info" : "alert-danger") alert-dismissible">
+                <div class="alert @(Model.TestSucceeded ? "alert-info" : "alert-danger") alert-dismissible fade show">
                     <div>@Model.TestSmsResult</div>
                     <div>@Model.TestSmsDetailResult</div>
                     <button class="btn-close" data-dismiss="alert"></button>

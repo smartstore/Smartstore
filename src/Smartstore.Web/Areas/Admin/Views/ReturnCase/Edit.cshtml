@@ -65,7 +65,7 @@
 
     <tabstrip id="returncase-edit" sm-nav-style="Material">
         <tab sm-title="@T("Common.General")" sm-selected="true">
-            <div sm-if="Model.ReturnCaseInfo.HasValue()" class="alert alert-info alert-dismissible">
+            <div sm-if="Model.ReturnCaseInfo.HasValue()" class="alert alert-info alert-dismissible fade show">
                 <div class="w-25">
                     @Html.Raw(Model.ReturnCaseInfo)
                 </div>
