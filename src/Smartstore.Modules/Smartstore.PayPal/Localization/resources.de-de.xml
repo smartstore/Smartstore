@@ -287,8 +287,8 @@
 							<li>Melden Sie sich mit Ihren PayPal-Kontodaten <a href="https://developer.paypal.com/developer/applications" target="_blank" class="alert-link">im Entwickler-Dashboard</a> an.</li>
 							<li>Erstellen Sie eine neue App, indem Sie auf denn Button <b>Create App</b> klicken.</li>
 							<li>Tragen Sie nun den Account, die Client ID und den Secret in die dafür vorgesehenen Felder weiter unten auf dieser Seite ein.</li>
-							<li>Erstellen Sie einen Webhook und hinterlegen die unten aufgeführte URL in Ihrer PayPal App als Webhook URL.</li>
-							<li>Aktivieren Sie Benachrichtigungen für alle Events.</li>
+							<li>Speichern Sie Ihre Zugangsdaten und klicken Sie auf <b>Webhook erstellen</b>. Die URL wird automatisch bei PayPal hinterlegt.</li>
+							<li>Alternativ können Sie den Webhook im PayPal Developer Dashboard für Ihre App manuell anlegen. Verwenden Sie dazu die unten angezeigte Webhook-URL, aktivieren Sie Benachrichtigungen für alle Events und tragen Sie die von PayPal erzeugte Webhook-ID unten ein.</li>
 						</ul>
                       ]]>
                 </Value>
@@ -362,7 +362,7 @@
                 <Value>Webhook URL</Value>
             </LocaleResource>
             <LocaleResource Name="WebhookUrl.Hint">
-                <Value>Hinterlegen Sie diese URL in Ihrer PayPal App als Webhook URL.</Value>
+                <Value>Beim Klick auf „Webhook erstellen“ wird diese URL automatisch bei PayPal hinterlegt. Kopieren Sie die URL nur, wenn Sie den Webhook manuell im PayPal Developer Dashboard einrichten möchten.</Value>
             </LocaleResource>
             <LocaleResource Name="DisplayProductDetailPayLaterWidget">
                 <Value>Ratenzahlungs-Widget anzeigen</Value>
