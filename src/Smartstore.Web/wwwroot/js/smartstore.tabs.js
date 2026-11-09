@@ -136,9 +136,11 @@
             pane.parent().css('margin-bottom', '0');
 
             function adaptPaneHeight() {
-                var rect = pane[0].getBoundingClientRect();
-                var viewportHeight = document.documentElement.clientHeight;
-                pane.css('height', (viewportHeight - rect.top - contentPaddingBottom) + 'px');
+                const rect = pane[0].getBoundingClientRect();
+                const viewportHeight = document.documentElement.clientHeight;
+                // Bootstrap fires shown.bs.tab as the incoming pane starts moving.
+                const translateY = parseFloat(getComputedStyle(pane[0]).translate?.split(' ')[1]) || 0;
+                pane.css('height', (viewportHeight - rect.top + translateY - contentPaddingBottom) + 'px');
             }
 
             if (!pane.data('is-height-adapted')) {

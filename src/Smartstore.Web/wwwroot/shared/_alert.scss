@@ -8,6 +8,15 @@
 .alert {
     border-left-width: 4px;
     border-left-color: rgba(var(--alert-base-rgb), 1);
+
+    &.fade {
+        transform-origin: top center;
+
+        &:not(.show) {
+            scale: $fade-scale;
+            translate: $fade-translate;
+        }
+    }
 }
 
 @if ($enable-alert-icons) {

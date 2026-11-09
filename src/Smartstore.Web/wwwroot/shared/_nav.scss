@@ -8,6 +8,17 @@
     margin: 1rem 0;
 }
 
+.tab-content > .tab-pane.fade {
+    transform-origin: top center;
+    scale: $fade-scale;
+    translate: $fade-translate;
+
+    &.show {
+        scale: none;
+        translate: none;
+    }
+}
+
 .nav-link-summary {
     display: none;
 }
@@ -407,6 +418,11 @@
         .tab-pane {
             display: block !important;
             opacity: 1;
+
+            &.fade {
+                scale: none;
+                translate: none;
+            }
         }
 
         .nav-collapse {
