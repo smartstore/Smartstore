@@ -221,7 +221,10 @@ internal class ShippingByWeightProvider : IShippingRateComputationMethod, IConfi
                     Name = shippingMethod.GetLocalized(x => x.Name)
                 };
 
-                if (record != null && record.SmallQuantityThreshold > currentSubTotal)
+                if (record != null 
+                    && rate > 0 
+                    && record.SmallQuantityThreshold > 0 
+                    && currentSubTotal <= record.SmallQuantityThreshold)
                 {
                     string surchargeHint = T("Plugins.Shipping.ByWeight.SmallQuantitySurchargeNotReached",
                         _currencyService.ConvertToWorkingCurrency(record.SmallQuantitySurcharge).ToString(true, false, taxFormat),
