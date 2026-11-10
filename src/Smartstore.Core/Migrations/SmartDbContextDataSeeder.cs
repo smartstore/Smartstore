@@ -627,6 +627,11 @@ public class SmartDbContextDataSeeder : IDataSeeder<SmartDbContext>
             "Weitere Produkte müssen mitbestellt werden",
             "The selected additional products must be ordered together with this product. Enable automatic addition to add them to the cart automatically.",
             "Die ausgewählten Zusatzprodukte müssen zusammen mit diesem Produkt bestellt werden. Aktivieren Sie das automatische Hinzufügen, um sie automatisch in den Warenkorb zu legen.");
+        builder.AddOrUpdate(prefix + "Fields.RequiredProductIds",
+            "Required product IDs",
+            "IDs der erforderlichen Produkte",
+            "Select the products that must be ordered together with this product. Ensure they are available to customers; otherwise, this product cannot be added to the cart. Avoid circular dependencies.",
+            "Wählen Sie die Produkte aus, die zusammen mit diesem Produkt bestellt werden müssen. Stellen Sie sicher, dass sie für Kunden verfügbar sind; andernfalls kann auch dieses Produkt nicht in den Warenkorb gelegt werden. Vermeiden Sie zirkuläre Abhängigkeiten.");
         builder.AddOrUpdate(prefix + "Fields.IsGiftCard",
             "Sell as a gift card",
             "Als Geschenkgutschein verkaufen",
