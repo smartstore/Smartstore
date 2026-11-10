@@ -12,10 +12,11 @@ public class AddToCartContext
 {
     private ProductVariantAttributeSelection _attributeSelection;
     private string _rawAttributes;
+
     /// <summary>
     /// Gets or sets warnings
     /// </summary>
-    public List<string> Warnings { get; set; } = new();
+    public List<string> Warnings { get; set; } = [];
 
     /// <summary>
     /// Gets or sets shopping cart item
@@ -25,7 +26,12 @@ public class AddToCartContext
     /// <summary>
     /// Gets or sets child shopping cart items
     /// </summary>
-    public List<ShoppingCartItem> ChildItems { get; set; } = new();
+    public List<ShoppingCartItem> ChildItems { get; set; } = [];
+
+    /// <summary>
+    /// Gets or sets required shopping cart items that are committed together with <see cref="Item"/>.
+    /// </summary>
+    public List<ShoppingCartItem> RequiredItems { get; set; } = [];
 
     /// <summary>
     /// Gets or sets product bundle item

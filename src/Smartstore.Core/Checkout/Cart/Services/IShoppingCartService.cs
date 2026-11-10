@@ -11,7 +11,8 @@ namespace Smartstore.Core.Checkout.Cart;
 public interface IShoppingCartService
 {
     /// <summary>
-    /// Adds <see cref="AddToCartContext.Item"/> as well as all <see cref="AddToCartContext.ChildItems"/> to customers shopping cart 
+    /// Adds <see cref="AddToCartContext.Item"/> as well as all <see cref="AddToCartContext.RequiredItems"/> and
+    /// <see cref="AddToCartContext.ChildItems"/> to customers shopping cart
     /// and automatically updates database async.
     /// </summary>
     /// <param name="ctx">Context info about the items to be added to the cart.</param>

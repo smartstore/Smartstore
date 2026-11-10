@@ -84,6 +84,12 @@ public partial class ShoppingCartService : IShoppingCartService
         }
 
         customer.ShoppingCartItems.Add(ctx.Item);
+
+        if (ctx.RequiredItems.Count > 0)
+        {
+            customer.ShoppingCartItems.AddRange(ctx.RequiredItems);
+        }
+
         await _db.SaveChangesAsync();
 
         if (ctx.ChildItems.Count > 0)
@@ -177,6 +183,11 @@ public partial class ShoppingCartService : IShoppingCartService
                 return false;
             }
 
+            if (ctx.RequiredItems.Count > 0)
+            {
+                ctx.Customer.ShoppingCartItems.AddRange(ctx.RequiredItems);
+            }
+
             // Update cart item
             await _db.SaveChangesAsync();
             return true;
@@ -247,6 +258,7 @@ public partial class ShoppingCartService : IShoppingCartService
                     CartType = ctx.CartType,
                     BundleItem = bundleItem,
                     ChildItems = ctx.ChildItems,
+                    RequiredItems = ctx.RequiredItems,
                     Product = bundleItem.Product,
                     Quantity = bundleItem.Quantity,
                     VariantQuery = ctx.VariantQuery,
@@ -292,7 +304,8 @@ public partial class ShoppingCartService : IShoppingCartService
                 Quantity = childItem.Quantity,
                 RawAttributes = childItem.RawAttributes,
                 CustomerEnteredPrice = new(childItem.CustomerEnteredPrice, ctx.CustomerEnteredPrice.Currency),
-                ChildItems = ctx.ChildItems
+                ChildItems = ctx.ChildItems,
+                RequiredItems = ctx.RequiredItems
             };
 
             if (!await AddToCartAsync(childCtx))
@@ -806,15 +819,7 @@ public partial class ShoppingCartService : IShoppingCartService
         // Check whether required products are still missing.
         if (await _cartValidator.ValidateRequiredProductsAsync(ctx.Product, items, ctx.Warnings))
         {
-            foreach (var item in newItems)
-            {
-                await AddItemToCartAsync(new()
-                {
-                    Item = item.Item,
-                    ChildItems = ctx.ChildItems,
-                    Customer = ctx.Customer
-                });
-            }
+            ctx.RequiredItems.AddRange(newItems.Select(x => x.Item));
         }
     }
 
