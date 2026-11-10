@@ -349,13 +349,7 @@ public partial class ShoppingCartValidator : IShoppingCartValidator
             currentWarnings.Add(T("ShoppingCart.Bundle.NoCustomerEnteredPrice"));
         }
 
-        // Not published or no permissions for customer or store
-        if (!p.Published
-            || !await _aclService.AuthorizeAsync(p, cartItem.Customer)
-            || !await _storeMappingService.AuthorizeAsync(p, storeId ?? _storeContext.CurrentStore.Id))
-        {
-            currentWarnings.Add(T("ShoppingCart.ProductUnpublished"));
-        }
+        await ValidateProductAccessAsync(p, cartItem.Customer, storeId ?? _storeContext.CurrentStore.Id, currentWarnings);
 
         // Disabled buy button
         if (cartItem.ShoppingCartType == ShoppingCartType.ShoppingCart && p.DisableBuyButton)
@@ -490,6 +484,31 @@ public partial class ShoppingCartValidator : IShoppingCartValidator
         warnings.AddRange(currentWarnings);
 
         return currentWarnings.Count == 0;
+    }
+
+    /// <summary>
+    /// Validates whether a product is published and accessible to a customer in a store.
+    /// </summary>
+    /// <param name="product">Product to validate.</param>
+    /// <param name="customer">Customer whose access is to be validated.</param>
+    /// <param name="storeId">Store identifier.</param>
+    /// <param name="warnings">List of returned warnings.</param>
+    /// <returns><c>true</c> if the product is accessible, otherwise <c>false</c>.</returns>
+    protected virtual async Task<bool> ValidateProductAccessAsync(Product product, Customer customer, int storeId, IList<string> warnings)
+    {
+        Guard.NotNull(product);
+        Guard.NotNull(warnings);
+
+        // Not published or no permissions for customer or store.
+        if (!product.Published
+            || !await _aclService.AuthorizeAsync(product, customer)
+            || !await _storeMappingService.AuthorizeAsync(product, storeId))
+        {
+            warnings.Add(T("ShoppingCart.ProductUnpublished"));
+            return false;
+        }
+
+        return true;
     }
 
     public virtual async Task<bool> ValidateProductAttributesAsync(
@@ -675,27 +694,40 @@ public partial class ShoppingCartValidator : IShoppingCartValidator
             return true;
         }
 
-        var missingRequiredProductIds = requiredProductIds.Except(cartItems
-            .Where(x => x.Active)
+        var requiredItems = cartItems
+            .Where(x => x.Active && requiredProductIds.Contains(x.Item.Product.Id))
+            .DistinctBy(x => x.Item.Product.Id)
+            .ToArray();
+
+        var missingRequiredProductIds = requiredProductIds.Except(requiredItems
             .Select(x => x.Item.Product.Id))
             .ToArray();
 
-        if (missingRequiredProductIds.Length == 0)
+        var isValid = true;
+        if (missingRequiredProductIds.Length > 0)
         {
-            return true;
+            var missingRequiredProducts = await _db.Products
+                .SelectSummary()
+                .GetManyAsync(missingRequiredProductIds);
+
+            foreach (var requiredProduct in missingRequiredProducts)
+            {
+                var productUrl = await _productUrlHelper.GetProductUrlAsync(requiredProduct);
+                warnings.Add(T("ShoppingCart.RequiredProductWarning", requiredProduct.GetLocalized(x => x.Name), productUrl));
+            }
+
+            isValid = missingRequiredProducts.Count == 0;
         }
 
-        var missingRequiredProducts = await _db.Products
-            .SelectSummary()
-            .GetManyAsync(missingRequiredProductIds);
-
-        foreach (var requiredProduct in missingRequiredProducts)
+        foreach (var item in requiredItems.Select(x => x.Item))
         {
-            var productUrl = await _productUrlHelper.GetProductUrlAsync(requiredProduct);
-            warnings.Add(T("ShoppingCart.RequiredProductWarning", requiredProduct.GetLocalized(x => x.Name), productUrl));
+            if (!await ValidateProductAccessAsync(item.Product, item.Customer, item.StoreId, warnings))
+            {
+                isValid = false;
+            }
         }
 
-        return missingRequiredProducts.Count == 0;
+        return isValid;
     }
 
     public virtual async Task<bool> ValidateRequiredProductsQuantityAsync(ShoppingCartItem cartItem, ShoppingCart cart, IList<string> warnings)

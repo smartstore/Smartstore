@@ -35,14 +35,14 @@ public partial class InstallationSeedingTests
         using var harness = await SeedingHarness.SeedAsync(culture, seedSampleData: false);
         var db = harness.Db;
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(db.Stores.Any(), Is.True, "Stores");
             Assert.That(db.Currencies.Any(), Is.True, "Currencies");
             Assert.That(db.Countries.Any(), Is.True, "Countries");
             Assert.That(db.Settings.Any(), Is.True, "Settings");
             Assert.That(db.Products.Any(), Is.False, "Sample products must not be installed.");
-        });
+        }
     }
 
     [TestCaseSource(nameof(Cultures))]
@@ -51,14 +51,15 @@ public partial class InstallationSeedingTests
         using var harness = await SeedingHarness.SeedAsync(culture, seedSampleData: true);
         var db = harness.Db;
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(db.Products.Any(), Is.True, "Products");
             Assert.That(db.Categories.Any(), Is.True, "Categories");
             Assert.That(DuplicateSkus(db), Is.Empty, "SKUs must be unique across products and attribute combinations.");
             Assert.That(VisibleProductsWithoutCategory(db), Is.Empty, "Visible products need a category.");
             Assert.That(BrokenInternalLinks(db), Is.Empty, "Links to other records must point to an existing slug.");
-        });
+            Assert.That(InvalidRequiredProducts(db), Is.Empty, "Automatically required products must be available to all sample customers and stores.");
+        }
     }
 
     private static List<string> DuplicateSkus(SmartDbContext db)
@@ -95,6 +96,27 @@ public partial class InstallationSeedingTests
             .SelectMany(x => InternalLinkRegex().Matches(x.Text).Select(m => (x.Owner, Slug: m.Groups[1].Value)))
             .Where(x => !slugs.Contains(x.Slug))
             .Select(x => $"{x.Owner}: /{x.Slug}/")
+            .ToList();
+    }
+
+    private static List<string> InvalidRequiredProducts(SmartDbContext db)
+    {
+        var products = db.Products.AsNoTracking().ToList();
+        var productsById = products.ToDictionary(x => x.Id);
+
+        return products
+            .Where(x => x.RequireOtherProducts && x.AutomaticallyAddRequiredProducts)
+            .SelectMany(x => x.RequiredProductIdList.Select(id => new
+            {
+                Owner = x.Sku,
+                RequiredProduct = productsById.GetValueOrDefault(id)
+            }))
+            .Where(x => x.RequiredProduct == null
+                || x.RequiredProduct.Deleted
+                || !x.RequiredProduct.Published
+                || x.RequiredProduct.SubjectToAcl
+                || x.RequiredProduct.LimitedToStores)
+            .Select(x => $"{x.Owner}: {x.RequiredProduct?.Sku ?? "missing"}")
             .ToList();
     }
 }

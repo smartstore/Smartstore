@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Moq;
 using NUnit.Framework;
@@ -38,6 +39,9 @@ public class ShoppingCartServiceTests : ServiceTestBase
         _validatorMock
             .Setup(x => x.ValidateAddToCartItemAsync(It.IsAny<AddToCartContext>(), It.IsAny<ShoppingCartItem>(), It.IsAny<IEnumerable<OrganizedShoppingCartItem>>()))
             .ReturnsAsync(true);
+        _validatorMock
+            .Setup(x => x.ValidateRequiredProductsAsync(It.IsAny<Product>(), It.IsAny<IEnumerable<OrganizedShoppingCartItem>>(), It.IsAny<IList<string>>()))
+            .ReturnsAsync(true);
     }
 
     [TearDown]
@@ -71,6 +75,102 @@ public class ShoppingCartServiceTests : ServiceTestBase
             Assert.That(context.Warnings, Is.Empty);
             Assert.That(context.ChildItems, Has.Count.EqualTo(expectedChildItemCount));
         }
+    }
+
+    [Test]
+    public async Task Can_add_restricted_required_product()
+    {
+        var service = CreateAddToCartService();
+        var requiredProduct = new Product
+        {
+            Name = "Required product",
+            Published = true,
+            Visibility = ProductVisibility.ProductPage,
+            ManageInventoryMethod = ManageInventoryMethod.DontManageStock
+        };
+        var product = new Product
+        {
+            Name = "Main product",
+            Published = true,
+            RequireOtherProducts = true,
+            AutomaticallyAddRequiredProducts = true
+        };
+
+        _testProducts.AddRange([product, requiredProduct]);
+        DbContext.Products.AddRange(product, requiredProduct);
+        await DbContext.SaveChangesAsync();
+
+        product.RequiredProductIds = requiredProduct.Id.ToString();
+        var context = new AddToCartContext
+        {
+            Customer = _customer,
+            Product = product,
+            StoreId = 1,
+            Quantity = 1,
+            AutomaticallyAddRequiredProducts = true
+        };
+
+        var result = await service.AddToCartAsync(context);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(result, Is.True);
+            Assert.That(context.Warnings, Is.Empty);
+        }
+
+        Mock.Get(service).Verify(x => x.AddItemToCartAsync(It.IsAny<AddToCartContext>()), Times.Exactly(2));
+    }
+
+    [Test]
+    public async Task Cannot_add_inaccessible_required_product()
+    {
+        var service = CreateAddToCartService();
+        var requiredProducts = new[]
+        {
+            new Product { Name = "Accessible required product", Published = true },
+            new Product { Name = "Inaccessible required product", Published = true }
+        };
+        var product = new Product
+        {
+            Name = "Main product",
+            Published = true,
+            RequireOtherProducts = true,
+            AutomaticallyAddRequiredProducts = true
+        };
+
+        _testProducts.Add(product);
+        _testProducts.AddRange(requiredProducts);
+        DbContext.Products.Add(product);
+        DbContext.Products.AddRange(requiredProducts);
+        await DbContext.SaveChangesAsync();
+
+        product.RequiredProductIds = string.Join(',', requiredProducts.Select(x => x.Id));
+        _validatorMock
+            .Setup(x => x.ValidateRequiredProductsAsync(
+                product,
+                It.IsAny<IEnumerable<OrganizedShoppingCartItem>>(),
+                It.IsAny<IList<string>>()))
+            .Callback<Product, IEnumerable<OrganizedShoppingCartItem>, IList<string>>((_, _, warnings) => warnings.Add("Product is inaccessible."))
+            .ReturnsAsync(false);
+
+        var context = new AddToCartContext
+        {
+            Customer = _customer,
+            Product = product,
+            StoreId = 1,
+            Quantity = 1,
+            AutomaticallyAddRequiredProducts = true
+        };
+
+        var result = await service.AddToCartAsync(context);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(result, Is.False);
+            Assert.That(context.Warnings, Has.Count.EqualTo(1));
+        }
+
+        Mock.Get(service).Verify(x => x.AddItemToCartAsync(It.IsAny<AddToCartContext>()), Times.Never);
     }
 
     private ShoppingCartService CreateAddToCartService()
