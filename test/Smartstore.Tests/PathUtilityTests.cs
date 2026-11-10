@@ -65,4 +65,26 @@ public class PathUtilityTests
     {
         Assert.That(PathUtility.IsFileName(value), Is.EqualTo(expected));
     }
+
+    [TestCase("images/default-image.png", false)]
+    [TestCase("images/sub/../default-image.png", false)]
+    [TestCase("images/./default-image.png", false)]
+    [TestCase("images/../images/default-image.png", false)]
+    [TestCase("..", true)]
+    [TestCase("../file.txt", true)]
+    [TestCase("images/../../App_Data/Settings.txt", true)]
+    [TestCase("images/../..//App_Data/Settings.txt", true)]
+    public void Can_detect_navigation_above_root(string path, bool expected)
+    {
+        Assert.That(PathUtility.PathNavigatesAboveRoot(path), Is.EqualTo(expected));
+    }
+
+    [TestCase("file.txt", false)]
+    [TestCase("folder/file.txt", false)]
+    [TestCase("", false)]
+    [TestCase("file\0.txt", true)]
+    public void Can_detect_invalid_path_chars(string path, bool expected)
+    {
+        Assert.That(PathUtility.HasInvalidPathChars(path), Is.EqualTo(expected));
+    }
 }

@@ -21,6 +21,12 @@ public class MediaSettings : ISettings
     public string PictureZoomType { get; set; } = "window";
 
     /// <summary>
+    /// Gets the file name of the fallback (placeholder) image that is served when a media file is missing,
+    /// relative to the web root's <c>images</c> directory. There is no UI for this setting.
+    /// </summary>
+    public string DefaultImageName { get; private set; } = "default-image.png";
+
+    /// <summary>
     /// Gets or sets the height to width ratio for thumbnails in grid style lists (0.2 - 2)
     /// </summary>
     /// <remarks>

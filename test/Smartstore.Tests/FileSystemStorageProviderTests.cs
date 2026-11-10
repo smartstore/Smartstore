@@ -191,4 +191,58 @@ public class FileSystemStorageProviderTests
         Assert.That(GetFile(Path.Combine("SubFolder1", "testfile4.txt")).Exists, Is.EqualTo(false));
         Assert.That(GetFile(Path.Combine("SubFolder1", "testfile5.txt")).Exists, Is.EqualTo(true));
     }
+
+    [TestCase("../../evil.txt")]
+    [TestCase("SubFolder1/../../../evil.txt")]
+    [TestCase("../../../../../../../../../etc/passwd")]
+    public void MapPathRefusesToEscapeRoot(string subpath)
+    {
+        Assert.That(_fileSystem.MapPath(subpath), Is.Null);
+        Assert.That(_fileSystem.FileExists(subpath), Is.False);
+        Assert.That(_fileSystem.GetFile(subpath).Exists, Is.False);
+        Assert.That(_fileSystem.DirectoryExists(subpath), Is.False);
+    }
+
+    [Test]
+    public void CannotReadExistingFileOutsideOfRoot()
+    {
+        var outsidePath = Path.Join(Directory.GetParent(_folderPath).FullName, "outside.txt");
+        File.WriteAllText(outsidePath, "secret");
+
+        try
+        {
+            // INFO: The backslash variant is what made the media route exploitable: URL normalization
+            // does not treat an encoded backslash as a separator, but System.IO.Path does.
+            Assert.That(_fileSystem.GetFile("../outside.txt").Exists, Is.False);
+            Assert.That(_fileSystem.GetFile(@"..\outside.txt").Exists, Is.False);
+            Assert.That(_fileSystem.FileExists("../outside.txt"), Is.False);
+        }
+        finally
+        {
+            File.Delete(outsidePath);
+        }
+    }
+
+    [Test]
+    public void MapPathRefusesFullyQualifiedPaths()
+    {
+        if (!OperatingSystem.IsWindows())
+        {
+            Assert.Ignore("A rooted path is indistinguishable from a trimmed subpath on this platform.");
+        }
+
+        Assert.That(_fileSystem.MapPath(_filePath), Is.Null);
+        Assert.That(_fileSystem.MapPath(@"C:\Windows\win.ini"), Is.Null);
+        Assert.That(_fileSystem.GetFile(@"C:\Windows\win.ini").Exists, Is.False);
+    }
+
+    [Test]
+    public void MapPathAcceptsPathsInsideRoot()
+    {
+        Assert.That(_fileSystem.MapPath(string.Empty), Is.EqualTo(_fileSystem.Root));
+        Assert.That(_fileSystem.MapPath("testfile.txt"), Is.EqualTo(_filePath));
+        Assert.That(_fileSystem.MapPath("~/testfile.txt"), Is.EqualTo(_filePath));
+        Assert.That(_fileSystem.MapPath("SubFolder1/../testfile.txt"), Is.EqualTo(_filePath));
+        Assert.That(_fileSystem.MapPath("SubFolder1/one.txt"), Is.EqualTo(Path.Join(_folderPath, "SubFolder1", "one.txt")));
+    }
 }

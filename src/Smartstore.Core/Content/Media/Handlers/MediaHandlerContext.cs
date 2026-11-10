@@ -47,13 +47,7 @@ public class MediaHandlerContext
         if (MediaFileId == 0)
         {
             // This is most likely a request for a default placeholder image
-            var fallbackImagePath = Path.Combine(MediaUrlGenerator.FallbackImagesRootPath, RawPath).Replace('\\', '/');
-            //var fi = new FileInfo(CommonHelper.MapPath("~/" + fallbackImagePath, false));
-            var fallbackFile = ApplicationContext.WebRoot.GetFile(fallbackImagePath);
-            if (fallbackFile.Exists)
-            {
-                _sourceFile = fallbackFile;
-            }
+            _sourceFile = ResolveFallbackImage(ApplicationContext.WebRoot, RawPath);
         }
         else
         {
@@ -85,5 +79,34 @@ public class MediaHandlerContext
 
         _sourceFileResolved = true;
         return _sourceFile;
+    }
+
+    /// <summary>
+    /// Resolves the default placeholder image for a request without a media file id.
+    /// </summary>
+    /// <returns>The placeholder image file, or <c>null</c> if it does not exist or must not be served.</returns>
+    private static IFile ResolveFallbackImage(IFileSystem webRoot, string rawPath)
+    {
+        // INFO: (core) "rawPath" comes straight from the request URL. MediaMiddleware lets the configured
+        // placeholder image pass only, but this is the sink, so keep it safe on its own: the path must stay
+        // underneath the fallback images directory, everything underneath it is public anyway.
+        rawPath = rawPath.EmptyNull();
+
+        // Path.Combine() returns the second path unchanged if it is rooted, which would escape the directory.
+        if (Path.IsPathRooted(rawPath))
+        {
+            return null;
+        }
+
+        var path = Path.Combine(MediaUrlGenerator.FallbackImagesRootPath, rawPath).Replace('\\', '/');
+
+        if (PathUtility.PathNavigatesAboveRoot(path))
+        {
+            return null;
+        }
+
+        var file = webRoot.GetFile(path);
+
+        return file.Exists ? file : null;
     }
 }
