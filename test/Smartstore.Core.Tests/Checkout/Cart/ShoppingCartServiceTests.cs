@@ -6,9 +6,10 @@ using Moq;
 using NUnit.Framework;
 using Smartstore.Caching;
 using Smartstore.Core.Catalog.Products;
+using Smartstore.Core.Common;
+using Smartstore.Core.Common.Services;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Orders;
-using Smartstore.Core.Common.Services;
 using Smartstore.Core.Identity;
 using Smartstore.Events;
 
@@ -221,6 +222,49 @@ public class ShoppingCartServiceTests : ServiceTestBase
         }
 
         Mock.Get(service).Verify(x => x.AddItemToCartAsync(It.IsAny<AddToCartContext>()), Times.Never);
+    }
+
+    [Test]
+    public async Task Can_copy_required_products()
+    {
+        var service = CreateAddToCartService();
+        var contexts = new List<AddToCartContext>();
+        var requiredItems = new List<ShoppingCartItem>();
+        var bundleItem = new ProductBundleItem { Product = new Product { Name = "Bundle item" } };
+        var context = new AddToCartContext
+        {
+            Customer = _customer,
+            Product = new Product { Name = "Bundle" },
+            StoreId = 1,
+            Quantity = 1,
+            CustomerEnteredPrice = new(0, new Currency { CurrencyCode = "EUR" }),
+            AutomaticallyAddRequiredProducts = true,
+            RequiredItems = requiredItems,
+            ChildItems =
+            [
+                new ShoppingCartItem
+                {
+                    BundleItem = bundleItem,
+                    Product = bundleItem.Product,
+                    Quantity = 1
+                }
+            ]
+        };
+
+        Mock.Get(service)
+            .Setup(x => x.AddToCartAsync(It.IsAny<AddToCartContext>()))
+            .Callback<AddToCartContext>(contexts.Add)
+            .ReturnsAsync(true);
+
+        var result = await service.CopyAsync(context);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(result, Is.True);
+            Assert.That(contexts, Has.Count.EqualTo(2));
+            Assert.That(contexts[0].AutomaticallyAddRequiredProducts, Is.True);
+            Assert.That(contexts[0].RequiredItems, Is.SameAs(requiredItems));
+        }
     }
 
     private ShoppingCartService CreateAddToCartService()

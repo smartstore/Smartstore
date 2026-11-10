@@ -6,12 +6,13 @@ namespace Smartstore.Web.Models.Cart;
 internal sealed class CartItemSorter
 {
     private readonly OrganizedShoppingCartItem[] _source;
+    private readonly ReferenceEqualityComparer _comparer = ReferenceEqualityComparer.Instance;
     private readonly Dictionary<OrganizedShoppingCartItem, OrganizedShoppingCartItem> _requiredProductParents;
 
     public CartItemSorter(IEnumerable<OrganizedShoppingCartItem> items)
     {
         _source = Guard.NotNull(items).ToArray();
-        _requiredProductParents = new(ReferenceEqualityComparer.Instance);
+        _requiredProductParents = new(_comparer);
     }
 
     public IReadOnlyDictionary<OrganizedShoppingCartItem, OrganizedShoppingCartItem> RequiredProductParents
@@ -19,8 +20,61 @@ internal sealed class CartItemSorter
 
     public IReadOnlyList<OrganizedShoppingCartItem> Sort()
     {
-        var comparer = ReferenceEqualityComparer.Instance;
-        var requiredProductsByParent = new Multimap<OrganizedShoppingCartItem, OrganizedShoppingCartItem>(comparer);
+        var requiredProductsByParent = GetRequiredProductsByParent();
+        var orderedItems = new List<OrganizedShoppingCartItem>(_source.Length);
+        var addedItems = new HashSet<OrganizedShoppingCartItem>(_comparer);
+
+        void AddItem(OrganizedShoppingCartItem item)
+        {
+            if (addedItems.Add(item))
+            {
+                orderedItems.Add(item);
+
+                if (requiredProductsByParent.TryGetValues(item, out var requiredProducts))
+                {
+                    requiredProducts.Each(AddItem);
+                }
+            }
+        }
+
+        foreach (var item in _source.Where(x => !_requiredProductParents.ContainsKey(x)))
+        {
+            AddItem(item);
+        }
+
+        // Add remaining items in their original order. This also provides a safe fallback for circular product configurations.
+        _source.Each(AddItem);
+
+        return orderedItems;
+    }
+
+    public IReadOnlyList<OrganizedShoppingCartItem> SortRequiredProductsFirst()
+    {
+        var requiredProductsByParent = GetRequiredProductsByParent();
+        var orderedItems = new List<OrganizedShoppingCartItem>(_source.Length);
+        var addedItems = new HashSet<OrganizedShoppingCartItem>(_comparer);
+
+        void AddItem(OrganizedShoppingCartItem item)
+        {
+            if (addedItems.Add(item))
+            {
+                if (requiredProductsByParent.TryGetValues(item, out var requiredProducts))
+                {
+                    requiredProducts.Each(AddItem);
+                }
+
+                orderedItems.Add(item);
+            }
+        }
+
+        _source.Each(AddItem);
+
+        return orderedItems;
+    }
+
+    private Multimap<OrganizedShoppingCartItem, OrganizedShoppingCartItem> GetRequiredProductsByParent()
+    {
+        var requiredProductsByParent = new Multimap<OrganizedShoppingCartItem, OrganizedShoppingCartItem>(_comparer);
         _requiredProductParents.Clear();
 
         // INFO: There is no persisted association between a cart item and its required product yet (see issue #1529).
@@ -41,32 +95,6 @@ internal sealed class CartItemSorter
             }
         }
 
-        var orderedItems = new List<OrganizedShoppingCartItem>(_source.Length);
-        var addedItems = new HashSet<OrganizedShoppingCartItem>(comparer);
-
-        void AddItem(OrganizedShoppingCartItem item)
-        {
-            if (!addedItems.Add(item))
-            {
-                return;
-            }
-
-            orderedItems.Add(item);
-
-            if (requiredProductsByParent.TryGetValues(item, out var requiredProducts))
-            {
-                requiredProducts.Each(AddItem);
-            }
-        }
-
-        foreach (var item in _source.Where(x => !_requiredProductParents.ContainsKey(x)))
-        {
-            AddItem(item);
-        }
-
-        // Add remaining items in their original order. This also provides a safe fallback for circular product configurations.
-        _source.Each(AddItem);
-
-        return orderedItems;
+        return requiredProductsByParent;
     }
 }

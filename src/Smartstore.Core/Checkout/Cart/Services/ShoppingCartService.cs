@@ -305,7 +305,8 @@ public partial class ShoppingCartService : IShoppingCartService
                 RawAttributes = childItem.RawAttributes,
                 CustomerEnteredPrice = new(childItem.CustomerEnteredPrice, ctx.CustomerEnteredPrice.Currency),
                 ChildItems = ctx.ChildItems,
-                RequiredItems = ctx.RequiredItems
+                RequiredItems = ctx.RequiredItems,
+                AutomaticallyAddRequiredProducts = ctx.AutomaticallyAddRequiredProducts
             };
 
             if (!await AddToCartAsync(childCtx))

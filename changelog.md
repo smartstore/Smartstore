@@ -138,7 +138,9 @@
   - "Challenge" instead of "Forbid" for a customer who has already logged in but has not been authorized.
   - A digital product cannot be withdrawn if the buyer is given direct access to it and expressly waives their right of withdrawal.
 - Corrected an incorrect regular bundle price when bundle items are discounted.
-- #1562 Wishlist shows the wrong price if the currency is not primary.
+- **Wishlist**:
+  - #1562 Wish list shows the wrong price if the currency is not primary.
+  - When copying items from the wish list to the shopping cart, the required products must also be copied.
 - **Product Details**:
   - Weight adjustments for preselected products attributes were not taken into account.
   - The images of linked products displayed for variants were too small and distorted.

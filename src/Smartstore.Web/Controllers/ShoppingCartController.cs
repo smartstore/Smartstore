@@ -652,7 +652,10 @@ public class ShoppingCartController : PublicController
             CustomerEnteredPrice = new(cartItem.Item.CustomerEnteredPrice, Services.WorkContext.WorkingCurrency),
             Quantity = cartItem.Item.Quantity,
             BundleItem = cartItem.Item.BundleItem,
-            ChildItems = cartItem.ChildItems.Select(x => x.Item).ToList()
+            ChildItems = cartItem.ChildItems.Select(x => x.Item).ToList(),
+            AutomaticallyAddRequiredProducts = cartType == ShoppingCartType.Wishlist
+                && cartItem.Item.Product.RequireOtherProducts
+                && cartItem.Item.Product.AutomaticallyAddRequiredProducts
         };
 
         var isValid = await _shoppingCartService.CopyAsync(addToCartContext);
@@ -761,6 +764,8 @@ public class ShoppingCartController : PublicController
             return RedirectToRoute("Wishlist", new { customerGuid });
         }
 
+        cartItems = new CartItemSorter(cartItems).SortRequiredProductsFirst().ToArray();
+
         foreach (var cartItem in cartItems)
         {
             var addToCartContext = new AddToCartContext
@@ -772,7 +777,9 @@ public class ShoppingCartController : PublicController
                 ChildItems = cartItem.ChildItems.Select(x => x.Item).ToList(),
                 CustomerEnteredPrice = new(cartItem.Item.CustomerEnteredPrice, _currencyService.PrimaryCurrency),
                 Product = cartItem.Item.Product,
-                Quantity = cartItem.Item.Quantity
+                Quantity = cartItem.Item.Quantity,
+                AutomaticallyAddRequiredProducts = cartItem.Item.Product.RequireOtherProducts
+                    && cartItem.Item.Product.AutomaticallyAddRequiredProducts
             };
 
             if (await _shoppingCartService.CopyAsync(addToCartContext))

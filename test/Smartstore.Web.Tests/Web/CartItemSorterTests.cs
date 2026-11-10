@@ -26,18 +26,6 @@ public class CartItemSorterTests
     }
 
     [Test]
-    public void Can_order_required_products_by_sequence()
-    {
-        var firstRequiredProduct = CreateItem(1);
-        var secondRequiredProduct = CreateItem(2);
-        var parent = CreateItem(3, true, 2, 1);
-
-        var result = new CartItemSorter([firstRequiredProduct, secondRequiredProduct, parent]).Sort();
-
-        Assert.That(result, Is.EqualTo([parent, secondRequiredProduct, firstRequiredProduct]));
-    }
-
-    [Test]
     public void Can_assign_shared_required_product_to_first_parent()
     {
         var requiredProduct = CreateItem(1);
@@ -55,7 +43,19 @@ public class CartItemSorterTests
     }
 
     [Test]
-    public void Can_preserve_order_for_non_automatic_required_product()
+    public void Can_order_required_products_by_sequence()
+    {
+        var firstRequiredProduct = CreateItem(1);
+        var secondRequiredProduct = CreateItem(2);
+        var parent = CreateItem(3, true, 2, 1);
+
+        var result = new CartItemSorter([firstRequiredProduct, secondRequiredProduct, parent]).Sort();
+
+        Assert.That(result, Is.EqualTo([parent, secondRequiredProduct, firstRequiredProduct]));
+    }
+
+    [Test]
+    public void Can_preserve_order_for_manual_required_products()
     {
         var requiredProduct = CreateItem(1);
         var parent = CreateItem(2, false, 1);
@@ -71,7 +71,7 @@ public class CartItemSorterTests
     }
 
     [Test]
-    public void Can_keep_nested_required_products_together()
+    public void Can_order_required_products_for_display()
     {
         var nestedRequiredProduct = CreateItem(1);
         var requiredProduct = CreateItem(2, true, 1);
@@ -80,6 +80,18 @@ public class CartItemSorterTests
         var result = new CartItemSorter([nestedRequiredProduct, requiredProduct, parent]).Sort();
 
         Assert.That(result, Is.EqualTo([parent, requiredProduct, nestedRequiredProduct]));
+    }
+
+    [Test]
+    public void Can_order_required_products_for_copy()
+    {
+        var nestedRequiredProduct = CreateItem(1);
+        var requiredProduct = CreateItem(2, true, 1);
+        var parent = CreateItem(3, true, 2);
+
+        var result = new CartItemSorter([parent, requiredProduct, nestedRequiredProduct]).SortRequiredProductsFirst();
+
+        Assert.That(result, Is.EqualTo([nestedRequiredProduct, requiredProduct, parent]));
     }
 
     private static OrganizedShoppingCartItem CreateItem(
