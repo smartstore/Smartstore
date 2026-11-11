@@ -954,33 +954,55 @@ public class DashboardLayoutPersistenceTests : ServiceTestBase
     }
 
     /// <summary>
-    /// Unavailable data widgets are hidden at render time and cannot be removed through a submitted draft.
+    /// Only available required widgets are protected from removal.
     /// </summary>
-    [Test]
-    public async Task Unavailable_Data_Widgets_Are_Hidden_And_Preserved()
+    [TestCase(false, false, true)]
+    [TestCase(false, true, true)]
+    [TestCase(true, true, true)]
+    [TestCase(true, false, true)]
+    [TestCase(false, false, false)]
+    public async Task Removal_Protects_Only_Available_Required_Widgets(bool available, bool required, bool registered)
     {
         var widget = new Mock<IDashboardWidget>();
-        widget.SetupGet(x => x.Descriptor).Returns(new TestDashboardWidget().Descriptor);
+        widget.SetupGet(x => x.Descriptor).Returns(new DashboardWidgetDescriptor(TestDashboardWidget.SystemName, "Test")
+        {
+            DefaultSize = new DashboardWidgetSize(4),
+            MinSize = new DashboardWidgetSize(1),
+            MaxSize = new DashboardWidgetSize(12),
+            Policy = new DashboardWidgetPolicy { IsRequired = required }
+        });
         widget.Setup(x => x.IsAvailableAsync(It.IsAny<DashboardWidgetContext>(), It.IsAny<CancellationToken>()))
-            .Returns(ValueTask.FromResult(false));
+            .Returns(ValueTask.FromResult(available));
         var app = new Mock<IApplicationContext>();
         app.SetupGet(x => x.TenantRoot).Returns(_files);
         _service = new TestDashboardService(app.Object, _cache, NullEventPublisher.Instance,
-            [new Lazy<IDashboardWidget, DashboardMetadata>(() => widget.Object, new DashboardMetadata { SystemName = TestDashboardWidget.SystemName })],
+            registered ? [new Lazy<IDashboardWidget, DashboardMetadata>(() => widget.Object, new DashboardMetadata { SystemName = TestDashboardWidget.SystemName })] : [],
             [new Lazy<IDashboardLayoutProvider, DashboardMetadata>(() => new TestLayoutProvider(DefaultLayout()), new DashboardMetadata { SystemName = "admin-dashboard" })]);
         var state = await State(DashboardLayoutLayer.User);
-        Assert.That((await _service.PrepareDashboardAsync(state.Layout, _customer)).Widgets, Is.Empty);
+        if (!available)
+        {
+            Assert.That((await _service.PrepareDashboardAsync(state.Layout, _customer)).Widgets, Is.Empty);
+            Assert.ThrowsAsync<InvalidOperationException>(async () => await Save(state));
+        }
         state.Layout.Widgets.Clear();
-        Assert.ThrowsAsync<InvalidOperationException>(async () => await Save(state));
-        Assert.That((await State(DashboardLayoutLayer.User)).Layout.Widgets, Has.Count.EqualTo(1));
+        if (available && required)
+        {
+            Assert.ThrowsAsync<InvalidOperationException>(async () => await Save(state));
+            Assert.That((await State(DashboardLayoutLayer.User)).Layout.Widgets, Has.Count.EqualTo(1));
+        }
+        else
+        {
+            await Save(state);
+            Assert.That((await State(DashboardLayoutLayer.User)).Layout.Widgets, Is.Empty);
+        }
     }
 
     /// <summary>
-    /// Overlapping placements are preserved, while unavailable widget instances remain protected.
+    /// Overlapping placements are preserved, while unavailable widget instances must be omitted.
     /// </summary>
     [TestCase(false)]
     [TestCase(true)]
-    public async Task Saving_Preserves_Overlapping_Placements_And_Protects_Unavailable_Widgets(bool hiddenAvailable)
+    public async Task Saving_Preserves_Overlapping_Placements_And_Rejects_Unavailable_Widgets(bool hiddenAvailable)
     {
         var layout = new DashboardLayout("admin-dashboard");
         var widgets = new List<Lazy<IDashboardWidget, DashboardMetadata>>();
@@ -1016,6 +1038,15 @@ public class DashboardLayoutPersistenceTests : ServiceTestBase
         var state = await State(DashboardLayoutLayer.User);
         var hidden = state.Layout.Widgets[1];
         state.Layout.Widgets[0] = state.Layout.Widgets[0] with { Positions = hidden.Positions };
+        if (!hiddenAvailable)
+        {
+            Assert.ThrowsAsync<InvalidOperationException>(async () => await Save(state));
+            state.Layout.Widgets.RemoveAt(1);
+            foreach (var registration in widgets)
+            {
+                Mock.Get(registration.Value).Invocations.Clear();
+            }
+        }
         await Save(state);
         foreach (var registration in widgets)
         {
@@ -1023,12 +1054,11 @@ public class DashboardLayoutPersistenceTests : ServiceTestBase
         }
         var saved = (await State(DashboardLayoutLayer.User)).Layout;
         Assert.That(saved.Widgets[0].GetPosition(DashboardBreakpoint.Xs).Row, Is.Zero);
-        Assert.That(saved.Widgets[1].Positions, Is.EqualTo(hidden.Positions));
-        Assert.That(saved.Widgets[1].SettingsVersion, Is.EqualTo(hidden.SettingsVersion));
-        if (!hiddenAvailable)
+        Assert.That(saved.Widgets, Has.Count.EqualTo(hiddenAvailable ? 2 : 1));
+        if (hiddenAvailable)
         {
-            saved.Widgets[1] = hidden with { Positions = [new DashboardWidgetPosition { Row = 1, Size = new DashboardWidgetSize(4, 20) }] };
-            Assert.ThrowsAsync<InvalidOperationException>(async () => await _service.SaveLayoutAsync(saved, _customer, DashboardLayoutLayer.User));
+            Assert.That(saved.Widgets[1].Positions, Is.EqualTo(hidden.Positions));
+            Assert.That(saved.Widgets[1].SettingsVersion, Is.EqualTo(hidden.SettingsVersion));
         }
     }
 
@@ -1120,10 +1150,10 @@ public class DashboardLayoutPersistenceTests : ServiceTestBase
     }
 
     /// <summary>
-    /// Verifies immutable system defaults and server-side widget capability enforcement.
+    /// System defaults remain immutable while editor resize flags do not restrict valid saved positions.
     /// </summary>
     [Test]
-    public async Task Rejects_System_Writes_And_Locked_Resizing()
+    public async Task Rejects_System_Writes_But_Accepts_Editor_Locked_Resizing()
     {
         var system = await State(DashboardLayoutLayer.System);
         Assert.ThrowsAsync<InvalidOperationException>(async () => await Save(system));
@@ -1133,15 +1163,18 @@ public class DashboardLayoutPersistenceTests : ServiceTestBase
         {
             Positions = [new DashboardWidgetPosition { Size = new DashboardWidgetSize(8) }]
         };
-        Assert.ThrowsAsync<InvalidOperationException>(async () => await Save(personal));
-        Assert.That((await State(DashboardLayoutLayer.User)).Source, Is.EqualTo(DashboardLayoutLayer.System));
+        await Save(personal);
+        var saved = (await State(DashboardLayoutLayer.User)).Layout;
+        Assert.That(saved.Widgets[0].GetPosition().Size.ColumnSpan, Is.EqualTo(8));
+        var rendered = await _service.PrepareDashboardAsync(saved, _customer, true);
+        Assert.That(rendered.Widgets[0].Policy.AllowResize, Is.False);
     }
 
     /// <summary>
-    /// Changing row spans requires resize permission.
+    /// Valid row spans can be persisted even when resizing is disabled in the editor.
     /// </summary>
     [Test]
-    public async Task Rejects_Locked_Height_Changes()
+    public async Task Saves_Editor_Locked_Height_Changes()
     {
         var state = await State(DashboardLayoutLayer.User);
         var widget = state.Layout.Widgets.Single();
@@ -1149,7 +1182,8 @@ public class DashboardLayoutPersistenceTests : ServiceTestBase
         {
             Positions = widget.Positions.Select(p => p with { Size = new DashboardWidgetSize(p.Size.ColumnSpan, 27) }).ToArray()
         };
-        Assert.ThrowsAsync<InvalidOperationException>(async () => await Save(state));
+        await Save(state);
+        Assert.That((await State(DashboardLayoutLayer.User)).Layout.Widgets[0].GetPosition().Size.RowSpan, Is.EqualTo(27));
     }
     /// <summary>
     /// Row spans survive storage and remain independent between responsive placements and layers.
@@ -1165,7 +1199,8 @@ public class DashboardLayoutPersistenceTests : ServiceTestBase
             SettingsVersion = 2,
             DefaultSize = new DashboardWidgetSize(4),
             MinSize = new DashboardWidgetSize(2),
-            MaxSize = new DashboardWidgetSize(12)
+            MaxSize = new DashboardWidgetSize(12),
+            Policy = new DashboardWidgetPolicy { AllowMove = false, AllowResize = false }
         });
         widget.Setup(x => x.IsAvailableAsync(It.IsAny<DashboardWidgetContext>(), It.IsAny<CancellationToken>())).Returns(ValueTask.FromResult(true));
         var app = new Mock<IApplicationContext>();
@@ -1177,11 +1212,12 @@ public class DashboardLayoutPersistenceTests : ServiceTestBase
         var instance = state.Layout.Widgets.Single();
         state.Layout.Widgets[0] = instance with
         {
-            Positions = instance.Positions.Select(p => p.Breakpoint == DashboardBreakpoint.Lg ? p with { Size = new DashboardWidgetSize(p.Size.ColumnSpan, 2) } : p).ToArray()
+            Positions = instance.Positions.Select(p => p.Breakpoint == DashboardBreakpoint.Lg ? p with { Row = 8, Size = new DashboardWidgetSize(p.Size.ColumnSpan, 2) } : p).ToArray()
         };
         await Save(state);
         var stored = (await State(layer)).Layout.Widgets.Single();
         Assert.That(stored.GetPosition(DashboardBreakpoint.Lg).Size.RowSpan, Is.EqualTo(2));
+        Assert.That(stored.GetPosition(DashboardBreakpoint.Lg).Row, Is.EqualTo(8));
         var rendered = await _service.PrepareDashboardAsync((await State(layer)).Layout, _customer, false);
         var css = new DashboardCssBuilder().Build(rendered);
         Assert.That(css, Does.Not.Contain("align-self:"));

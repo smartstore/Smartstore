@@ -116,15 +116,7 @@ public partial class DashboardService
 
             if (!Widgets.TryGetValue(instance.WidgetSystemName, out var registration))
             {
-                if (previous == null)
-                {
-                    throw new InvalidOperationException("Unknown widget.");
-                }
-                if (SerializeInstance(previous) != SerializeInstance(instance))
-                {
-                    throw new InvalidOperationException("Unavailable widget instances must be preserved.");
-                }
-                continue;
+                throw new InvalidOperationException("Unknown widget.");
             }
 
             var widget = ResolveWidget(registration);
@@ -135,34 +127,12 @@ public partial class DashboardService
             }
             if (!await widget.IsAvailableAsync(context, cancelToken))
             {
-                if (previous == null)
-                {
-                    throw new InvalidOperationException("Widget is not available.");
-                }
-                if (SerializeInstance(previous) != SerializeInstance(instance))
-                {
-                    throw new InvalidOperationException("Unavailable widget instances must be preserved.");
-                }
-                continue;
+                throw new InvalidOperationException("Widget is not available.");
             }
 
             if (previous != null)
             {
                 var policy = DashboardWidgetPolicy.Combine(descriptor.Policy, previous.Policy);
-                foreach (var breakpoint in previous.Positions.Concat(instance.Positions).Select(x => x.Breakpoint).Distinct())
-                {
-                    var position = instance.GetPosition(breakpoint);
-                    var original = previous.GetPosition(breakpoint);
-                    var moved = original.Column != position.Column || original.Row != position.Row || instance.Order != previous.Order;
-                    var resized = original.Size.ColumnSpan != position.Size.ColumnSpan
-                        || original.Size.RowSpan != position.Size.RowSpan;
-
-                    if ((!policy.AllowMove && moved) || (!policy.AllowResize && resized))
-                    {
-                        throw new InvalidOperationException("This widget placement is locked.");
-                    }
-                }
-
                 if (!policy.AllowConfigure && !JsonNode.DeepEquals(previous.Settings, instance.Settings))
                 {
                     throw new InvalidOperationException("This widget cannot be configured.");
@@ -201,25 +171,19 @@ public partial class DashboardService
         {
             if (!Widgets.TryGetValue(removed.WidgetSystemName, out var registration))
             {
-                throw new InvalidOperationException("Unavailable widget instances must be preserved.");
+                continue;
             }
             var widget = ResolveWidget(registration);
+            if (!await widget.IsAvailableAsync(context, cancelToken))
+            {
+                continue;
+            }
             if (DashboardWidgetPolicy.Combine(widget.Descriptor.Policy, removed.Policy).IsRequired)
             {
                 throw new InvalidOperationException("A required widget cannot be removed.");
             }
-            if (!await widget.IsAvailableAsync(context, cancelToken))
-            {
-                throw new InvalidOperationException("Unavailable widget instances must be preserved.");
-            }
         }
     }
-
-    /// <summary>
-    /// Compares the complete persisted state of an unavailable instance.
-    /// </summary>
-    private static string SerializeInstance(DashboardWidgetInstance instance)
-        => System.Text.Json.JsonSerializer.Serialize(instance, Smartstore.Json.SmartJsonOptions.CamelCased);
 
     /// <inheritdoc />
     public async Task SaveLayoutAsync(DashboardLayout layout, Customer customer, DashboardLayoutLayer layer, bool reset = false, CancellationToken cancelToken = default)

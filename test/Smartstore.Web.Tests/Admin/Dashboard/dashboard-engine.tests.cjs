@@ -70,7 +70,7 @@ test('expanding left displaces a neighbor without moving the opposite edge', () 
 });
 
 // Run the editor's actual keyboard handlers with a minimal DOM and the bundled Underscore.
-function keyboardEditor({ direction = 'ltr', blockedStorage = false, allowedSizes = [], layer = 'User', belowPosition } = {}) {
+function keyboardEditor({ direction = 'ltr', blockedStorage = false, allowedSizes = [], layer = 'User', belowPosition, news = false, breakpoint = 'xl' } = {}) {
     const handlers = new Map();
     const controls = new Map();
     const extension = { inert: false };
@@ -84,10 +84,11 @@ function keyboardEditor({ direction = 'ltr', blockedStorage = false, allowedSize
     };
     const belowElement = { ...element, dataset: { ...element.dataset, instanceId: 'b' }, style: {},
         querySelector: element.querySelector, getBoundingClientRect: () => ({ top: 300, bottom: 500, height: 200 }) };
+    const newsElement = { ...element, dataset: { ...element.dataset, instanceId: 'news' }, style: {}, querySelector: () => null };
     const container = {
         style: {},
         appendChild() {},
-        querySelectorAll: selector => selector === '[data-instance-id]' ? (belowPosition ? [element, belowElement] : [element]) : [],
+        querySelectorAll: selector => selector === '[data-instance-id]' ? [element, ...(belowPosition ? [belowElement] : []), ...(news ? [newsElement] : [])] : [],
         addEventListener: (name, callback) => handlers.set(name, [callback]),
         getBoundingClientRect: () => ({ left: 0, right: 1200, top: 0 })
     };
@@ -102,6 +103,17 @@ function keyboardEditor({ direction = 'ltr', blockedStorage = false, allowedSize
     if (belowPosition) {
         config.layout.widgets.push({ id: 'b', widgetSystemName: 'Test', allowMove: true,
             positions: [{ breakpoint: 'xs', column: 2, row: 2, size: { columnSpan: 4, rowSpan: 1 }, minHeight: 200, ...belowPosition }] });
+    }
+    if (news) {
+        config.layout.widgets.push({ id: 'news', widgetSystemName: 'Smartstore.Admin.Dashboard.NewsFeed', allowMove: false,
+            positions: [
+                { breakpoint: 'xs', column: 0, row: 7, size: { columnSpan: 12, rowSpan: 1 } },
+                { breakpoint: 'lg', column: 10, row: 0, size: { columnSpan: 2, rowSpan: 6 } }
+            ] });
+        for (const rule of config.layout.rules) {
+            rule.hasNewsRail = ['lg', 'xl', 'xxl'].includes(rule.breakpoint);
+            rule.columnCount = rule.hasNewsRail ? 10 : 12;
+        }
     }
     let confirmation;
     let submissions = 0;
@@ -140,7 +152,7 @@ function keyboardEditor({ direction = 'ltr', blockedStorage = false, allowedSize
         return controls.get(selector);
     }
     const sandbox = {
-        Smartstore: { Admin: {} }, ResponsiveBootstrapToolkit: { current: () => 'xl' }, jQuery: jquery, document, structuredClone, URL,
+        Smartstore: { Admin: {} }, ResponsiveBootstrapToolkit: { current: () => breakpoint }, jQuery: jquery, document, structuredClone, URL,
         HTMLFormElement: { prototype: { submit() { submissions++; } } },
         confirm2(options) { confirmation = options; return { find: () => ({ text() {} }) }; },
         window: { innerWidth: 1200, innerHeight: 900, scrollY: 0, location: { href: 'https://example.test/admin?dashboardHistory=test' },
@@ -160,6 +172,7 @@ function keyboardEditor({ direction = 'ltr', blockedStorage = false, allowedSize
         extension,
         style: element.style,
         belowStyle: belowElement.style,
+        newsStyle: newsElement.style,
         scrollContainer,
         save: () => controls.get(form).submit({ preventDefault() {} }),
         confirm: accepted => confirmation.callback(accepted),
@@ -502,3 +515,24 @@ test('payment fees are collected from current Amount values without synchronized
     assert.equal('feeValue.Payments.B' in settings, false);
     assert.equal(settings.count, 3);
 });
+
+for (const hasNews of [false, true]) {
+    test(`available news positions follow the draft across breakpoints and saving (news: ${hasNews})`, () => {
+        for (const breakpoint of ['xs', 'sm', 'md', 'lg', 'xl', 'xxl']) {
+            const editor = keyboardEditor({ news: hasNews, breakpoint });
+            const desktop = ['lg', 'xl', 'xxl'].includes(breakpoint);
+            if (hasNews) assert.equal(editor.newsStyle.gridRow, desktop ? '1 / span 2' : '3 / span 1');
+            editor.save();
+            const draft = editor.submitted();
+            const news = draft.widgets.find(widget => widget.id === 'news');
+            assert.equal(draft.widgets.length, hasNews ? 2 : 1);
+            if (!hasNews) {
+                assert.equal(news, undefined);
+                continue;
+            }
+            assert.equal(news.positions.length, 6);
+            assert.ok(news.positions.slice(0, 3).every(p => p.row === 1 && p.size.rowSpan === 1 && p.column === 0 && p.size.columnSpan === 12));
+            assert.ok(news.positions.slice(3).every(p => p.row === 0 && p.size.rowSpan === 1 && p.column === 10 && p.size.columnSpan === 2));
+        }
+    });
+}

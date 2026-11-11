@@ -283,10 +283,11 @@ public class HomeController : AdminController
             state = await ReadDashboardDraftAsync(changesJson, layer, reset);
             if (target != layer)
             {
-                if (!reset)
+                if (reset)
                 {
-                    await _dashboardService.ValidateDraftAsync(state.Layout, Services.WorkContext.CurrentCustomer, layer, HttpContext.RequestAborted);
+                    DashboardEditorMapper.ApplyChanges(DashboardEditorMapper.ReadChanges(changesJson), state.Layout, _dashboardService);
                 }
+                await _dashboardService.ValidateDraftAsync(state.Layout, Services.WorkContext.CurrentCustomer, layer, HttpContext.RequestAborted);
 
                 var targetState = await _dashboardService.GetLayoutStateAsync(
                     AdminDashboardLayoutProvider.Id,

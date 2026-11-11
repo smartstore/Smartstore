@@ -24,7 +24,11 @@ public static class DashboardEditorMapper
     /// </summary>
     public static string CreateJson(DashboardEditorModel model, string editUrl, string cancelUrl, string previewUrl)
     {
-        var layout = model.State.Layout;
+        var layout = new DashboardLayout(model.State.Layout.Id)
+        {
+            ColumnCount = model.State.Layout.ColumnCount,
+            Widgets = model.Dashboard.Widgets.Select(widget => widget.Instance).ToList()
+        };
         var movableIds = model.Dashboard.Widgets
             .Where(widget => widget.Policy.AllowMove)
             .Select(widget => widget.Instance.Id)
@@ -86,55 +90,12 @@ public static class DashboardEditorMapper
         IReadOnlyCollection<DashboardWidgetDescriptor> availableWidgets, 
         IDashboardService dashboardService)
     {
-        var descriptors = availableWidgets.ToDictionary(x => x.SystemName, StringComparer.OrdinalIgnoreCase);
-        var existing = target.Widgets.ToDictionary(x => x.Id);
-        var placements = new List<DashboardWidgetPlacement>();
-
-        foreach (var widget in source.Widgets)
-        {
-            var positions = widget.Positions;
-            if (existing.TryGetValue(widget.Id, out var previous))
-            {
-                if (!descriptors.TryGetValue(previous.WidgetSystemName, out var descriptor))
-                {
-                    placements.Add(new(previous.Id, previous.WidgetSystemName, previous.Positions));
-                    continue;
-                }
-
-                var policy = DashboardWidgetPolicy.Combine(descriptor.Policy, previous.Policy);
-                positions = widget.Positions.Concat(previous.Positions).Select(x => x.Breakpoint).Distinct().OrderBy(x => x)
-                    .Select(breakpoint =>
-                    {
-                        var desired = widget.GetPosition(breakpoint);
-                        var original = previous.GetPosition(breakpoint);
-                        return desired with
-                        {
-                            Breakpoint = breakpoint,
-                            Column = policy.AllowMove ? desired.Column : original.Column,
-                            Row = policy.AllowMove ? desired.Row : original.Row,
-                            Size = new DashboardWidgetSize(
-                                policy.AllowResize ? desired.Size.ColumnSpan : original.Size.ColumnSpan,
-                                policy.AllowResize ? desired.Size.RowSpan : original.Size.RowSpan)
-                        };
-                    }).ToArray();
-            }
-
-            if (descriptors.ContainsKey(widget.WidgetSystemName))
-            {
-                placements.Add(new(widget.Id, widget.WidgetSystemName, positions));
-            }       
-        }
-
-        var includedIds = placements.Select(x => x.Id).ToHashSet(StringComparer.Ordinal);
-
-        foreach (var widget in target.Widgets.Where(x => !includedIds.Contains(x.Id)))
-        {
-            if (!descriptors.TryGetValue(widget.WidgetSystemName, out var descriptor) ||
-                DashboardWidgetPolicy.Combine(descriptor.Policy, widget.Policy).IsRequired)
-            {
-                placements.Add(new(widget.Id, widget.WidgetSystemName, widget.Positions));
-            }
-        }
+        var availableNames = availableWidgets.Select(widget => widget.SystemName)
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+        var placements = source.Widgets
+            .Where(widget => availableNames.Contains(widget.WidgetSystemName))
+            .Select(widget => new DashboardWidgetPlacement(widget.Id, widget.WidgetSystemName, widget.Positions))
+            .ToArray();
 
         return ApplyChanges(new(placements), target, dashboardService);
     }

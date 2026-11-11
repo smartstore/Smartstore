@@ -190,15 +190,14 @@
                 });
             }
         });
+        const isNews = widget => widget.widgetSystemName === 'Smartstore.Admin.Dashboard.NewsFeed';
         const renderedIds = new Set(elements.keys());
-        const unavailableIds = new Set(layout.widgets.filter(widget => !renderedIds.has(widget.id)).map(widget => widget.id));
         for (const widget of layout.widgets) {
             if (renderedIds.has(widget.id)) {
                 widget.positions = breakpoints.map(tier => ({ ...structuredClone(position(widget, tier)), breakpoint: tier }));
             }
         }
         const visible = () => layout.widgets.filter(widget => renderedIds.has(widget.id));
-        const isNews = widget => elements.get(widget.id).classList.contains('news-feed');
         const columns = (tier = breakpoint) => layoutRules.get(tier).columnCount;
         function bounds(widget) {
             const el = elements.get(widget.id);
@@ -233,10 +232,11 @@
             }
         }
         function drawGrid() {
-            const bottom = Math.max(1, ...gridItems().map(item => item.row + (item.size.rowSpan || 1)));
+            const items = gridItems();
+            const bottom = Math.max(1, ...items.map(item => item.row + (item.size.rowSpan || 1)));
             const count = layout.rowCounts[breakpoint] = Math.max(layout.rowCounts[breakpoint] || 0, bottom);
             const minimums = layout.rowMinimums[breakpoint];
-            const occupied = new Set(gridItems().flatMap(item =>
+            const occupied = new Set(items.flatMap(item =>
                 Array.from({ length: item.size.rowSpan || 1 }, (_, offset) => item.row + offset)));
             container.style.gridTemplateRows = minimums ? Array.from({ length: count }, (_, row) =>
                 `minmax(${occupied.has(row) ? Math.max(minimumRowHeight(), minimums[row] || 0) : minimumRowHeight()}px, auto)`).join(' ') : '';
@@ -284,7 +284,21 @@
                 p.column = item.column; p.row = item.row; p.size = item.size;
             }
         }
+        function updateNewsPositions() {
+            const news = layout.widgets.find(isNews);
+            if (!news) return;
+            for (const tier of breakpoints) {
+                const bottom = Math.max(0, ...layout.widgets.filter(widget => !isNews(widget)).map(widget => {
+                    const p = position(widget, tier);
+                    return p.row + (p.size.rowSpan || 1);
+                }));
+                const p = position(news, tier);
+                p.row = layoutRules.get(tier).hasNewsRail ? 0 : bottom;
+                p.size.rowSpan = layoutRules.get(tier).hasNewsRail ? Math.max(1, bottom) : 1;
+            }
+        }
         function render(updateToolbar = true) {
+            updateNewsPositions();
             for (const [id, el] of elements) {
                 const widget = widgetsById.get(id);
                 if (!widget) { el.remove(); continue; }
@@ -292,13 +306,6 @@
                 const p = position(widget);
                 el.style.gridColumn = `${p.column + 1} / span ${p.size.columnSpan}`;
                 el.style.gridRow = `${p.row + 1} / span ${p.size.rowSpan || 1}`;
-                if (isNews(widget)) {
-                    const bottom = Math.max(0, ...visible().filter(w => !isNews(w)).map(w => {
-                        const positionAtWidth = position(w);
-                        return positionAtWidth.row + (positionAtWidth.size.rowSpan || 1);
-                    }));
-                    el.style.gridRow = layoutRules.get(breakpoint).hasNewsRail ? `1 / span ${Math.max(1, bottom)}` : `${bottom + 1} / span 1`;
-                }
             }
             drawGrid();
             if (updateToolbar) updateControls();
@@ -635,6 +642,7 @@
                     for (const item of items) position(widgetsById.get(item.id), tier).row = item.row;
                 }
             }
+            updateNewsPositions();
             form.elements.changesJson.value = JSON.stringify({ widgets: layout.widgets.map(
                 ({ id, widgetSystemName, positions, settings }) => ({ id, widgetSystemName, positions, settings })) });
             form.elements.reset.value = reset ? 'true' : 'false';
@@ -707,7 +715,7 @@
             const state = from[from.length - 1];
             const settingsChanged = state.layout.widgets.filter(widget =>
                 !_.isEqual(widget.settings, widgetsById.get(widget.id)?.settings));
-            const missing = state.layout.widgets.some(w => !elements.has(w.id) && !unavailableIds.has(w.id));
+            const missing = state.layout.widgets.some(w => !elements.has(w.id));
             const apply = () => {
                 to.push(previous);
                 from.pop();

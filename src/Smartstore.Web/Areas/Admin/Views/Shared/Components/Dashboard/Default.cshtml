@@ -4,21 +4,6 @@
 
 <style sm-target-zone="stylesheets" data-origin="@Model.Layout.Id">
     @Html.Raw(DashboardCssBuilder.Build(Model))
-    @* The fixed news rail follows the visible content, without modifying its stored, locked placement. *@
-    @if (Model.Layout.Id == "admin-dashboard" && Model.Widgets.FirstOrDefault(x => x.Instance.Id == "news-feed") is { } news)
-    {
-        var content = Model.Widgets.Where(x => x != news).ToArray();
-        foreach (var breakpoint in Enum.GetValues<DashboardBreakpoint>())
-        {
-            var bottom = content.Select(item => item.Instance.GetPosition(breakpoint))
-                .Select(position => position.Row + (position.Size.RowSpan ?? 1)).DefaultIfEmpty(0).Max();
-            var placement = breakpoint >= DashboardBreakpoint.Lg
-                ? $"1 / span {Math.Max(1, bottom)}"
-                : $"{bottom + 1} / span 1";
-            var tier = breakpoint.ToString().ToLowerInvariant();
-            @Html.Raw($"#{Model.Layout.BuildWidgetId(news.Instance.Id)} {{ --dashboard-row-{tier}: {placement}; }}")
-        }
-    }
 </style>
 
 <script src="~/admin/js/smartstore.dashboard.widgets.js" asp-append-version="true" sm-target-zone="scripts" sm-key="dashboard-widgets"></script>
