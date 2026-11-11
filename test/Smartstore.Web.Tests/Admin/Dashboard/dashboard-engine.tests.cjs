@@ -460,60 +460,90 @@ test('free destinations stay free placements and full-width widgets can exchange
     assert.deepEqual([moved.row, neighbor.row], [1, 2]);
 });
 
-test('payment fees are collected from current Amount values without synchronized fields', () => {
-    const view = fs.readFileSync(path.resolve(__dirname,
-        '../../../../src/Smartstore.Web/Areas/Admin/Views/Shared/Components/DashboardPaymentMethods/Configure.cshtml'), 'utf8');
-    const script = view.match(/<script>([\s\S]*?)<\/script>/)[1];
-    let collect;
-    const $ = target => {
-        if (typeof target === 'function') return target();
-        assert.equal(target, '#dashboard-paymentmethods-configuration');
-        return { on(event, handler) {
-            assert.equal(event, 'dashboard:collectsettings');
-            collect = handler;
-        } };
-    };
-    vm.runInNewContext(script, { $ });
-    const fee = (provider, amount, unit) => ({
-        dataset: { provider },
-        amount: { value: String(amount), valueAsNumber: amount },
-        unit: { value: unit },
-        querySelector(selector) {
-            assert.ok(['[data-numberinput-value]', '[data-numberinput-unit]'].includes(selector));
-            return selector === '[data-numberinput-value]' ? this.amount : this.unit;
+for (const outcome of ['configuration', 'validation', 'refresh']) {
+    test(`widget request handles ${outcome} without a second request`, () => {
+        function deferred() {
+            const done = [], fail = [], always = [];
+            return {
+                done(fn) { done.push(fn); return this; },
+                fail(fn) { fail.push(fn); return this; },
+                always(fn) { always.push(fn); return this; },
+                promise() { return this; },
+                resolve(value) { done.forEach(fn => fn(value)); always.forEach(fn => fn()); },
+                reject(value) { fail.forEach(fn => fn(value)); always.forEach(fn => fn()); }
+            };
         }
-    });
-    const percentage = fee('Payments.A', 2.75, '%');
-    const fixed = fee('Payments.B', 0.35, 'EUR');
-    const viewElement = { querySelectorAll(selector) {
-        assert.equal(selector, '[data-dashboard-payment-fee]');
-        return [percentage, fixed];
-    } };
-    const settings = { count: 3 };
-    collect.call(viewElement, {}, settings);
-    assert.deepEqual(JSON.parse(JSON.stringify(settings)), {
-        count: 3,
-        fees: {
-            'Payments.A': { value: 2.75, unit: '%' },
-            'Payments.B': { value: 0.35, unit: 'EUR' }
+        const requests = [], events = [], notifications = [];
+        let content = 'original', destroyed = 0, result;
+        const widget = { isConnected: true };
+        const controls = {
+            filter() { return this; }, prop() { return this; }, first() { return this; },
+            attr() {}, index() { return -1; }
+        };
+        const $content = {
+            0: { contains() { return true; } },
+            first() { return this; }, find() { return controls; },
+            html(value) { content = value; return this; }
+        };
+        const $widget = {
+            0: widget,
+            closest() { return { attr() { return '/load'; } }; },
+            find(selector) {
+                if (selector === '.dashboard-widget-content') return $content;
+                if (selector === '.dashboard-widget-config') return { attr() { return '/configure'; } };
+                return controls;
+            },
+            data(key, value) { return value === undefined ? { period: '30' } : this; },
+            attr(name) { return name === 'data-instance-id' ? 'payments' : this; },
+            removeAttr() { return this; },
+            triggerHandler(name) { events.push(name); },
+            children() { return { throbber() { return { data() { return { show() {}, hide() {} }; } }; } }; }
+        };
+        const document = {};
+        const $ = target => {
+            if (typeof target === 'function') return target();
+            if (target === document) return { on() {} };
+            if (target === widget) return $widget;
+            throw new Error('Unexpected jQuery target');
+        };
+        // The initial closest lookup needs the DOM element rather than the grid wrapper.
+        const originalClosest = $widget.closest;
+        $widget.closest = selector => selector === '.dashboard-widget' ? $widget : originalClosest();
+        $.Deferred = deferred;
+        $.param = data => 'parameters%5Bperiod%5D=' + data.parameters.period;
+        $.ajax = options => {
+            const request = deferred();
+            requests.push({ options, request });
+            return request;
+        };
+        const Chart = { instances: { old: { canvas: {}, destroy() { destroyed++; } } } };
+        const sandbox = {
+            jQuery: $, Smartstore: {}, document, Chart,
+            window: { Chart, Res: { Dashboard: { invalid: 'invalid', refreshFailed: 'failed' } }, setTimeout(fn) { fn(); } },
+            performance: { now() { return 0; } },
+            displayNotification(message) { notifications.push(message); }
+        };
+        vm.runInNewContext(fs.readFileSync(path.resolve(__dirname,
+            '../../../../src/Smartstore.Web/wwwroot/admin/js/smartstore.dashboard.widgets.js'), 'utf8'), sandbox);
+        const form = outcome === 'refresh' ? null : 'Count=3&apply=true&instanceId=payments&changesJson=draft';
+        sandbox.Smartstore.Admin.Dashboard.loadWidget(widget, false, {}, form).done(value => { result = value; });
+        assert.equal(requests.length, 1);
+        assert.equal(requests[0].options.url, form ? '/configure' : '/load');
+        assert.equal(requests[0].options.type, 'POST');
+        if (form) {
+            assert.equal(requests[0].options.data, form + '&parameters%5Bperiod%5D=30');
         }
+        const response = outcome === 'configuration' ? { settings: { count: 3 }, html: 'updated' }
+            : outcome === 'validation' ? '<span>Invalid count</span>' : 'refreshed';
+        requests[0].request.resolve(response);
+        assert.equal(result, response);
+        assert.equal(requests.length, 1);
+        assert.equal(content, outcome === 'validation' ? 'original' : outcome === 'configuration' ? 'updated' : 'refreshed');
+        assert.equal(destroyed, outcome === 'validation' ? 0 : 1);
+        assert.deepEqual(events, outcome === 'validation' ? [] : ['dashboard:unloading', 'dashboard:loaded']);
+        assert.deepEqual(notifications, []);
     });
-
-    const previousFees = settings.fees;
-
-    // The next save must read changes directly, without any change event.
-    percentage.amount = { value: '4.5', valueAsNumber: 4.5 };
-    percentage.unit.value = 'EUR';
-    fixed.amount.value = '';
-    fixed.unit.value = '%';
-    collect.call(viewElement, {}, settings);
-    assert.equal(settings.fees['Payments.A'].value, 4.5);
-    assert.equal(settings.fees['Payments.A'].unit, 'EUR');
-    assert.equal('Payments.B' in settings.fees, false);
-    assert.equal(settings.count, 3);
-    assert.equal(previousFees['Payments.A'].value, 2.75);
-    assert.equal(previousFees['Payments.B'].value, 0.35);
-});
+}
 
 for (const hasNews of [false, true]) {
     test(`available news positions follow the draft across breakpoints and saving (news: ${hasNews})`, () => {

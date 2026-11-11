@@ -2,6 +2,9 @@ using System.Text.Encodings.Web;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 using Smartstore.Web.TagHelpers.Shared;
 using FluentValidation;
+using FluentValidation.AspNetCore;
+using Microsoft.AspNetCore.Html;
+using Microsoft.Extensions.Primitives;
 using Smartstore.Engine.Modularity;
 using Smartstore.Core.Data;
 using Smartstore.Core.Common;
@@ -44,6 +47,7 @@ using Smartstore.Core.Widgets.Dashboard;
 using Smartstore.Core;
 using Smartstore.Json;
 using Smartstore.Web.Models;
+using Smartstore.Web.Modelling;
 
 namespace Smartstore.Web.Tests.Admin.Dashboard;
 
@@ -103,6 +107,107 @@ public class HomeControllerDashboardTests
             widget.Verify(x => x.CreateConfigurationWidgetAsync(It.IsAny<DashboardWidgetContext>(), It.IsAny<DashboardWidgetInstance>()), Times.Never);
         }
 
+        dashboard.Verify(x => x.SaveLayoutAsync(It.IsAny<DashboardLayout>(), It.IsAny<Customer>(), It.IsAny<DashboardLayoutLayer>(),
+            It.IsAny<bool>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [TestCase("Count", "3", true)]
+    [TestCase("Count", "51", false)]
+    [TestCase("Count", "", false)]
+    [TestCase("Count", "abc", false)]
+    [TestCase("Fees[Payments.Example].Value", "2.75", true)]
+    [TestCase("Fees[Payments.Example].Value", "101", false)]
+    [TestCase("Fees[Payments.Example].Value", "", false)]
+    [SetCulture("de-DE")]
+    public async Task Configuration_Form_Binds_Validates_And_Renders_In_One_Request(string field, string value, bool valid)
+    {
+        var model = new PaymentMethodsDashboardWidgetSettings();
+        var configuration = new PartialViewWidget("Configuration", model);
+        var widget = new Mock<IDashboardWidget>();
+        widget.SetupGet(x => x.Descriptor).Returns(new DashboardWidgetDescriptor("test-widget", "Test")
+        {
+            DefaultSize = new DashboardWidgetSize(4, 1),
+            MinSize = new DashboardWidgetSize(1, 1),
+            MaxSize = new DashboardWidgetSize(12),
+            Policy = new DashboardWidgetPolicy { AllowConfigure = true }
+        });
+        widget.Setup(x => x.IsAvailableAsync(It.IsAny<DashboardWidgetContext>(), It.IsAny<CancellationToken>())).ReturnsAsync(true);
+        widget.Setup(x => x.CreateConfigurationWidgetAsync(It.IsAny<DashboardWidgetContext>(), It.IsAny<DashboardWidgetInstance>()))
+            .ReturnsAsync(configuration);
+        var instance = new DashboardWidgetInstance("instance", "test-widget")
+        {
+            Policy = new DashboardWidgetPolicy { AllowConfigure = true },
+            Positions = [new DashboardWidgetPosition { Size = new DashboardWidgetSize(4, 1) }]
+        };
+        var layout = new DashboardLayout(AdminDashboardLayoutProvider.Id) { Widgets = [instance] };
+        Mock<IDashboardService> dashboard = null;
+        var controller = CreateController(true, false, DashboardLayoutLayer.User, service =>
+        {
+            dashboard = service;
+            service.Setup(x => x.GetWidget("test-widget")).Returns(widget.Object);
+            service.Setup(x => x.GetLayoutStateAsync(layout.Id, It.IsAny<Customer>(), DashboardLayoutLayer.User, false, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(new DashboardLayoutState { Layout = layout, Layer = DashboardLayoutLayer.User, Source = DashboardLayoutLayer.User });
+            service.Setup(x => x.PrepareWidgetAsync(It.IsAny<DashboardLayout>(), "instance", It.IsAny<Customer>(), false,
+                It.IsAny<IReadOnlyDictionary<string, string>>(), It.IsAny<CancellationToken>()))
+                .Returns((DashboardLayout draft, string id, Customer customer, bool refresh, IReadOnlyDictionary<string, string> parameters, CancellationToken token) =>
+                    ValueTask.FromResult(new DashboardRenderItem
+                    {
+                        Instance = draft.Widgets.Single(), Descriptor = widget.Object.Descriptor,
+                        Policy = widget.Object.Descriptor.Policy, Widget = new HtmlWidget("<div>Updated widget</div>")
+                    }));
+        });
+        var invoker = new Mock<IWidgetInvoker<PartialViewWidget>>();
+        invoker.Setup(x => x.InvokeAsync(It.IsAny<WidgetContext>(), It.IsAny<PartialViewWidget>()))
+            .ReturnsAsync(new HtmlString("<div>Updated widget</div>"));
+        var services = new ServiceCollection();
+        services.AddLogging();
+        services.AddMvcCore(options => options.ModelBinderProviders.Insert(0, new InvariantFloatingPointTypeModelBinderProvider())).AddDataAnnotations();
+        services.AddFluentValidationAutoValidation();
+        services.AddTransient<IValidator<PaymentMethodsDashboardWidgetSettings>, PaymentMethodsDashboardWidgetValidator>();
+        services.AddSingleton(invoker.Object);
+        using var provider = services.BuildServiceProvider();
+        controller.HttpContext.RequestServices = provider;
+        controller.TempData = new TempDataDictionary(controller.HttpContext, Mock.Of<ITempDataProvider>());
+        controller.ControllerContext.ValueProviderFactories.Add(new FormValueProviderFactory());
+        var fields = new Dictionary<string, StringValues>
+        {
+            ["Count"] = "7",
+            ["Fees[Payments.Example].Value"] = "2.75",
+            ["Fees[Payments.Example].Unit"] = "%"
+        };
+        fields[field] = value;
+        controller.Request.ContentType = "application/x-www-form-urlencoded";
+        controller.Request.Form = new FormCollection(fields);
+        var parameters = new Dictionary<string, string> { ["period"] = "30" };
+
+        var changes = new DashboardLayoutChanges([new(instance.Id, instance.WidgetSystemName, instance.Positions, instance.Settings)]);
+        var result = await controller.DashboardConfigure(
+            "instance", "test-widget", DashboardLayoutLayer.User, JsonSerializer.Serialize(changes, SmartJsonOptions.CamelCased),
+            apply: true, parameters: parameters);
+
+        if (valid)
+        {
+            var json = (JsonResult)result;
+            var settings = (JsonObject)json.Value.GetType().GetProperty("settings").GetValue(json.Value);
+            Assert.That(settings["count"].GetValue<int>(), Is.EqualTo(field == "Count" ? 3 : 7));
+            Assert.That(settings["fees"]["Payments.Example"]["value"].GetValue<decimal>(), Is.EqualTo(2.75m));
+            Assert.That(json.Value.GetType().GetProperty("html").GetValue(json.Value), Is.EqualTo("<div>Updated widget</div>"));
+            Assert.That(controller.ModelState, Is.Empty);
+            dashboard.Verify(x => x.PrepareWidgetAsync(layout, "instance", It.IsAny<Customer>(), false, parameters,
+                It.IsAny<CancellationToken>()), Times.Once);
+            invoker.Verify(x => x.InvokeAsync(It.IsAny<WidgetContext>(),
+                It.Is<PartialViewWidget>(v => v.ViewName == "_DashboardWidget" && v.Model is DashboardRenderItem)), Times.Once);
+        }
+        else
+        {
+            Assert.That(((PartialViewResult)result).Model, Is.SameAs(configuration));
+            Assert.That(controller.ModelState[field].Errors, Is.Not.Empty);
+            Assert.That(controller.ModelState[field].AttemptedValue, Is.EqualTo(value));
+            Assert.That(layout.Widgets.Single().Settings.ToJsonString(), Is.EqualTo(instance.Settings.ToJsonString()));
+            dashboard.Verify(x => x.PrepareWidgetAsync(It.IsAny<DashboardLayout>(), It.IsAny<string>(), It.IsAny<Customer>(),
+                It.IsAny<bool>(), It.IsAny<IReadOnlyDictionary<string, string>>(), It.IsAny<CancellationToken>()), Times.Never);
+            invoker.Verify(x => x.InvokeAsync(It.IsAny<WidgetContext>(), It.IsAny<PartialViewWidget>()), Times.Never);
+        }
         dashboard.Verify(x => x.SaveLayoutAsync(It.IsAny<DashboardLayout>(), It.IsAny<Customer>(), It.IsAny<DashboardLayoutLayer>(),
             It.IsAny<bool>(), It.IsAny<CancellationToken>()), Times.Never);
     }

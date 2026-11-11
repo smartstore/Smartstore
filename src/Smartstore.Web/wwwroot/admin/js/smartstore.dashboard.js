@@ -780,6 +780,7 @@
 
             button.disabled = true;
             save.disabled = true;
+            $(back).data('validator')?.destroy();
             back.querySelector('.card-body').replaceChildren();
             flipConfiguration(el, true);
             $.ajax({
@@ -795,6 +796,8 @@
             }).done(html => {
                 $(back).children('.card-body').html(html);
                 initializeEditControls(back);
+                reinitFormValidator(back);
+                $(back).off('submit.validate');
                 save.disabled = false;
                 if (el.classList.contains('dashboard-configuring')) back.querySelector('input')?.focus();
             }).fail(() => {
@@ -814,39 +817,50 @@
         });
         $(container).on('submit', '.dashboard-widget-config', function (event) {
             event.preventDefault();
-            const invalidPane = this.querySelector(':invalid')?.closest('.tab-pane');
-            if (invalidPane) {
-                $(this).find('[data-toggle="tab"]').filter(function () {
-                    return this.getAttribute('href') === '#' + invalidPane.id;
-                }).tab('show');
+            if (previewing) return;
+            const $form = $(this);
+            if (!$form.valid()) {
+                const invalidPane = this.querySelector('.is-invalid, .input-validation-error')?.closest('.tab-pane');
+                if (invalidPane) {
+                    $form.find('[data-toggle="tab"]').filter(function () {
+                        return this.getAttribute('href') === '#' + invalidPane.id;
+                    }).tab('show');
+                }
+                return;
             }
-            if (previewing || !this.reportValidity()) return;
+
             const el = this.closest('[data-instance-id]');
             const widget = widgetsById.get(el.dataset.instanceId);
             const before = capture();
-            const settings = { ...widget.settings };
-            this.querySelectorAll('[data-dashboard-setting]').forEach(input => {
-                if (input.type === 'radio' && !input.checked) return;
-                if (input.type === 'number' && input.value === '') {
-                    delete settings[input.dataset.dashboardSetting];
-                }
-                else {
-                    settings[input.dataset.dashboardSetting] = input.type === 'checkbox' ? input.checked
-                        : input.dataset.valueType === 'boolean' ? input.value === 'true'
-                        : input.type === 'number' ? input.valueAsNumber : input.value;
-                }
+            const data = $form.serialize() + '&' + $.param({
+                apply: true,
+                instanceId: widget.id,
+                changesJson: JSON.stringify({ widgets: layout.widgets.map(
+                    ({ id, widgetSystemName, positions, settings }) => ({ id, widgetSystemName, positions, settings })) }),
+                layer: config.layer,
+                reset: false
             });
-            $(this).find('[data-dashboard-settings]').trigger('dashboard:collectsettings', [settings]);
             previewing = true;
             root.inert = true;
-            const draft = structuredClone(layout);
-            draft.widgets.find(item => item.id === widget.id).settings = settings;
-            Smartstore.Admin.Dashboard.loadWidget(el, false, {}, {
-                changesJson: JSON.stringify({ widgets: draft.widgets.map(
-                    ({ id, widgetSystemName, positions, settings }) => ({ id, widgetSystemName, positions, settings })) }), layer: config.layer, reset: false
-            }).done(() => {
+            Smartstore.Admin.Dashboard.loadWidget(el, false, {}, data).done(response => {
                 root.inert = false;
-                widget.settings = settings;
+                if (typeof response === 'string') {
+                    $form.data('validator')?.destroy();
+                    $form.children('.card-body').html(response);
+                    initializeEditControls($form);
+                    reinitFormValidator($form);
+                    $form.off('submit.validate');
+                    const invalidPane = this.querySelector('.is-invalid, .input-validation-error')?.closest('.tab-pane');
+                    if (invalidPane) {
+                        $form.find('[data-toggle="tab"]').filter(function () {
+                            return this.getAttribute('href') === '#' + invalidPane.id;
+                        }).tab('show');
+                    }
+                    this.querySelector('.is-invalid, .input-validation-error')?.focus();
+                    return;
+                }
+
+                widget.settings = response.settings;
                 remember(before);
                 flipConfiguration(el, false);
             }).always(() => {

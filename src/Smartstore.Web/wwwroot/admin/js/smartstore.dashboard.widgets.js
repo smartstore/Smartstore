@@ -4,18 +4,19 @@
 
     Smartstore.Admin = Smartstore.Admin || {};
     Smartstore.Admin.Dashboard = {
-        loadWidget: function (element, refresh = false, parameters = {}, draft = null) {
+        loadWidget: function (element, refresh = false, parameters = {}, configuration = null) {
             const widget = $(element).closest('.dashboard-widget')[0];
             if (!widget || !widget.isConnected) return;
             if (pending.has(widget)) {
                 const current = pending.get(widget);
-                return draft ? current.then(
-                    () => this.loadWidget(element, refresh, parameters, draft),
-                    () => this.loadWidget(element, refresh, parameters, draft)) : current;
+                return configuration ? current.then(
+                    () => this.loadWidget(element, refresh, parameters, configuration),
+                    () => this.loadWidget(element, refresh, parameters, configuration)) : current;
             }
 
             const $widget = $(widget);
             const $grid = $widget.closest('[data-dashboard-load-url]');
+            const $configuration = $widget.find('.dashboard-widget-config');
             const $content = $widget.find('.dashboard-widget-content').first();
             const $buttons = $widget.find('.dashboard-refresh');
             // Widget-specific controls contribute only transient display parameters.
@@ -23,27 +24,33 @@
             const selectedTab = $content.find('[data-toggle="tab"].active').attr('href');
             const periods = $content.find('input[data-period]');
             const selectedPeriod = periods.index(periods.filter(':checked'));
-            const $controls = (draft ? $widget : $content).find('input, select, button').filter(':enabled');
+            const $controls = (configuration ? $widget : $content).find('input, select, button').filter(':enabled');
             $widget.attr('aria-busy', 'true');
             $controls.prop('disabled', true);
             $buttons.prop('disabled', true);
 
-            const throbber = draft ? null : $widget.children('.dashboard-widget-body')
+            const throbber = configuration ? null : $widget.children('.dashboard-widget-body')
                 .throbber({ white: true, small: true, message: '', show: false, speed: 0 }).data('throbber');
             throbber?.show();
             const startedAt = performance.now();
 
             const completion = $.Deferred();
             let succeeded = false;
+            let response;
             const request = $.ajax({
-                url: $grid.attr('data-dashboard-load-url'),
+                url: configuration ? $configuration.attr('data-configuration-url') : $grid.attr('data-dashboard-load-url'),
                 type: 'POST',
-                dataType: 'html',
-                data: { instanceId: $widget.attr('data-instance-id'), refresh, parameters: values, ...draft }
+                data: configuration
+                    ? configuration + '&' + $.param({ parameters: values })
+                    : { instanceId: $widget.attr('data-instance-id'), refresh, parameters: values }
             });
             pending.set(widget, completion.promise());
-            request.done(function (html) {
+            request.done(function (result) {
                 succeeded = true;
+                response = result;
+                // Validation returns the configuration form without replacing the current widget.
+                if (configuration && typeof result === 'string') return;
+                const html = configuration ? result.html : result;
                 if (!widget.isConnected) return;
                 $widget.data('dashboardParameters', values);
                 $widget.triggerHandler('dashboard:unloading');
@@ -69,7 +76,7 @@
                 });
             }).fail(function () {
                 if (!widget.isConnected) return;
-                displayNotification(window.Res.Dashboard.refreshFailed, 'error');
+                displayNotification(configuration ? window.Res.Dashboard.invalid : window.Res.Dashboard.refreshFailed, 'error');
             }).always(function () {
                 // Keep even fast refreshes visible without delaying the data request or rendering.
                 window.setTimeout(function () {
@@ -78,9 +85,9 @@
                     $widget.removeAttr('aria-busy');
                     $buttons.prop('disabled', false);
                     $controls.prop('disabled', false);
-                    if (succeeded) completion.resolve();
+                    if (succeeded) completion.resolve(response);
                     else completion.reject(request);
-                }, draft ? 0 : Math.max(0, 400 - (performance.now() - startedAt)));
+                }, configuration ? 0 : Math.max(0, 400 - (performance.now() - startedAt)));
             });
             return completion.promise();
         }

@@ -3,7 +3,9 @@ using Smartstore.Admin.Infrastructure.Dashboard;
 using Smartstore.Admin.Models.Dashboard;
 using Smartstore.Core.Security;
 using Smartstore.Core.Web;
+using Smartstore.Core.Widgets;
 using Smartstore.Core.Widgets.Dashboard;
+using Smartstore.Json;
 using Smartstore.Engine.Modularity;
 
 namespace Smartstore.Admin.Controllers;
@@ -33,14 +35,16 @@ public class HomeController : AdminController
 
     #region Dashboard
 
-    /// <summary>Renders the configuration surface for an authorized widget in the current draft.</summary>
+    /// <summary>Renders or applies the configuration of an authorized widget in the current draft.</summary>
     [HttpPost, ValidateAntiForgeryToken, Permission(Permissions.Dashboard.Read), RequestSizeLimit(262144)]
     public async Task<IActionResult> DashboardConfigure(
         string instanceId,
         string widgetSystemName,
         DashboardLayoutLayer layer,
         string changesJson,
-        bool reset = false)
+        bool reset = false,
+        bool apply = false,
+        Dictionary<string, string> parameters = null)
     {
         if (!ModelState.IsValid || !instanceId.HasValue() || !widgetSystemName.HasValue())
         {
@@ -77,6 +81,37 @@ public class HomeController : AdminController
             if (configuration == null)
             {
                 return NotFound();
+            }
+
+            if (apply)
+            {
+                if (configuration is not PartialViewWidget { Model: not null } partial)
+                {
+                    return BadRequest();
+                }
+
+                var model = partial.Model;
+                if (!await TryUpdateModelAsync(model, model.GetType(), prefix: ""))
+                {
+                    return PartialView("_DashboardConfiguration", configuration);
+                }
+
+                var settings = JsonSerializer.SerializeToNode(model, model.GetType(), SmartJsonOptions.CamelCased).AsObject();
+                state.Layout.Widgets[state.Layout.Widgets.IndexOf(instance)] = instance with { Settings = settings };
+                ModelState.Clear();
+
+                var item = await _dashboardService.PrepareWidgetAsync(
+                    state.Layout, instanceId, customer, parameters: parameters, cancelToken: HttpContext.RequestAborted);
+                if (item == null)
+                {
+                    return NotFound();
+                }
+
+                return Json(new
+                {
+                    settings = item.Instance.Settings,
+                    html = await InvokePartialViewAsync("_DashboardWidget", item)
+                });
             }
 
             return PartialView("_DashboardConfiguration", configuration);

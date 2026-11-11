@@ -9,14 +9,14 @@
     var providers = (SelectListItem[])ViewBag.PaymentProviders;
 }
 
-<tabstrip id="dashboard-paymentmethods-configuration" sm-nav-style="Material" data-dashboard-settings>
+<tabstrip id="dashboard-paymentmethods-configuration" sm-nav-style="Material">
     <tab sm-title="@T(resourceKey + "DisplaySettings")" sm-selected="true">
         <div class="form-group form-row">
             <div class="col-6">
                 <smart-label class="col-form-label col-form-label-sm" asp-for="Count" />
             </div>
             <div class="col-6">
-                <input sm-control-size="Small" asp-for="Count" type="number" sm-numberinput-group-class="overflow-visible" data-dashboard-setting="count" min="1" max="50" step="1" placeholder="10" required />
+                <input sm-control-size="Small" asp-for="Count" type="number" sm-numberinput-group-class="overflow-visible" min="1" max="50" step="1" placeholder="10" required />
                 <span asp-validation-for="Count"></span>
             </div>
         </div>
@@ -32,8 +32,7 @@
                 <div class="col-6">
                     <smart-label class="col-form-label col-form-label-sm" asp-for="Fees[systemName]" sm-text="@provider.Text" />
                 </div>
-                <div class="col-6" data-dashboard-payment-fee
-                     data-provider="@systemName">
+                <div class="col-6">
                     <editor asp-for="Fees[systemName]"
                             asp-additional-viewdata='new { units = new[] { currencyCode, "%" }, min = 0, max = 1000000, placeholder = "0" }'
                             required="required" />
@@ -46,21 +45,3 @@
         <p sm-if="providers.Length == 0" class="text-muted">@T("Admin.DataGrid.NoData")</p>
     </tab>
 </tabstrip>
-
-<script>
-    $(function () {
-        $('#dashboard-paymentmethods-configuration').on('dashboard:collectsettings', function (event, settings) {
-            settings.fees = { ...settings.fees };
-            this.querySelectorAll('[data-dashboard-payment-fee]').forEach(editor => {
-                const value = editor.querySelector('[data-numberinput-value]');
-                const unit = editor.querySelector('[data-numberinput-unit]');
-                if (value.value === '') {
-                    delete settings.fees[editor.dataset.provider];
-                }
-                else {
-                    settings.fees[editor.dataset.provider] = { value: value.valueAsNumber, unit: unit.value };
-                }
-            });
-        });
-    });
-</script>
