@@ -653,8 +653,7 @@ public class ShoppingCartController : PublicController
             Quantity = cartItem.Item.Quantity,
             BundleItem = cartItem.Item.BundleItem,
             ChildItems = cartItem.ChildItems.Select(x => x.Item).ToList(),
-            AutomaticallyAddRequiredProducts = cartType == ShoppingCartType.Wishlist
-                && cartItem.Item.Product.RequireOtherProducts
+            AutomaticallyAddRequiredProducts = cartItem.Item.Product.RequireOtherProducts
                 && cartItem.Item.Product.AutomaticallyAddRequiredProducts
         };
 
