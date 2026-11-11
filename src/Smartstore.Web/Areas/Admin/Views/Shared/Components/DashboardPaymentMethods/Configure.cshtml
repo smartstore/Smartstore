@@ -1,9 +1,12 @@
 @using Smartstore.Admin.Infrastructure.Dashboard
-@model Smartstore.Admin.Models.Dashboard.DashboardPaymentMethodsConfigurationModel
+@using Microsoft.AspNetCore.Mvc.Rendering
+@model PaymentMethodsDashboardWidgetSettings
 
 @{
     ViewData["size"] = "sm";
     var resourceKey = "Admin.Dashboard.PaymentMethods.";
+    var currencyCode = CommonServices.CurrencyService.PrimaryCurrency.CurrencyCode;
+    var providers = (SelectListItem[])ViewBag.PaymentProviders;
 }
 
 <tabstrip id="dashboard-paymentmethods-configuration" sm-nav-style="Material" data-dashboard-settings>
@@ -21,40 +24,42 @@
     <tab sm-title="@T(resourceKey + "FeeSettings")">
         <p class="text-muted">@T(resourceKey + "FeeNotice")</p>
 
-        @for (var i = 0; i < Model.PaymentMethods.Count; i++)
+        @foreach (var provider in providers)
         {
+            var systemName = provider.Value;
+            Model.Fees.TryAdd(systemName, new Amount { Value = 0, Unit = "%" });
             <div class="form-group form-row">
                 <div class="col-6">
-                    <smart-label class="col-form-label col-form-label-sm" asp-for="PaymentMethods[i].FeeValue" sm-text="@Model.PaymentMethods[i].Name" />
+                    <smart-label class="col-form-label col-form-label-sm" asp-for="Fees[systemName]" sm-text="@provider.Text" />
                 </div>
                 <div class="col-6" data-dashboard-payment-fee
-                     data-fee-value-setting="@(PaymentMethodsDashboardWidget.FeeValuePrefix + Model.PaymentMethods[i].SystemName)"
-                     data-fee-percentage-setting="@(PaymentMethodsDashboardWidget.FeeIsPercentagePrefix + Model.PaymentMethods[i].SystemName)">
-                    <editor asp-for="PaymentMethods[i].FeeValue"
-                            asp-additional-viewdata='new { units = new[] { Model.CurrencyCode, "%" }, min = 0, max = 1000000, placeholder = "0" }'
+                     data-provider="@systemName">
+                    <editor asp-for="Fees[systemName]"
+                            asp-additional-viewdata='new { units = new[] { currencyCode, "%" }, min = 0, max = 1000000, placeholder = "0" }'
                             required="required" />
-                    <span asp-validation-for="PaymentMethods[i].FeeValue.Value"></span>
+                    <span asp-validation-for="Fees[systemName].Value"></span>
+                    <span asp-validation-for="Fees[systemName].Unit"></span>
                 </div>
             </div>
         }
 
-        <p sm-if="Model.PaymentMethods.Count == 0" class="text-muted">@T("Admin.DataGrid.NoData")</p>
+        <p sm-if="providers.Length == 0" class="text-muted">@T("Admin.DataGrid.NoData")</p>
     </tab>
 </tabstrip>
 
 <script>
     $(function () {
         $('#dashboard-paymentmethods-configuration').on('dashboard:collectsettings', function (event, settings) {
+            settings.fees = { ...settings.fees };
             this.querySelectorAll('[data-dashboard-payment-fee]').forEach(editor => {
                 const value = editor.querySelector('[data-numberinput-value]');
                 const unit = editor.querySelector('[data-numberinput-unit]');
                 if (value.value === '') {
-                    delete settings[editor.dataset.feeValueSetting];
+                    delete settings.fees[editor.dataset.provider];
                 }
                 else {
-                    settings[editor.dataset.feeValueSetting] = value.valueAsNumber;
+                    settings.fees[editor.dataset.provider] = { value: value.valueAsNumber, unit: unit.value };
                 }
-                settings[editor.dataset.feePercentageSetting] = unit.value === '%';
             });
         });
     });

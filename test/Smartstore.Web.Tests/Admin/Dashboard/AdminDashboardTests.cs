@@ -158,7 +158,7 @@ public sealed class AdminDashboardTests
             (new IncompleteOrdersDashboardWidget(permissions.Object), Smartstore.Core.Security.Permissions.Dashboard.Widgets.Sales.IncompleteOrders),
             (new OrdersDashboardWidget(permissions.Object), Smartstore.Core.Security.Permissions.Dashboard.Widgets.Sales.Orders),
             (new LatestOrdersDashboardWidget(permissions.Object, new LatestOrdersDashboardWidgetValidator()), Smartstore.Core.Security.Permissions.Dashboard.Widgets.Sales.LatestOrders),
-            (new PaymentMethodsDashboardWidget(permissions.Object, new PaymentMethodsDashboardWidgetValidator()), Smartstore.Core.Security.Permissions.Dashboard.Widgets.Sales.PaymentMethods),
+            (new PaymentMethodsDashboardWidget(permissions.Object, new PaymentMethodsDashboardWidgetValidator(), null, null, null), Smartstore.Core.Security.Permissions.Dashboard.Widgets.Sales.PaymentMethods),
             (new CookieConsentsDashboardWidget(permissions.Object), Smartstore.Core.Security.Permissions.Dashboard.Widgets.Customers.CookieConsents),
             (new ContactRequestsDashboardWidget(permissions.Object, new ContactRequestsDashboardWidgetValidator()), Smartstore.Core.Security.Permissions.Dashboard.Widgets.Customers.ContactRequests),
             (new TopCustomersDashboardWidget(permissions.Object, new TopCustomersDashboardWidgetValidator()), Smartstore.Core.Security.Permissions.Dashboard.Widgets.Customers.TopCustomers),

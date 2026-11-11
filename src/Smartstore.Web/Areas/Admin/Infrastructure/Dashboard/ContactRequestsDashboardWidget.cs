@@ -41,8 +41,8 @@ public sealed class ContactRequestsDashboardWidget(
     public override DashboardWidgetDescriptor Descriptor => _descriptor;
 
     /// <inheritdoc />
-    public override Widget CreateConfigurationWidget(DashboardWidgetContext context, DashboardWidgetInstance instance)
-        => new PartialViewWidget("Components/DashboardContactRequests/Configure", LoadSettings(instance.Settings));
+    public override Task<Widget> CreateConfigurationWidgetAsync(DashboardWidgetContext context, DashboardWidgetInstance instance)
+        => Task.FromResult<Widget>(new PartialViewWidget("Components/DashboardContactRequests/Configure", LoadSettings(instance.Settings)));
 
     /// <inheritdoc />
     protected override object GetWidgetArguments(DashboardWidgetContext context, DashboardWidgetInstance instance, ContactRequestsDashboardWidgetSettings settings)

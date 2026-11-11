@@ -1,11 +1,16 @@
 using System.Text.Json.Nodes;
 using FluentValidation;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Smartstore.Admin.Components;
+using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Security;
+using Smartstore.Core.Web;
 using Smartstore.Core.Widgets;
 using Smartstore.Core.Widgets.Dashboard;
 using Smartstore.Engine.Modularity;
+using Smartstore.Web.Modelling;
+using Smartstore.Web.Models;
 
 namespace Smartstore.Admin.Infrastructure.Dashboard;
 
@@ -15,7 +20,10 @@ namespace Smartstore.Admin.Infrastructure.Dashboard;
 [SystemName(SystemName)]
 public sealed class PaymentMethodsDashboardWidget(
     IPermissionService permissions,
-    IValidator<PaymentMethodsDashboardWidgetSettings> validator) : DashboardViewComponentWidget<DashboardPaymentMethodsViewComponent, PaymentMethodsDashboardWidgetSettings>(
+    IValidator<PaymentMethodsDashboardWidgetSettings> validator,
+    IPaymentService paymentService,
+    ModuleManager moduleManager,
+    IViewDataAccessor viewDataAccessor) : DashboardViewComponentWidget<DashboardPaymentMethodsViewComponent, PaymentMethodsDashboardWidgetSettings>(
         permissions,
         DashboardPaymentMethodsViewComponent.RequiredPermission,
         validator)
@@ -24,12 +32,6 @@ public sealed class PaymentMethodsDashboardWidget(
     /// Identifies the payment methods dashboard widget type.
     /// </summary>
     public const string SystemName = "Smartstore.Admin.Dashboard.PaymentMethods";
-
-    /// <summary>Prefixes the per-provider fee values.</summary>
-    public const string FeeValuePrefix = "feeValue.";
-
-    /// <summary>Prefixes the Boolean indicating percentage fees.</summary>
-    public const string FeeIsPercentagePrefix = "feeIsPercentage.";
 
     private static readonly DashboardWidgetDescriptor _descriptor = new(SystemName, ResolvableText.Resource("Admin.Dashboard.PaymentMethods"))
     {
@@ -54,64 +56,39 @@ public sealed class PaymentMethodsDashboardWidget(
     protected override object GetWidgetArguments(DashboardWidgetContext context, DashboardWidgetInstance instance, PaymentMethodsDashboardWidgetSettings settings)
         => new
         {
-            feeValues = settings.FeeValues,
-            feeIsPercentage = settings.FeeIsPercentage,
+            fees = settings.Fees,
             count = settings.Count,
             refresh = context.Refresh
         };
 
     /// <inheritdoc />
-    public override Widget CreateConfigurationWidget(DashboardWidgetContext context, DashboardWidgetInstance instance)
+    public override async Task<Widget> CreateConfigurationWidgetAsync(DashboardWidgetContext context, DashboardWidgetInstance instance)
     {
-        var settings = LoadSettings(instance.Settings);
-        return new ComponentWidget<DashboardPaymentMethodsViewComponent>(new
-        {
-            feeValues = settings.FeeValues,
-            feeIsPercentage = settings.FeeIsPercentage,
-            configure = true,
-            count = settings.Count
-        });
-    }
-
-    /// <inheritdoc />
-    protected override PaymentMethodsDashboardWidgetSettings LoadSettings(JsonObject settings)
-    {
-        // Form field names use provider-prefixed keys; deserialize their values through the shared settings loader.
-        var values = new JsonObject();
-        var modes = new JsonObject();
-        foreach (var setting in settings)
-        {
-            if (setting.Key.StartsWith(FeeValuePrefix, StringComparison.Ordinal))
+        var providers = await paymentService.LoadAllPaymentProvidersAsync(onlyEnabled: true);
+        viewDataAccessor.ViewData["PaymentProviders"] = providers
+            .Select(x => new SelectListItem
             {
-                values[setting.Key[FeeValuePrefix.Length..]] = setting.Value?.DeepClone();
-            }
-            else if (setting.Key.StartsWith(FeeIsPercentagePrefix, StringComparison.Ordinal))
-            {
-                modes[setting.Key[FeeIsPercentagePrefix.Length..]] = setting.Value?.DeepClone();
-            }
-        }
+                Value = x.Metadata.SystemName,
+                Text = moduleManager.GetLocalizedFriendlyName(x.Metadata)
+            })
+            .OrderBy(x => x.Text, StringComparer.CurrentCultureIgnoreCase)
+            .ThenBy(x => x.Value, StringComparer.Ordinal)
+            .ToArray();
 
-        var data = new JsonObject { ["feeValues"] = values, ["feeIsPercentage"] = modes };
-        if (settings.ContainsKey("count"))
-        {
-            data["count"] = settings["count"]?.DeepClone();
-        }
-
-        return base.LoadSettings(data);
+        return new PartialViewWidget("Components/DashboardPaymentMethods/Configure", LoadSettings(instance.Settings));
     }
 }
 
 /// <summary>Contains the settings of the PaymentMethods dashboard widget.</summary>
+[LocalizedDisplay("Admin.Dashboard.PaymentMethods.")]
 public class PaymentMethodsDashboardWidgetSettings
 {
     /// <summary>Gets or sets the maximum number of items to display.</summary>
+    [LocalizedDisplay("Admin.Dashboard.Widget.Count")]
     public int Count { get; set; } = 10;
 
-    /// <summary>Gets or sets the fee amount for each payment provider.</summary>
-    public Dictionary<string, decimal> FeeValues { get; set; } = new(StringComparer.Ordinal);
-
-    /// <summary>Gets or sets whether a provider's fee is a percentage.</summary>
-    public Dictionary<string, bool> FeeIsPercentage { get; set; } = new(StringComparer.Ordinal);
+    /// <summary>Gets or sets the fee amount and unit for each payment provider.</summary>
+    public Dictionary<string, Amount> Fees { get; set; } = new(StringComparer.Ordinal);
 }
 
 /// <summary>Validates settings of the PaymentMethods dashboard widget.</summary>
@@ -122,13 +99,28 @@ public class PaymentMethodsDashboardWidgetValidator : AbstractValidator<PaymentM
         RuleFor(x => x.Count).InclusiveBetween(1, 50)
             .WithMessage("The number of payment methods must be between 1 and 50.");
 
-        RuleForEach(x => x.FeeIsPercentage).Must(fee => fee.Key.HasValue())
-            .WithMessage("A payment provider is required for each fee mode.");
-
-        RuleForEach(x => x.FeeValues).Must((settings, fee) =>
+        RuleFor(x => x.Fees).NotNull();
+        RuleFor(x => x.Fees).Custom((fees, context) =>
         {
-            var percentage = !settings.FeeIsPercentage.TryGetValue(fee.Key, out var mode) || mode;
-            return fee.Key.HasValue() && fee.Value >= 0 && fee.Value <= (percentage ? 100 : 1000000);
-        }).WithMessage("Invalid payment fee value.");
+            if (fees == null)
+            {
+                return;
+            }
+
+            foreach (var fee in fees)
+            {
+                var field = $"Fees[{fee.Key}]";
+                if (!fee.Key.HasValue() || fee.Value == null ||
+                    fee.Value.Value < 0 || fee.Value.Value > (fee.Value.IsPercentage() ? 100 : 1000000))
+                {
+                    context.AddFailure(field + ".Value", "Invalid payment fee value.");
+                }
+
+                if (fee.Value != null && !fee.Value.Unit.HasValue())
+                {
+                    context.AddFailure(field + ".Unit", "A payment fee unit is required.");
+                }
+            }
+        });
     }
 }

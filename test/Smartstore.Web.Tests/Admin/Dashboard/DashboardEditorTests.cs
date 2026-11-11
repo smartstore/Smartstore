@@ -15,6 +15,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc.ViewEngines;
 using Microsoft.AspNetCore.Mvc.ViewComponents;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Smartstore.Core.Widgets;
 using System.Collections.Generic;
 using System.Linq;
@@ -41,6 +43,7 @@ using Smartstore.Core.Web;
 using Smartstore.Core.Widgets.Dashboard;
 using Smartstore.Core;
 using Smartstore.Json;
+using Smartstore.Web.Models;
 
 namespace Smartstore.Web.Tests.Admin.Dashboard;
 
@@ -69,8 +72,8 @@ public class HomeControllerDashboardTests
         widget.Setup(x => x.IsAvailableAsync(It.IsAny<DashboardWidgetContext>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(available);
         var configuration = new PartialViewWidget("Configuration");
-        widget.Setup(x => x.CreateConfigurationWidget(It.IsAny<DashboardWidgetContext>(), It.IsAny<DashboardWidgetInstance>()))
-            .Returns(configuration);
+        widget.Setup(x => x.CreateConfigurationWidgetAsync(It.IsAny<DashboardWidgetContext>(), It.IsAny<DashboardWidgetInstance>()))
+            .ReturnsAsync(configuration);
         var layout = new DashboardLayout(AdminDashboardLayoutProvider.Id)
         {
             Widgets = [new DashboardWidgetInstance("instance", descriptor.SystemName)
@@ -97,7 +100,7 @@ public class HomeControllerDashboardTests
         else
         {
             Assert.That(result, Is.TypeOf<ForbidResult>());
-            widget.Verify(x => x.CreateConfigurationWidget(It.IsAny<DashboardWidgetContext>(), It.IsAny<DashboardWidgetInstance>()), Times.Never);
+            widget.Verify(x => x.CreateConfigurationWidgetAsync(It.IsAny<DashboardWidgetContext>(), It.IsAny<DashboardWidgetInstance>()), Times.Never);
         }
 
         dashboard.Verify(x => x.SaveLayoutAsync(It.IsAny<DashboardLayout>(), It.IsAny<Customer>(), It.IsAny<DashboardLayoutLayer>(),
@@ -951,7 +954,7 @@ public class WidgetCountConfigurationTests(Type widgetType)
         var render = (ComponentWidget)widget.CreateWidget(context, loaded);
         Assert.That(render.Arguments.GetType().GetProperty("count").GetValue(render.Arguments), Is.EqualTo(expected));
         Assert.That(loaded.Policy.AllowConfigure, Is.True);
-        var configuration = (PartialViewWidget)widget.CreateConfigurationWidget(context, loaded);
+        var configuration = (PartialViewWidget)await widget.CreateConfigurationWidgetAsync(context, loaded);
         var widgetName = widgetType.Name.Replace("DashboardWidget", "");
         var settingsType = widgetType.Assembly.GetType(widgetType.FullName + "Settings");
         Assert.That(configuration.ViewName, Is.EqualTo($"Components/Dashboard{widgetName}/Configure"));
@@ -980,7 +983,7 @@ public class PaymentMethodsConfigurationTests
     [TestCase("100")]
     public async Task Decimal_Rates_Survive_Persistence_And_Reach_Both_Renderers(string rate)
     {
-        var widget = new PaymentMethodsDashboardWidget(Mock.Of<IPermissionService>(), new PaymentMethodsDashboardWidgetValidator());
+        var widget = CreatePaymentWidget();
         var instance = new DashboardWidgetInstance("payments", PaymentMethodsDashboardWidget.SystemName)
         {
             Policy = new() { AllowConfigure = true },
@@ -989,20 +992,23 @@ public class PaymentMethodsConfigurationTests
         var service = new Mock<IDashboardService>();
         service.Setup(x => x.GetWidget(PaymentMethodsDashboardWidget.SystemName)).Returns(widget);
         var layout = new DashboardLayout("test") { Widgets = [instance] };
-        var settings = JsonNode.Parse("{\"count\":3,\"feeValue.Payments.Example\":" + rate + "}").AsObject();
-        settings["feeIsPercentage.Payments.Example"] = true;
+        var settings = JsonNode.Parse("{\"count\":3,\"fees\":{\"Payments.Example\":{\"value\":" + rate + ",\"unit\":\"%\"}}}").AsObject();
         var changes = new DashboardLayoutChanges([new(instance.Id, instance.WidgetSystemName, instance.Positions, settings)]);
         layout = DashboardEditorMapper.ApplyChanges(DashboardEditorMapper.ReadChanges(JsonSerializer.Serialize(changes, SmartJsonOptions.CamelCased)), layout, service.Object);
         var loaded = JsonSerializer.Deserialize<DashboardLayout>(JsonSerializer.Serialize(layout, SmartJsonOptions.CamelCased), SmartJsonOptions.CamelCased).Widgets.Single();
         await widget.ValidateSettingsAsync(loaded.Settings);
         var context = new DashboardWidgetContext { DashboardId = "test" };
-        foreach (var rendered in new[] { widget.CreateWidget(context, loaded), widget.CreateConfigurationWidget(context, loaded) }.Cast<ComponentWidget>())
+        var rendered = (ComponentWidget)widget.CreateWidget(context, loaded);
+        Assert.That(rendered.Arguments.GetType().GetProperty("count").GetValue(rendered.Arguments), Is.EqualTo(3));
+        var fees = (IReadOnlyDictionary<string, Amount>)rendered.Arguments.GetType().GetProperty("fees").GetValue(rendered.Arguments);
+        var configuration = (PartialViewWidget)await widget.CreateConfigurationWidgetAsync(context, loaded);
+        var model = (PaymentMethodsDashboardWidgetSettings)configuration.Model;
+        Assert.That(configuration.ViewName, Is.EqualTo("Components/DashboardPaymentMethods/Configure"));
+        Assert.That(model.Count, Is.EqualTo(3));
+        foreach (var fee in new[] { fees["Payments.Example"], model.Fees["Payments.Example"] })
         {
-            Assert.That(rendered.Arguments.GetType().GetProperty("count").GetValue(rendered.Arguments), Is.EqualTo(3));
-            var modes = (IReadOnlyDictionary<string, bool>)rendered.Arguments.GetType().GetProperty("feeIsPercentage").GetValue(rendered.Arguments);
-            Assert.That(modes["Payments.Example"], Is.True);
-            var rates = (IReadOnlyDictionary<string, decimal>)rendered.Arguments.GetType().GetProperty("feeValues").GetValue(rendered.Arguments);
-            Assert.That(rates["Payments.Example"], Is.EqualTo(decimal.Parse(rate, System.Globalization.CultureInfo.InvariantCulture)));
+            Assert.That(fee.IsPercentage(), Is.True);
+            Assert.That(fee.Value, Is.EqualTo(decimal.Parse(rate, System.Globalization.CultureInfo.InvariantCulture)));
         }
     }
 
@@ -1013,15 +1019,15 @@ public class PaymentMethodsConfigurationTests
     [TestCase("true")]
     public void Invalid_Rates_Are_Rejected(string value)
     {
-        var widget = new PaymentMethodsDashboardWidget(Mock.Of<IPermissionService>(), new PaymentMethodsDashboardWidgetValidator());
-        var settings = JsonNode.Parse("{\"feeValue.Payments.Example\":" + value + "}").AsObject();
+        var widget = CreatePaymentWidget();
+        var settings = JsonNode.Parse("{\"fees\":{\"Payments.Example\":{\"value\":" + value + ",\"unit\":\"%\"}}}").AsObject();
         Assert.ThrowsAsync<ArgumentException>(async () => await widget.ValidateSettingsAsync(settings));
     }
 
     [Test]
     public async Task Fees_Use_Only_Paid_Visible_Nondeleted_Orders_And_Keep_Existing_Rankings()
     {
-        var model = (DashboardPaymentMethodsModel)await RenderAsync(false);
+        var model = (DashboardPaymentMethodsModel)await RenderAsync();
         var payment = model.PaymentMethods.Single(x => x.Name == "Zahlung");
         Assert.That(model.PaymentMethods.Any(x => x.Name.Contains("Disabled")), Is.False);
         Assert.Multiple(() =>
@@ -1034,14 +1040,38 @@ public class PaymentMethodsConfigurationTests
     }
 
     [Test]
-    public async Task Configuration_Uses_Only_Active_Providers_Sorted_By_Localized_Name()
+    public async Task Configuration_Uses_Settings_And_Prepares_Providers_In_ViewData()
     {
-        var model = (DashboardPaymentMethodsConfigurationModel)await RenderAsync(true);
-        Assert.That(model.PaymentMethods.Select(x => x.SystemName), Is.EqualTo(new[] { "Payments.Active", "Payments.Current" }));
-        var fee = model.PaymentMethods.Single(x => x.SystemName == "Payments.Current").FeeValue;
-        Assert.That(fee.Value, Is.EqualTo(2.75m));
-        Assert.That(fee.IsPercentage(), Is.True);
-        Assert.That(model.PaymentMethods.Single(x => x.SystemName == "Payments.Active").FeeValue.IsPercentage(), Is.True);
+        var payments = new Mock<IPaymentService>(MockBehavior.Strict);
+        payments.Setup(x => x.LoadAllPaymentProvidersAsync(true, 0)).ReturnsAsync(new[]
+        {
+            new Provider<IPaymentMethod>(new Lazy<IPaymentMethod, ProviderMetadata>(() => Mock.Of<IPaymentMethod>(),
+                new ProviderMetadata { SystemName = "Payments.B", FriendlyName = "Default", ResourceKeyPattern = "{0}.{1}" })),
+            new Provider<IPaymentMethod>(new Lazy<IPaymentMethod, ProviderMetadata>(() => Mock.Of<IPaymentMethod>(),
+                new ProviderMetadata { SystemName = "Payments.A", FriendlyName = "Default", ResourceKeyPattern = "{0}.{1}" })),
+            new Provider<IPaymentMethod>(new Lazy<IPaymentMethod, ProviderMetadata>(() => Mock.Of<IPaymentMethod>(),
+                new ProviderMetadata { SystemName = "Payments.C", FriendlyName = "Default", ResourceKeyPattern = "{0}.{1}" }))
+        });
+        var localization = new Mock<ILocalizationService>();
+        localization.Setup(x => x.GetResource(It.IsAny<string>(), 0, false, " ", true))
+            .Returns((string key, int languageId, bool log, string fallback, bool empty) => key.StartsWith("Payments.C") ? "Alpha" : "Zahlung");
+        var modules = new ModuleManager(null, null, null, localization.Object, null, null, null, null);
+        var viewData = new ViewDataDictionary(new EmptyModelMetadataProvider(), new ModelStateDictionary());
+        viewData.ModelState.AddModelError("Count", "Invalid count");
+        var accessor = Mock.Of<IViewDataAccessor>(x => x.ViewData == viewData);
+        var widget = CreatePaymentWidget(payments.Object, modules, accessor);
+        var instance = new DashboardWidgetInstance("payments", PaymentMethodsDashboardWidget.SystemName);
+
+        var configuration = (PartialViewWidget)await widget.CreateConfigurationWidgetAsync(new DashboardWidgetContext { DashboardId = "test" }, instance);
+
+        var model = (PaymentMethodsDashboardWidgetSettings)configuration.Model;
+        Assert.That(model.Count, Is.EqualTo(10));
+        Assert.That(model.Fees, Is.Empty);
+        var providers = (SelectListItem[])viewData["PaymentProviders"];
+        Assert.That(providers.Select(x => x.Value), Is.EqualTo(new[] { "Payments.C", "Payments.A", "Payments.B" }));
+        Assert.That(providers.Select(x => x.Text), Is.EqualTo(new[] { "Alpha", "Zahlung", "Zahlung" }));
+        Assert.That(viewData.ModelState["Count"].Errors.Single().ErrorMessage, Is.EqualTo("Invalid count"));
+        payments.Verify(x => x.LoadAllPaymentProvidersAsync(true, 0), Times.Once);
     }
 
     [TestCase("0")]
@@ -1050,18 +1080,16 @@ public class PaymentMethodsConfigurationTests
     [TestCase("null")]
     public void Invalid_Count_Is_Rejected(string value)
     {
-        var widget = new PaymentMethodsDashboardWidget(Mock.Of<IPermissionService>(), new PaymentMethodsDashboardWidgetValidator());
+        var widget = CreatePaymentWidget();
         Assert.ThrowsAsync<ArgumentException>(async () => await widget.ValidateSettingsAsync(JsonNode.Parse("{\"count\":" + value + "}").AsObject()));
     }
 
     [Test]
-    public async Task Count_Limits_Rankings_And_Is_Available_In_Configuration()
+    public async Task Count_Limits_Rankings()
     {
-        var report = (DashboardPaymentMethodsModel)await RenderAsync(false, 1);
+        var report = (DashboardPaymentMethodsModel)await RenderAsync(1);
         Assert.That(report.Count, Is.EqualTo(1));
         Assert.That(report.PaymentMethods.Count, Is.EqualTo(1));
-        var configuration = (DashboardPaymentMethodsConfigurationModel)await RenderAsync(true, 3);
-        Assert.That(configuration.Count, Is.EqualTo(3));
     }
 
     [Test]
@@ -1074,7 +1102,7 @@ public class PaymentMethodsConfigurationTests
             {
                 new() { SystemName = "Payments.Current", OrderCount = 1, TotalAmount = 200, PaidAmount = 200 }
             });
-        var report = (DashboardPaymentMethodsModel)await RenderAsync(false, 10, cache.Object, new[] { 2, 1 });
+        var report = (DashboardPaymentMethodsModel)await RenderAsync(10, cache.Object, new[] { 2, 1 });
         Assert.That(report.PaymentMethods.Single().EstimatedFees.Amount, Is.EqualTo(5.5m));
         cache.VerifyAll();
     }
@@ -1082,7 +1110,7 @@ public class PaymentMethodsConfigurationTests
     [Test]
     public async Task Fixed_Fees_Use_Only_Paid_Orders_Without_Adding_Percentage_Fees()
     {
-        var model = (DashboardPaymentMethodsModel)await RenderAsync(false, fixedFee: true);
+        var model = (DashboardPaymentMethodsModel)await RenderAsync(fixedFee: true);
         var payment = model.PaymentMethods.Single(x => x.Name == "Zahlung");
         Assert.Multiple(() =>
         {
@@ -1090,24 +1118,63 @@ public class PaymentMethodsConfigurationTests
             Assert.That(payment.FeeIsPercentage, Is.False);
             Assert.That(payment.EstimatedFees.Amount, Is.EqualTo(0.35m));
         });
-        var configuration = (DashboardPaymentMethodsConfigurationModel)await RenderAsync(true, fixedFee: true);
-        var fee = configuration.PaymentMethods.Single(x => x.SystemName == "Payments.Current");
-        Assert.That(fee.FeeValue.Unit, Is.EqualTo(configuration.CurrencyCode));
-        Assert.That(fee.FeeValue.Value, Is.EqualTo(0.35m));
+        var widget = CreatePaymentWidget();
+        var instance = new DashboardWidgetInstance("payments", PaymentMethodsDashboardWidget.SystemName)
+        {
+            Settings = JsonNode.Parse("{\"fees\":{\"Payments.Current\":{\"value\":0.35,\"unit\":\"EUR\"}}}").AsObject()
+        };
+        await widget.ValidateSettingsAsync(instance.Settings);
+        var configuration = (PartialViewWidget)await widget.CreateConfigurationWidgetAsync(new DashboardWidgetContext { DashboardId = "test" }, instance);
+        var fee = ((PaymentMethodsDashboardWidgetSettings)configuration.Model).Fees["Payments.Current"];
+        Assert.That(fee.Unit, Is.EqualTo("EUR"));
+        Assert.That(fee.Value, Is.EqualTo(0.35m));
     }
 
-    [TestCase("feeValue.Payments.Example", "-1")]
-    [TestCase("feeValue.Payments.Example", "1000001")]
-    [TestCase("feeValue.Payments.Example", "null")]
-    [TestCase("feeIsPercentage.Payments.Example", "\"unknown\"")]
-    public void Invalid_Fixed_Fees_And_Modes_Are_Rejected(string key, string value)
+    [TestCase("value", "-1")]
+    [TestCase("value", "1000001")]
+    [TestCase("value", "null")]
+    [TestCase("unit", "false")]
+    [TestCase("unit", "null")]
+    [TestCase("unit", "\"\"")]
+    public async Task Invalid_Fixed_Fees_And_Modes_Are_Rejected(string key, string value)
     {
-        var widget = new PaymentMethodsDashboardWidget(Mock.Of<IPermissionService>(), new PaymentMethodsDashboardWidgetValidator());
-        var settings = new JsonObject { [key] = JsonNode.Parse(value) };
+        var widget = CreatePaymentWidget();
+        var fee = new JsonObject { ["value"] = 0.35m, ["unit"] = "EUR" };
+        fee[key] = JsonNode.Parse(value);
+        var settings = new JsonObject { ["fees"] = new JsonObject { ["Payments.Example"] = fee } };
         Assert.ThrowsAsync<ArgumentException>(async () => await widget.ValidateSettingsAsync(settings));
+        if (key == "value" && value != "null")
+        {
+            var model = new PaymentMethodsDashboardWidgetSettings
+            {
+                Fees = new() { ["Payments.Example"] = new Amount { Value = decimal.Parse(value), Unit = "EUR" } }
+            };
+            var result = await new PaymentMethodsDashboardWidgetValidator().ValidateAsync(model);
+            Assert.That(result.Errors.Single().PropertyName, Is.EqualTo("Fees[Payments.Example].Value"));
+        }
     }
 
-    private static async Task<object> RenderAsync(bool configure, int count = 10, ICacheManager cache = null, int[] storeIds = null, bool fixedFee = false)
+    private static PaymentMethodsDashboardWidget CreatePaymentWidget(
+        IPaymentService payments = null,
+        ModuleManager modules = null,
+        IViewDataAccessor viewData = null)
+    {
+        if (payments == null)
+        {
+            var paymentService = new Mock<IPaymentService>();
+            paymentService.Setup(x => x.LoadAllPaymentProvidersAsync(true, 0))
+                .ReturnsAsync(Array.Empty<Provider<IPaymentMethod>>());
+            payments = paymentService.Object;
+        }
+
+        viewData ??= Mock.Of<IViewDataAccessor>(x => x.ViewData ==
+            new ViewDataDictionary(new EmptyModelMetadataProvider(), new ModelStateDictionary()));
+
+        return new PaymentMethodsDashboardWidget(
+            Mock.Of<IPermissionService>(), new PaymentMethodsDashboardWidgetValidator(), payments, modules, viewData);
+    }
+
+    private static async Task<object> RenderAsync(int count = 10, ICacheManager cache = null, int[] storeIds = null, bool fixedFee = false)
     {
         await using var db = new PaymentTestContext();
         db.Orders.AddRange(
@@ -1150,8 +1217,10 @@ public class PaymentMethodsConfigurationTests
                 ViewContext = new ViewContext { HttpContext = new DefaultHttpContext { RequestServices = provider } }
             }
         };
-        var result = (ViewViewComponentResult)await component.InvokeAsync(new Dictionary<string, decimal> { ["Payments.Current"] = fixedFee ? 0.35m : 2.75m }, configure, count,
-            feeIsPercentage: new Dictionary<string, bool> { ["Payments.Current"] = !fixedFee });
+        var result = (ViewViewComponentResult)await component.InvokeAsync(new Dictionary<string, Amount>
+        {
+            ["Payments.Current"] = new() { Value = fixedFee ? 0.35m : 2.75m, Unit = fixedFee ? "EUR" : "%" }
+        }, count);
         return result.ViewData.Model;
     }
 

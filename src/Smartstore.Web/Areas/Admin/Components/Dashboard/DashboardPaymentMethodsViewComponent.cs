@@ -4,6 +4,7 @@ using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Security;
 using Smartstore.Engine.Modularity;
+using Smartstore.Web.Models;
 
 namespace Smartstore.Admin.Components;
 
@@ -34,8 +35,7 @@ public class DashboardPaymentMethodsViewComponent : SmartViewComponent
     /// <summary>
     /// Builds the payment method ranking across all order dates and statuses.
     /// </summary>
-    public async Task<IViewComponentResult> InvokeAsync(IReadOnlyDictionary<string, decimal> feeValues = null, bool configure = false, int count = 10, bool refresh = false,
-        IReadOnlyDictionary<string, bool> feeIsPercentage = null)
+    public async Task<IViewComponentResult> InvokeAsync(IReadOnlyDictionary<string, Amount> fees = null, int count = 10, bool refresh = false)
     {
         if (!await Services.Permissions.AuthorizeAsync(RequiredPermission))
         {
@@ -46,33 +46,6 @@ public class DashboardPaymentMethodsViewComponent : SmartViewComponent
         var providers = (await _paymentService.LoadAllPaymentProvidersAsync(onlyEnabled: true)).ToArray();
         var names = providers.ToDictionary(x => x.Metadata.SystemName,
             x => _moduleManager.GetLocalizedFriendlyName(x.Metadata), StringComparer.OrdinalIgnoreCase);
-
-        if (configure)
-        {
-            var currencyCode = Services.CurrencyService.PrimaryCurrency.CurrencyCode;
-            var configuration = new DashboardPaymentMethodsConfigurationModel
-            {
-                Count = count,
-                CurrencyCode = currencyCode
-            };
-            foreach (var provider in providers.OrderBy(x => names[x.Metadata.SystemName], StringComparer.CurrentCultureIgnoreCase)
-                .ThenBy(x => x.Metadata.SystemName, StringComparer.Ordinal))
-            {
-                var systemName = provider.Metadata.SystemName;
-                configuration.PaymentMethods.Add(new DashboardPaymentMethodFeeModel
-                {
-                    SystemName = systemName,
-                    Name = names[systemName],
-                    FeeValue = new()
-                    {
-                        Value = feeValues?.GetValueOrDefault(systemName) ?? 0,
-                        Unit = (feeIsPercentage?.GetValueOrDefault(systemName, true) ?? true) ? "%" : currencyCode
-                    }
-                });
-            }
-
-            return View("Configure", configuration);
-        }
 
         var authorizedStoreIds = await Services.StoreMappingService.GetAuthorizedStoreIdsAsync(nameof(Customer), Services.WorkContext.CurrentCustomer.Id);
         var storeKey = authorizedStoreIds.Length == 0 ? "all" : string.Join("-", authorizedStoreIds.Order());
@@ -112,8 +85,9 @@ public class DashboardPaymentMethodsViewComponent : SmartViewComponent
         var model = new List<DashboardPaymentMethodModel>(displayedSystemNames.Count);
         foreach (var item in paymentMethodTotals.Where(x => displayedSystemNames.Contains(x.SystemName)))
         {
-            decimal? fee = feeValues != null && feeValues.TryGetValue(item.SystemName, out var value) ? value : null;
-            var percentage = feeIsPercentage?.GetValueOrDefault(item.SystemName, true) ?? true;
+            var amount = fees?.GetValueOrDefault(item.SystemName);
+            decimal? fee = amount?.Value;
+            var percentage = amount?.IsPercentage() ?? true;
 
             model.Add(new DashboardPaymentMethodModel
             {

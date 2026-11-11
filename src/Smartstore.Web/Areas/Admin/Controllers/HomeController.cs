@@ -73,7 +73,7 @@ public class HomeController : AdminController
             }
 
             await widget.ValidateSettingsAsync(instance.Settings, HttpContext.RequestAborted);
-            var configuration = widget.CreateConfigurationWidget(context, instance);
+            var configuration = await widget.CreateConfigurationWidgetAsync(context, instance);
             if (configuration == null)
             {
                 return NotFound();

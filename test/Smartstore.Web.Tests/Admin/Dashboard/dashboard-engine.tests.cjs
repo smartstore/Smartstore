@@ -475,7 +475,7 @@ test('payment fees are collected from current Amount values without synchronized
     };
     vm.runInNewContext(script, { $ });
     const fee = (provider, amount, unit) => ({
-        dataset: { feeValueSetting: `feeValue.${provider}`, feePercentageSetting: `feeIsPercentage.${provider}` },
+        dataset: { provider },
         amount: { value: String(amount), valueAsNumber: amount },
         unit: { value: unit },
         querySelector(selector) {
@@ -491,11 +491,15 @@ test('payment fees are collected from current Amount values without synchronized
     } };
     const settings = { count: 3 };
     collect.call(viewElement, {}, settings);
-    assert.deepEqual(settings, {
+    assert.deepEqual(JSON.parse(JSON.stringify(settings)), {
         count: 3,
-        'feeValue.Payments.A': 2.75, 'feeIsPercentage.Payments.A': true,
-        'feeValue.Payments.B': 0.35, 'feeIsPercentage.Payments.B': false
+        fees: {
+            'Payments.A': { value: 2.75, unit: '%' },
+            'Payments.B': { value: 0.35, unit: 'EUR' }
+        }
     });
+
+    const previousFees = settings.fees;
 
     // The next save must read changes directly, without any change event.
     percentage.amount = { value: '4.5', valueAsNumber: 4.5 };
@@ -503,11 +507,12 @@ test('payment fees are collected from current Amount values without synchronized
     fixed.amount.value = '';
     fixed.unit.value = '%';
     collect.call(viewElement, {}, settings);
-    assert.equal(settings['feeValue.Payments.A'], 4.5);
-    assert.equal(settings['feeIsPercentage.Payments.A'], false);
-    assert.equal(settings['feeIsPercentage.Payments.B'], true);
-    assert.equal('feeValue.Payments.B' in settings, false);
+    assert.equal(settings.fees['Payments.A'].value, 4.5);
+    assert.equal(settings.fees['Payments.A'].unit, 'EUR');
+    assert.equal('Payments.B' in settings.fees, false);
     assert.equal(settings.count, 3);
+    assert.equal(previousFees['Payments.A'].value, 2.75);
+    assert.equal(previousFees['Payments.B'].value, 0.35);
 });
 
 for (const hasNews of [false, true]) {

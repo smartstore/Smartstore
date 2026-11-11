@@ -45,8 +45,8 @@ public sealed class LatestOrdersDashboardWidget(
     public override DashboardWidgetDescriptor Descriptor => _descriptor;
 
     /// <inheritdoc />
-    public override Widget CreateConfigurationWidget(DashboardWidgetContext context, DashboardWidgetInstance instance)
-        => new PartialViewWidget("Components/DashboardLatestOrders/Configure", LoadSettings(instance.Settings));
+    public override Task<Widget?> CreateConfigurationWidgetAsync(DashboardWidgetContext context, DashboardWidgetInstance instance)
+        => Task.FromResult<Widget?>(new PartialViewWidget("Components/DashboardLatestOrders/Configure", LoadSettings(instance.Settings)));
 
     /// <inheritdoc />
     protected override object GetWidgetArguments(DashboardWidgetContext context, DashboardWidgetInstance instance, LatestOrdersDashboardWidgetSettings settings)

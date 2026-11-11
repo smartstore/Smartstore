@@ -51,10 +51,10 @@ public abstract class DashboardViewComponentWidget<TComponent> : IDashboardWidge
         => null;
 
     /// <inheritdoc />
-    public virtual Widget? CreateConfigurationWidget(
+    public virtual Task<Widget?> CreateConfigurationWidgetAsync(
         DashboardWidgetContext context,
         DashboardWidgetInstance instance)
-        => null;
+        => Task.FromResult<Widget?>(null);
 
     /// <inheritdoc />
     public virtual JsonObject CreateDefaultSettings()
