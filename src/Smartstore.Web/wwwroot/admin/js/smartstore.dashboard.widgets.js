@@ -72,7 +72,7 @@
                     $widget.triggerHandler('dashboard:loaded');
                 });
             }).fail(function () {
-                if (widget.isConnected) $error.text($grid.attr('data-dashboard-load-error')).removeClass('d-none');
+                if (widget.isConnected) $error.text(window.Res.Dashboard.refreshFailed).removeClass('d-none');
             }).always(function () {
                 // Keep even fast refreshes visible without delaying the data request or rendering.
                 window.setTimeout(function () {

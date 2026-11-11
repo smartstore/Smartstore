@@ -184,11 +184,6 @@
         container.querySelectorAll('[data-instance-id]').forEach(el => {
             elements.set(el.dataset.instanceId, el);
             el.classList.add('z-1');
-            if (el.querySelector('.dashboard-widget-overlay')) {
-                el.querySelectorAll('.dashboard-widget-body > :not(.dashboard-widget-tools):not(.dashboard-resize):not(.dashboard-widget-overlay)').forEach(content => {
-                    content.inert = true;
-                });
-            }
         });
         const isNews = widget => widget.widgetSystemName === 'Smartstore.Admin.Dashboard.NewsFeed';
         const renderedIds = new Set(elements.keys());
@@ -658,7 +653,7 @@
                     }));
                 }
                 catch {
-                    displayNotification(root.dataset.error, 'error');
+                    displayNotification(window.Res.Dashboard.invalid, 'error');
                     return;
                 }
                 url.searchParams.set('dashboardHistory', token);
@@ -684,10 +679,10 @@
             };
             if (config.layer === 'Global') {
                 confirm2({
-                    message: root.dataset.saveGlobalConfirm,
+                    message: window.Res.Dashboard.saveGlobalConfirm,
                     icon: { type: 'question' },
                     callback: accepted => { if (accepted) commit(); }
-                }).find('.btn-accept').text(root.dataset.saveGlobalLabel);
+                }).find('.btn-accept').text(window.Res.Dashboard.saveGlobalLabel);
             }
             else commit();
         }
@@ -755,7 +750,7 @@
         $(container).on('click', '[data-dashboard-remove]', function () {
             const el = this.closest('[data-instance-id]');
             confirm2({
-                message: root.dataset.removeWidgetConfirm,
+                message: window.Res.Dashboard.removeWidgetConfirm,
                 icon: { type: 'delete' },
                 callback: accepted => {
                     if (!accepted) return;
@@ -805,7 +800,7 @@
                 save.disabled = false;
                 if (el.classList.contains('dashboard-configuring')) back.querySelector('input')?.focus();
             }).fail(() => {
-                error.textContent = back.dataset.configurationError;
+                error.textContent = window.Res.Dashboard.invalid;
                 error.classList.remove('d-none');
             }).always(() => {
                 button.disabled = false;
@@ -866,7 +861,7 @@
         $('#dashboard-cancel').on('click', () => guard(shouldSave => shouldSave ? save('cancel:') : navigate(config.cancelUrl)));
         $('#dashboard-reset').on('click', () => {
             confirm2({
-                message: root.dataset.resetConfirm,
+                message: window.Res.Dashboard.resetConfirm,
                 icon: { type: 'warning' },
                 callback: accepted => {
                     if (!accepted) return;

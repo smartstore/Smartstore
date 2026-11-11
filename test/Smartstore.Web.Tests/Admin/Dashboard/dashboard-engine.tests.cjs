@@ -73,14 +73,13 @@ test('expanding left displaces a neighbor without moving the opposite edge', () 
 function keyboardEditor({ direction = 'ltr', blockedStorage = false, allowedSizes = [], layer = 'User', belowPosition, news = false, breakpoint = 'xl' } = {}) {
     const handlers = new Map();
     const controls = new Map();
-    const extension = { inert: false };
     const element = {
         dataset: { instanceId: 'a', minWidth: '2', maxWidth: '6' },
         style: {}, isConnected: true, offsetHeight: 300,
         classList: { contains: () => false, add() {}, remove() {} },
         getBoundingClientRect: () => ({ top: 0, bottom: 300, height: 300 }),
         querySelector: selector => selector.includes('resize') || selector === '.dashboard-widget-overlay' ? {} : null,
-        querySelectorAll: selector => selector.includes(':not(.dashboard-extend)') ? [] : [extension]
+        querySelectorAll: () => []
     };
     const belowElement = { ...element, dataset: { ...element.dataset, instanceId: 'b' }, style: {},
         querySelector: element.querySelector, getBoundingClientRect: () => ({ top: 300, bottom: 500, height: 200 }) };
@@ -156,7 +155,7 @@ function keyboardEditor({ direction = 'ltr', blockedStorage = false, allowedSize
         HTMLFormElement: { prototype: { submit() { submissions++; } } },
         confirm2(options) { confirmation = options; return { find: () => ({ text() {} }) }; },
         window: { innerWidth: 1200, innerHeight: 900, scrollY: 0, location: { href: 'https://example.test/admin?dashboardHistory=test' },
-            history: { replaceState() {} }, addEventListener() {} },
+            Res: { Dashboard: {} }, history: { replaceState() {} }, addEventListener() {} },
         sessionStorage: {
             getItem() { if (blockedStorage) throw new Error('Storage blocked'); return null; },
             removeItem() {}
@@ -169,7 +168,6 @@ function keyboardEditor({ direction = 'ltr', blockedStorage = false, allowedSize
     vm.runInContext(fs.readFileSync(path.resolve(__dirname, '../../../../src/Smartstore.Web/wwwroot/lib/underscore/underscore.js'), 'utf8'), sandbox);
     vm.runInContext(fs.readFileSync(path.resolve(__dirname, '../../../../src/Smartstore.Web/wwwroot/admin/js/smartstore.dashboard.js'), 'utf8'), sandbox);
     return {
-        extension,
         style: element.style,
         belowStyle: belowElement.style,
         newsStyle: newsElement.style,
@@ -365,10 +363,6 @@ test('saving compacts every responsive layout without removing occupied spans', 
     assert.equal(editor.style.gridRow, '2 / span 1');
     editor.save();
     for (const p of editor.submitted().widgets[0].positions) assert.equal(p.row, 0);
-});
-
-test('widget contents are inert while editing', () => {
-    assert.equal(keyboardEditor().extension.inert, true);
 });
 
 

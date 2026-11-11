@@ -167,12 +167,7 @@
 
     <div id="dashboard-editor"
             data-editor-config="dashboard-editor-data"
-            data-editing="true"
-            data-error="@T(editorKey + "Invalid")"
-            data-remove-widget-confirm="@T(editorKey + "RemoveWidgetConfirm")"
-            data-reset-confirm="@T(editorKey + "ResetConfirm")"
-            data-save-global-confirm="@T(editorKey + "SaveGlobalConfirm")"
-            data-save-global-label="@T(editorKey + "SaveGlobal")">
+            data-editing="true">
 
         <div sm-if="Model.TemplateSource.HasValue" class="alert alert-info" role="status">
             @T(editorKey + "TemplateNotice", T(editorKey + "Dashboard." + Model.TemplateSource.Value), T(editorKey + "Dashboard." + Model.State.Layer))

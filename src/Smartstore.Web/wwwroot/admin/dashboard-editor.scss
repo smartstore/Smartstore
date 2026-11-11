@@ -12,6 +12,10 @@ $dashboard-resize-handle-size: 10px;
 }
 
 .dashboard-widget-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    border-radius: var(--border-radius-lg);
     cursor: move;
 }
 
@@ -23,17 +27,32 @@ $dashboard-resize-handle-size: 10px;
 }
 
 .dashboard-resize {
+    position: absolute;
+    z-index: 2;
+    border: 0;
+    background: transparent;
+    padding: 0;
+
     &[data-dashboard-resize="width"],
     &[data-dashboard-resize="width-start"] {
+        top: 0;
+        height: 100%;
         width: $dashboard-resize-handle-size;
         cursor: ew-resize;
     }
 
     &[data-dashboard-resize="height"],
     &[data-dashboard-resize="height-start"] {
+        left: 0;
+        width: 100%;
         height: $dashboard-resize-handle-size;
         cursor: ns-resize;
     }
+
+    &[data-dashboard-resize="width-start"] { left: 0; }
+    &[data-dashboard-resize="width"] { right: 0; }
+    &[data-dashboard-resize="height"] { bottom: 0; }
+    &[data-dashboard-resize="height-start"] { top: 0; }
 }
 
 .dashboard-dragging:not(.dashboard-moving) .dashboard-interacting {
