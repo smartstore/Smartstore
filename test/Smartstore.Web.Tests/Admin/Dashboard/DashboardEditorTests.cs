@@ -938,7 +938,7 @@ public class WidgetCountConfigurationTests(Type widgetType)
     [TestCase("{}", 7)]
     [TestCase("{\"count\":1}", 1)]
     [TestCase("{\"count\":50}", 50)]
-    public async Task Stored_Count_Reaches_Renderer_And_Default_Remains_Empty_In_Configuration(string json, int expected)
+    public async Task Stored_Count_And_Default_Reach_Renderer_And_Configuration(string json, int expected)
     {
         var widget = CreateWidget();
         var instance = new AdminDashboardLayoutProvider().GetDefaultLayout().Widgets.FirstOrDefault(x => x.WidgetSystemName == widget.Descriptor.SystemName)
@@ -953,11 +953,12 @@ public class WidgetCountConfigurationTests(Type widgetType)
         Assert.That(render.Arguments.GetType().GetProperty("count").GetValue(render.Arguments), Is.EqualTo(expected));
         Assert.That(loaded.Policy.AllowConfigure, Is.True);
         var configuration = (PartialViewWidget)widget.CreateConfigurationWidget(context, loaded);
-        Assert.That(configuration.ViewName, Is.EqualTo("Components/Dashboard/ConfigureCount"));
+        var widgetName = widgetType.Name.Replace("DashboardWidget", "");
+        var settingsType = widgetType.Assembly.GetType(widgetType.FullName + "Settings");
+        Assert.That(configuration.ViewName, Is.EqualTo($"Components/Dashboard{widgetName}/Configure"));
         Assert.That(render.Key, Is.EqualTo(loaded.Id));
-        Assert.That(((DashboardWidgetCountConfigurationModel)configuration.Model).DefaultCount, Is.EqualTo(defaultCount));
-        Assert.That(((DashboardWidgetCountConfigurationModel)configuration.Model).Count,
-            Is.EqualTo(loaded.Settings.ContainsKey("count") ? (int?)expected : null));
+        Assert.That(configuration.Model, Is.TypeOf(settingsType));
+        Assert.That(settingsType.GetProperty("Count").GetValue(configuration.Model), Is.EqualTo(expected));
     }
 
     [TestCase("0")]

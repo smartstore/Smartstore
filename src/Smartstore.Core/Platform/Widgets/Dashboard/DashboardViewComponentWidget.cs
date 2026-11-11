@@ -151,11 +151,6 @@ public abstract class DashboardViewComponentWidget<TComponent, TSettings> : Dash
             return null;
         }
 
-        var model = CreateConfigurationModel(instance, settings);
-        return new PartialViewWidget(_configurationViewName, model);
+        return new PartialViewWidget(_configurationViewName, settings);
     }
-
-    /// <summary>Maps the settings to the configuration view model.</summary>
-    protected virtual object CreateConfigurationModel(DashboardWidgetInstance instance, TSettings settings)
-        => settings;
 }

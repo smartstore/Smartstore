@@ -1,12 +1,12 @@
 using FluentValidation;
 using Smartstore.Admin.Components;
 using HomeController = Smartstore.Admin.Controllers.HomeController;
-using Smartstore.Admin.Models.Dashboard;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Security;
 using Smartstore.Core.Widgets.Dashboard;
 using Smartstore.Engine.Modularity;
 using Smartstore.Http;
+using Smartstore.Web.Modelling;
 
 namespace Smartstore.Admin.Infrastructure.Dashboard;
 
@@ -20,7 +20,7 @@ public sealed class ContactRequestsDashboardWidget(
         permissions,
         DashboardContactRequestsViewComponent.RequiredPermission,
         validator,
-        "Components/Dashboard/ConfigureCount")
+        "Components/DashboardContactRequests/Configure")
 {
     /// <summary>
     /// Identifies the contact requests dashboard widget type.
@@ -49,20 +49,14 @@ public sealed class ContactRequestsDashboardWidget(
     /// <inheritdoc />
     protected override object GetWidgetArguments(DashboardWidgetContext context, DashboardWidgetInstance instance, ContactRequestsDashboardWidgetSettings settings)
         => new { count = settings.Count };
-
-    /// <inheritdoc />
-    protected override object CreateConfigurationModel(DashboardWidgetInstance instance, ContactRequestsDashboardWidgetSettings settings)
-        => new DashboardWidgetCountConfigurationModel
-        {
-            Count = instance.Settings.ContainsKey("count") ? settings.Count : null,
-            DefaultCount = 5
-        };
 }
 
 /// <summary>Contains the settings of the ContactRequests dashboard widget.</summary>
+[LocalizedDisplay("Admin.Dashboard.Widget.")]
 public class ContactRequestsDashboardWidgetSettings
 {
     /// <summary>Gets or sets the maximum number of items to display.</summary>
+    [LocalizedDisplay("*Count")]
     public int Count { get; set; } = 5;
 }
 

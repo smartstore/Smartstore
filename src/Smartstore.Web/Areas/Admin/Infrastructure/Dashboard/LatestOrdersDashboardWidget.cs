@@ -3,12 +3,12 @@
 using FluentValidation;
 using Smartstore.Admin.Components;
 using HomeController = Smartstore.Admin.Controllers.HomeController;
-using Smartstore.Admin.Models.Dashboard;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Security;
 using Smartstore.Core.Widgets.Dashboard;
 using Smartstore.Engine.Modularity;
 using Smartstore.Http;
+using Smartstore.Web.Modelling;
 
 namespace Smartstore.Admin.Infrastructure.Dashboard;
 
@@ -22,7 +22,7 @@ public sealed class LatestOrdersDashboardWidget(
         permissions,
         DashboardLatestOrdersViewComponent.RequiredPermission,
         validator,
-        "Components/Dashboard/ConfigureCount")
+        "Components/DashboardLatestOrders/Configure")
 {
     public const string SystemName = "Smartstore.Admin.Dashboard.LatestOrders";
 
@@ -53,20 +53,14 @@ public sealed class LatestOrdersDashboardWidget(
     /// <inheritdoc />
     protected override object GetWidgetArguments(DashboardWidgetContext context, DashboardWidgetInstance instance, LatestOrdersDashboardWidgetSettings settings)
         => new { count = settings.Count };
-
-    /// <inheritdoc />
-    protected override object CreateConfigurationModel(DashboardWidgetInstance instance, LatestOrdersDashboardWidgetSettings settings)
-        => new DashboardWidgetCountConfigurationModel
-        {
-            Count = instance.Settings.ContainsKey("count") ? settings.Count : null,
-            DefaultCount = 7
-        };
 }
 
 /// <summary>Contains the settings of the LatestOrders dashboard widget.</summary>
+[LocalizedDisplay("Admin.Dashboard.Widget.")]
 public class LatestOrdersDashboardWidgetSettings
 {
     /// <summary>Gets or sets the maximum number of items to display.</summary>
+    [LocalizedDisplay("*Count")]
     public int Count { get; set; } = 7;
 }
 
