@@ -1,4 +1,6 @@
 ﻿using System.Runtime.CompilerServices;
+using Smartstore.Collections;
+using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Catalog.Search;
@@ -241,10 +243,24 @@ public partial class CatalogHelper
         IReadOnlyCollection<ProductVariantCandidate> candidates,
         int selectedQuantity)
     {
-        var candidatesBySelection = candidates.ToMultimap(x => x.Selection, x => x);
-        if (candidatesBySelection.Count == 0 || candidatesBySelection.Count > _performanceSettings.MaxVariantPriceCalculations)
+        // A disabled calculation needs no grouping; the caller still retains the complete candidate collection.
+        var maxCalculations = _performanceSettings.MaxVariantPriceCalculations;
+        if (candidates.Count == 0 || maxCalculations <= 0)
         {
             return new Dictionary<int, CalculatedPrice>();
+        }
+
+        var candidatesBySelection = new Multimap<ProductVariantAttributeSelection, ProductVariantCandidate>();
+        foreach (var candidate in candidates)
+        {
+            candidatesBySelection.Add(candidate.Selection, candidate);
+
+            // Distinct selections cannot decrease as more candidates arrive. Stop hashing and allocating groups
+            // once the existing all-or-nothing price limit is exceeded, without modifying the input candidates.
+            if (candidatesBySelection.Count > maxCalculations)
+            {
+                return new Dictionary<int, CalculatedPrice>();
+            }
         }
 
         var product = ctx.Product;

@@ -940,12 +940,24 @@ public partial class CatalogHelper
                     continue;
                 }
 
-                var combinationSelection = new ProductVariantAttributeSelection(candidate.AsJson());
-                combinationSelection.RemoveAttributes(nonListAttributeIds);
+                // Keep every candidate for extensions, but avoid copying selections when there is nothing to match.
+                ProductVariantAttributeCombination combination = null;
+                if (combinationsByHashCode.Count > 0)
+                {
+                    // Hashing and equality only read the selection. Copy only when removing non-list attributes,
+                    // so the candidate retains those values for pricing and downstream consumers.
+                    var combinationSelection = candidate;
+                    if (nonListAttributeIds.Length > 0)
+                    {
+                        combinationSelection = new ProductVariantAttributeSelection(candidate.AsJson());
+                        combinationSelection.RemoveAttributes(nonListAttributeIds);
+                    }
 
-                var combination = combinationsByHashCode.TryGetValues(combinationSelection.GetHashCode(), out var matchingCombinations)
-                    ? matchingCombinations.FirstOrDefault(x => x.AttributeSelection.Equals(combinationSelection))
-                    : null;
+                    if (combinationsByHashCode.TryGetValues(combinationSelection.GetHashCode(), out var matchingCombinations))
+                    {
+                        combination = matchingCombinations.FirstOrDefault(x => x.AttributeSelection.Equals(combinationSelection));
+                    }
+                }
 
                 candidates.Add(new()
                 {

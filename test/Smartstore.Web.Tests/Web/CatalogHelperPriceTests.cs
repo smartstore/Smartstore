@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using Autofac;
 using Autofac.Extras.Moq;
@@ -7,12 +9,15 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Moq;
+using Moq.Protected;
 using NUnit.Framework;
 using Smartstore.Caching;
+using Smartstore.Collections;
 using Smartstore.Core;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Catalog.Products;
+using Smartstore.Core.Catalog.Rules;
 using Smartstore.Core.Common;
 using Smartstore.Core.Common.Configuration;
 using Smartstore.Core.Data;
@@ -102,6 +107,121 @@ public class CatalogHelperPriceTests
         }
     }
 
+    [TestCase(-1)]
+    [TestCase(0)]
+    [TestCase(1)]
+    public async Task Does_not_change_candidates_when_price_limit_is_exceeded(int limit)
+    {
+        using var fixture = new CatalogHelperFixture(limit);
+        var candidates = Enumerable.Range(1, 4).Select(id =>
+        {
+            var selection = new ProductVariantAttributeSelection(null);
+            selection.AddAttribute(1, [id]);
+            return CreateCandidate(id, selection);
+        }).ToArray();
+        var selections = candidates.Select(x => x.Selection.AsJson()).ToArray();
+
+        var prices = await fixture.Helper.CalculateProductVariantPricesAsync(fixture.Context, candidates, 1);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(prices, Is.Empty);
+            Assert.That(fixture.CalculationContexts, Is.Empty);
+            Assert.That(candidates.Select(x => x.Selection.AsJson()), Is.EqualTo(selections));
+        }
+    }
+
+    [TestCase(0)]
+    [TestCase(1)]
+    public async Task Can_calculate_prices_without_candidates(int limit)
+    {
+        using var fixture = new CatalogHelperFixture(limit);
+
+        var prices = await fixture.Helper.CalculateProductVariantPricesAsync(fixture.Context, [], 1);
+
+        Assert.That(prices, Is.Empty);
+        Assert.That(fixture.CalculationContexts, Is.Empty);
+    }
+
+    [TestCase(false, false)]
+    [TestCase(false, true)]
+    [TestCase(true, false)]
+    [TestCase(true, true)]
+    public async Task Preserves_candidate_selections_and_combination_matches(bool hasTextAttribute, bool hasCombinations)
+    {
+        var attribute = new ProductVariantAttribute
+        {
+            Id = 1,
+            ProductId = 1,
+            AttributeControlType = AttributeControlType.Boxes,
+            SwatchPriceDisplay = SwatchPriceDisplayMode.FinalPrice,
+            SwatchSize = SwatchSize.Small,
+            IsRequired = true
+        };
+        attribute.ProductVariantAttributeValues.Add(new() { Id = 11, ProductVariantAttributeId = 1 });
+        attribute.ProductVariantAttributeValues.Add(new() { Id = 12, ProductVariantAttributeId = 1 });
+        var attributes = new List<ProductVariantAttribute> { attribute };
+        var selection = new ProductVariantAttributeSelection(null);
+        selection.AddAttribute(1, [12]);
+        if (hasTextAttribute)
+        {
+            attributes.Add(new() { Id = 2, AttributeControlType = AttributeControlType.TextBox, IsRequired = true });
+            selection.AddAttribute(2, ["Personalized text"]);
+        }
+
+        var matchingSelection = new ProductVariantAttributeSelection(null);
+        matchingSelection.AddAttribute(1, [11]);
+        var match = new ProductVariantAttributeCombination
+        {
+            Id = 7,
+            ProductId = 1,
+            RawAttributes = matchingSelection.AsJson(),
+            Price = 19.90M
+        };
+        var collision = new ProductVariantAttributeCombination
+        {
+            Id = 8,
+            ProductId = 1,
+            RawAttributes = selection.AsJson(),
+            HashCode = match.HashCode
+        };
+        var combinations = new Multimap<int, ProductVariantAttributeCombination>();
+        if (hasCombinations)
+        {
+            combinations.Add(1, collision);
+            combinations.Add(1, match);
+        }
+
+        using var fixture = new CatalogHelperFixture(0, combinations);
+        fixture.Context.DisplayPrices = true;
+        fixture.Context.ProductBundleItem = null;
+        var originalSelection = selection.AsJson();
+        var method = typeof(CatalogHelper).GetMethod("PrepareProductVariantCandidatesAsync", BindingFlags.Instance | BindingFlags.NonPublic);
+        var candidates = (await (Task<IReadOnlyCollection<ProductVariantCandidate>>)method.Invoke(
+            fixture.Helper, [fixture.Context, attributes, selection, new NullAttributeRuleProvider()])).ToArray();
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(candidates.Select(x => x.AttributeValue.Id), Is.EqualTo(new[] { 11, 12 }));
+            Assert.That(selection.AsJson(), Is.EqualTo(originalSelection));
+            for (var i = 0; i < candidates.Length; i++)
+            {
+                var candidate = candidates[i];
+                Assert.That(candidate.Selection.GetAttributeValues(1).Select(x => x.ToString()), Is.EqualTo(new[] { (11 + i).ToString() }));
+                Assert.That(candidate.Selection.GetAttributeValues(2)?.Select(x => x.ToString()),
+                    Is.EqualTo(hasTextAttribute ? new[] { "Personalized text" } : null));
+
+                // Compare with the original JSON-copy lookup, including hash collisions.
+                var comparison = new ProductVariantAttributeSelection(candidate.Selection.AsJson());
+                comparison.RemoveAttributes(attributes.Where(x => !x.IsListTypeAttribute()).Select(x => x.Id));
+                var expected = combinations[1].FirstOrDefault(x =>
+                    x.HashCode == comparison.GetHashCode() && x.AttributeSelection.Equals(comparison));
+                Assert.That(candidate.Combination, Is.SameAs(expected));
+            }
+            Assert.That(candidates[0].Combination, Is.SameAs(hasCombinations ? match : null));
+        }
+    }
+
     private static ProductVariantCandidate CreateCandidate(
         int attributeValueId,
         ProductVariantAttributeSelection selection,
@@ -120,7 +240,7 @@ public class CatalogHelperPriceTests
         private readonly AutoMock _autoMock;
         private readonly SmartDbContext _db;
 
-        public CatalogHelperFixture(int maxCalculations)
+        public CatalogHelperFixture(int maxCalculations, Multimap<int, ProductVariantAttributeCombination> combinations = null)
         {
             var product = new Product { Id = 1 };
             var customer = new Customer();
@@ -129,13 +249,18 @@ public class CatalogHelperPriceTests
             var currency = new Currency();
 
             _db = new SmartDbContext(new DbContextOptionsBuilder<SmartDbContext>().Options);
-            var batchContext = new ProductBatchContext(
+            var batchMock = new Mock<ProductBatchContext>(
                 null,
                 _db,
                 Mock.Of<IComponentContext>(),
                 store,
                 customer,
-                false);
+                false,
+                false) { CallBase = true };
+            batchMock.Protected()
+                .Setup<Task<Multimap<int, ProductVariantAttributeCombination>>>("LoadAttributeCombinations", ItExpr.IsAny<int[]>())
+                .ReturnsAsync(combinations ?? new Multimap<int, ProductVariantAttributeCombination>());
+            var batchContext = batchMock.Object;
             var options = new PriceCalculationOptions(batchContext, customer, store, language, currency);
 
             Price = new CalculatedPrice(product);
