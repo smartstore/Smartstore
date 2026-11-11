@@ -2,12 +2,11 @@
 
 using FluentValidation;
 using Smartstore.Admin.Components;
-using HomeController = Smartstore.Admin.Controllers.HomeController;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Security;
+using Smartstore.Core.Widgets;
 using Smartstore.Core.Widgets.Dashboard;
 using Smartstore.Engine.Modularity;
-using Smartstore.Http;
 using Smartstore.Web.Modelling;
 
 namespace Smartstore.Admin.Infrastructure.Dashboard;
@@ -21,8 +20,7 @@ public sealed class BestsellersDashboardWidget(
     IValidator<BestsellersDashboardWidgetSettings> validator) : DashboardViewComponentWidget<DashboardBestsellersViewComponent, BestsellersDashboardWidgetSettings>(
         permissions,
         DashboardBestsellersViewComponent.RequiredPermission,
-        validator,
-        "Components/DashboardBestsellers/Configure")
+        validator)
 {
     /// <summary>
     /// Identifies the bestsellers dashboard widget type.
@@ -45,8 +43,8 @@ public sealed class BestsellersDashboardWidget(
     public override DashboardWidgetDescriptor Descriptor => _descriptor;
 
     /// <inheritdoc />
-    public override RouteInfo GetConfigurationRoute()
-        => new(nameof(HomeController.DashboardConfigure), "Home", new { area = "Admin", widgetSystemName = SystemName });
+    public override Widget CreateConfigurationWidget(DashboardWidgetContext context, DashboardWidgetInstance instance)
+        => new PartialViewWidget("Components/DashboardBestsellers/Configure", LoadSettings(instance.Settings));
 
     /// <inheritdoc />
     protected override object GetWidgetArguments(DashboardWidgetContext context, DashboardWidgetInstance instance, BestsellersDashboardWidgetSettings settings)

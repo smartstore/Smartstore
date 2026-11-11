@@ -1,11 +1,10 @@
 using FluentValidation;
 using Smartstore.Admin.Components;
-using HomeController = Smartstore.Admin.Controllers.HomeController;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Security;
+using Smartstore.Core.Widgets;
 using Smartstore.Core.Widgets.Dashboard;
 using Smartstore.Engine.Modularity;
-using Smartstore.Http;
 using Smartstore.Web.Modelling;
 
 namespace Smartstore.Admin.Infrastructure.Dashboard;
@@ -19,8 +18,7 @@ public sealed class ContactRequestsDashboardWidget(
     IValidator<ContactRequestsDashboardWidgetSettings> validator) : DashboardViewComponentWidget<DashboardContactRequestsViewComponent, ContactRequestsDashboardWidgetSettings>(
         permissions,
         DashboardContactRequestsViewComponent.RequiredPermission,
-        validator,
-        "Components/DashboardContactRequests/Configure")
+        validator)
 {
     /// <summary>
     /// Identifies the contact requests dashboard widget type.
@@ -43,8 +41,8 @@ public sealed class ContactRequestsDashboardWidget(
     public override DashboardWidgetDescriptor Descriptor => _descriptor;
 
     /// <inheritdoc />
-    public override RouteInfo GetConfigurationRoute()
-        => new(nameof(HomeController.DashboardConfigure), "Home", new { area = "Admin", widgetSystemName = SystemName });
+    public override Widget CreateConfigurationWidget(DashboardWidgetContext context, DashboardWidgetInstance instance)
+        => new PartialViewWidget("Components/DashboardContactRequests/Configure", LoadSettings(instance.Settings));
 
     /// <inheritdoc />
     protected override object GetWidgetArguments(DashboardWidgetContext context, DashboardWidgetInstance instance, ContactRequestsDashboardWidgetSettings settings)

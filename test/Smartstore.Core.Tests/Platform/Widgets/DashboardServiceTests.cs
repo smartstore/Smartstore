@@ -477,7 +477,6 @@ public sealed class DashboardServiceTests
 
         Assert.That(result, Is.Not.Null);
         Assert.That(result!.Instance.Settings["count"]!.GetValue<int>(), Is.EqualTo(10));
-        Assert.That(result.ConfigurationRoute, Is.Null);
         widget.Verify(x => x.CreateWidget(
             It.Is<DashboardWidgetContext>(c => c.Refresh && !c.IsEditMode && c.Customer == customer && c.Parameters["period"] == "30"),
             It.IsAny<DashboardWidgetInstance>()), Times.Once);

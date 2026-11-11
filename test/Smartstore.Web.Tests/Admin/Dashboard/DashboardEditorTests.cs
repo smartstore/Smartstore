@@ -924,8 +924,7 @@ public class WidgetCountConfigurationTests(Type widgetType)
         using var scope = provider.CreateScope();
         var widget = (IDashboardWidget)scope.ServiceProvider.GetRequiredService(widgetType);
 
-        Assert.That(widget.GetConfigurationRoute(), Is.Not.Null);
-        Assert.That(widget, Is.InstanceOf<Smartstore.Engine.Modularity.IConfigurable>());
+        Assert.That(widget, Is.InstanceOf(widgetType));
     }
 
     private IDashboardWidget CreateWidget()

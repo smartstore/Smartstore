@@ -5,8 +5,6 @@ using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
 using FluentValidation;
 using Smartstore.Core.Security;
-using Smartstore.Engine.Modularity;
-using Smartstore.Http;
 using Smartstore.Json;
 
 namespace Smartstore.Core.Widgets.Dashboard;
@@ -15,7 +13,7 @@ namespace Smartstore.Core.Widgets.Dashboard;
 /// Provides default dashboard widget behavior for implementations backed by an MVC view component.
 /// </summary>
 /// <typeparam name="TComponent">The MVC view component used to render the widget.</typeparam>
-public abstract class DashboardViewComponentWidget<TComponent> : IDashboardWidget, IConfigurable
+public abstract class DashboardViewComponentWidget<TComponent> : IDashboardWidget
     where TComponent : Microsoft.AspNetCore.Mvc.ViewComponent
 {
     private readonly IPermissionService _permissionService;
@@ -51,9 +49,6 @@ public abstract class DashboardViewComponentWidget<TComponent> : IDashboardWidge
     /// <summary>Creates the arguments passed to the widget view component.</summary>
     protected virtual object? GetWidgetArguments(DashboardWidgetContext context, DashboardWidgetInstance instance)
         => null;
-
-    /// <inheritdoc />
-    public virtual RouteInfo? GetConfigurationRoute() => null;
 
     /// <inheritdoc />
     public virtual Widget? CreateConfigurationWidget(
@@ -92,18 +87,15 @@ public abstract class DashboardViewComponentWidget<TComponent, TSettings> : Dash
     };
 
     private readonly IValidator<TSettings> _settingsValidator;
-    private readonly string? _configurationViewName;
 
-    /// <summary>Initializes a widget with its settings validator and optional configuration partial view.</summary>
+    /// <summary>Initializes a widget with its settings validator.</summary>
     protected DashboardViewComponentWidget(
         IPermissionService permissions,
         string requiredPermission,
-        IValidator<TSettings> settingsValidator,
-        string? configurationViewName = null)
+        IValidator<TSettings> settingsValidator)
         : base(permissions, requiredPermission)
     {
         _settingsValidator = Guard.NotNull(settingsValidator);
-        _configurationViewName = configurationViewName;
     }
 
     /// <summary>Deserializes persisted settings into the widget's model.</summary>
@@ -138,19 +130,4 @@ public abstract class DashboardViewComponentWidget<TComponent, TSettings> : Dash
 
     /// <summary>Creates component arguments from the typed settings.</summary>
     protected abstract object? GetWidgetArguments(DashboardWidgetContext context, DashboardWidgetInstance instance, TSettings settings);
-
-    /// <inheritdoc />
-    public override Widget? CreateConfigurationWidget(DashboardWidgetContext context, DashboardWidgetInstance instance)
-        => CreateConfigurationWidget(context, instance, LoadSettings(instance.Settings));
-
-    /// <summary>Creates the configuration surface from the typed settings.</summary>
-    protected virtual Widget? CreateConfigurationWidget(DashboardWidgetContext context, DashboardWidgetInstance instance, TSettings settings)
-    {
-        if (_configurationViewName == null)
-        {
-            return null;
-        }
-
-        return new PartialViewWidget(_configurationViewName, settings);
-    }
 }

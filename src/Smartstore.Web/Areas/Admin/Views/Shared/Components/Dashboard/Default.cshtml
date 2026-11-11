@@ -28,7 +28,7 @@
 
     @foreach (var item in Model.Widgets)
     {
-        var canConfigure = item.ConfigurationRoute != null;
+        var canConfigure = Model.Context.IsEditMode && item.Policy.AllowConfigure;
         var canEdit = Model.Context.IsEditMode && (item.Policy.AllowMove || item.Policy.AllowResize || !item.Policy.IsRequired || canConfigure);
 
         <div id="@Model.Layout.BuildWidgetId(item.Instance.Id)" 
@@ -96,7 +96,7 @@
 
             @if (canConfigure) 
             {
-                <form class="dashboard-widget-config card" data-configuration-url="@Url.Action(item.ConfigurationRoute)" novalidate inert>
+                <form class="dashboard-widget-config card" data-configuration-url="@Url.Action("DashboardConfigure", "Home", new { area = "Admin", widgetSystemName = item.Instance.WidgetSystemName })" novalidate inert>
                     <div class="card-header">
                         <h5 class="card-title mb-0">@item.Descriptor.Title.Resolve(T)</h5>
                         <div class="d-flex gap-2 ml-auto">
