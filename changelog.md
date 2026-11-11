@@ -1,6 +1,6 @@
 # Release Notes
 
-## Smartstore 6.5.0
+## Smartstore 7.0.0
 
 ### Breaking Changes
 
@@ -11,11 +11,21 @@
 
 ### New Features
 
-- **Channable** plugin (commercial)
-  - Channable product feed integration with file-based exports in CSV, XML, and JSON formats.
+- **Theming**
+  - Added six new Flex themes:
+    - **Sorbet:** Warm porcelain, aubergine and botanical accents with serif headings.
+    - **Tidal:** Atlantic blue, coral accents and crisp white surfaces.
+    - **Afterglow:** A dark graphite theme with mint, orchid and apricot accents.
+    - **Lumen:** Bright white with iris-blue, lavender and petrol accents.
+    - **Riso:** Risograph-inspired cobalt, fluorescent pink and sunflower yellow on white, with DIN-style headings.
+    - **Porcelain:** White and soft gray surfaces, graphite typography and precise blue accents with a compact, light header.
+  - **Badge styling:** Added a compact editor with live previews and configurable Subtle, Outline, Ring and Pill modifiers for category and promotional badges.
+  - `.scroll-fade`: reusable responsive edge fades for horizontal and vertical scroll containers.
 - **Administration:** A new collapsible sidebar gives the administration area a modern, uncluttered layout with easy access to its main sections.
 - **Category icons:** Added support for assigning icons to categories, with customizable colors, rotation, mirroring and animations. Icons are displayed in the sidebar category navigation, main-menu dropdowns, MegaMenu, mobile menu and admin category tree.
 - **Media gallery:** Replaced PhotoSwipe with the new Smartstore *Lightbox* for viewing images and videos. A horizontal thumbnail strip lets shoppers jump directly to any image or video, including on mobile devices. Zoom, fullscreen viewing, touch gestures and keyboard controls remain available, with support for right-to-left layouts.
+- **Channable** plugin (commercial)
+  - Channable product feed integration with file-based exports in CSV, XML, and JSON formats.
 - (DEV) Added `Smartstore.Packager.Cli` for scriptable packaging of modules and themes, including batch processing and automation-friendly exit codes.
 - (DEV) Added `linux-arm64` builds and lazy deployment support for native ARM64 tools.
 - Enhanced color and image swatches for attributes
@@ -38,16 +48,6 @@
 - (DEV) Added an extensible admin dashboard widget infrastructure with responsive layouts.
 - **AI**
   - Added configurable **reasoning effort levels** for supported AI models across providers, including model-specific defaults and automatic persistence of user selections.
-- **Theming**
-  - Added six new Flex themes:
-    - **Sorbet:** Warm porcelain, aubergine and botanical accents with serif headings.
-    - **Tidal:** Atlantic blue, coral accents and crisp white surfaces.
-    - **Afterglow:** A dark graphite theme with mint, orchid and apricot accents.
-    - **Lumen:** Bright white with iris-blue, lavender and petrol accents.
-    - **Riso:** Risograph-inspired cobalt, fluorescent pink and sunflower yellow on white, with DIN-style headings.
-    - **Porcelain:** White and soft gray surfaces, graphite typography and precise blue accents with a compact, light header.
-  - **Badge styling:** Added a compact editor with live previews and configurable Subtle, Outline, Ring and Pill modifiers for category and promotional badges.
-  - `.scroll-fade`: reusable responsive edge fades for horizontal and vertical scroll containers.
 - **PageBuilder**
   - Added three new section dividers (SVG masks that can be selected per block):
     - **Torn:** A torn paper edge with irregular notches.
