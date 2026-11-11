@@ -76,7 +76,7 @@ public partial class CookieConsentManager : ICookieConsentManager
 
                     if (country != null && !country.DisplayCookieManager)
                     {
-                        return true;
+                        return false;
                     }
                 }
                 else if (_privacySettings.CookieConsentRequirement == CookieConsentRequirement.RequiredInEUCountriesOnly)
