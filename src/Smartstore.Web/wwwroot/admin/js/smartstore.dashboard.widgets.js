@@ -17,10 +17,7 @@
             const $widget = $(widget);
             const $grid = $widget.closest('[data-dashboard-load-url]');
             const $content = $widget.find('.dashboard-widget-content').first();
-            const $error = draft && $widget.hasClass('dashboard-configuring')
-                ? $widget.find('[data-dashboard-configuration-error]')
-                : $widget.find('[data-dashboard-load-error]');
-            const $buttons = $widget.find('[data-dashboard-refresh]');
+            const $buttons = $widget.find('.dashboard-refresh');
             // Widget-specific controls contribute only transient display parameters.
             const values = Object.assign({}, $widget.data('dashboardParameters'), parameters);
             const selectedTab = $content.find('[data-toggle="tab"].active').attr('href');
@@ -30,7 +27,6 @@
             $widget.attr('aria-busy', 'true');
             $controls.prop('disabled', true);
             $buttons.prop('disabled', true);
-            $error.addClass('d-none');
 
             const throbber = draft ? null : $widget.children('.dashboard-widget-body')
                 .throbber({ white: true, small: true, message: '', show: false, speed: 0 }).data('throbber');
@@ -72,7 +68,8 @@
                     $widget.triggerHandler('dashboard:loaded');
                 });
             }).fail(function () {
-                if (widget.isConnected) $error.text(window.Res.Dashboard.refreshFailed).removeClass('d-none');
+                if (!widget.isConnected) return;
+                displayNotification(window.Res.Dashboard.refreshFailed, 'error');
             }).always(function () {
                 // Keep even fast refreshes visible without delaying the data request or rendering.
                 window.setTimeout(function () {
@@ -89,7 +86,7 @@
         }
     };
 
-    $(document).on('click', '[data-dashboard-refresh]', function () {
+    $(document).on('click', '.dashboard-refresh', function () {
         Smartstore.Admin.Dashboard.loadWidget(this, true);
     });
 })(jQuery);

@@ -63,22 +63,22 @@ $dashboard-resize-handle-size: 10px;
     perspective: 1200px;
 }
 .dashboard-widget-configurable > .dashboard-widget-body,
-.dashboard-widget-configuration {
+.dashboard-widget-config {
     backface-visibility: hidden;
     transition: transform .3s ease;
 }
-.dashboard-widget-configuration {
+.dashboard-widget-config {
     transform: rotateY(180deg);
 }
 .dashboard-configuring > .dashboard-widget-body {
     transform: rotateY(-180deg);
 }
-.dashboard-configuring > .dashboard-widget-configuration {
+.dashboard-configuring > .dashboard-widget-config {
     transform: rotateY(0);
 }
 @media (prefers-reduced-motion: reduce) {
     .dashboard-widget-configurable > .dashboard-widget-body,
-    .dashboard-widget-configuration {
+    .dashboard-widget-config {
         transition: none;
     }
 }

@@ -747,7 +747,7 @@
             if (key === 'y' || event.shiftKey) historyStep(redo, undo);
             else historyStep(undo, redo);
         });
-        $(container).on('click', '[data-dashboard-remove]', function () {
+        $(container).on('click', '.dashboard-remove', function () {
             const el = this.closest('[data-instance-id]');
             confirm2({
                 message: window.Res.Dashboard.removeWidgetConfirm,
@@ -762,27 +762,25 @@
             });
         });
         function flipConfiguration(el, open) {
-            const back = el.querySelector('[data-dashboard-configuration]');
+            const back = el.querySelector('.dashboard-widget-config');
             const front = el.querySelector('.dashboard-widget-body');
-            const button = el.querySelector('[data-dashboard-configure]');
+            const button = el.querySelector('.dashboard-configure');
             el.classList.toggle('dashboard-configuring', open);
             front.inert = open;
             back.inert = !open;
             button.setAttribute('aria-expanded', String(open));
             (open ? back.querySelector('input') : button)?.focus();
         }
-        $(container).on('click', '[data-dashboard-configure]', function () {
+        $(container).on('click', '.dashboard-configure', function () {
             const button = this;
             const el = button.closest('[data-instance-id]');
-            const back = el.querySelector('[data-dashboard-configuration]');
-            const error = back.querySelector('[data-dashboard-configuration-error]');
+            const back = el.querySelector('.dashboard-widget-config');
             const save = back.querySelector('[type="submit"]');
             if (button.disabled) return;
 
             button.disabled = true;
             save.disabled = true;
-            error.classList.add('d-none');
-            back.querySelector('[data-dashboard-configuration-content]').replaceChildren();
+            back.querySelector('.card-body').replaceChildren();
             flipConfiguration(el, true);
             $.ajax({
                 url: back.dataset.configurationUrl,
@@ -795,27 +793,26 @@
                     reset
                 }
             }).done(html => {
-                $(back).find('[data-dashboard-configuration-content]').html(html);
+                $(back).children('.card-body').html(html);
                 initializeEditControls(back);
                 save.disabled = false;
                 if (el.classList.contains('dashboard-configuring')) back.querySelector('input')?.focus();
             }).fail(() => {
-                error.textContent = window.Res.Dashboard.invalid;
-                error.classList.remove('d-none');
+                displayNotification(window.Res.Dashboard.invalid, 'error');
             }).always(() => {
                 button.disabled = false;
             });
         });
-        $(container).on('click', '[data-dashboard-configuration-cancel]', function () {
+        $(container).on('click', '.dashboard-config-cancel', function () {
             flipConfiguration(this.closest('[data-instance-id]'), false);
         });
-        $(container).on('keydown', '[data-dashboard-configuration]', function (event) {
+        $(container).on('keydown', '.dashboard-widget-config', function (event) {
             if (event.key === 'Escape') {
                 event.preventDefault();
                 flipConfiguration(this.closest('[data-instance-id]'), false);
             }
         });
-        $(container).on('submit', '[data-dashboard-configuration]', function (event) {
+        $(container).on('submit', '.dashboard-widget-config', function (event) {
             event.preventDefault();
             const invalidPane = this.querySelector(':invalid')?.closest('.tab-pane');
             if (invalidPane) {
