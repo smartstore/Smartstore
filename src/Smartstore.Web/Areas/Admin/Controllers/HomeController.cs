@@ -307,11 +307,13 @@ public class HomeController : AdminController
         }
 
         await AuthorizeDashboardEditAsync(layer);
+        
         var target = saveLayer ?? layer;
         if (target != layer)
         {
             await AuthorizeDashboardEditAsync(target);
         }
+
         DashboardLayoutState state;
         try
         {
@@ -378,7 +380,7 @@ public class HomeController : AdminController
             {
                 await _dashboardService.SelectLayerAsync(AdminDashboardLayoutProvider.Id, Services.WorkContext.CurrentCustomer, layer, HttpContext.RequestAborted);
             }
-            catch (Microsoft.EntityFrameworkCore.DbUpdateException ex)
+            catch (DbUpdateException ex)
             {
                 Logger.Error(ex, "Dashboard layout was saved, but the view selection could not be saved.");
                 NotifyWarning(T("Admin.Dashboard.Editor.SelectionFailed"));
@@ -507,6 +509,7 @@ public class HomeController : AdminController
             Customer = Services.WorkContext.CurrentCustomer,
             IsEditMode = true
         };
+
         foreach (var descriptor in _dashboardService.GetDescriptors())
         {
             if (await _dashboardService.GetWidget(descriptor.SystemName).IsAvailableAsync(context, HttpContext.RequestAborted))

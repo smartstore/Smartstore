@@ -629,6 +629,10 @@
             window.history.replaceState(null, '', editorUrl);
         }
 
+        function serializeLayout(layout) {
+            return JSON.stringify({ widgets: layout.widgets.map(
+                ({ id, widgetSystemName, positions, settings }) => ({ id, widgetSystemName, positions, settings })) });
+        }
         function submit(action, command, widget, transfer = false) {
             // Keep empty editor rows until the user actually saves, including all responsive layouts.
             if (!action) {
@@ -638,8 +642,7 @@
                 }
             }
             updateNewsPositions();
-            form.elements.changesJson.value = JSON.stringify({ widgets: layout.widgets.map(
-                ({ id, widgetSystemName, positions, settings }) => ({ id, widgetSystemName, positions, settings })) });
+            form.elements.changesJson.value = serializeLayout(layout);
             form.elements.reset.value = reset ? 'true' : 'false';
             form.elements.command.value = command || '';
             form.elements.widgetSystemName.value = widget || '';
@@ -726,11 +729,26 @@
             if (!missing && settingsChanged.length) {
                 previewing = true;
                 root.inert = true;
-                const requests = settingsChanged.filter(widget => elements.get(widget.id)?.isConnected).map(widget =>
-                    Smartstore.Admin.Dashboard.loadWidget(elements.get(widget.id), false, {}, {
-                        changesJson: JSON.stringify({ widgets: state.layout.widgets.map(
-                            ({ id, widgetSystemName, positions, settings }) => ({ id, widgetSystemName, positions, settings })) }), layer: config.layer, reset: state.reset
-                    }));
+                const changesJson = serializeLayout(state.layout);
+                const requests = settingsChanged.filter(widget => elements.get(widget.id)?.isConnected).map(widget => {
+                    const el = elements.get(widget.id);
+                    return $.ajax({
+                        url: container.dataset.dashboardLoadUrl,
+                        type: 'POST',
+                        dataType: 'html',
+                        data: {
+                            instanceId: widget.id,
+                            parameters: $(el).data('dashboardParameters'),
+                            changesJson,
+                            layer: config.layer,
+                            reset: state.reset
+                        }
+                    }).done(html => {
+                        Smartstore.Admin.Dashboard.updateWidget(el, html);
+                    }).fail(() => {
+                        displayNotification(window.Res.Dashboard.invalid, 'error');
+                    });
+                });
                 Promise.allSettled(requests).then(results => {
                     if (results.every(result => result.status === 'fulfilled')) apply();
                 }).finally(() => { previewing = false; root.inert = false; });
@@ -761,6 +779,24 @@
                 }
             });
         });
+        function setConfigurationContent(form, html) {
+            const $form = $(form);
+            $form.data('validator')?.destroy();
+            $form.children('.card-body').html(html);
+            initializeEditControls(form);
+            reinitFormValidator(form);
+            $form.off('submit.validate');
+        }
+        function focusConfigurationError(form) {
+            const field = form.querySelector('.is-invalid, .input-validation-error');
+            const pane = field?.closest('.tab-pane');
+            if (pane) {
+                $(form).find('[data-toggle="tab"]').filter(function () {
+                    return this.getAttribute('href') === '#' + pane.id;
+                }).tab('show');
+            }
+            field?.focus();
+        }
         function flipConfiguration(el, open) {
             const back = el.querySelector('.dashboard-widget-config');
             const front = el.querySelector('.dashboard-widget-body');
@@ -788,16 +824,12 @@
                 type: 'POST',
                 data: {
                     instanceId: el.dataset.instanceId,
-                    changesJson: JSON.stringify({ widgets: layout.widgets.map(
-                        ({ id, widgetSystemName, positions, settings }) => ({ id, widgetSystemName, positions, settings })) }),
+                    changesJson: serializeLayout(layout),
                     layer: config.layer,
                     reset
                 }
             }).done(html => {
-                $(back).children('.card-body').html(html);
-                initializeEditControls(back);
-                reinitFormValidator(back);
-                $(back).off('submit.validate');
+                setConfigurationContent(back, html);
                 save.disabled = false;
                 if (el.classList.contains('dashboard-configuring')) back.querySelector('input')?.focus();
             }).fail(() => {
@@ -820,12 +852,7 @@
             if (previewing) return;
             const $form = $(this);
             if (!$form.valid()) {
-                const invalidPane = this.querySelector('.is-invalid, .input-validation-error')?.closest('.tab-pane');
-                if (invalidPane) {
-                    $form.find('[data-toggle="tab"]').filter(function () {
-                        return this.getAttribute('href') === '#' + invalidPane.id;
-                    }).tab('show');
-                }
+                focusConfigurationError(this);
                 return;
             }
 
@@ -834,35 +861,32 @@
             const before = capture();
             const data = $form.serialize() + '&' + $.param({
                 apply: true,
+                parameters: $(el).data('dashboardParameters'),
                 instanceId: widget.id,
-                changesJson: JSON.stringify({ widgets: layout.widgets.map(
-                    ({ id, widgetSystemName, positions, settings }) => ({ id, widgetSystemName, positions, settings })) }),
+                changesJson: serializeLayout(layout),
                 layer: config.layer,
                 reset: false
             });
             previewing = true;
             root.inert = true;
-            Smartstore.Admin.Dashboard.loadWidget(el, false, {}, data).done(response => {
+            $.ajax({
+                url: this.dataset.configurationUrl,
+                type: 'POST',
+                data
+            }).done(response => {
                 root.inert = false;
                 if (typeof response === 'string') {
-                    $form.data('validator')?.destroy();
-                    $form.children('.card-body').html(response);
-                    initializeEditControls($form);
-                    reinitFormValidator($form);
-                    $form.off('submit.validate');
-                    const invalidPane = this.querySelector('.is-invalid, .input-validation-error')?.closest('.tab-pane');
-                    if (invalidPane) {
-                        $form.find('[data-toggle="tab"]').filter(function () {
-                            return this.getAttribute('href') === '#' + invalidPane.id;
-                        }).tab('show');
-                    }
-                    this.querySelector('.is-invalid, .input-validation-error')?.focus();
+                    setConfigurationContent(this, response);
+                    focusConfigurationError(this);
                     return;
                 }
 
+                Smartstore.Admin.Dashboard.updateWidget(el, response.html);
                 widget.settings = response.settings;
                 remember(before);
                 flipConfiguration(el, false);
+            }).fail(() => {
+                displayNotification(window.Res.Dashboard.invalid, 'error');
             }).always(() => {
                 previewing = false;
                 root.inert = false;

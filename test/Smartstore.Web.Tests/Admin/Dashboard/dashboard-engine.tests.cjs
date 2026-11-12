@@ -460,7 +460,7 @@ test('free destinations stay free placements and full-width widgets can exchange
     assert.deepEqual([moved.row, neighbor.row], [1, 2]);
 });
 
-for (const outcome of ['configuration', 'validation', 'refresh']) {
+for (const outcome of ['configuration', 'validation', 'configuration-error', 'refresh']) {
     test(`widget request handles ${outcome} without a second request`, () => {
         function deferred() {
             const done = [], fail = [], always = [];
@@ -475,7 +475,28 @@ for (const outcome of ['configuration', 'validation', 'refresh']) {
         }
         const requests = [], events = [], notifications = [];
         let content = 'original', destroyed = 0, result;
-        const widget = { isConnected: true };
+        const widget = { isConnected: true, dataset: { instanceId: 'payments' } };
+        const settings = { count: 7 };
+        const entry = { id: 'payments', settings };
+        let remembered = 0, flipped = false, formContent;
+        const formSteps = [];
+        const invalidField = { closest() { return { id: 'fees' }; }, focus() { formSteps.push('focus'); } };
+        const formElement = {
+            dataset: { configurationUrl: '/configure' },
+            closest() { return widget; }, querySelector() { return outcome === 'validation' ? invalidField : null; }
+        };
+        const $form = {
+            valid() { return true; }, serialize() { return 'Count=3'; },
+            data() { return { destroy() { formSteps.push('destroy'); } }; },
+            off() { formSteps.push('off'); },
+            children() { return { html(value) { formContent = value; formSteps.push('html'); } }; },
+            find() {
+                return { filter(callback) {
+                    assert.equal(callback.call({ getAttribute() { return '#fees'; } }), true);
+                    return { tab() { formSteps.push('tab'); } };
+                } };
+            }
+        };
         const controls = {
             filter() { return this; }, prop() { return this; }, first() { return this; },
             attr() {}, index() { return -1; }
@@ -504,13 +525,14 @@ for (const outcome of ['configuration', 'validation', 'refresh']) {
             if (typeof target === 'function') return target();
             if (target === document) return { on() {} };
             if (target === widget) return $widget;
+            if (target === formElement) return $form;
             throw new Error('Unexpected jQuery target');
         };
         // The initial closest lookup needs the DOM element rather than the grid wrapper.
         const originalClosest = $widget.closest;
         $widget.closest = selector => selector === '.dashboard-widget' ? $widget : originalClosest();
         $.Deferred = deferred;
-        $.param = data => 'parameters%5Bperiod%5D=' + data.parameters.period;
+        $.param = data => new URLSearchParams({ ...data, parameters: JSON.stringify(data.parameters) }).toString();
         $.ajax = options => {
             const request = deferred();
             requests.push({ options, request });
@@ -521,26 +543,140 @@ for (const outcome of ['configuration', 'validation', 'refresh']) {
             jQuery: $, Smartstore: {}, document, Chart,
             window: { Chart, Res: { Dashboard: { invalid: 'invalid', refreshFailed: 'failed' } }, setTimeout(fn) { fn(); } },
             performance: { now() { return 0; } },
+            $, previewing: false, root: {}, config: { layer: 'User' },
+            widgetsById: new Map([['payments', entry]]), layout: { widgets: [entry] },
+            capture() { return settings; }, remember() { remembered++; },
+            flipConfiguration() { flipped = true; },
+            initializeEditControls() { formSteps.push('controls'); }, reinitFormValidator() { formSteps.push('validator'); },
             displayNotification(message) { notifications.push(message); }
         };
         vm.runInNewContext(fs.readFileSync(path.resolve(__dirname,
             '../../../../src/Smartstore.Web/wwwroot/admin/js/smartstore.dashboard.widgets.js'), 'utf8'), sandbox);
-        const form = outcome === 'refresh' ? null : 'Count=3&apply=true&instanceId=payments&changesJson=draft';
-        sandbox.Smartstore.Admin.Dashboard.loadWidget(widget, false, {}, form).done(value => { result = value; });
+        if (outcome === 'refresh') {
+            sandbox.Smartstore.Admin.Dashboard.loadWidget(widget, true).done(value => { result = value; });
+        }
+        else {
+            const editorSource = fs.readFileSync(path.resolve(__dirname,
+                '../../../../src/Smartstore.Web/wwwroot/admin/js/smartstore.dashboard.js'), 'utf8');
+            vm.runInNewContext(editorSource.slice(editorSource.indexOf('        function serializeLayout('),
+                editorSource.indexOf('        function submit(')) + editorSource.slice(
+                editorSource.indexOf('        function setConfigurationContent('),
+                editorSource.indexOf('        function flipConfiguration(')), sandbox);
+            const start = editorSource.indexOf("function (event) {", editorSource.indexOf("$(container).on('submit', '.dashboard-widget-config'"));
+            const end = editorSource.indexOf("        $(form).on('submit'", start);
+            const handler = vm.runInNewContext('(' + editorSource.slice(start, end).trim().slice(0, -2) + ')', sandbox);
+            handler.call(formElement, { preventDefault() {} });
+        }
         assert.equal(requests.length, 1);
-        assert.equal(requests[0].options.url, form ? '/configure' : '/load');
+        assert.equal(requests[0].options.url, outcome === 'refresh' ? '/load' : '/configure');
         assert.equal(requests[0].options.type, 'POST');
-        if (form) {
-            assert.equal(requests[0].options.data, form + '&parameters%5Bperiod%5D=30');
+        if (outcome !== 'refresh') {
+            const fields = new URLSearchParams(requests[0].options.data);
+            assert.equal(fields.get('Count'), '3');
+            assert.equal(fields.get('apply'), 'true');
+            assert.equal(fields.get('instanceId'), 'payments');
+            assert.equal(JSON.parse(fields.get('parameters')).period, '30');
+        }
+        if (outcome === 'configuration-error') {
+            requests[0].request.reject();
+            assert.deepEqual(notifications, ['invalid']);
+            assert.equal(entry.settings, settings);
+            assert.equal(remembered, 0);
+            assert.equal(flipped, false);
+            assert.equal(sandbox.root.inert, false);
+            return;
         }
         const response = outcome === 'configuration' ? { settings: { count: 3 }, html: 'updated' }
             : outcome === 'validation' ? '<span>Invalid count</span>' : 'refreshed';
         requests[0].request.resolve(response);
-        assert.equal(result, response);
+        if (outcome === 'refresh') assert.equal(result, response);
+        else {
+            assert.equal(remembered, outcome === 'configuration' ? 1 : 0);
+            assert.equal(flipped, outcome === 'configuration');
+            assert.equal(entry.settings, outcome === 'configuration' ? response.settings : settings);
+            assert.equal(formContent, outcome === 'validation' ? response : undefined);
+            assert.deepEqual(formSteps, outcome === 'validation' ? ['destroy', 'html', 'controls', 'validator', 'off', 'tab', 'focus'] : []);
+            assert.equal(sandbox.root.inert, false);
+        }
         assert.equal(requests.length, 1);
         assert.equal(content, outcome === 'validation' ? 'original' : outcome === 'configuration' ? 'updated' : 'refreshed');
         assert.equal(destroyed, outcome === 'validation' ? 0 : 1);
         assert.deepEqual(events, outcome === 'validation' ? [] : ['dashboard:unloading', 'dashboard:loaded']);
+        assert.deepEqual(notifications, []);
+    });
+}
+
+for (const fail of [false, true]) {
+    test(`configuration undo/redo loads the history draft and preserves history on failure (${fail})`, async () => {
+        const editorSource = fs.readFileSync(path.resolve(__dirname,
+            '../../../../src/Smartstore.Web/wwwroot/admin/js/smartstore.dashboard.js'), 'utf8');
+        const start = editorSource.indexOf('        function historyStep(');
+        const end = editorSource.indexOf("        $('#dashboard-undo')", start);
+        const oldLayout = { widgets: [{ id: 'payments', settings: { count: 3 } }] };
+        const newLayout = { widgets: [{ id: 'payments', settings: { count: 7 } }] };
+        const undo = [{ layout: oldLayout, reset: false, dirty: false }], redo = [];
+        const requests = [], updates = [], notifications = [];
+        const element = { isConnected: true };
+        const $ = () => ({ data() { return { period: '30' }; } });
+        $.ajax = options => {
+            let resolve, reject;
+            const promise = new Promise((yes, no) => { resolve = yes; reject = no; });
+            promise.done = callback => { promise.then(callback, () => {}); return promise; };
+            promise.fail = callback => { promise.then(() => {}, callback); return promise; };
+            requests.push({ options, resolve, reject });
+            return promise;
+        };
+        const sandbox = {
+            $, structuredClone, previewing: false, root: {}, config: { layer: 'User', previewUrl: '/preview' },
+            container: { dataset: { dashboardLoadUrl: '/load' } },
+            layout: newLayout, widgetsById: new Map([['payments', newLayout.widgets[0]]]),
+            elements: new Map([['payments', element]]),
+            _: { isEqual: (a, b) => JSON.stringify(a) === JSON.stringify(b) },
+            finish() {}, render() {},
+            capture() { return { layout: sandbox.layout, reset: false, dirty: true }; },
+            setLayout(layout) { sandbox.layout = layout; sandbox.widgetsById = new Map(layout.widgets.map(w => [w.id, w])); },
+            Smartstore: { Admin: { Dashboard: { updateWidget(el, html) { updates.push({ el, html }); } } } },
+            window: { Res: { Dashboard: { invalid: 'invalid' } } },
+            displayNotification(message) { notifications.push(message); }
+        };
+        vm.runInNewContext(editorSource.slice(editorSource.indexOf('        function serializeLayout('),
+            editorSource.indexOf('        function submit(')) + editorSource.slice(start, end), sandbox);
+        sandbox.historyStep(undo, redo);
+        assert.equal(requests.length, 1);
+        assert.equal(requests[0].options.url, '/load');
+        assert.equal(requests[0].options.data.instanceId, 'payments');
+        assert.equal(requests[0].options.data.parameters.period, '30');
+        assert.equal(JSON.parse(requests[0].options.data.changesJson).widgets[0].settings.count, 3);
+        assert.equal(undo.length, 1);
+        assert.equal(sandbox.root.inert, true);
+        if (fail) requests[0].reject(new Error('Load failed'));
+        else requests[0].resolve('old widget');
+        await new Promise(resolve => setImmediate(resolve));
+        assert.equal(sandbox.root.inert, false);
+        assert.equal(sandbox.previewing, false);
+        if (fail) {
+            assert.equal(undo.length, 1);
+            assert.equal(redo.length, 0);
+            assert.equal(updates.length, 0);
+            assert.equal(sandbox.layout, newLayout);
+            assert.deepEqual(notifications, ['invalid']);
+            return;
+        }
+        assert.equal(undo.length, 0);
+        assert.equal(redo.length, 1);
+        assert.equal(updates[0].el, element);
+        assert.equal(updates[0].html, 'old widget');
+        assert.equal(sandbox.layout.widgets[0].settings.count, 3);
+        sandbox.historyStep(redo, undo);
+        assert.equal(requests.length, 2);
+        assert.equal(requests[1].options.url, '/load');
+        assert.equal(JSON.parse(requests[1].options.data.changesJson).widgets[0].settings.count, 7);
+        requests[1].resolve('new widget');
+        await new Promise(resolve => setImmediate(resolve));
+        assert.equal(sandbox.layout.widgets[0].settings.count, 7);
+        assert.equal(undo.length, 1);
+        assert.equal(redo.length, 0);
+        assert.equal(updates[1].html, 'new widget');
         assert.deepEqual(notifications, []);
     });
 }
