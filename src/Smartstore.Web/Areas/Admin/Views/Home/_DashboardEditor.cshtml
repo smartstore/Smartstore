@@ -96,7 +96,7 @@
                     <button type="button" class="btn btn-light btn-destructive" id="dashboard-reset" title="@resetLabel" aria-label="@resetLabel">
                         <icon name="hi:eraser!" />
                     </button>
-                    <button type="button" class="btn btn-light" id="dashboard-cancel" disabled="@(!Model.IsDirty)">@T("Common.Cancel")</button>
+                    <button type="button" class="btn btn-light" id="dashboard-cancel">@T(Model.IsDirty ? "Common.Cancel" : "Common.Back")</button>
                     <div sm-if="Model.CanManageGlobal" class="dropdown">
                         <button type="button" class="btn btn-light dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" aria-label="@T(editorKey + "View"): @T(editorKey + "Dashboard." + Model.State.Layer)">
                             @T(editorKey + "Dashboard." + Model.State.Layer)

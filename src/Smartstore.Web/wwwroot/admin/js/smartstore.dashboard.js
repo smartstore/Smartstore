@@ -39,30 +39,35 @@
                 data: { instanceId: $widget.attr('data-instance-id'), refresh, parameters: values }
             });
             pending.set(widget, completion.promise());
-            request.done(function (result) {
-                succeeded = true;
-                response = result;
+            request.always(function (result) {
+                try {
+                    if (request.state() === 'resolved') {
+                        response = result;
 
-                if (!widget.isConnected) return;
+                        if (widget.isConnected) {
+                            $widget.data('dashboardParameters', values);
+                            Smartstore.Admin.Dashboard.updateWidget(widget, result);
+                        }
 
-                $widget.data('dashboardParameters', values);
-                Smartstore.Admin.Dashboard.updateWidget(widget, result);
-            }).fail(function () {
-                if (!widget.isConnected) return;
+                        succeeded = true;
+                    }
+                    else if (widget.isConnected) {
+                        displayNotification(window.Res.Dashboard.refreshFailed, 'error');
+                    }
+                }
+                finally {
+                    // Keep even fast refreshes visible without delaying the data request or rendering.
+                    window.setTimeout(function () {
+                        throbber?.hide();
+                        pending.delete(widget);
+                        $widget.removeAttr('aria-busy');
+                        $buttons.prop('disabled', false);
+                        $controls.prop('disabled', false);
 
-                displayNotification(window.Res.Dashboard.refreshFailed, 'error');
-            }).always(function () {
-                // Keep even fast refreshes visible without delaying the data request or rendering.
-                window.setTimeout(function () {
-                    throbber?.hide();
-                    pending.delete(widget);
-                    $widget.removeAttr('aria-busy');
-                    $buttons.prop('disabled', false);
-                    $controls.prop('disabled', false);
-
-                    if (succeeded) completion.resolve(response);
-                    else completion.reject(request);
-                }, Math.max(0, 400 - (performance.now() - startedAt)));
+                        if (succeeded) completion.resolve(response);
+                        else completion.reject(request);
+                    }, Math.max(0, 400 - (performance.now() - startedAt)));
+                }
             });
             return completion.promise();
         },
@@ -74,7 +79,6 @@
             const selectedTab = $content.find('[data-toggle="tab"].active').attr('href');
             const periods = $content.find('input[data-period]');
             const selectedPeriod = periods.index(periods.filter(':checked'));
-            $widget.triggerHandler('dashboard:unloading');
             // Chart.js keeps instances outside the DOM; release only this widget's charts.
             if (window.Chart) {
                 Object.values(Chart.instances || {}).forEach(chart => {
@@ -96,8 +100,6 @@
                         return this.getAttribute('href') === selectedTab;
                     }).tab('show');
                 }
-
-                $widget.triggerHandler('dashboard:loaded');
             });
         }
     };

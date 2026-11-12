@@ -378,7 +378,8 @@
             $('#dashboard-undo').prop('disabled', !undo.length);
             $('#dashboard-redo').prop('disabled', !redo.length);
             $(form.elements.save).prop('disabled', !dirty || previewing || leaving);
-            $('#dashboard-cancel').prop('disabled', !dirty || previewing || leaving);
+            $('#dashboard-cancel').prop('disabled', previewing || leaving)
+                .text(dirty ? window.Res.Dashboard.cancel : window.Res.Dashboard.back);
             document.querySelectorAll('[data-add-widget]').forEach(button => {
                 const descriptor = config.widgets.find(w => w.systemName === button.dataset.addWidget);
                 button.disabled = !descriptor?.allowMultipleInstances && layout.widgets.some(w => w.widgetSystemName === button.dataset.addWidget);
@@ -1027,7 +1028,7 @@
         });
         $(form).on('submit', event => { event.preventDefault(); save(); });
         $('#dashboard-cancel').on('click', () => {
-            if (!dirty || previewing || leaving) return;
+            if (previewing || leaving) return;
 
             guard(() => navigate(config.cancelUrl));
         });

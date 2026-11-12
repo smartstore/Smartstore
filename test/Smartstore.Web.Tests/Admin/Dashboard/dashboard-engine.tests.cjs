@@ -153,6 +153,7 @@ function keyboardEditor({ direction = 'ltr', blockedStorage = false, allowedSize
             const control = {
                 disabled: false,
                 prop(name, value) { this[name] = value; return this; },
+                text(value) { this.label = value; return this; },
                 toggleClass() { return this; },
                 on(name, callback) { this[name] = callback; return this; }
             };
@@ -166,7 +167,7 @@ function keyboardEditor({ direction = 'ltr', blockedStorage = false, allowedSize
         HTMLFormElement: { prototype: { submit() { submissions++; } } },
         confirm2(options) { confirmation = options; return { find: () => ({ text() {} }) }; },
         window: { innerWidth: 1200, innerHeight: 900, scrollY: 0, location: { href: 'https://example.test/admin?dashboardHistory=test', assign(url) { navigations.push(url); } },
-            Res: { Dashboard: {} }, history: { replaceState() {} }, addEventListener() {} },
+            Res: { Dashboard: { back: 'Back', cancel: 'Cancel' } }, history: { replaceState() {} }, addEventListener() {} },
         sessionStorage: {
             getItem() { if (blockedStorage) throw new Error('Storage blocked');
 
@@ -202,6 +203,7 @@ function keyboardEditor({ direction = 'ltr', blockedStorage = false, allowedSize
         redo: () => controls.get('#dashboard-redo').click(),
         cancel: () => controls.get('#dashboard-cancel').click(),
         canCancel: () => !controls.get('#dashboard-cancel').disabled,
+        cancelLabel: () => controls.get('#dashboard-cancel').label,
         navigations,
         changeLayer: layer => controls.get('[data-dashboard-edit]').click.call({ dataset: { dashboardEdit: layer } }),
         canSave: () => !controls.get(form.elements.save).disabled,
@@ -301,16 +303,20 @@ test('pointer and keyboard resizing use only allowed widths and keep the opposit
 test('personal dashboard saves changes without a confirmation', () => {
     const editor = keyboardEditor();
     assert.equal(editor.canSave(), false);
-    assert.equal(editor.canCancel(), false);
+    assert.equal(editor.canCancel(), true);
+    assert.equal(editor.cancelLabel(), 'Back');
     editor.save();
     assert.equal(editor.submissions(), 0);
     editor.press('width', 'ArrowRight');
     assert.equal(editor.canSave(), true);
     assert.equal(editor.canCancel(), true);
+    assert.equal(editor.cancelLabel(), 'Cancel');
     editor.undo();
     assert.equal(editor.canSave(), false);
-    assert.equal(editor.canCancel(), false);
+    assert.equal(editor.canCancel(), true);
+    assert.equal(editor.cancelLabel(), 'Back');
     editor.redo();
+    assert.equal(editor.cancelLabel(), 'Cancel');
     assert.equal(editor.canSave(), true);
     assert.equal(editor.canCancel(), true);
     editor.save();
@@ -515,21 +521,26 @@ test('free destinations stay free placements and full-width widgets can exchange
     assert.deepEqual([moved.row, neighbor.row], [1, 2]);
 });
 
-for (const outcome of ['configuration', 'validation', 'configuration-error', 'refresh']) {
+for (const outcome of ['configuration', 'validation', 'configuration-error', 'refresh', 'refresh-render-error', 'refresh-notification-error']) {
     test(`widget request handles ${outcome} without a second request`, () => {
+        const refreshing = outcome.startsWith('refresh');
         function deferred() {
             const done = [], fail = [], always = [];
+            let state = 'pending';
             return {
                 done(fn) { done.push(fn); return this; },
                 fail(fn) { fail.push(fn); return this; },
                 always(fn) { always.push(fn); return this; },
                 promise() { return this; },
-                resolve(value) { done.forEach(fn => fn(value)); always.forEach(fn => fn()); },
-                reject(value) { fail.forEach(fn => fn(value)); always.forEach(fn => fn()); }
+                state() { return state; },
+                resolve(value) { state = 'resolved'; done.forEach(fn => fn(value)); always.forEach(fn => fn(value)); },
+                reject(value) { state = 'rejected'; fail.forEach(fn => fn(value)); always.forEach(fn => fn(value)); }
             };
         }
-        const requests = [], events = [], notifications = [];
-        let content = 'original', destroyed = 0, result;
+        const requests = [], notifications = [], timers = [];
+        let content = 'original', destroyed = 0, result, rejected = false, busy = false, hidden = false;
+        const renderError = new Error('Widget rendering failed');
+        const notificationError = new Error('Notification failed');
         const widget = { isConnected: true, dataset: { instanceId: 'payments' } };
         const settings = { count: 7 };
         const entry = { id: 'payments', settings };
@@ -553,13 +564,17 @@ for (const outcome of ['configuration', 'validation', 'configuration-error', 're
             }
         };
         const controls = {
-            filter() { return this; }, prop() { return this; }, first() { return this; },
+            filter() { return this; }, prop(name, value) { this[name] = value; return this; }, first() { return this; },
             attr() {}, index() { return -1; }
         };
         const $content = {
             0: { contains() { return true; } },
             first() { return this; }, find() { return controls; },
-            html(value) { content = value; return this; }
+            html(value) {
+                if (outcome === 'refresh-render-error') throw renderError;
+
+                content = value; return this;
+            }
         };
         const $widget = {
             0: widget,
@@ -572,10 +587,13 @@ for (const outcome of ['configuration', 'validation', 'configuration-error', 're
                 return controls;
             },
             data(key, value) { return value === undefined ? { period: '30' } : this; },
-            attr(name) { return name === 'data-instance-id' ? 'payments' : this; },
-            removeAttr() { return this; },
-            triggerHandler(name) { events.push(name); },
-            children() { return { throbber() { return { data() { return { show() {}, hide() {} }; } }; } }; }
+            attr(name) {
+                if (name === 'aria-busy') busy = true;
+
+                return name === 'data-instance-id' ? 'payments' : this;
+            },
+            removeAttr() { busy = false; return this; },
+            children() { return { throbber() { return { data() { return { show() {}, hide() { hidden = true; } }; } }; } }; }
         };
         const document = {};
         const $ = target => {
@@ -602,21 +620,25 @@ for (const outcome of ['configuration', 'validation', 'configuration-error', 're
         const Chart = { instances: { old: { canvas: {}, destroy() { destroyed++; } } } };
         const sandbox = {
             jQuery: $, Smartstore: {}, document, Chart,
-            window: { Chart, Res: { Dashboard: { invalid: 'invalid', refreshFailed: 'failed' } }, setTimeout(fn) { fn(); } },
+            window: { Chart, Res: { Dashboard: { invalid: 'invalid', refreshFailed: 'failed' } }, setTimeout(fn) { timers.push(fn); } },
             performance: { now() { return 0; } },
             updateControls() {}, $, previewing: false, config: { layer: 'User' },
             widgetsById: new Map([['payments', entry]]), layout: { widgets: [entry] },
             capture() { return settings; }, remember() { remembered++; },
             flipConfiguration() { flipped = true; },
             initializeEditControls() { formSteps.push('controls'); }, reinitFormValidator() { formSteps.push('validator'); },
-            displayNotification(message) { notifications.push(message); }
+            displayNotification(message) {
+                if (outcome === 'refresh-notification-error') throw notificationError;
+
+                notifications.push(message);
+            }
         };
         vm.runInNewContext(fs.readFileSync(path.resolve(
             __dirname,
             '../../../../src/Smartstore.Web/wwwroot/admin/js/smartstore.dashboard.js'), 'utf8'), sandbox);
 
-        if (outcome === 'refresh') {
-            sandbox.Smartstore.Admin.Dashboard.loadWidget(widget, true).done(value => { result = value; });
+        if (refreshing) {
+            sandbox.Smartstore.Admin.Dashboard.loadWidget(widget, true).done(value => { result = value; }).fail(() => { rejected = true; });
         }
         else {
             const editorSource = fs.readFileSync(path.resolve(
@@ -636,15 +658,34 @@ for (const outcome of ['configuration', 'validation', 'configuration-error', 're
         }
 
         assert.equal(requests.length, 1);
-        assert.equal(requests[0].options.url, outcome === 'refresh' ? '/load' : '/configure');
+        assert.equal(requests[0].options.url, refreshing ? '/load' : '/configure');
         assert.equal(requests[0].options.type, 'POST');
 
-        if (outcome !== 'refresh') {
+        if (!refreshing) {
             const fields = new URLSearchParams(requests[0].options.data);
             assert.equal(fields.get('Count'), '3');
             assert.equal(fields.get('apply'), 'true');
             assert.equal(fields.get('instanceId'), 'payments');
             assert.equal(JSON.parse(fields.get('parameters')).period, '30');
+        }
+
+        if (outcome === 'refresh-render-error' || outcome === 'refresh-notification-error') {
+            assert.equal(controls.disabled, true);
+            assert.equal(busy, true);
+            assert.throws(
+                () => outcome === 'refresh-render-error' ? requests[0].request.resolve('refreshed') : requests[0].request.reject(),
+                error => error === (outcome === 'refresh-render-error' ? renderError : notificationError));
+            assert.equal(controls.disabled, true);
+            assert.equal(rejected, false);
+            timers.forEach(fn => fn());
+            assert.equal(controls.disabled, false);
+            assert.equal(busy, false);
+            assert.equal(hidden, true);
+            assert.equal(rejected, true);
+            assert.equal(result, undefined);
+            sandbox.Smartstore.Admin.Dashboard.loadWidget(widget, true);
+            assert.equal(requests.length, 2);
+            return;
         }
 
         if (outcome === 'configuration-error') {
@@ -660,6 +701,7 @@ for (const outcome of ['configuration', 'validation', 'configuration-error', 're
         const response = outcome === 'configuration' ? { settings: { count: 3 }, html: 'updated' }
             : outcome === 'validation' ? '<span>Invalid count</span>' : 'refreshed';
         requests[0].request.resolve(response);
+        timers.forEach(fn => fn());
 
         if (outcome === 'refresh') assert.equal(result, response);
         else {
@@ -676,7 +718,6 @@ for (const outcome of ['configuration', 'validation', 'configuration-error', 're
         assert.equal(requests.length, 1);
         assert.equal(content, outcome === 'validation' ? 'original' : outcome === 'configuration' ? 'updated' : 'refreshed');
         assert.equal(destroyed, outcome === 'validation' ? 0 : 1);
-        assert.deepEqual(events, outcome === 'validation' ? [] : ['dashboard:unloading', 'dashboard:loaded']);
         assert.deepEqual(notifications, []);
     });
 }
@@ -802,11 +843,14 @@ for (const layer of ['User', 'Global']) {
     });
 }
 
-test('cancel is inactive without changes and only discards after confirmation', () => {
+test('back leaves directly without changes and cancel only discards after confirmation', () => {
+    const clean = keyboardEditor();
+    clean.cancel();
+    assert.equal(clean.hasConfirmation(), false);
+    assert.deepEqual(clean.navigations, ['/admin']);
+    assert.equal(clean.submissions(), 0);
+
     const editor = keyboardEditor();
-    editor.cancel();
-    assert.equal(editor.hasConfirmation(), false);
-    assert.deepEqual(editor.navigations, []);
     editor.press('width', 'ArrowRight');
     editor.cancel();
     assert.equal(editor.hasConfirmation(), true);
