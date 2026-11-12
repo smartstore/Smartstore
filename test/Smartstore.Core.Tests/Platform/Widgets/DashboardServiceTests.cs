@@ -1161,7 +1161,7 @@ public class DashboardLayoutPersistenceTests : ServiceTestBase
     /// Verifies that reset previews are reversible and saving a personal reset leaves the shared layout intact.
     /// </summary>
     [Test]
-    public async Task Reset_Is_Only_Persisted_On_Save()
+    public async Task Loading_Reset_Layout_Does_Not_Delete_Stored_Customization()
     {
         await Save(await State(DashboardLayoutLayer.Global));
         var personal = await State(DashboardLayoutLayer.User);
