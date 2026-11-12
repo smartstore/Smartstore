@@ -606,32 +606,49 @@ $dashboard-row: auto;
     }
 
     > .card-body {
+        container-type: inline-size;
+        container-name: dashboard-widget-config;
         overflow: auto;
+    }
+
+    .form-group.form-row > .col-6 {
+        width: 100%;
+    }
+
+    @container dashboard-widget-config (min-width: 450px) {
+        .form-group.form-row > .col-6 {
+            width: 50%;
+        }
     }
 }
 
 .dashboard-widget-tools {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
     position: absolute;
     top: 0;
     right: 0;
     z-index: 3;
     margin: map-get($spacers, 2);
-    border-radius: var(--border-radius);
+    background-color: var(--body-bg);
+    border: var(--border-width) solid var(--gray-400);
+    padding: map-get($spacers, 1);
+    border-radius: var(--border-radius-md);
     opacity: 0;
     pointer-events: none;
 
-    // Multiple actions share a surface; a single button occupies the same outer bounds.
-    &:has(> .btn ~ .btn) {
-        background-color: var(--body-bg);
-        border: var(--border-width) solid var(--gray-400);
-        padding: map-get($spacers, 1);
+    &:has(> .btn:only-child) {
+        background-color: transparent;
+        border-color: transparent;
     }
 
-    > .btn:only-child {
-        --btn-bg: var(--body-bg);
-        --btn-border-color: var(--gray-400);
-        --btn-border-radius: var(--border-radius);
-        height: calc(var(--btn-height) + #{map-get($spacers, 1) * 2} + 2 * var(--border-width));
+    > .btn:not(.dashboard-refresh) {
+        --btn-border-radius: 6px;
+        --btn-font-weight: #{$font-weight-normal};
+        --btn-color: var(--gray-650);
+        --btn-active-shadow: none;
+        --btn-focus-box-shadow: none;
     }
 
     .btn:focus-visible {
