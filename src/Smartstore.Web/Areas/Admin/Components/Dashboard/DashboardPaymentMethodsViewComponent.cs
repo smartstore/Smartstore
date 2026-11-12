@@ -44,12 +44,15 @@ public class DashboardPaymentMethodsViewComponent : SmartViewComponent
 
         count = Math.Clamp(count, 1, 50);
         var providers = (await _paymentService.LoadAllPaymentProvidersAsync(onlyEnabled: true)).ToArray();
-        var names = providers.ToDictionary(x => x.Metadata.SystemName,
-            x => _moduleManager.GetLocalizedFriendlyName(x.Metadata), StringComparer.OrdinalIgnoreCase);
+        var names = providers.ToDictionary(
+            x => x.Metadata.SystemName,
+            x => _moduleManager.GetLocalizedFriendlyName(x.Metadata),
+            StringComparer.OrdinalIgnoreCase);
 
         var authorizedStoreIds = await Services.StoreMappingService.GetAuthorizedStoreIdsAsync(nameof(Customer), Services.WorkContext.CurrentCustomer.Id);
         var storeKey = authorizedStoreIds.Length == 0 ? "all" : string.Join("-", authorizedStoreIds.Order());
         var cacheKey = $"admin:dashboard:paymentmethods:v2:{storeKey}";
+
         if (refresh)
         {
             await Services.Cache.RemoveAsync(cacheKey);
@@ -83,6 +86,7 @@ public class DashboardPaymentMethodsViewComponent : SmartViewComponent
             .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
         var model = new List<DashboardPaymentMethodModel>(displayedSystemNames.Count);
+
         foreach (var item in paymentMethodTotals.Where(x => displayedSystemNames.Contains(x.SystemName)))
         {
             var amount = fees?.GetValueOrDefault(item.SystemName);
@@ -96,7 +100,8 @@ public class DashboardPaymentMethodsViewComponent : SmartViewComponent
                 TotalAmount = Services.CurrencyService.CreateMoney(item.TotalAmount, Services.CurrencyService.PrimaryCurrency),
                 FeeValue = fee,
                 FeeIsPercentage = percentage,
-                EstimatedFees = Services.CurrencyService.CreateMoney(percentage
+                EstimatedFees = Services.CurrencyService.CreateMoney(
+                    percentage
                     ? item.PaidAmount * fee.GetValueOrDefault() / 100m
                     : item.PaidOrderCount * fee.GetValueOrDefault(),
                     Services.CurrencyService.PrimaryCurrency)

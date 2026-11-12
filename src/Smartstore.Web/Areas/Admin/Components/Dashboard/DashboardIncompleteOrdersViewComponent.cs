@@ -69,11 +69,13 @@ public class DashboardIncompleteOrdersViewComponent : DashboardWidgetViewCompone
                 // Index 0: not Shipped.
                 IncompleteOrdersReportAddData(dataPoint, model, 0);
             }
+
             if (dataPoint.PaymentStatusId == (int)PaymentStatus.Pending)
             {
                 // Index 1: not paid.
                 IncompleteOrdersReportAddData(dataPoint, model, 1);
             }
+
             if (dataPoint.OrderStatusId == (int)OrderStatus.Pending)
             {
                 // Index 2: new order.

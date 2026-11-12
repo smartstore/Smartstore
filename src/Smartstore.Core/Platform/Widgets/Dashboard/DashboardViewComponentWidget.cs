@@ -118,6 +118,7 @@ public abstract class DashboardViewComponentWidget<TComponent, TSettings> : Dash
         Guard.NotNull(settings);
         var model = LoadSettings(settings);
         var result = await _settingsValidator.ValidateAsync(model, cancelToken);
+
         if (!result.IsValid)
         {
             throw new ArgumentException(result.ToString(), nameof(settings));

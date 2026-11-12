@@ -18,7 +18,11 @@ public partial class DashboardService
     }
 
     /// <inheritdoc />
-    public async Task SelectLayerAsync(string dashboardId, Customer customer, DashboardLayoutLayer layer, CancellationToken cancelToken = default)
+    public async Task SelectLayerAsync(
+        string dashboardId,
+        Customer customer,
+        DashboardLayoutLayer layer,
+        CancellationToken cancelToken = default)
     {
         RequireLayer(dashboardId, layer);
         Guard.NotNull(customer);
@@ -28,7 +32,11 @@ public partial class DashboardService
 
     /// <inheritdoc />
     public async ValueTask<DashboardLayoutState> GetLayoutStateAsync(
-        string dashboardId, Customer customer, DashboardLayoutLayer layer, bool reset = false, CancellationToken cancelToken = default)
+        string dashboardId,
+        Customer customer,
+        DashboardLayoutLayer layer,
+        bool reset = false,
+        CancellationToken cancelToken = default)
     {
         RequireLayer(dashboardId, layer);
         cancelToken.ThrowIfCancellationRequested();
@@ -50,10 +58,12 @@ public partial class DashboardService
     private void RequireLayer(string dashboardId, DashboardLayoutLayer layer)
     {
         Guard.NotEmpty(dashboardId);
+
         if (!LayoutProviders.ContainsKey(dashboardId))
         {
             throw new KeyNotFoundException($"Dashboard '{dashboardId}' is not registered.");
         }
+
         if (!Enum.IsDefined(layer))
         {
             throw new ArgumentException("Unknown dashboard layout layer.", nameof(layer));
@@ -67,6 +77,7 @@ public partial class DashboardService
         Guard.NotNull(state);
         Guard.NotNull(customer);
         RequireLayer(draft.Id, state.Layer);
+
         if (state.Layer == DashboardLayoutLayer.System || !draft.Id.EqualsNoCase(state.Layout.Id))
         {
             throw new ArgumentException("A draft requires a matching mutable dashboard state.");
@@ -83,9 +94,14 @@ public partial class DashboardService
     }
 
     /// <inheritdoc />
-    public async Task ValidateDraftAsync(DashboardLayout layout, Customer customer, DashboardLayoutLayer layer, CancellationToken cancelToken = default)
+    public async Task ValidateDraftAsync(
+        DashboardLayout layout,
+        Customer customer,
+        DashboardLayoutLayer layer,
+        CancellationToken cancelToken = default)
     {
         RequireLayer(layout.Id, layer);
+
         if (layer == DashboardLayoutLayer.System)
         {
             throw new InvalidOperationException("The system default is read-only.");
@@ -95,7 +111,11 @@ public partial class DashboardService
         await ValidateDraftAsync(layout, customer, state, cancelToken);
     }
 
-    private async Task ValidateDraftAsync(DashboardLayout layout, Customer customer, DashboardLayoutState state, CancellationToken cancelToken)
+    private async Task ValidateDraftAsync(
+        DashboardLayout layout,
+        Customer customer,
+        DashboardLayoutState state,
+        CancellationToken cancelToken)
     {
         var baseline = state.Layout;
         ApplyDraftMetadata(layout, state, customer);
@@ -105,10 +125,12 @@ public partial class DashboardService
         var context = new DashboardWidgetContext { DashboardId = layout.Id, Customer = customer, IsEditMode = true };
         var remaining = baseline.Widgets.ToDictionary(x => x.Id, StringComparer.Ordinal);
         var singletons = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
         for (var i = 0; i < layout.Widgets.Count; i++)
         {
             var instance = layout.Widgets[i];
             remaining.Remove(instance.Id, out var previous);
+
             if (previous != null && instance.WidgetSystemName != previous.WidgetSystemName)
             {
                 throw new InvalidOperationException("A widget instance cannot change its type.");
@@ -121,10 +143,12 @@ public partial class DashboardService
 
             var widget = ResolveWidget(registration);
             var descriptor = widget.Descriptor;
+
             if (!descriptor.AllowMultipleInstances && !singletons.Add(descriptor.SystemName))
             {
                 throw new InvalidOperationException("This widget only allows one instance.");
             }
+
             if (!await widget.IsAvailableAsync(context, cancelToken))
             {
                 throw new InvalidOperationException("Widget is not available.");
@@ -133,11 +157,13 @@ public partial class DashboardService
             if (previous != null)
             {
                 var policy = DashboardWidgetPolicy.Combine(descriptor.Policy, previous.Policy);
+
                 if (!policy.AllowConfigure && !JsonNode.DeepEquals(previous.Settings, instance.Settings))
                 {
                     throw new InvalidOperationException("This widget cannot be configured.");
                 }
             }
+
             layout.Widgets[i] = instance with { Policy = previous?.Policy ?? new() { AllowConfigure = descriptor.Policy.AllowConfigure } };
 
             foreach (var position in instance.Positions)
@@ -147,6 +173,7 @@ public partial class DashboardService
                 {
                     continue;
                 }
+
                 var invalidWidth = position.Size.ColumnSpan < descriptor.MinSize.ColumnSpan
                     || position.Size.ColumnSpan > descriptor.MaxSize.ColumnSpan;
                 var invalidHeight = position.Size.RowSpan is int rows
@@ -159,10 +186,12 @@ public partial class DashboardService
                     throw new InvalidOperationException("Unsupported widget size.");
                 }
             }
+
             if (instance.SettingsVersion != descriptor.SettingsVersion && (previous == null || instance.SettingsVersion != previous.SettingsVersion))
             {
                 throw new InvalidOperationException("Unsupported widget settings version.");
             }
+
             await PrepareWidgetInstanceAsync(widget, instance, cancelToken);
         }
 
@@ -173,11 +202,14 @@ public partial class DashboardService
             {
                 continue;
             }
+
             var widget = ResolveWidget(registration);
+
             if (!await widget.IsAvailableAsync(context, cancelToken))
             {
                 continue;
             }
+
             if (DashboardWidgetPolicy.Combine(widget.Descriptor.Policy, removed.Policy).IsRequired)
             {
                 throw new InvalidOperationException("A required widget cannot be removed.");
@@ -186,10 +218,16 @@ public partial class DashboardService
     }
 
     /// <inheritdoc />
-    public async Task SaveLayoutAsync(DashboardLayout layout, Customer customer, DashboardLayoutLayer layer, bool reset = false, CancellationToken cancelToken = default)
+    public async Task SaveLayoutAsync(
+        DashboardLayout layout,
+        Customer customer,
+        DashboardLayoutLayer layer,
+        bool reset = false,
+        CancellationToken cancelToken = default)
     {
         Guard.NotNull(customer);
         RequireLayer(layout.Id, layer);
+
         if (layer == DashboardLayoutLayer.System)
         {
             throw new InvalidOperationException("The system default is read-only.");
@@ -197,6 +235,7 @@ public partial class DashboardService
 
         cancelToken.ThrowIfCancellationRequested();
         string json = null;
+
         if (!reset)
         {
             var current = await GetLayoutStateAsync(layout.Id, customer, layer, cancelToken: cancelToken);
@@ -204,6 +243,7 @@ public partial class DashboardService
             layout.Revision = checked(current.Layout.Revision + 1);
             json = SerializeLayout(layout);
         }
+
         if (layer == DashboardLayoutLayer.User)
         {
             customer.GenericAttributes.Set(UserLayoutAttributePrefix + layout.Id, json, 0);
@@ -212,6 +252,7 @@ public partial class DashboardService
         else
         {
             var path = _appContext.TenantRoot.MapPath($"dashboard.{layout.Id}.json");
+
             if (reset)
             {
                 File.Delete(path);
@@ -229,6 +270,7 @@ public partial class DashboardService
                     File.Delete(temporaryPath);
                 }
             }
+
             _memCache.Remove(_memCache.BuildScopedKey($"DashboardLayout:{layout.Id}"));
         }
     }

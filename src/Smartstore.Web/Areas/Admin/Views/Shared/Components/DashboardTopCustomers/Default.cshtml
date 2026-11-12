@@ -12,8 +12,20 @@
         <div class="report-title flex-grow-1 mr-3">@T("Admin.SalesReport.TopCustomers")</div>
         <nav>
             <div class="nav btn-group" role="tablist">
-                <a class="btn btn-secondary btn-dashboard nav-item active" id="customers-quantity-tab" data-toggle="tab" href="#customers-quantity" role="tab" aria-controls="customers-quantity" aria-selected="true">@T("Admin.Dashboard.Labels.ByQuantity")</a>
-                <a class="btn btn-secondary btn-dashboard nav-item" id="customers-amount-tab" data-toggle="tab" href="#customers-amount" role="tab" aria-controls="customers-amount" aria-selected="false">@T("Admin.Dashboard.Labels.ByAmount")</a>
+                <a class="btn btn-secondary btn-dashboard nav-item active"
+                   id="customers-quantity-tab"
+                   data-toggle="tab"
+                   href="#customers-quantity"
+                   role="tab"
+                   aria-controls="customers-quantity"
+                   aria-selected="true">@T("Admin.Dashboard.Labels.ByQuantity")</a>
+                <a class="btn btn-secondary btn-dashboard nav-item"
+                   id="customers-amount-tab"
+                   data-toggle="tab"
+                   href="#customers-amount"
+                   role="tab"
+                   aria-controls="customers-amount"
+                   aria-selected="false">@T("Admin.Dashboard.Labels.ByAmount")</a>
             </div>
         </nav>
     </div>
@@ -33,7 +45,10 @@
                         {
                             <tr>
                                 <td class="display-row" title="@customer.CustomerDisplayName">
-                                    <a sm-if="canReadCustomers" asp-action="Edit" asp-controller="Customer" asp-route-id="@customer.CustomerId">@customer.CustomerDisplayName</a>
+                                    <a sm-if="canReadCustomers"
+                                       asp-action="Edit"
+                                       asp-controller="Customer"
+                                       asp-route-id="@customer.CustomerId">@customer.CustomerDisplayName</a>
                                     <span sm-if="!canReadCustomers">@customer.CustomerDisplayName</span>
                                 </td>
                                 <td class="display-row text-center font-weight-medium" title="@customer.OrderCount">@customer.OrderCount</td>
@@ -59,7 +74,10 @@
                         {
                             <tr>
                                 <td class="display-row" title="@customer.CustomerDisplayName">
-                                    <a sm-if="canReadCustomers" asp-action="Edit" asp-controller="Customer" asp-route-id="@customer.CustomerId">@customer.CustomerDisplayName</a>
+                                    <a sm-if="canReadCustomers"
+                                       asp-action="Edit"
+                                       asp-controller="Customer"
+                                       asp-route-id="@customer.CustomerId">@customer.CustomerDisplayName</a>
                                     <span sm-if="!canReadCustomers">@customer.CustomerDisplayName</span>
                                 </td>
                                 <td class="display-row text-center" title="@customer.OrderCount">@customer.OrderCount</td>

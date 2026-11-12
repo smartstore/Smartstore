@@ -5,7 +5,11 @@ const vm = require('node:vm');
 const { test } = require('node:test');
 const context = { Smartstore: { Admin: {} }, jQuery() {} };
 vm.createContext(context);
-vm.runInContext(fs.readFileSync(path.resolve(__dirname, '../../../../src/Smartstore.Web/wwwroot/admin/js/smartstore.dashboard.editor.js'), 'utf8'), context);
+vm.runInContext(
+    fs.readFileSync(
+    path.resolve(__dirname, '../../../../src/Smartstore.Web/wwwroot/admin/js/smartstore.dashboard.editor.js'),
+    'utf8'),
+    context);
 const Engine = context.Smartstore.Admin.DashboardEngine;
 const item = (id, column, row, width, extra = {}) => ({ id, column, row, size: { columnSpan: width, rowSpan: 1 }, ...extra });
 test('moving into an occupied cell pushes the other card to the next row', () => {
@@ -54,6 +58,7 @@ test('start resize respects both size limits and the grid boundary', () => {
         assert.equal(card.column, expectedStart);
         assert.equal(card.size.columnSpan, expectedWidth);
     }
+
     const card = item('a', 2, 0, 4);
     Engine.resizeStart(card, -10, 3, 12);
     assert.equal(card.column, 0);
@@ -99,21 +104,25 @@ function keyboardEditor({ direction = 'ltr', blockedStorage = false, allowedSize
         ] },
         maxHeight: 310, widgets: [{ systemName: 'Test', allowedSizes }], layer, dirty: false, reset: false
     };
+
     if (belowPosition) {
         config.layout.widgets.push({ id: 'b', widgetSystemName: 'Test', allowMove: true,
             positions: [{ breakpoint: 'xs', column: 2, row: 2, size: { columnSpan: 4, rowSpan: 1 }, minHeight: 200, ...belowPosition }] });
     }
+
     if (news) {
         config.layout.widgets.push({ id: 'news', widgetSystemName: 'Smartstore.Admin.Dashboard.NewsFeed', allowMove: false,
             positions: [
                 { breakpoint: 'xs', column: 0, row: 7, size: { columnSpan: 12, rowSpan: 1 } },
                 { breakpoint: 'lg', column: 10, row: 0, size: { columnSpan: 2, rowSpan: 6 } }
             ] });
+
         for (const rule of config.layout.rules) {
             rule.hasNewsRail = ['lg', 'xl', 'xxl'].includes(rule.breakpoint);
             rule.columnCount = rule.hasNewsRail ? 10 : 12;
         }
     }
+
     let confirmation;
     let submissions = 0;
     const form = {
@@ -138,6 +147,7 @@ function keyboardEditor({ direction = 'ltr', blockedStorage = false, allowedSize
     };
     function jquery(selector) {
         if (typeof selector === 'function') { selector(); return; }
+
         if (!controls.has(selector)) {
             const control = {
                 disabled: false,
@@ -147,6 +157,7 @@ function keyboardEditor({ direction = 'ltr', blockedStorage = false, allowedSize
             };
             controls.set(selector, control);
         }
+
         return controls.get(selector);
     }
     const sandbox = {
@@ -156,7 +167,9 @@ function keyboardEditor({ direction = 'ltr', blockedStorage = false, allowedSize
         window: { innerWidth: 1200, innerHeight: 900, scrollY: 0, location: { href: 'https://example.test/admin?dashboardHistory=test' },
             Res: { Dashboard: {} }, history: { replaceState() {} }, addEventListener() {} },
         sessionStorage: {
-            getItem() { if (blockedStorage) throw new Error('Storage blocked'); return null; },
+            getItem() { if (blockedStorage) throw new Error('Storage blocked');
+
+ return null; },
             removeItem() {}
         },
         getComputedStyle: () => ({ minHeight: '64px', direction, gridTemplateRows: '150px 150px 150px 150px', gridTemplateColumns: Array(12).fill(100).join(' ') }),
@@ -164,8 +177,16 @@ function keyboardEditor({ direction = 'ltr', blockedStorage = false, allowedSize
         cancelAnimationFrame() {}
     };
     vm.createContext(sandbox);
-    vm.runInContext(fs.readFileSync(path.resolve(__dirname, '../../../../src/Smartstore.Web/wwwroot/lib/underscore/underscore.js'), 'utf8'), sandbox);
-    vm.runInContext(fs.readFileSync(path.resolve(__dirname, '../../../../src/Smartstore.Web/wwwroot/admin/js/smartstore.dashboard.editor.js'), 'utf8'), sandbox);
+    vm.runInContext(
+        fs.readFileSync(path.resolve(__dirname, '../../../../src/Smartstore.Web/wwwroot/lib/underscore/underscore.js'), 'utf8'),
+        sandbox);
+    vm.runInContext(
+        fs.readFileSync(
+        path.resolve(
+        __dirname,
+        '../../../../src/Smartstore.Web/wwwroot/admin/js/smartstore.dashboard.editor.js'),
+        'utf8'),
+        sandbox);
     return {
         style: element.style,
         belowStyle: belowElement.style,
@@ -183,27 +204,33 @@ function keyboardEditor({ direction = 'ltr', blockedStorage = false, allowedSize
             const handle = { dataset: { dashboardResize: kind }, closest: () => element };
             handlers.get('pointerdown')[0]({ clientX: 300, clientY: 300,
                 target: { closest: () => handle }, preventDefault() {} });
+
             for (const point of points) {
                 if (point.scrollTop !== undefined) scrollContainer.scrollTop = point.scrollTop;
+
                 handlers.get('pointermove')[0]({ clientX: 300, clientY: 300, ...point });
                 sandbox.frame();
                 point.inspect?.();
             }
+
             handlers.get(points.at(-1)?.cancel ? 'pointercancel' : 'pointerup')[0]();
         },
         dragHeight(...heights) {
             const handle = { dataset: { dashboardResize: 'height' }, closest: () => element };
             handlers.get('pointerdown')[0]({ clientX: 300, clientY: 300,
                 target: { closest: () => handle }, preventDefault() {} });
+
             for (const clientY of heights) {
                 handlers.get('pointermove')[0]({ clientX: 300, clientY });
                 sandbox.frame();
             }
+
             handlers.get('pointerup')[0]();
         },
         press(kind, key) {
             const handle = { dataset: { dashboardResize: kind }, closest: () => element };
             const event = { key, target: { closest: () => handle }, preventDefault() {} };
+
             for (const handler of handlers.get('keydown')) handler(event);
         }
     };
@@ -214,7 +241,9 @@ test('each keyboard handle ignores unrelated keys without creating undo entries'
         ['width-start', ['Home', 'ArrowUp', 'ArrowDown']], ['height', ['ArrowLeft', 'ArrowRight']]]) {
         const editor = keyboardEditor();
         const before = { ...editor.style };
+
         for (const key of keys) editor.press(kind, key);
+
         assert.deepEqual(editor.style, before);
         assert.equal(editor.canUndo(), false);
     }
@@ -243,6 +272,7 @@ test('RTL start resizing keeps the opposite edge fixed even with blocked history
 // A gap is only converted into grid rows when the drop is committed.
 test('pointer and keyboard resizing use only allowed widths and keep the opposite edge fixed', () => {
     const allowedSizes = [{ columnSpan: 4, rowSpan: 1 }, { columnSpan: 6, rowSpan: 1 }];
+
     for (const direction of ['ltr', 'rtl']) {
         const editor = keyboardEditor({ allowedSizes, direction });
         editor.press('width', direction === 'ltr' ? 'ArrowRight' : 'ArrowLeft');
@@ -311,6 +341,7 @@ test('insertion respects locked placements and row-span limits atomically', () =
         assert.equal(Engine.extend(items, 'a', 3), null);
         assert.equal(JSON.stringify(items), before);
     }
+
     assert.equal(Engine.extend([item('a', 0, 0, 6, { resizable: true, allowedSizes: [{ columnSpan: 6, rowSpan: 1 }] })], 'a', 1), null);
 });
 
@@ -361,6 +392,7 @@ test('saving compacts every responsive layout without removing occupied spans', 
     const editor = keyboardEditor();
     assert.equal(editor.style.gridRow, '2 / span 1');
     editor.save();
+
     for (const p of editor.submitted().widgets[0].positions) assert.equal(p.row, 0);
 });
 
@@ -446,6 +478,7 @@ test('moving onto multiple widgets displaces them without overlaps', () => {
     const items = [moved, item('b', 0, 0, 4), item('c', 4, 0, 4), item('d', 0, 1, 8)];
     Engine.move(items, 8, 'a', original);
     assert.deepEqual(items.map(x => x.row), [0, 1, 1, 2]);
+
     for (const widget of items) assert.equal(Engine.fits(items, widget, 8), true);
 });
 
@@ -510,7 +543,9 @@ for (const outcome of ['configuration', 'validation', 'configuration-error', 're
             closest() { return { attr() { return '/load'; } }; },
             find(selector) {
                 if (selector === '.dashboard-widget-content') return $content;
+
                 if (selector === '.dashboard-widget-config') return { attr() { return '/configure'; } };
+
                 return controls;
             },
             data(key, value) { return value === undefined ? { period: '30' } : this; },
@@ -522,9 +557,13 @@ for (const outcome of ['configuration', 'validation', 'configuration-error', 're
         const document = {};
         const $ = target => {
             if (typeof target === 'function') return target();
+
             if (target === document) return { on() {} };
+
             if (target === widget) return $widget;
+
             if (target === formElement) return $form;
+
             throw new Error('Unexpected jQuery target');
         };
         // The initial closest lookup needs the DOM element rather than the grid wrapper.
@@ -549,26 +588,34 @@ for (const outcome of ['configuration', 'validation', 'configuration-error', 're
             initializeEditControls() { formSteps.push('controls'); }, reinitFormValidator() { formSteps.push('validator'); },
             displayNotification(message) { notifications.push(message); }
         };
-        vm.runInNewContext(fs.readFileSync(path.resolve(__dirname,
+        vm.runInNewContext(fs.readFileSync(path.resolve(
+            __dirname,
             '../../../../src/Smartstore.Web/wwwroot/admin/js/smartstore.dashboard.js'), 'utf8'), sandbox);
+
         if (outcome === 'refresh') {
             sandbox.Smartstore.Admin.Dashboard.loadWidget(widget, true).done(value => { result = value; });
         }
         else {
-            const editorSource = fs.readFileSync(path.resolve(__dirname,
+            const editorSource = fs.readFileSync(path.resolve(
+                __dirname,
                 '../../../../src/Smartstore.Web/wwwroot/admin/js/smartstore.dashboard.editor.js'), 'utf8');
-            vm.runInNewContext(editorSource.slice(editorSource.indexOf('        function serializeLayout('),
+            vm.runInNewContext(editorSource.slice(
+                editorSource.indexOf('        function serializeLayout('),
                 editorSource.indexOf('        function submit(')) + editorSource.slice(
-                editorSource.indexOf('        function setConfigurationContent('),
-                editorSource.indexOf('        function flipConfiguration(')), sandbox);
-            const start = editorSource.indexOf("function (event) {", editorSource.indexOf("$(container).on('submit', '.dashboard-widget-config'"));
+                    editorSource.indexOf('        function setConfigurationContent('),
+                    editorSource.indexOf('        function flipConfiguration(')), sandbox);
+            const start = editorSource.indexOf(
+                "function (event) {",
+                editorSource.indexOf("$(container).on('submit', '.dashboard-widget-config'"));
             const end = editorSource.indexOf("        $(form).on('submit'", start);
             const handler = vm.runInNewContext('(' + editorSource.slice(start, end).trim().slice(0, -2) + ')', sandbox);
             handler.call(formElement, { preventDefault() {} });
         }
+
         assert.equal(requests.length, 1);
         assert.equal(requests[0].options.url, outcome === 'refresh' ? '/load' : '/configure');
         assert.equal(requests[0].options.type, 'POST');
+
         if (outcome !== 'refresh') {
             const fields = new URLSearchParams(requests[0].options.data);
             assert.equal(fields.get('Count'), '3');
@@ -576,6 +623,7 @@ for (const outcome of ['configuration', 'validation', 'configuration-error', 're
             assert.equal(fields.get('instanceId'), 'payments');
             assert.equal(JSON.parse(fields.get('parameters')).period, '30');
         }
+
         if (outcome === 'configuration-error') {
             requests[0].request.reject();
             assert.deepEqual(notifications, ['invalid']);
@@ -585,18 +633,23 @@ for (const outcome of ['configuration', 'validation', 'configuration-error', 're
             assert.equal(sandbox.previewing, false);
             return;
         }
+
         const response = outcome === 'configuration' ? { settings: { count: 3 }, html: 'updated' }
             : outcome === 'validation' ? '<span>Invalid count</span>' : 'refreshed';
         requests[0].request.resolve(response);
+
         if (outcome === 'refresh') assert.equal(result, response);
         else {
             assert.equal(remembered, outcome === 'configuration' ? 1 : 0);
             assert.equal(flipped, outcome === 'configuration');
             assert.equal(entry.settings, outcome === 'configuration' ? response.settings : settings);
             assert.equal(formContent, outcome === 'validation' ? response : undefined);
-            assert.deepEqual(formSteps, outcome === 'validation' ? ['destroy', 'html', 'controls', 'validator', 'off', 'tab', 'focus'] : []);
+            assert.deepEqual(
+                formSteps,
+                outcome === 'validation' ? ['destroy', 'html', 'controls', 'validator', 'off', 'tab', 'focus'] : []);
             assert.equal(sandbox.previewing, false);
         }
+
         assert.equal(requests.length, 1);
         assert.equal(content, outcome === 'validation' ? 'original' : outcome === 'configuration' ? 'updated' : 'refreshed');
         assert.equal(destroyed, outcome === 'validation' ? 0 : 1);
@@ -607,7 +660,8 @@ for (const outcome of ['configuration', 'validation', 'configuration-error', 're
 
 for (const fail of [false, true]) {
     test(`configuration undo/redo loads the history draft and preserves history on failure (${fail})`, async () => {
-        const editorSource = fs.readFileSync(path.resolve(__dirname,
+        const editorSource = fs.readFileSync(path.resolve(
+            __dirname,
             '../../../../src/Smartstore.Web/wwwroot/admin/js/smartstore.dashboard.editor.js'), 'utf8');
         const start = editorSource.indexOf('        function historyStep(');
         const end = editorSource.indexOf("        $('#dashboard-undo')", start);
@@ -638,7 +692,8 @@ for (const fail of [false, true]) {
             window: { Res: { Dashboard: { invalid: 'invalid' } } },
             displayNotification(message) { notifications.push(message); }
         };
-        vm.runInNewContext(editorSource.slice(editorSource.indexOf('        function serializeLayout('),
+        vm.runInNewContext(editorSource.slice(
+            editorSource.indexOf('        function serializeLayout('),
             editorSource.indexOf('        function submit(')) + editorSource.slice(start, end), sandbox);
         sandbox.historyStep(undo, redo);
         assert.equal(requests.length, 1);
@@ -648,10 +703,13 @@ for (const fail of [false, true]) {
         assert.equal(JSON.parse(requests[0].options.data.changesJson).widgets[0].settings.count, 3);
         assert.equal(undo.length, 1);
         assert.equal(sandbox.previewing, true);
+
         if (fail) requests[0].reject(new Error('Load failed'));
         else requests[0].resolve('old widget');
+
         await new Promise(resolve => setImmediate(resolve));
         assert.equal(sandbox.previewing, false);
+
         if (fail) {
             assert.equal(undo.length, 1);
             assert.equal(redo.length, 0);
@@ -660,6 +718,7 @@ for (const fail of [false, true]) {
             assert.deepEqual(notifications, ['invalid']);
             return;
         }
+
         assert.equal(undo.length, 0);
         assert.equal(redo.length, 1);
         assert.equal(updates[0].el, element);
@@ -684,15 +743,19 @@ for (const hasNews of [false, true]) {
         for (const breakpoint of ['xs', 'sm', 'md', 'lg', 'xl', 'xxl']) {
             const editor = keyboardEditor({ news: hasNews, breakpoint });
             const desktop = ['lg', 'xl', 'xxl'].includes(breakpoint);
+
             if (hasNews) assert.equal(editor.newsStyle.gridRow, desktop ? '1 / span 2' : '3 / span 1');
+
             editor.save();
             const draft = editor.submitted();
             const news = draft.widgets.find(widget => widget.id === 'news');
             assert.equal(draft.widgets.length, hasNews ? 2 : 1);
+
             if (!hasNews) {
                 assert.equal(news, undefined);
                 continue;
             }
+
             assert.equal(news.positions.length, 6);
             assert.ok(news.positions.slice(0, 3).every(p => p.row === 1 && p.size.rowSpan === 1 && p.column === 0 && p.size.columnSpan === 12));
             assert.ok(news.positions.slice(3).every(p => p.row === 0 && p.size.rowSpan === 1 && p.column === 10 && p.size.columnSpan === 2));

@@ -48,7 +48,8 @@ public sealed class AdminDashboardTests
     public void News_Provider_Restrictions_Cannot_Be_Relaxed_By_A_Layout()
     {
         var provider = new NewsFeedDashboardWidget(Mock.Of<IPermissionService>());
-        var policy = DashboardWidgetPolicy.Combine(provider.Descriptor.Policy,
+        var policy = DashboardWidgetPolicy.Combine(
+            provider.Descriptor.Policy,
             new DashboardWidgetPolicy { AllowMove = true, AllowResize = true, AllowConfigure = true });
 
         Assert.Multiple(() =>
@@ -164,6 +165,7 @@ public sealed class AdminDashboardTests
             (new TopCustomersDashboardWidget(permissions.Object, new TopCustomersDashboardWidgetValidator()), Smartstore.Core.Security.Permissions.Dashboard.Widgets.Customers.TopCustomers),
             (new RegisteredCustomersDashboardWidget(permissions.Object), Smartstore.Core.Security.Permissions.Dashboard.Widgets.Customers.RegisteredCustomers)
         ];
+
         foreach (var (widget, permission) in widgets)
         {
             permissions.Invocations.Clear();
@@ -368,12 +370,7 @@ public sealed class AdminDashboardTests
     /// <param name="column">The expected zero-based start column.</param>
     /// <param name="row">The expected zero-based start row.</param>
     /// <param name="columnSpan">The expected number of occupied columns.</param>
-    private static void AssertPosition(
-        DashboardWidgetPosition position,
-        int column,
-        int row,
-        int columnSpan,
-        int rowSpan = 1)
+    private static void AssertPosition(DashboardWidgetPosition position, int column, int row, int columnSpan, int rowSpan = 1)
     {
         Assert.That(position.Column, Is.EqualTo(column));
         Assert.That(position.Row, Is.EqualTo(row));
@@ -508,8 +505,11 @@ public class DashboardCookieConsentsViewComponentTests
     {
         var report = new DashboardCookieConsentModel { TotalConsents = 3 };
         var cache = new Mock<ICacheManager>(MockBehavior.Strict);
-        cache.Setup(x => x.GetAsync("admin:dashboard:cookieconsents",
-            It.IsAny<Func<CacheEntryOptions, Task<DashboardCookieConsentModel>>>(), false, false))
+        cache.Setup(x => x.GetAsync(
+            "admin:dashboard:cookieconsents",
+            It.IsAny<Func<CacheEntryOptions, Task<DashboardCookieConsentModel>>>(),
+            false,
+            false))
             .ReturnsAsync(report);
         var services = new Mock<ICommonServices> { DefaultValue = DefaultValue.Mock };
         services.SetupGet(x => x.Cache).Returns(cache.Object);
@@ -533,6 +533,7 @@ public class DashboardCookieConsentsViewComponentTests
     private static async Task<DashboardCookieConsentModel> RenderReportAsync(params string[] decisions)
     {
         await using var db = new ConsentTestContext();
+
         for (var i = 0; i < decisions.Length; i++)
         {
             db.Customers.Add(new Customer { Id = i + 1 });
@@ -545,6 +546,7 @@ public class DashboardCookieConsentsViewComponentTests
                 StoreId = 0
             });
         }
+
         await db.SaveChangesAsync();
 
         var services = new Mock<ICommonServices> { DefaultValue = DefaultValue.Mock };
@@ -582,8 +584,10 @@ public class DashboardCookieConsentsViewComponentTests
             {
                 builder.Ignore(type);
             }
+
             var customer = builder.Entity<Customer>();
             customer.HasBaseType((Type)null).HasKey(x => x.Id);
+
             foreach (var property in typeof(Customer).GetProperties()
                 .Where(property => property.Name != nameof(Customer.Id)
                     && property.Name != nameof(Customer.Deleted)
@@ -591,6 +595,7 @@ public class DashboardCookieConsentsViewComponentTests
             {
                 customer.Ignore(property.Name);
             }
+
             builder.Entity<GenericAttribute>().HasBaseType((Type)null).HasKey(x => x.Id);
         }
 
@@ -616,8 +621,10 @@ public class DashboardContactRequestsViewComponentTests
     public async Task Rendering_Selects_Latest_Existing_Contacts_From_Authorized_Stores(bool restricted, int count)
     {
         await using var db = new ContactRequestsTestContext();
-        db.Stores.AddRange(new Store { Id = 1, Name = "First", Url = "https://first.example" },
+        db.Stores.AddRange(
+            new Store { Id = 1, Name = "First", Url = "https://first.example" },
             new Store { Id = 2, Name = "Second", Url = "https://second.example" });
+
         foreach (var id in Enumerable.Range(1, 8))
         {
             db.QueuedEmails.Add(new QueuedEmail
@@ -627,6 +634,7 @@ public class DashboardContactRequestsViewComponentTests
             });
             db.GenericAttributes.Add(Marker(id, id == 8 ? 2 : 1));
         }
+
         db.GenericAttributes.Add(Marker(999, 1));
         await db.SaveChangesAsync();
         db.QueuedEmails.Remove(await db.QueuedEmails.FindAsync(7));
@@ -741,7 +749,8 @@ public class ContactRequestsDashboardHookTests
         var message = Contact(storeId, testMode);
         message.MessageContext.MessageTemplateName = template;
         hook.HandleEvent(message);
-        Assert.That(message.QueuedEmail.GetHookState(ContactRequestsDashboardHook.AttributeKey),
+        Assert.That(
+            message.QueuedEmail.GetHookState(ContactRequestsDashboardHook.AttributeKey),
             expected ? Is.EqualTo((storeId, "form@example.com")) : Is.Null);
         attributes.VerifyNoOtherCalls();
     }
@@ -852,6 +861,7 @@ public class ContactRequestsDashboardHookTests
             message.QueuedEmail.Id = id;
             await hook.OnAfterSaveAsync(Entry(message.QueuedEmail), default);
         }
+
         var otherStore = Contact(2);
         hook.HandleEvent(otherStore);
         otherStore.QueuedEmail.Id = 101;
@@ -891,10 +901,12 @@ public class ContactRequestsDashboardHookTests
         var deleted = Enumerable.Range(1, count)
             .Select(id => Entry(new QueuedEmail { Id = id }, Smartstore.Data.EntityState.Deleted))
             .ToArray();
+
         foreach (var entry in deleted)
         {
             Assert.That(await hook.OnAfterSaveAsync(entry, default), Is.EqualTo(HookResult.Ok));
         }
+
         await hook.OnAfterSaveCompletedAsync(deleted.Append(Entry(new QueuedEmail { Id = count + 1 })), default);
         var saved = await db.GenericAttributes.AsNoTracking().ToListAsync();
         Assert.Multiple(() =>
@@ -937,6 +949,7 @@ internal sealed class ContactRequestsTestContext : SmartDbContext
         {
             builder.Ignore(type);
         }
+
         builder.Entity<GenericAttribute>().HasBaseType((Type)null).HasKey(x => x.Id);
         builder.Entity<QueuedEmail>().HasBaseType((Type)null).HasKey(x => x.Id);
         builder.Entity<QueuedEmail>().Ignore(x => x.EmailAccount).Ignore(x => x.Attachments);

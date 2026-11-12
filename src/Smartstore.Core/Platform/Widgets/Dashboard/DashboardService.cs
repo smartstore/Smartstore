@@ -193,6 +193,7 @@ public partial class DashboardService : IDashboardService
 
             var dashboardWidget = ResolveWidget(widgetRegistration);
             var descriptor = dashboardWidget.Descriptor;
+
             if (!descriptor.AllowMultipleInstances && !singletonWidgets.Add(descriptor.SystemName))
             {
                 throw new InvalidOperationException(
@@ -227,6 +228,7 @@ public partial class DashboardService : IDashboardService
         Guard.NotEmpty(instanceId);
         ValidateLayout(layout, layout.Id, customer);
         var instance = layout.Widgets.FirstOrDefault(x => x.Id == instanceId);
+
         if (instance == null || !Widgets.TryGetValue(instance.WidgetSystemName, out var registration))
         {
             return null;
@@ -240,6 +242,7 @@ public partial class DashboardService : IDashboardService
             Parameters = parameters ?? new Dictionary<string, string>()
         };
         var widget = ResolveWidget(registration);
+
         if (!await widget.IsAvailableAsync(context, cancelToken))
         {
             return null;
@@ -410,6 +413,7 @@ public partial class DashboardService : IDashboardService
             try
             {
                 var json = await fileSystem.ReadAllTextAsync(fileName);
+
                 if (json.IsEmpty())
                 {
                     Logger.Warn($"Ignored empty global layout file '{fileName}' for dashboard '{dashboardId}'.");
@@ -488,6 +492,7 @@ public partial class DashboardService : IDashboardService
         }
 
         var defaultColumns = descriptor.DefaultSize.ColumnSpan;
+
         if (defaultColumns < descriptor.MinSize.ColumnSpan || defaultColumns > descriptor.MaxSize.ColumnSpan)
         {
             throw new InvalidOperationException(
@@ -530,6 +535,7 @@ public partial class DashboardService : IDashboardService
             throw new InvalidOperationException($"Dashboard layout '{layout.Id}' has no widget collection.");
 
         var instanceIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
         foreach (var instance in layout.Widgets)
         {
             if (instance is null || instance.Id.IsEmpty() || instance.WidgetSystemName.IsEmpty())

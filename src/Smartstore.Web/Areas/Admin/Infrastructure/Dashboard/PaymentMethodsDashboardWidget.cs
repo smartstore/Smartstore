@@ -110,6 +110,7 @@ public class PaymentMethodsDashboardWidgetValidator : AbstractValidator<PaymentM
             foreach (var fee in fees)
             {
                 var field = $"Fees[{fee.Key}]";
+
                 if (!fee.Key.HasValue() || fee.Value == null ||
                     fee.Value.Value < 0 || fee.Value.Value > (fee.Value.IsPercentage() ? 100 : 1000000))
                 {

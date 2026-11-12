@@ -30,6 +30,7 @@ internal sealed class ContactRequestsDashboardHook : AsyncDbSaveHook<QueuedEmail
     {
         var context = message.MessageContext;
         var template = context?.MessageTemplate?.Name.NullEmpty() ?? context?.MessageTemplateName;
+
         if (context == null || context.TestMode || !MessageTemplateNames.SystemContactUs.EqualsNoCase(template))
             return;
 

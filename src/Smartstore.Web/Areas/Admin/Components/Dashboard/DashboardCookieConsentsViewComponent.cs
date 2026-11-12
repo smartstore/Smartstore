@@ -42,6 +42,7 @@ public class DashboardCookieConsentsViewComponent : SmartViewComponent
         }
 
         const string cacheKey = "admin:dashboard:cookieconsents";
+
         if (refresh)
         {
             await Services.Cache.RemoveAsync(cacheKey);
@@ -105,6 +106,7 @@ public class DashboardCookieConsentsViewComponent : SmartViewComponent
             }
 
             var properties = new Dictionary<string, JsonElement>(StringComparer.OrdinalIgnoreCase);
+
             foreach (var property in document.RootElement.EnumerateObject())
             {
                 properties[property.Name] = property.Value;
@@ -120,9 +122,11 @@ public class DashboardCookieConsentsViewComponent : SmartViewComponent
             }
 
             var answers = new JsonValueKind[_fields.Length];
+
             for (var i = 0; i < _fields.Length; i++)
             {
                 var exists = properties.TryGetValue(_fields[i].Property, out var answer);
+
                 if ((!exists && _fields[i].Required)
                     || (exists && answer.ValueKind is not (JsonValueKind.True or JsonValueKind.False)))
                 {
@@ -134,6 +138,7 @@ public class DashboardCookieConsentsViewComponent : SmartViewComponent
             }
 
             model.TotalConsents++;
+
             for (var i = 0; i < answers.Length; i++)
             {
                 if (answers[i] == JsonValueKind.True)

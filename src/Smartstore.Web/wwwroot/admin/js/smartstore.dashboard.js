@@ -6,7 +6,9 @@
     Smartstore.Admin.Dashboard = {
         loadWidget: function (element, refresh = false, parameters = {}) {
             const widget = $(element).closest('.dashboard-widget')[0];
+
             if (!widget || !widget.isConnected) return;
+
             if (pending.has(widget)) {
                 return pending.get(widget);
             }
@@ -40,11 +42,14 @@
             request.done(function (result) {
                 succeeded = true;
                 response = result;
+
                 if (!widget.isConnected) return;
+
                 $widget.data('dashboardParameters', values);
                 Smartstore.Admin.Dashboard.updateWidget(widget, result);
             }).fail(function () {
                 if (!widget.isConnected) return;
+
                 displayNotification(window.Res.Dashboard.refreshFailed, 'error');
             }).always(function () {
                 // Keep even fast refreshes visible without delaying the data request or rendering.
@@ -54,6 +59,7 @@
                     $widget.removeAttr('aria-busy');
                     $buttons.prop('disabled', false);
                     $controls.prop('disabled', false);
+
                     if (succeeded) completion.resolve(response);
                     else completion.reject(request);
                 }, Math.max(0, 400 - (performance.now() - startedAt)));
@@ -62,6 +68,7 @@
         },
         updateWidget: function (widget, html) {
             if (!widget.isConnected) return;
+
             const $widget = $(widget);
             const $content = $widget.find('.dashboard-widget-content').first();
             const selectedTab = $content.find('[data-toggle="tab"].active').attr('href');
@@ -74,18 +81,22 @@
                     if (chart.canvas && $content[0].contains(chart.canvas)) chart.destroy();
                 });
             }
+
             $content.html(html);
             // Existing Razor initializers use document-ready callbacks.
             $(function () {
                 if (!widget.isConnected) return;
+
                 if (selectedPeriod >= 0) {
                     $content.find('input[data-period]').eq(selectedPeriod).closest('label').trigger('click');
                 }
+
                 if (selectedTab) {
                     $content.find('[data-toggle="tab"]').filter(function () {
                         return this.getAttribute('href') === selectedTab;
                     }).tab('show');
                 }
+
                 $widget.triggerHandler('dashboard:loaded');
             });
         }

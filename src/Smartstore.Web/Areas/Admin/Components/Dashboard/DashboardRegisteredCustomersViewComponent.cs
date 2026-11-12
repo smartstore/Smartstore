@@ -55,6 +55,7 @@ public class DashboardRegisteredCustomersViewComponent : DashboardWidgetViewComp
                 {
                     data.QuantityFormatted[j] = data.Quantity[j].ToString("N0");
                 }
+
                 data.TotalAmount = data.Quantity.Sum();
                 data.TotalAmountFormatted = data.TotalAmount.ToString("N0");
             }

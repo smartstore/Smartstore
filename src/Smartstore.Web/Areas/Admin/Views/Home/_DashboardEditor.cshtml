@@ -38,7 +38,9 @@
             var resetLabel = T(editorKey + (Model.State.Layer == DashboardLayoutLayer.User ? "ResetPersonal" : "ResetGlobal")).Value;
 
             <div class="hstack gap-2">
-                <div class="dashboard-status d-flex align-items-center" attr-class='(!Model.IsDirty && !Model.Reset, "d-none")' aria-live="polite">
+                <div class="dashboard-status d-flex align-items-center"
+                     attr-class='(!Model.IsDirty && !Model.Reset, "d-none")'
+                     aria-live="polite">
                     <span id="dashboard-reset-status"
                           class="badge badge-warning badge-subtle badge-ring"
                           attr-class='(!Model.Reset, "d-none")'
@@ -66,9 +68,13 @@
                 <input type="hidden" name="widgetSystemName" />
                 <div class="hstack gap-2 text-nowrap" role="toolbar" aria-label="@T(editorKey + "Customize")">
                     <div class="dropdown">
-                        <button id="dashboard-picker-toggle" type="button" class="btn btn-light dropdown-toggle"
+                        <button id="dashboard-picker-toggle"
+                                type="button"
+                                class="btn btn-light dropdown-toggle"
                                 data-toggle="dropdown"
-                                aria-haspopup="true" aria-expanded="false" aria-controls="dashboard-picker">
+                                aria-haspopup="true"
+                                aria-expanded="false"
+                                aria-controls="dashboard-picker">
                             <icon name="plus" />
                             <span>@T(editorKey + "Widgets")</span>
                         </button>
@@ -124,26 +130,14 @@
                     </button>
                     <button type="button" class="btn btn-light" id="dashboard-cancel">@T("Common.Cancel")</button>
                     <div sm-if="Model.CanManageGlobal" class="dropdown">
-                        <button type="button"
-                                class="btn btn-light dropdown-toggle"
-                                data-toggle="dropdown"
-                                aria-haspopup="true"
-                                aria-expanded="false"
-                                aria-label="@T(editorKey + "View"): @T(editorKey + "Dashboard." + Model.State.Layer)">
+                        <button type="button" class="btn btn-light dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" aria-label="@T(editorKey + "View"): @T(editorKey + "Dashboard." + Model.State.Layer)">
                             @T(editorKey + "Dashboard." + Model.State.Layer)
                         </button>
                         <div class="dropdown-menu dropdown-menu-right">
-                            <button sm-if="Model.CanPersonalize"
-                                    type="button"
-                                    class="dropdown-item"
-                                    attr-class='(Model.State.Layer == DashboardLayoutLayer.User, "active")'
-                                    data-dashboard-edit="@DashboardLayoutLayer.User">
+                            <button sm-if="Model.CanPersonalize" type="button" class="dropdown-item" attr-class='(Model.State.Layer == DashboardLayoutLayer.User, "active")' data-dashboard-edit="@DashboardLayoutLayer.User">
                                 @T(editorKey + "Dashboard." + DashboardLayoutLayer.User)
                             </button>
-                            <button type="button"
-                                    class="dropdown-item"
-                                    attr-class='(Model.State.Layer == DashboardLayoutLayer.Global, "active")'
-                                    data-dashboard-edit="@DashboardLayoutLayer.Global">
+                            <button type="button" class="dropdown-item" attr-class='(Model.State.Layer == DashboardLayoutLayer.Global, "active")' data-dashboard-edit="@DashboardLayoutLayer.Global">
                                 @T(editorKey + "Dashboard." + DashboardLayoutLayer.Global)
                             </button>
                         </div>

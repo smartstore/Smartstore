@@ -33,7 +33,12 @@ public interface IDashboardService
     /// <summary>
     /// Loads a detached layer or, for reset previews, its fallback without changing storage.
     /// </summary>
-    ValueTask<DashboardLayoutState> GetLayoutStateAsync(string dashboardId, Customer? customer, DashboardLayoutLayer layer, bool reset = false, CancellationToken cancelToken = default);
+    ValueTask<DashboardLayoutState> GetLayoutStateAsync(
+        string dashboardId,
+        Customer? customer,
+        DashboardLayoutLayer layer,
+        bool reset = false,
+        CancellationToken cancelToken = default);
 
     /// <summary>
     /// Applies trusted grid and ownership metadata from a server-loaded layout state to a draft.
@@ -51,12 +56,21 @@ public interface IDashboardService
     /// <summary>
     /// Saves or resets one mutable layer after validating its widget restrictions.
     /// </summary>
-    Task SaveLayoutAsync(DashboardLayout layout, Customer customer, DashboardLayoutLayer layer, bool reset = false, CancellationToken cancelToken = default);
+    Task SaveLayoutAsync(
+        DashboardLayout layout,
+        Customer customer,
+        DashboardLayoutLayer layer,
+        bool reset = false,
+        CancellationToken cancelToken = default);
 
     /// <summary>
     /// Prepares an explicitly supplied, validated layout for rendering without changing the selected view.
     /// </summary>
-    ValueTask<DashboardRenderModel> PrepareDashboardAsync(DashboardLayout layout, Customer? customer, bool isEditMode = false, CancellationToken cancelToken = default);
+    ValueTask<DashboardRenderModel> PrepareDashboardAsync(
+        DashboardLayout layout,
+        Customer? customer,
+        bool isEditMode = false,
+        CancellationToken cancelToken = default);
 
     /// <summary>
     /// Prepares one available widget from a server-resolved layout, including its saved settings.

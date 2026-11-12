@@ -86,15 +86,25 @@ public class HomeControllerDashboardTests
             }]
         };
         Mock<IDashboardService> dashboard = null;
-        var controller = CreateController(true, false, DashboardLayoutLayer.User, service =>
-        {
-            dashboard = service;
-            service.Setup(x => x.GetWidget(descriptor.SystemName)).Returns(widget.Object);
-            service.Setup(x => x.GetLayoutStateAsync(layout.Id, It.IsAny<Customer>(), DashboardLayoutLayer.User, true, It.IsAny<CancellationToken>()))
-                .ReturnsAsync(new DashboardLayoutState { Layout = layout, Layer = DashboardLayoutLayer.User, Source = DashboardLayoutLayer.Global });
-        });
+        var controller = CreateController(
+            true,
+            false,
+            DashboardLayoutLayer.User,
+            service =>
+            {
+                dashboard = service;
+                service.Setup(x => x.GetWidget(descriptor.SystemName)).Returns(widget.Object);
+                service.Setup(x => x.GetLayoutStateAsync(
+                    layout.Id,
+                    It.IsAny<Customer>(),
+                    DashboardLayoutLayer.User,
+                    true,
+                    It.IsAny<CancellationToken>()))
+                    .ReturnsAsync(new DashboardLayoutState { Layout = layout, Layer = DashboardLayoutLayer.User, Source = DashboardLayoutLayer.Global });
+            });
 
         var result = await controller.DashboardConfigure("instance", descriptor.SystemName, DashboardLayoutLayer.User, null, true);
+
         if (available && configurable)
         {
             Assert.That(result, Is.TypeOf<PartialViewResult>());
@@ -107,8 +117,12 @@ public class HomeControllerDashboardTests
             widget.Verify(x => x.CreateConfigurationWidgetAsync(It.IsAny<DashboardWidgetContext>(), It.IsAny<DashboardWidgetInstance>()), Times.Never);
         }
 
-        dashboard.Verify(x => x.SaveLayoutAsync(It.IsAny<DashboardLayout>(), It.IsAny<Customer>(), It.IsAny<DashboardLayoutLayer>(),
-            It.IsAny<bool>(), It.IsAny<CancellationToken>()), Times.Never);
+        dashboard.Verify(x => x.SaveLayoutAsync(
+            It.IsAny<DashboardLayout>(),
+            It.IsAny<Customer>(),
+            It.IsAny<DashboardLayoutLayer>(),
+            It.IsAny<bool>(),
+            It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [TestCase("Count", "3", true)]
@@ -141,21 +155,41 @@ public class HomeControllerDashboardTests
         };
         var layout = new DashboardLayout(AdminDashboardLayoutProvider.Id) { Widgets = [instance] };
         Mock<IDashboardService> dashboard = null;
-        var controller = CreateController(true, false, DashboardLayoutLayer.User, service =>
-        {
-            dashboard = service;
-            service.Setup(x => x.GetWidget("test-widget")).Returns(widget.Object);
-            service.Setup(x => x.GetLayoutStateAsync(layout.Id, It.IsAny<Customer>(), DashboardLayoutLayer.User, false, It.IsAny<CancellationToken>()))
-                .ReturnsAsync(new DashboardLayoutState { Layout = layout, Layer = DashboardLayoutLayer.User, Source = DashboardLayoutLayer.User });
-            service.Setup(x => x.PrepareWidgetAsync(It.IsAny<DashboardLayout>(), "instance", It.IsAny<Customer>(), false,
-                It.IsAny<IReadOnlyDictionary<string, string>>(), It.IsAny<CancellationToken>()))
-                .Returns((DashboardLayout draft, string id, Customer customer, bool refresh, IReadOnlyDictionary<string, string> parameters, CancellationToken token) =>
-                    ValueTask.FromResult(new DashboardRenderItem
-                    {
-                        Instance = draft.Widgets.Single(), Descriptor = widget.Object.Descriptor,
-                        Policy = widget.Object.Descriptor.Policy, Widget = new HtmlWidget("<div>Updated widget</div>")
-                    }));
-        });
+        var controller = CreateController(
+            true,
+            false,
+            DashboardLayoutLayer.User,
+            service =>
+            {
+                dashboard = service;
+                service.Setup(x => x.GetWidget("test-widget")).Returns(widget.Object);
+                service.Setup(x => x.GetLayoutStateAsync(
+                    layout.Id,
+                    It.IsAny<Customer>(),
+                    DashboardLayoutLayer.User,
+                    false,
+                    It.IsAny<CancellationToken>()))
+                    .ReturnsAsync(new DashboardLayoutState { Layout = layout, Layer = DashboardLayoutLayer.User, Source = DashboardLayoutLayer.User });
+                service.Setup(x => x.PrepareWidgetAsync(
+                    It.IsAny<DashboardLayout>(),
+                    "instance",
+                    It.IsAny<Customer>(),
+                    false,
+                    It.IsAny<IReadOnlyDictionary<string, string>>(),
+                    It.IsAny<CancellationToken>()))
+                    .Returns((
+                        DashboardLayout draft,
+                        string id,
+                        Customer customer,
+                        bool refresh,
+                        IReadOnlyDictionary<string, string> parameters,
+                        CancellationToken token) =>
+                        ValueTask.FromResult(new DashboardRenderItem
+                        {
+                            Instance = draft.Widgets.Single(), Descriptor = widget.Object.Descriptor,
+                            Policy = widget.Object.Descriptor.Policy, Widget = new HtmlWidget("<div>Updated widget</div>")
+                        }));
+            });
         var invoker = new Mock<IWidgetInvoker<PartialViewWidget>>();
         invoker.Setup(x => x.InvokeAsync(It.IsAny<WidgetContext>(), It.IsAny<PartialViewWidget>()))
             .ReturnsAsync(new HtmlString("<div>Updated widget</div>"));
@@ -182,8 +216,12 @@ public class HomeControllerDashboardTests
 
         var changes = new DashboardLayoutChanges([new(instance.Id, instance.WidgetSystemName, instance.Positions, instance.Settings)]);
         var result = await controller.DashboardConfigure(
-            "instance", "test-widget", DashboardLayoutLayer.User, JsonSerializer.Serialize(changes, SmartJsonOptions.CamelCased),
-            apply: true, parameters: parameters);
+            "instance",
+            "test-widget",
+            DashboardLayoutLayer.User,
+            JsonSerializer.Serialize(changes, SmartJsonOptions.CamelCased),
+            apply: true,
+            parameters: parameters);
 
         if (valid)
         {
@@ -193,9 +231,15 @@ public class HomeControllerDashboardTests
             Assert.That(settings["fees"]["Payments.Example"]["value"].GetValue<decimal>(), Is.EqualTo(2.75m));
             Assert.That(json.Value.GetType().GetProperty("html").GetValue(json.Value), Is.EqualTo("<div>Updated widget</div>"));
             Assert.That(controller.ModelState, Is.Empty);
-            dashboard.Verify(x => x.PrepareWidgetAsync(layout, "instance", It.IsAny<Customer>(), false, parameters,
+            dashboard.Verify(x => x.PrepareWidgetAsync(
+                layout,
+                "instance",
+                It.IsAny<Customer>(),
+                false,
+                parameters,
                 It.IsAny<CancellationToken>()), Times.Once);
-            invoker.Verify(x => x.InvokeAsync(It.IsAny<WidgetContext>(),
+            invoker.Verify(x => x.InvokeAsync(
+                It.IsAny<WidgetContext>(),
                 It.Is<PartialViewWidget>(v => v.ViewName == "_DashboardWidget" && v.Model is DashboardRenderItem)), Times.Once);
         }
         else
@@ -204,12 +248,22 @@ public class HomeControllerDashboardTests
             Assert.That(controller.ModelState[field].Errors, Is.Not.Empty);
             Assert.That(controller.ModelState[field].AttemptedValue, Is.EqualTo(value));
             Assert.That(layout.Widgets.Single().Settings.ToJsonString(), Is.EqualTo(instance.Settings.ToJsonString()));
-            dashboard.Verify(x => x.PrepareWidgetAsync(It.IsAny<DashboardLayout>(), It.IsAny<string>(), It.IsAny<Customer>(),
-                It.IsAny<bool>(), It.IsAny<IReadOnlyDictionary<string, string>>(), It.IsAny<CancellationToken>()), Times.Never);
+            dashboard.Verify(x => x.PrepareWidgetAsync(
+                It.IsAny<DashboardLayout>(),
+                It.IsAny<string>(),
+                It.IsAny<Customer>(),
+                It.IsAny<bool>(),
+                It.IsAny<IReadOnlyDictionary<string, string>>(),
+                It.IsAny<CancellationToken>()), Times.Never);
             invoker.Verify(x => x.InvokeAsync(It.IsAny<WidgetContext>(), It.IsAny<PartialViewWidget>()), Times.Never);
         }
-        dashboard.Verify(x => x.SaveLayoutAsync(It.IsAny<DashboardLayout>(), It.IsAny<Customer>(), It.IsAny<DashboardLayoutLayer>(),
-            It.IsAny<bool>(), It.IsAny<CancellationToken>()), Times.Never);
+
+        dashboard.Verify(x => x.SaveLayoutAsync(
+            It.IsAny<DashboardLayout>(),
+            It.IsAny<Customer>(),
+            It.IsAny<DashboardLayoutLayer>(),
+            It.IsAny<bool>(),
+            It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Test]
@@ -219,7 +273,10 @@ public class HomeControllerDashboardTests
         var controller = CreateController(true, false, DashboardLayoutLayer.User, service => dashboard = service);
         var result = await controller.DashboardConfigure("missing", "widget", DashboardLayoutLayer.User, "{\"widgets\":[]}");
         Assert.That(result, Is.TypeOf<NotFoundResult>());
-        dashboard.Verify(x => x.ValidateDraftAsync(It.IsAny<DashboardLayout>(), It.IsAny<Customer>(), DashboardLayoutLayer.User,
+        dashboard.Verify(x => x.ValidateDraftAsync(
+            It.IsAny<DashboardLayout>(),
+            It.IsAny<Customer>(),
+            DashboardLayoutLayer.User,
             It.IsAny<CancellationToken>()), Times.Once);
     }
 
@@ -233,10 +290,19 @@ public class HomeControllerDashboardTests
         var result = await controller.DashboardWidget("missing", true);
         Assert.That(result, Is.TypeOf<NotFoundResult>());
         service.Verify(x => x.GetLayoutStateAsync("admin-dashboard", It.IsAny<Customer>(), expected, false, It.IsAny<CancellationToken>()), Times.Once());
-        service.Verify(x => x.PrepareWidgetAsync(It.IsAny<DashboardLayout>(), "missing", It.IsAny<Customer>(), true,
-            It.IsAny<IReadOnlyDictionary<string, string>>(), It.IsAny<CancellationToken>()), Times.Once());
-        service.Verify(x => x.SaveLayoutAsync(It.IsAny<DashboardLayout>(), It.IsAny<Customer>(), It.IsAny<DashboardLayoutLayer>(),
-            It.IsAny<bool>(), It.IsAny<CancellationToken>()), Times.Never());
+        service.Verify(x => x.PrepareWidgetAsync(
+            It.IsAny<DashboardLayout>(),
+            "missing",
+            It.IsAny<Customer>(),
+            true,
+            It.IsAny<IReadOnlyDictionary<string, string>>(),
+            It.IsAny<CancellationToken>()), Times.Once());
+        service.Verify(x => x.SaveLayoutAsync(
+            It.IsAny<DashboardLayout>(),
+            It.IsAny<Customer>(),
+            It.IsAny<DashboardLayoutLayer>(),
+            It.IsAny<bool>(),
+            It.IsAny<CancellationToken>()), Times.Never());
     }
 
     [Test]
@@ -246,10 +312,17 @@ public class HomeControllerDashboardTests
         var controller = CreateController(true, false, DashboardLayoutLayer.User, mock => service = mock);
         var result = await controller.DashboardWidget("missing", changesJson: "{\"widgets\":[]}", layer: DashboardLayoutLayer.User);
         Assert.That(result, Is.TypeOf<NotFoundResult>());
-        service.Verify(x => x.ValidateDraftAsync(It.IsAny<DashboardLayout>(), It.IsAny<Customer>(), DashboardLayoutLayer.User,
+        service.Verify(x => x.ValidateDraftAsync(
+            It.IsAny<DashboardLayout>(),
+            It.IsAny<Customer>(),
+            DashboardLayoutLayer.User,
             It.IsAny<CancellationToken>()), Times.Once());
-        service.Verify(x => x.SaveLayoutAsync(It.IsAny<DashboardLayout>(), It.IsAny<Customer>(), It.IsAny<DashboardLayoutLayer>(),
-            It.IsAny<bool>(), It.IsAny<CancellationToken>()), Times.Never());
+        service.Verify(x => x.SaveLayoutAsync(
+            It.IsAny<DashboardLayout>(),
+            It.IsAny<Customer>(),
+            It.IsAny<DashboardLayoutLayer>(),
+            It.IsAny<bool>(),
+            It.IsAny<CancellationToken>()), Times.Never());
     }
 
     [Test]
@@ -257,35 +330,55 @@ public class HomeControllerDashboardTests
     {
         Mock<IDashboardService> service = null;
         var widget = new LatestOrdersDashboardWidget(Mock.Of<IPermissionService>(), new LatestOrdersDashboardWidgetValidator());
-        var controller = CreateController(true, false, DashboardLayoutLayer.User, mock =>
-        {
-            service = mock;
-            mock.Setup(x => x.GetWidget(LatestOrdersDashboardWidget.SystemName)).Returns(widget);
-        });
-        var changes = new DashboardLayoutChanges([new DashboardWidgetPlacement("latest", LatestOrdersDashboardWidget.SystemName,
-            [new DashboardWidgetPosition { Size = new DashboardWidgetSize(4) }], new JsonObject { ["count"] = 12 })]);
-        await controller.DashboardWidget("latest", changesJson: JsonSerializer.Serialize(changes, SmartJsonOptions.CamelCased),
+        var controller = CreateController(
+            true,
+            false,
+            DashboardLayoutLayer.User,
+            mock =>
+            {
+                service = mock;
+                mock.Setup(x => x.GetWidget(LatestOrdersDashboardWidget.SystemName)).Returns(widget);
+            });
+        var changes = new DashboardLayoutChanges([new DashboardWidgetPlacement(
+            "latest",
+            LatestOrdersDashboardWidget.SystemName,
+            [new DashboardWidgetPosition { Size = new DashboardWidgetSize(4) }],
+            new JsonObject { ["count"] = 12 })]);
+        await controller.DashboardWidget(
+            "latest",
+            changesJson: JsonSerializer.Serialize(changes, SmartJsonOptions.CamelCased),
             layer: DashboardLayoutLayer.User);
         service.Verify(x => x.PrepareWidgetAsync(
             It.Is<DashboardLayout>(layout => layout.Widgets.Single().Settings["count"].GetValue<int>() == 12),
-            "latest", It.IsAny<Customer>(), false, It.IsAny<IReadOnlyDictionary<string, string>>(), It.IsAny<CancellationToken>()), Times.Once());
-        service.Verify(x => x.SaveLayoutAsync(It.IsAny<DashboardLayout>(), It.IsAny<Customer>(), It.IsAny<DashboardLayoutLayer>(),
-            It.IsAny<bool>(), It.IsAny<CancellationToken>()), Times.Never());
+            "latest",
+            It.IsAny<Customer>(),
+            false,
+            It.IsAny<IReadOnlyDictionary<string, string>>(),
+            It.IsAny<CancellationToken>()), Times.Once());
+        service.Verify(x => x.SaveLayoutAsync(
+            It.IsAny<DashboardLayout>(),
+            It.IsAny<Customer>(),
+            It.IsAny<DashboardLayoutLayer>(),
+            It.IsAny<bool>(),
+            It.IsAny<CancellationToken>()), Times.Never());
     }
 
     [Test]
     public void Widget_Draft_Requires_Edit_Permission()
     {
         var controller = CreateController(false, false, DashboardLayoutLayer.User);
-        Assert.ThrowsAsync<AccessDeniedException>(async () => await controller.DashboardWidget("widget",
-            changesJson: "{\"widgets\":[]}", layer: DashboardLayoutLayer.User));
+        Assert.ThrowsAsync<AccessDeniedException>(async () => await controller.DashboardWidget(
+            "widget",
+            changesJson: "{\"widgets\":[]}",
+            layer: DashboardLayoutLayer.User));
     }
 
     [Test]
     public async Task Widget_Draft_Rejects_Invalid_Json()
     {
         var controller = CreateController(true, false, DashboardLayoutLayer.User);
-        Assert.That(await controller.DashboardWidget("widget", changesJson: "invalid", layer: DashboardLayoutLayer.User),
+        Assert.That(
+            await controller.DashboardWidget("widget", changesJson: "invalid", layer: DashboardLayoutLayer.User),
             Is.TypeOf<BadRequestResult>());
     }
 
@@ -310,7 +403,12 @@ public class HomeControllerDashboardTests
         var model = (DashboardEditorModel)result.Model;
         Assert.That(model.State.Layer, Is.EqualTo(DashboardLayoutLayer.User));
         service.Verify(x => x.GetSelectedLayer(It.IsAny<string>(), It.IsAny<Customer>()), Times.Never());
-        service.Verify(x => x.SaveLayoutAsync(It.IsAny<DashboardLayout>(), It.IsAny<Customer>(), It.IsAny<DashboardLayoutLayer>(), It.IsAny<bool>(), It.IsAny<CancellationToken>()), Times.Never());
+        service.Verify(x => x.SaveLayoutAsync(
+            It.IsAny<DashboardLayout>(),
+            It.IsAny<Customer>(),
+            It.IsAny<DashboardLayoutLayer>(),
+            It.IsAny<bool>(),
+            It.IsAny<CancellationToken>()), Times.Never());
     }
 
     [TestCase(false, false)]
@@ -336,8 +434,17 @@ public class HomeControllerDashboardTests
         Mock<IDashboardService> service = null;
         var controller = CreateController(true, false, DashboardLayoutLayer.Global, mock => service = mock);
         Assert.That(await controller.DashboardSave(DashboardLayoutLayer.User, "{\"widgets\":[]}", false), Is.TypeOf<RedirectToActionResult>());
-        service.Verify(x => x.SaveLayoutAsync(It.IsAny<DashboardLayout>(), It.IsAny<Customer>(), DashboardLayoutLayer.User, false, It.IsAny<CancellationToken>()), Times.Once());
-        service.Verify(x => x.SelectLayerAsync(It.IsAny<string>(), It.IsAny<Customer>(), It.IsAny<DashboardLayoutLayer>(), It.IsAny<CancellationToken>()), Times.Never());
+        service.Verify(x => x.SaveLayoutAsync(
+            It.IsAny<DashboardLayout>(),
+            It.IsAny<Customer>(),
+            DashboardLayoutLayer.User,
+            false,
+            It.IsAny<CancellationToken>()), Times.Once());
+        service.Verify(x => x.SelectLayerAsync(
+            It.IsAny<string>(),
+            It.IsAny<Customer>(),
+            It.IsAny<DashboardLayoutLayer>(),
+            It.IsAny<CancellationToken>()), Times.Never());
     }
 
     [TestCase(false)]
@@ -351,22 +458,49 @@ public class HomeControllerDashboardTests
             Layer = DashboardLayoutLayer.User,
             Source = DashboardLayoutLayer.Global
         };
-        var controller = CreateController(true, false, DashboardLayoutLayer.User, mock =>
-        {
-            service = mock;
-            mock.Setup(x => x.GetLayoutStateAsync("admin-dashboard", It.IsAny<Customer>(), DashboardLayoutLayer.User, reset, It.IsAny<CancellationToken>()))
-                .ReturnsAsync(state);
-        });
+        var controller = CreateController(
+            true,
+            false,
+            DashboardLayoutLayer.User,
+            mock =>
+            {
+                service = mock;
+                mock.Setup(x => x.GetLayoutStateAsync(
+                    "admin-dashboard",
+                    It.IsAny<Customer>(),
+                    DashboardLayoutLayer.User,
+                    reset,
+                    It.IsAny<CancellationToken>()))
+                    .ReturnsAsync(state);
+            });
 
-        var result = (ViewResult)await controller.DashboardPreview(DashboardLayoutLayer.User,
-            reset ? "invalid discarded JSON" : "{\"widgets\":[]}", reset, "", "");
+        var result = (ViewResult)await controller.DashboardPreview(
+            DashboardLayoutLayer.User,
+            reset ? "invalid discarded JSON" : "{\"widgets\":[]}",
+            reset,
+            "",
+            "");
         var model = (DashboardEditorModel)result.Model;
 
         Assert.That(model.State, Is.SameAs(state));
         Assert.That(model.Reset, Is.EqualTo(reset));
-        service.Verify(x => x.GetLayoutStateAsync(It.IsAny<string>(), It.IsAny<Customer>(), It.IsAny<DashboardLayoutLayer>(), It.IsAny<bool>(), It.IsAny<CancellationToken>()), Times.Once);
-        service.Verify(x => x.ValidateDraftAsync(state.Layout, It.IsAny<Customer>(), DashboardLayoutLayer.User, It.IsAny<CancellationToken>()), reset ? Times.Never() : Times.Once());
-        service.Verify(x => x.SaveLayoutAsync(It.IsAny<DashboardLayout>(), It.IsAny<Customer>(), It.IsAny<DashboardLayoutLayer>(), It.IsAny<bool>(), It.IsAny<CancellationToken>()), Times.Never);
+        service.Verify(x => x.GetLayoutStateAsync(
+            It.IsAny<string>(),
+            It.IsAny<Customer>(),
+            It.IsAny<DashboardLayoutLayer>(),
+            It.IsAny<bool>(),
+            It.IsAny<CancellationToken>()), Times.Once);
+        service.Verify(x => x.ValidateDraftAsync(
+            state.Layout,
+            It.IsAny<Customer>(),
+            DashboardLayoutLayer.User,
+            It.IsAny<CancellationToken>()), reset ? Times.Never() : Times.Once());
+        service.Verify(x => x.SaveLayoutAsync(
+            It.IsAny<DashboardLayout>(),
+            It.IsAny<Customer>(),
+            It.IsAny<DashboardLayoutLayer>(),
+            It.IsAny<bool>(),
+            It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Test]
@@ -374,23 +508,40 @@ public class HomeControllerDashboardTests
     {
         Mock<IDashboardService> service = null;
         DashboardLayout saved = null;
-        var controller = CreateController(true, false, DashboardLayoutLayer.User, mock =>
-        {
-            service = mock;
-            mock.Setup(x => x.SaveLayoutAsync(It.IsAny<DashboardLayout>(), It.IsAny<Customer>(), DashboardLayoutLayer.User, false, It.IsAny<CancellationToken>()))
-                .Callback<DashboardLayout, Customer, DashboardLayoutLayer, bool, CancellationToken>((layout, customer, layer, reset, token) => saved = layout)
-                .ThrowsAsync(new System.IO.IOException("Test write failure."));
-        });
+        var controller = CreateController(
+            true,
+            false,
+            DashboardLayoutLayer.User,
+            mock =>
+            {
+                service = mock;
+                mock.Setup(x => x.SaveLayoutAsync(
+                    It.IsAny<DashboardLayout>(),
+                    It.IsAny<Customer>(),
+                    DashboardLayoutLayer.User,
+                    false,
+                    It.IsAny<CancellationToken>()))
+                    .Callback<DashboardLayout, Customer, DashboardLayoutLayer, bool, CancellationToken>((layout, customer, layer, reset, token) => saved = layout)
+                    .ThrowsAsync(new System.IO.IOException("Test write failure."));
+            });
 
         var result = (ViewResult)await controller.DashboardSave(DashboardLayoutLayer.User, "{\"widgets\":[]}", false);
         var model = (DashboardEditorModel)result.Model;
 
         Assert.That(model.State.Layout, Is.SameAs(saved));
         Assert.That(model.IsDirty, Is.True);
-        service.Verify(x => x.GetLayoutStateAsync(It.IsAny<string>(), It.IsAny<Customer>(), It.IsAny<DashboardLayoutLayer>(), It.IsAny<bool>(), It.IsAny<CancellationToken>()), Times.Once);
+        service.Verify(x => x.GetLayoutStateAsync(
+            It.IsAny<string>(),
+            It.IsAny<Customer>(),
+            It.IsAny<DashboardLayoutLayer>(),
+            It.IsAny<bool>(),
+            It.IsAny<CancellationToken>()), Times.Once);
     }
 
-    private static HomeController CreateController(bool personal, bool global, DashboardLayoutLayer selected,
+    private static HomeController CreateController(
+        bool personal,
+        bool global,
+        DashboardLayoutLayer selected,
         Action<Mock<IDashboardService>> configure = null)
     {
         var customer = new Customer { Id = 42 };
@@ -410,10 +561,19 @@ public class HomeControllerDashboardTests
         var dashboard = new Mock<IDashboardService>();
         dashboard.Setup(x => x.GetSelectedLayer(It.IsAny<string>(), customer)).Returns(selected);
         dashboard.Setup(x => x.GetDescriptors()).Returns(Array.Empty<DashboardWidgetDescriptor>());
-        dashboard.Setup(x => x.GetLayoutStateAsync(It.IsAny<string>(), customer, It.IsAny<DashboardLayoutLayer>(), false, It.IsAny<CancellationToken>()))
+        dashboard.Setup(x => x.GetLayoutStateAsync(
+            It.IsAny<string>(),
+            customer,
+            It.IsAny<DashboardLayoutLayer>(),
+            false,
+            It.IsAny<CancellationToken>()))
             .Returns((string id, Customer user, DashboardLayoutLayer layer, bool reset, CancellationToken token) =>
                 ValueTask.FromResult(new DashboardLayoutState { Layout = new DashboardLayout(id), Layer = layer, Source = layer }));
-        dashboard.Setup(x => x.PrepareDashboardAsync(It.IsAny<DashboardLayout>(), customer, It.IsAny<bool>(), It.IsAny<CancellationToken>()))
+        dashboard.Setup(x => x.PrepareDashboardAsync(
+            It.IsAny<DashboardLayout>(),
+            customer,
+            It.IsAny<bool>(),
+            It.IsAny<CancellationToken>()))
             .Returns((DashboardLayout layout, Customer user, bool editing, CancellationToken token) => ValueTask.FromResult(new DashboardRenderModel
             {
                 Layout = layout,
@@ -427,8 +587,12 @@ public class HomeControllerDashboardTests
             .Returns((Microsoft.AspNetCore.Mvc.Routing.UrlActionContext context) =>
                 context.Action == "DashboardPreview" ? "/preview"
                     : new RouteValueDictionary(context.Values).ContainsKey("edit") ? "/edit" : "/cancel");
-        return new HomeController(Mock.Of<IUserAgentFactory>(), Mock.Of<IUserAgent>(), dashboard.Object,
-            Mock.Of<IModuleCatalog>(), modules)
+        return new HomeController(
+            Mock.Of<IUserAgentFactory>(),
+            Mock.Of<IUserAgent>(),
+            dashboard.Object,
+            Mock.Of<IModuleCatalog>(),
+            modules)
         {
             Services = services.Object,
             Url = url.Object,
@@ -454,6 +618,7 @@ public class HomeControllerDashboardTests
             Assert.That(model.Dashboard.Layout, Is.SameAs(model.State.Layout));
             Assert.That(model.Dashboard.Context.IsEditMode, Is.EqualTo(editing));
         });
+
         if (editing)
         {
             var data = JsonNode.Parse(model.EditorJson);
@@ -467,6 +632,7 @@ public class HomeControllerDashboardTests
         {
             Assert.That(model.EditorJson, Is.Null);
         }
+
         service.Verify(x => x.GetDashboardAsync(It.IsAny<string>(), It.IsAny<Customer>(), It.IsAny<bool>(), It.IsAny<CancellationToken>()), Times.Never());
         service.Verify(x => x.PrepareDashboardAsync(model.State.Layout, It.IsAny<Customer>(), editing, It.IsAny<CancellationToken>()), Times.Once());
         service.Verify(x => x.GetLayoutStateAsync("admin-dashboard", It.IsAny<Customer>(), selected, false, It.IsAny<CancellationToken>()), Times.Once());
@@ -500,7 +666,11 @@ public class HomeControllerDashboardTests
     [TestCase(false, true, DashboardLayoutLayer.User, DashboardLayoutLayer.Global)]
     [TestCase(false, true, DashboardLayoutLayer.System, DashboardLayoutLayer.Global)]
     [TestCase(true, true, DashboardLayoutLayer.System, DashboardLayoutLayer.User)]
-    public async Task Editor_Defaults_To_An_Authorized_Layer(bool personal, bool global, DashboardLayoutLayer selected, DashboardLayoutLayer expected)
+    public async Task Editor_Defaults_To_An_Authorized_Layer(
+        bool personal,
+        bool global,
+        DashboardLayoutLayer selected,
+        DashboardLayoutLayer expected)
     {
         var controller = CreateController(personal, global, selected);
         var result = (ViewResult)await controller.Index(true);
@@ -542,7 +712,8 @@ public class HomeControllerDashboardTests
         Assert.That(attribute, Is.Not.Null);
         var filter = (IAsyncAuthorizationFilter)attribute.CreateInstance(services);
         var context = new AuthorizationFilterContext(
-            new ActionContext(new DefaultHttpContext(), new RouteData(), new ActionDescriptor()), new List<IFilterMetadata>());
+            new ActionContext(new DefaultHttpContext(), new RouteData(), new ActionDescriptor()),
+            new List<IFilterMetadata>());
 
         Assert.ThrowsAsync<AccessDeniedException>(async () => await filter.OnAuthorizationAsync(context));
         permission.Verify(x => x.AuthorizeAsync(Permissions.Dashboard.Read, null, false), Times.Once);
@@ -608,7 +779,9 @@ public class DashboardEditorMapperTests
     {
         var baseline = Baseline();
         var changes = new DashboardLayoutChanges(baseline.Widgets.Select(w => new DashboardWidgetPlacement(
-            w.Id, w.WidgetSystemName, [new DashboardWidgetPosition { Size = new DashboardWidgetSize(4, 2) }])).ToArray());
+            w.Id,
+            w.WidgetSystemName,
+            [new DashboardWidgetPosition { Size = new DashboardWidgetSize(4, 2) }])).ToArray());
         var json = JsonSerializer.Serialize(changes, SmartJsonOptions.CamelCased);
         var result = DashboardEditorMapper.ApplyChanges(DashboardEditorMapper.ReadChanges(json), baseline, Mock.Of<IDashboardService>());
         Assert.That(result.Widgets[0].GetPosition(DashboardBreakpoint.Xs).Size.RowSpan, Is.EqualTo(2));
@@ -626,7 +799,9 @@ public class DashboardEditorMapperTests
         var baseline = Baseline();
         var instance = baseline.Widgets[0];
         var changes = new DashboardLayoutChanges(
-            [new DashboardWidgetPlacement(instance.Id, instance.WidgetSystemName,
+            [new DashboardWidgetPlacement(
+                instance.Id,
+                instance.WidgetSystemName,
                 [new DashboardWidgetPosition { Breakpoint = (DashboardBreakpoint)breakpoint, Row = row, Size = new DashboardWidgetSize(4, rowSpan) }])]);
 
         Assert.Throws<ArgumentException>(() => DashboardEditorMapper.ApplyChanges(changes, baseline, new Mock<IDashboardService>(MockBehavior.Strict).Object));
@@ -696,7 +871,8 @@ public class DashboardEditorMapperTests
         var widgets = document.RootElement.GetProperty("layout").GetProperty("widgets").EnumerateArray().ToArray();
         Assert.Multiple(() =>
         {
-            Assert.That(document.RootElement.GetProperty("layout").EnumerateObject().Select(x => x.Name),
+            Assert.That(
+                document.RootElement.GetProperty("layout").EnumerateObject().Select(x => x.Name),
                 Is.EquivalentTo(new[] { "id", "columnCount", "widgets", "rules" }));
             Assert.That(json, Does.Not.Contain("preserve-me").And.Not.Contain("serverSetting").And.Not.Contain("revision").And.Not.Contain("customerId"));
             Assert.That(widgets.Single(x => x.GetProperty("id").GetString() == "existing").GetProperty("allowMove").GetBoolean(), Is.True);
@@ -740,7 +916,9 @@ public class DashboardEditorMapperTests
         var unavailable = baseline.Widgets[1];
         var changes = new DashboardLayoutChanges(
         [
-            new DashboardWidgetPlacement(existing.Id, existing.WidgetSystemName,
+            new DashboardWidgetPlacement(
+                existing.Id,
+                existing.WidgetSystemName,
                 [new DashboardWidgetPosition { Row = 2, Size = new DashboardWidgetSize(4) }]),
             new DashboardWidgetPlacement(unavailable.Id, unavailable.WidgetSystemName, unavailable.Positions)
         ]);
@@ -795,8 +973,10 @@ public class DashboardEditorMapperTests
     {
         var baseline = Baseline();
         var instance = baseline.Widgets[0];
-        var placement = new DashboardWidgetPlacement(instance.Id,
-            changeType ? "Another.Widget" : instance.WidgetSystemName, instance.Positions);
+        var placement = new DashboardWidgetPlacement(
+            instance.Id,
+            changeType ? "Another.Widget" : instance.WidgetSystemName,
+            instance.Positions);
         var changes = new DashboardLayoutChanges(changeType ? [placement] : [placement, placement]);
         Assert.Throws<ArgumentException>(() => DashboardEditorMapper.ApplyChanges(changes, baseline, new Mock<IDashboardService>(MockBehavior.Strict).Object));
     }
@@ -929,7 +1109,9 @@ public class WidgetCountConfigurationTests(Type widgetType)
             ?? new DashboardWidgetInstance("contact-requests", widget.Descriptor.SystemName) { Policy = widget.Descriptor.Policy };
         instance = instance with { Settings = JsonNode.Parse(json).AsObject() };
         var defaultCount = widgetType == typeof(ContactRequestsDashboardWidget) ? 5 : 7;
+
         if (json == "{}") expected = defaultCount;
+
         var loaded = JsonSerializer.Deserialize<DashboardWidgetInstance>(JsonSerializer.Serialize(instance, SmartJsonOptions.CamelCased), SmartJsonOptions.CamelCased);
         await widget.ValidateSettingsAsync(loaded.Settings);
         var context = new DashboardWidgetContext { DashboardId = "admin-dashboard" };
@@ -987,6 +1169,7 @@ public class PaymentMethodsConfigurationTests
         var model = (PaymentMethodsDashboardWidgetSettings)configuration.Model;
         Assert.That(configuration.ViewName, Is.EqualTo("Components/DashboardPaymentMethods/Configure"));
         Assert.That(model.Count, Is.EqualTo(3));
+
         foreach (var fee in new[] { fees["Payments.Example"], model.Fees["Payments.Example"] })
         {
             Assert.That(fee.IsPercentage(), Is.True);
@@ -1027,11 +1210,14 @@ public class PaymentMethodsConfigurationTests
         var payments = new Mock<IPaymentService>(MockBehavior.Strict);
         payments.Setup(x => x.LoadAllPaymentProvidersAsync(true, 0)).ReturnsAsync(new[]
         {
-            new Provider<IPaymentMethod>(new Lazy<IPaymentMethod, ProviderMetadata>(() => Mock.Of<IPaymentMethod>(),
+            new Provider<IPaymentMethod>(new Lazy<IPaymentMethod, ProviderMetadata>(
+                () => Mock.Of<IPaymentMethod>(),
                 new ProviderMetadata { SystemName = "Payments.B", FriendlyName = "Default", ResourceKeyPattern = "{0}.{1}" })),
-            new Provider<IPaymentMethod>(new Lazy<IPaymentMethod, ProviderMetadata>(() => Mock.Of<IPaymentMethod>(),
+            new Provider<IPaymentMethod>(new Lazy<IPaymentMethod, ProviderMetadata>(
+                () => Mock.Of<IPaymentMethod>(),
                 new ProviderMetadata { SystemName = "Payments.A", FriendlyName = "Default", ResourceKeyPattern = "{0}.{1}" })),
-            new Provider<IPaymentMethod>(new Lazy<IPaymentMethod, ProviderMetadata>(() => Mock.Of<IPaymentMethod>(),
+            new Provider<IPaymentMethod>(new Lazy<IPaymentMethod, ProviderMetadata>(
+                () => Mock.Of<IPaymentMethod>(),
                 new ProviderMetadata { SystemName = "Payments.C", FriendlyName = "Default", ResourceKeyPattern = "{0}.{1}" }))
         });
         var localization = new Mock<ILocalizationService>();
@@ -1078,8 +1264,11 @@ public class PaymentMethodsConfigurationTests
     public async Task Cache_Hit_Uses_Authorized_Store_Set_And_Current_Fee_Percentage_Without_Database()
     {
         var cache = new Mock<ICacheManager>(MockBehavior.Strict);
-        cache.Setup(x => x.GetAsync("admin:dashboard:paymentmethods:v2:1-2",
-            It.IsAny<Func<CacheEntryOptions, Task<List<DashboardPaymentMethodTotals>>>>(), false, false))
+        cache.Setup(x => x.GetAsync(
+            "admin:dashboard:paymentmethods:v2:1-2",
+            It.IsAny<Func<CacheEntryOptions, Task<List<DashboardPaymentMethodTotals>>>>(),
+            false,
+            false))
             .ReturnsAsync(new List<DashboardPaymentMethodTotals>
             {
                 new() { SystemName = "Payments.Current", OrderCount = 1, TotalAmount = 200, PaidAmount = 200 }
@@ -1125,6 +1314,7 @@ public class PaymentMethodsConfigurationTests
         fee[key] = JsonNode.Parse(value);
         var settings = new JsonObject { ["fees"] = new JsonObject { ["Payments.Example"] = fee } };
         Assert.ThrowsAsync<ArgumentException>(async () => await widget.ValidateSettingsAsync(settings));
+
         if (key == "value" && value != "null")
         {
             var model = new PaymentMethodsDashboardWidgetSettings
@@ -1153,7 +1343,11 @@ public class PaymentMethodsConfigurationTests
             new ViewDataDictionary(new EmptyModelMetadataProvider(), new ModelStateDictionary()));
 
         return new PaymentMethodsDashboardWidget(
-            Mock.Of<IPermissionService>(), new PaymentMethodsDashboardWidgetValidator(), payments, modules, viewData);
+            Mock.Of<IPermissionService>(),
+            new PaymentMethodsDashboardWidgetValidator(),
+            payments,
+            modules,
+            viewData);
     }
 
     private static async Task<object> RenderAsync(int count = 10, ICacheManager cache = null, int[] storeIds = null, bool fixedFee = false)
@@ -1181,9 +1375,11 @@ public class PaymentMethodsConfigurationTests
         var payments = new Mock<IPaymentService>();
         payments.Setup(x => x.LoadAllPaymentProvidersAsync(true, 0)).ReturnsAsync(new[]
         {
-            new Provider<IPaymentMethod>(new Lazy<IPaymentMethod, ProviderMetadata>(() => Mock.Of<IPaymentMethod>(),
+            new Provider<IPaymentMethod>(new Lazy<IPaymentMethod, ProviderMetadata>(
+                () => Mock.Of<IPaymentMethod>(),
                 new ProviderMetadata { SystemName = "Payments.Current", FriendlyName = "Default", ResourceKeyPattern = "{0}.{1}" })),
-            new Provider<IPaymentMethod>(new Lazy<IPaymentMethod, ProviderMetadata>(() => Mock.Of<IPaymentMethod>(),
+            new Provider<IPaymentMethod>(new Lazy<IPaymentMethod, ProviderMetadata>(
+                () => Mock.Of<IPaymentMethod>(),
                 new ProviderMetadata { SystemName = "Payments.Active", FriendlyName = "Default", ResourceKeyPattern = "{0}.{1}" }))
         });
         var localization = new Mock<ILocalizationService>();
@@ -1225,9 +1421,11 @@ public class PaymentMethodsConfigurationTests
             {
                 builder.Ignore(type);
             }
+
             var order = builder.Entity<Order>();
             order.HasBaseType((Type)null).HasKey(x => x.Id);
             string[] included = [nameof(Order.Id), nameof(Order.StoreId), nameof(Order.PaymentMethodSystemName), nameof(Order.PaymentStatusId), nameof(Order.OrderTotal), nameof(Order.Deleted)];
+
             foreach (var property in typeof(Order).GetProperties().Where(x => !included.Contains(x.Name)))
             {
                 order.Ignore(property.Name);

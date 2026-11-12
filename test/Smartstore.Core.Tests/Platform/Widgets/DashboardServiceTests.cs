@@ -156,10 +156,15 @@ public sealed class DashboardServiceTests
         var app = new Mock<IApplicationContext>();
         app.SetupGet(x => x.TenantRoot).Returns(files.Object);
         var layout = CreateLayout(DashboardLayoutScope.Global);
-        var provider = new Lazy<IDashboardLayoutProvider, DashboardMetadata>(() => new TestLayoutProvider(layout),
+        var provider = new Lazy<IDashboardLayoutProvider, DashboardMetadata>(
+            () => new TestLayoutProvider(layout),
             new DashboardMetadata { SystemName = layout.Id });
-        var service = new Mock<DashboardService>(app.Object, cache, NullEventPublisher.Instance,
-            Array.Empty<Lazy<IDashboardWidget, DashboardMetadata>>(), new[] { provider }) { CallBase = true };
+        var service = new Mock<DashboardService>(
+            app.Object,
+            cache,
+            NullEventPublisher.Instance,
+            Array.Empty<Lazy<IDashboardWidget, DashboardMetadata>>(),
+            new[] { provider }) { CallBase = true };
         var custom = new DashboardRenderModel
         {
             Layout = layout,
@@ -665,12 +670,18 @@ public class DashboardLayoutPersistenceTests : ServiceTestBase
         _cache = new MemoryCache(new MemoryCacheOptions());
         var app = new Mock<IApplicationContext>();
         app.SetupGet(x => x.TenantRoot).Returns(_files);
-        _service = new TestDashboardService(app.Object, _cache, NullEventPublisher.Instance,
+        _service = new TestDashboardService(
+            app.Object,
+            _cache,
+            NullEventPublisher.Instance,
             [new Lazy<IDashboardWidget, DashboardMetadata>(() => new TestDashboardWidget(), new DashboardMetadata { SystemName = TestDashboardWidget.SystemName })],
             [new Lazy<IDashboardLayoutProvider, DashboardMetadata>(() => new TestLayoutProvider(DefaultLayout()), new DashboardMetadata { SystemName = "admin-dashboard" })]);
         _customer = new Customer { Id = 91000 + TestContext.CurrentContext.Random.Next(1, 100000) };
         _customer.SetGenericAttributes(new GenericAttributeCollection(
-            DbContext.GenericAttributes.Where(x => x.KeyGroup == nameof(Customer) && x.EntityId == _customer.Id), nameof(Customer), _customer.Id, 0));
+            DbContext.GenericAttributes.Where(x => x.KeyGroup == nameof(Customer) && x.EntityId == _customer.Id),
+            nameof(Customer),
+            _customer.Id,
+            0));
     }
 
     /// <summary>
@@ -681,6 +692,7 @@ public class DashboardLayoutPersistenceTests : ServiceTestBase
     {
         _cache?.Dispose();
         _files?.Dispose();
+
         if (_directory != null && Directory.Exists(_directory))
             Directory.Delete(_directory, true);
     }
@@ -726,7 +738,10 @@ public class DashboardLayoutPersistenceTests : ServiceTestBase
         files.Setup(x => x.FileExists(It.IsAny<string>())).Returns(false);
         var app = new Mock<IApplicationContext>();
         app.SetupGet(x => x.TenantRoot).Returns(files.Object);
-        _service = new TestDashboardService(app.Object, _cache, NullEventPublisher.Instance,
+        _service = new TestDashboardService(
+            app.Object,
+            _cache,
+            NullEventPublisher.Instance,
             [new Lazy<IDashboardWidget, DashboardMetadata>(() => new TestDashboardWidget(), new DashboardMetadata { SystemName = TestDashboardWidget.SystemName })],
             [new Lazy<IDashboardLayoutProvider, DashboardMetadata>(() => new TestLayoutProvider(DefaultLayout()), new DashboardMetadata { SystemName = "admin-dashboard" })]);
 
@@ -742,7 +757,10 @@ public class DashboardLayoutPersistenceTests : ServiceTestBase
     {
         var customer = new Customer { Id = id };
         customer.SetGenericAttributes(new GenericAttributeCollection(
-            DbContext.GenericAttributes.Where(x => x.KeyGroup == nameof(Customer) && x.EntityId == id), nameof(Customer), id, 0));
+            DbContext.GenericAttributes.Where(x => x.KeyGroup == nameof(Customer) && x.EntityId == id),
+            nameof(Customer),
+            id,
+            0));
         return customer;
     }
 
@@ -774,6 +792,7 @@ public class DashboardLayoutPersistenceTests : ServiceTestBase
         legacy.CustomerId = layer == DashboardLayoutLayer.User ? _customer.Id : 0;
         legacy.Widgets[0] = legacy.Widgets[0] with { SettingsVersion = 1 };
         var stored = _service.Serialize(legacy);
+
         if (layer == DashboardLayoutLayer.User)
         {
             _customer.GenericAttributes.Set("DashboardLayout.admin-dashboard", stored);
@@ -802,7 +821,10 @@ public class DashboardLayoutPersistenceTests : ServiceTestBase
             .Returns(new Smartstore.Core.Widgets.HtmlWidget("test"));
         var app = new Mock<IApplicationContext>();
         app.SetupGet(x => x.TenantRoot).Returns(_files);
-        _service = new TestDashboardService(app.Object, _cache, NullEventPublisher.Instance,
+        _service = new TestDashboardService(
+            app.Object,
+            _cache,
+            NullEventPublisher.Instance,
             [new Lazy<IDashboardWidget, DashboardMetadata>(() => widget.Object, new DashboardMetadata { SystemName = TestDashboardWidget.SystemName })],
             [new Lazy<IDashboardLayoutProvider, DashboardMetadata>(() => new TestLayoutProvider(DefaultLayout()), new DashboardMetadata { SystemName = "admin-dashboard" })]);
 
@@ -872,14 +894,18 @@ public class DashboardLayoutPersistenceTests : ServiceTestBase
         _cache = new MemoryCache(new MemoryCacheOptions());
         var app = new Mock<IApplicationContext>();
         app.SetupGet(x => x.TenantRoot).Returns(_files);
-        _service = new TestDashboardService(app.Object, _cache, NullEventPublisher.Instance,
+        _service = new TestDashboardService(
+            app.Object,
+            _cache,
+            NullEventPublisher.Instance,
             [new Lazy<IDashboardWidget, DashboardMetadata>(() => new TestDashboardWidget(), new DashboardMetadata { SystemName = TestDashboardWidget.SystemName })],
             [new Lazy<IDashboardLayoutProvider, DashboardMetadata>(() => new TestLayoutProvider(DefaultLayout()), new DashboardMetadata { SystemName = "admin-dashboard" })]);
 
         Assert.That(_service.GetSelectedLayer("admin-dashboard", _customer), Is.EqualTo(selected));
         Assert.That((await State(DashboardLayoutLayer.Global)).Layout.Widgets, Is.Empty);
         Assert.That((await State(DashboardLayoutLayer.User)).Layout.Widgets, Has.Count.EqualTo(1));
-        Assert.That((await _service.GetEffectiveLayoutAsync("admin-dashboard", _customer)).Widgets,
+        Assert.That(
+            (await _service.GetEffectiveLayoutAsync("admin-dashboard", _customer)).Widgets,
             Has.Count.EqualTo(1));
     }
 
@@ -920,7 +946,10 @@ public class DashboardLayoutPersistenceTests : ServiceTestBase
         provider.Setup(x => x.GetDefaultLayout()).Returns(DefaultLayout);
         var app = new Mock<IApplicationContext>();
         app.SetupGet(x => x.TenantRoot).Returns(_files);
-        _service = new TestDashboardService(app.Object, _cache, publisher.Object,
+        _service = new TestDashboardService(
+            app.Object,
+            _cache,
+            publisher.Object,
             [new Lazy<IDashboardWidget, DashboardMetadata>(() => new TestDashboardWidget(), new DashboardMetadata { SystemName = TestDashboardWidget.SystemName })],
             [new Lazy<IDashboardLayoutProvider, DashboardMetadata>(() => provider.Object, new DashboardMetadata { SystemName = "admin-dashboard" })]);
         var state = await State(layer);
@@ -974,16 +1003,22 @@ public class DashboardLayoutPersistenceTests : ServiceTestBase
             .Returns(ValueTask.FromResult(available));
         var app = new Mock<IApplicationContext>();
         app.SetupGet(x => x.TenantRoot).Returns(_files);
-        _service = new TestDashboardService(app.Object, _cache, NullEventPublisher.Instance,
+        _service = new TestDashboardService(
+            app.Object,
+            _cache,
+            NullEventPublisher.Instance,
             registered ? [new Lazy<IDashboardWidget, DashboardMetadata>(() => widget.Object, new DashboardMetadata { SystemName = TestDashboardWidget.SystemName })] : [],
             [new Lazy<IDashboardLayoutProvider, DashboardMetadata>(() => new TestLayoutProvider(DefaultLayout()), new DashboardMetadata { SystemName = "admin-dashboard" })]);
         var state = await State(DashboardLayoutLayer.User);
+
         if (!available)
         {
             Assert.That((await _service.PrepareDashboardAsync(state.Layout, _customer)).Widgets, Is.Empty);
             Assert.ThrowsAsync<InvalidOperationException>(async () => await Save(state));
         }
+
         state.Layout.Widgets.Clear();
+
         if (available && required)
         {
             Assert.ThrowsAsync<InvalidOperationException>(async () => await Save(state));
@@ -1005,6 +1040,7 @@ public class DashboardLayoutPersistenceTests : ServiceTestBase
     {
         var layout = new DashboardLayout("admin-dashboard");
         var widgets = new List<Lazy<IDashboardWidget, DashboardMetadata>>();
+
         foreach (var id in new[] { "visible", "hidden" })
         {
             var widget = new Mock<IDashboardWidget>();
@@ -1017,6 +1053,7 @@ public class DashboardLayoutPersistenceTests : ServiceTestBase
             });
             widget.Setup(x => x.IsAvailableAsync(It.IsAny<DashboardWidgetContext>(), It.IsAny<CancellationToken>()))
                 .Returns(ValueTask.FromResult(id == "visible" || hiddenAvailable));
+
             if (id == "hidden" && !hiddenAvailable)
             {
                 widget.Setup(x => x.MigrateSettingsAsync(It.IsAny<System.Text.Json.Nodes.JsonObject>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
@@ -1024,36 +1061,48 @@ public class DashboardLayoutPersistenceTests : ServiceTestBase
                 widget.Setup(x => x.ValidateSettingsAsync(It.IsAny<System.Text.Json.Nodes.JsonObject>(), It.IsAny<CancellationToken>()))
                     .Throws(new InvalidOperationException("Hidden widget settings must not be validated."));
             }
+
             widgets.Add(new Lazy<IDashboardWidget, DashboardMetadata>(() => widget.Object, new DashboardMetadata { SystemName = id }));
             layout.Widgets.Add(new DashboardWidgetInstance(id, id)
             {
                 Positions = [new DashboardWidgetPosition { Row = id == "visible" ? 20 : 0, Size = new DashboardWidgetSize(4, 20) }]
             });
         }
+
         var app = new Mock<IApplicationContext>();
         app.SetupGet(x => x.TenantRoot).Returns(_files);
-        _service = new TestDashboardService(app.Object, _cache, NullEventPublisher.Instance, widgets,
+        _service = new TestDashboardService(
+            app.Object,
+            _cache,
+            NullEventPublisher.Instance,
+            widgets,
             [new Lazy<IDashboardLayoutProvider, DashboardMetadata>(() => new TestLayoutProvider(layout), new DashboardMetadata { SystemName = layout.Id })]);
         var state = await State(DashboardLayoutLayer.User);
         var hidden = state.Layout.Widgets[1];
         state.Layout.Widgets[0] = state.Layout.Widgets[0] with { Positions = hidden.Positions };
+
         if (!hiddenAvailable)
         {
             Assert.ThrowsAsync<InvalidOperationException>(async () => await Save(state));
             state.Layout.Widgets.RemoveAt(1);
+
             foreach (var registration in widgets)
             {
                 Mock.Get(registration.Value).Invocations.Clear();
             }
         }
+
         await Save(state);
+
         foreach (var registration in widgets)
         {
             Mock.Get(registration.Value).Verify(x => x.IsAvailableAsync(It.IsAny<DashboardWidgetContext>(), It.IsAny<CancellationToken>()), Times.Once);
         }
+
         var saved = (await State(DashboardLayoutLayer.User)).Layout;
         Assert.That(saved.Widgets[0].GetPosition(DashboardBreakpoint.Xs).Row, Is.Zero);
         Assert.That(saved.Widgets, Has.Count.EqualTo(hiddenAvailable ? 2 : 1));
+
         if (hiddenAvailable)
         {
             Assert.That(saved.Widgets[1].Positions, Is.EqualTo(hidden.Positions));
@@ -1072,6 +1121,7 @@ public class DashboardLayoutPersistenceTests : ServiceTestBase
         var personal = await State(DashboardLayoutLayer.User);
         personal.Layout.Widgets.Clear();
         await Save(personal);
+
         foreach (var layer in new[] { DashboardLayoutLayer.System, DashboardLayoutLayer.Global, DashboardLayoutLayer.User })
         {
             await _service.SelectLayerAsync("admin-dashboard", _customer, layer);
@@ -1080,6 +1130,7 @@ public class DashboardLayoutPersistenceTests : ServiceTestBase
             Assert.That((await _service.GetEffectiveLayoutAsync("admin-dashboard", _customer)).Widgets, Is.Empty);
             Assert.That((await _service.GetDashboardAsync("admin-dashboard", _customer)).Layout.Widgets, Is.Empty);
         }
+
         Assert.That(_files.FileExists("dashboard.admin-dashboard.json"), Is.True);
     }
 
@@ -1090,8 +1141,13 @@ public class DashboardLayoutPersistenceTests : ServiceTestBase
         var provider = new Mock<IDashboardLayoutProvider>(MockBehavior.Strict);
         var app = new Mock<IApplicationContext>();
         app.SetupGet(x => x.TenantRoot).Returns(_files);
-        _service = new TestDashboardService(app.Object, _cache, NullEventPublisher.Instance, [],
-            [new Lazy<IDashboardLayoutProvider, DashboardMetadata>(() => provider.Object,
+        _service = new TestDashboardService(
+            app.Object,
+            _cache,
+            NullEventPublisher.Instance,
+            [],
+            [new Lazy<IDashboardLayoutProvider, DashboardMetadata>(
+                () => provider.Object,
                 new DashboardMetadata { SystemName = "admin-dashboard" })]);
 
         await _service.SaveLayoutAsync(new DashboardLayout("admin-dashboard"), _customer, layer, reset: true);
@@ -1192,7 +1248,8 @@ public class DashboardLayoutPersistenceTests : ServiceTestBase
     public async Task Row_Span_Roundtrips_Through_Storage(DashboardLayoutLayer layer)
     {
         var widget = new Mock<IDashboardWidget>();
-        widget.SetupGet(x => x.Descriptor).Returns(new DashboardWidgetDescriptor(TestDashboardWidget.SystemName,
+        widget.SetupGet(x => x.Descriptor).Returns(new DashboardWidgetDescriptor(
+            TestDashboardWidget.SystemName,
             Smartstore.Core.Localization.ResolvableText.Resource("Tests.Height"))
         {
             SettingsVersion = 2,
@@ -1204,7 +1261,10 @@ public class DashboardLayoutPersistenceTests : ServiceTestBase
         widget.Setup(x => x.IsAvailableAsync(It.IsAny<DashboardWidgetContext>(), It.IsAny<CancellationToken>())).Returns(ValueTask.FromResult(true));
         var app = new Mock<IApplicationContext>();
         app.SetupGet(x => x.TenantRoot).Returns(_files);
-        _service = new TestDashboardService(app.Object, _cache, NullEventPublisher.Instance,
+        _service = new TestDashboardService(
+            app.Object,
+            _cache,
+            NullEventPublisher.Instance,
             [new Lazy<IDashboardWidget, DashboardMetadata>(() => widget.Object, new DashboardMetadata { SystemName = TestDashboardWidget.SystemName })],
             [new Lazy<IDashboardLayoutProvider, DashboardMetadata>(() => new TestLayoutProvider(DefaultLayout()), new DashboardMetadata { SystemName = "admin-dashboard" })]);
         var state = await State(layer);
@@ -1221,6 +1281,7 @@ public class DashboardLayoutPersistenceTests : ServiceTestBase
         var css = new DashboardCssBuilder().Build(rendered);
         Assert.That(css, Does.Not.Contain("align-self:"));
         Assert.That(css, Does.Not.Contain("min-height:"));
+
         if (layer == DashboardLayoutLayer.User)
             Assert.That((await State(DashboardLayoutLayer.Global)).Layout.Widgets.Single().GetPosition(DashboardBreakpoint.Lg).Size.RowSpan, Is.Not.EqualTo(2));
     }
@@ -1307,7 +1368,11 @@ public class DashboardLayoutCachingTests
         _files.Setup(x => x.GetFileAsync(It.IsAny<string>())).ReturnsAsync(file.Object);
         var app = new Mock<IApplicationContext>();
         app.SetupGet(x => x.TenantRoot).Returns(_files.Object);
-        _service = new TestDashboardService(app.Object, _cache, NullEventPublisher.Instance, [],
+        _service = new TestDashboardService(
+            app.Object,
+            _cache,
+            NullEventPublisher.Instance,
+            [],
             [new Lazy<IDashboardLayoutProvider, DashboardMetadata>(
                 () => new TestLayoutProvider(new DashboardLayout("admin-dashboard")),
                 new DashboardMetadata { SystemName = "admin-dashboard" })]);

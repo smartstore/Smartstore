@@ -127,6 +127,7 @@ public static class DashboardEditorMapper
                 nextOrder = checked(nextOrder + 100);
                 instance = CreateWidgetInstance(widget, placement.Id, nextOrder);
             }
+
             if (placement.Settings != null)
             {
                 var widget = dashboardService.GetWidget(instance.WidgetSystemName);
