@@ -795,11 +795,14 @@ public class SmartDbContextDataSeeder : IDataSeeder<SmartDbContext>
         builder.AddOrUpdate("Admin.Dashboard.Editor.SelectionFailed", "The dashboard was saved, but the view selection could not be saved.", "Das Dashboard wurde gespeichert, die Ansichtsauswahl konnte jedoch nicht gespeichert werden.");
         builder.AddOrUpdate("Admin.Dashboard.Editor.SaveFailed", "Could not save the dashboard. Your draft is still available.", "Dashboard konnte nicht gespeichert werden. Ihr Entwurf bleibt erhalten.");
         builder.AddOrUpdate("Admin.Dashboard.Editor.Invalid", "The dashboard changes are invalid or no longer permitted.", "Die Dashboard-Änderungen sind ungültig oder nicht mehr erlaubt.");
-        builder.AddOrUpdate("Admin.Dashboard.Editor.Unsaved", "Unsaved changes", "Ungespeicherte Änderungen");
-        builder.AddOrUpdate("Admin.Dashboard.Editor.UnsavedHint", "Save the current draft before switching?", "Den aktuellen Entwurf vor dem Wechsel speichern?");
-        builder.AddOrUpdate("Admin.Dashboard.Editor.KeepEditing", "Keep editing", "Weiter bearbeiten");
-        builder.AddOrUpdate("Admin.Dashboard.Editor.Discard", "Discard and switch", "Verwerfen und wechseln");
-        builder.AddOrUpdate("Admin.Dashboard.Editor.SaveAndSwitch", "Save and switch", "Speichern und wechseln");
+        builder.AddOrUpdate("Admin.Dashboard.Editor.DiscardConfirm",
+            "Discard your unsaved changes?",
+            "Deine ungespeicherten Änderungen wirklich verwerfen?");
+        builder.Delete("Admin.Dashboard.Editor.Unsaved");
+        builder.Delete("Admin.Dashboard.Editor.UnsavedHint");
+        builder.Delete("Admin.Dashboard.Editor.KeepEditing");
+        builder.Delete("Admin.Dashboard.Editor.Discard");
+        builder.Delete("Admin.Dashboard.Editor.SaveAndSwitch");
         builder.Delete("Admin.Dashboard.Editor.TargetAbove", "Admin.Dashboard.Editor.TargetBelow");
         builder.AddOrUpdate("Admin.Dashboard.Editor.Move", "Move widget", "Widget verschieben");
         builder.AddOrUpdate("Admin.Dashboard.Editor.Undo", "Undo last change", "Letzte Änderung rückgängig machen");

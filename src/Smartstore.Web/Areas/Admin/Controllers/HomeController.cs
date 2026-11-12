@@ -294,7 +294,7 @@ public class HomeController : AdminController
     /// Commits or resets exactly one authorized layer, retaining the draft on write errors.
     /// </summary>
     [HttpPost, Permission(Permissions.Dashboard.Read), RequestSizeLimit(262144)]
-    public async Task<IActionResult> DashboardSave(DashboardLayoutLayer layer, string changesJson, bool reset, string next = null)
+    public async Task<IActionResult> DashboardSave(DashboardLayoutLayer layer, string changesJson, bool reset)
     {
         if (!ModelState.IsValid)
         {
@@ -337,17 +337,7 @@ public class HomeController : AdminController
         }
 
         NotifySuccess(T("Admin.Dashboard.Editor.Saved"));
-        var transition = next?.Split(':');
-        DashboardLayoutLayer? editLayer = null;
-
-        if (transition?.Length == 2 && transition[0] == "edit" &&
-            Enum.TryParse<DashboardLayoutLayer>(transition[1], out var nextLayer) &&
-            Enum.IsDefined(nextLayer) && nextLayer != DashboardLayoutLayer.System)
-        {
-            editLayer = nextLayer;
-        }
-
-        if (next != "cancel:" && await Services.Permissions.AuthorizeAsync(Permissions.Dashboard.ManageGlobal))
+        if (await Services.Permissions.AuthorizeAsync(Permissions.Dashboard.ManageGlobal))
         {
             try
             {
@@ -364,9 +354,7 @@ public class HomeController : AdminController
             }
         }
 
-        return editLayer.HasValue
-            ? RedirectToAction(nameof(Index), new { area = "Admin", edit = true, layer = editLayer.Value })
-            : RedirectToAction(nameof(Index), new { area = "Admin" });
+        return RedirectToAction(nameof(Index), new { area = "Admin" });
     }
 
     /// <summary>

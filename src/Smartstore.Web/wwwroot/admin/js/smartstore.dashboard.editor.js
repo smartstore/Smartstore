@@ -207,7 +207,6 @@
         setLayout(structuredClone(config.layout));
         let dirty = config.dirty;
         let leaving = false;
-        let pending;
         let previewing = false;
         let interaction;
         let undo = [];
@@ -379,6 +378,7 @@
             $('#dashboard-undo').prop('disabled', !undo.length);
             $('#dashboard-redo').prop('disabled', !redo.length);
             $(form.elements.save).prop('disabled', !dirty || previewing || leaving);
+            $('#dashboard-cancel').prop('disabled', !dirty || previewing || leaving);
             document.querySelectorAll('[data-add-widget]').forEach(button => {
                 const descriptor = config.widgets.find(w => w.systemName === button.dataset.addWidget);
                 button.disabled = !descriptor?.allowMultipleInstances && layout.widgets.some(w => w.widgetSystemName === button.dataset.addWidget);
@@ -797,47 +797,32 @@
         }
         function navigate(url) { leaving = true; window.location.assign(url); }
         function guard(action) {
-            if (!dirty) { action(false); return; }
+            if (!dirty) { action(); return; }
 
-            pending = action;
-            $('#dashboard-leave').modal('show');
+            confirm2({
+                message: window.Res.Dashboard.discardConfirm,
+                icon: { type: 'warning' },
+                callback: accepted => { if (accepted) action(); }
+            });
         }
-        function save(next) {
+        function save() {
             if (!dirty || previewing || leaving) return;
-
-            const commit = () => {
-                if (next) {
-                    const input = document.createElement('input');
-                    input.type = 'hidden'; input.name = 'next'; input.value = next;
-                    form.appendChild(input);
-                }
-
-                submit();
-            };
 
             if (config.layer === 'Global') {
                 confirm2({
                     message: window.Res.Dashboard.saveGlobalConfirm,
                     icon: { type: 'question' },
-                    callback: accepted => { if (accepted) commit(); }
+                    callback: accepted => { if (accepted) submit(); }
                 }).find('.btn-accept').text(window.Res.Dashboard.saveGlobalLabel);
             }
-            else commit();
+            else submit();
         }
         $('[data-dashboard-edit]').on('click', function () {
             const layer = this.dataset.dashboardEdit;
 
             if (layer === config.layer) return;
 
-            guard(shouldSave => shouldSave ? save('edit:' + layer) : navigate(config.editUrl + '&layer=' + encodeURIComponent(layer)));
-        });
-        $('#dashboard-discard').on('click', () => {
-            $('#dashboard-leave').modal('hide');
-
-            if (pending) pending(false);
-        });
-        $('#dashboard-save-leave').on('click', () => {
-            $('#dashboard-leave').one('hidden.bs.modal', () => { if (pending) pending(true); }).modal('hide');
+            guard(() => navigate(config.editUrl + '&layer=' + encodeURIComponent(layer)));
         });
         window.addEventListener('pageshow', () => { leaving = false; updateControls(); });
         window.addEventListener('beforeunload', event => {
@@ -1041,7 +1026,11 @@
             });
         });
         $(form).on('submit', event => { event.preventDefault(); save(); });
-        $('#dashboard-cancel').on('click', () => guard(shouldSave => shouldSave ? save('cancel:') : navigate(config.cancelUrl)));
+        $('#dashboard-cancel').on('click', () => {
+            if (!dirty || previewing || leaving) return;
+
+            guard(() => navigate(config.cancelUrl));
+        });
         $('#dashboard-reset').on('click', () => {
             confirm2({
                 message: window.Res.Dashboard.resetConfirm,

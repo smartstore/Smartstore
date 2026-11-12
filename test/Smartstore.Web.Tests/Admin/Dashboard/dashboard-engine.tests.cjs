@@ -102,7 +102,7 @@ function keyboardEditor({ direction = 'ltr', blockedStorage = false, allowedSize
             { id: 'a', widgetSystemName: 'Test', allowMove: true,
                 positions: [{ breakpoint: 'xs', column: 2, row: 1, size: { columnSpan: 4, rowSpan: 1 } }] }
         ] },
-        maxHeight: 310, widgets: [{ systemName: 'Test', allowedSizes }], layer, dirty
+        maxHeight: 310, widgets: [{ systemName: 'Test', allowedSizes }], layer, dirty, editUrl: '/admin?edit=true', cancelUrl: '/admin'
     };
 
     if (belowPosition) {
@@ -125,6 +125,7 @@ function keyboardEditor({ direction = 'ltr', blockedStorage = false, allowedSize
 
     let confirmation;
     let submissions = 0;
+    const navigations = [];
     const form = {
         action: 'https://example.test/admin/Home/DashboardSave',
         elements: Object.fromEntries(['changesJson', 'reset', 'command', 'widgetSystemName', 'save'].map(name => [name, { value: '' }]))
@@ -164,7 +165,7 @@ function keyboardEditor({ direction = 'ltr', blockedStorage = false, allowedSize
         Smartstore: { Admin: {} }, ResponsiveBootstrapToolkit: { current: () => breakpoint }, jQuery: jquery, document, structuredClone, URL,
         HTMLFormElement: { prototype: { submit() { submissions++; } } },
         confirm2(options) { confirmation = options; return { find: () => ({ text() {} }) }; },
-        window: { innerWidth: 1200, innerHeight: 900, scrollY: 0, location: { href: 'https://example.test/admin?dashboardHistory=test' },
+        window: { innerWidth: 1200, innerHeight: 900, scrollY: 0, location: { href: 'https://example.test/admin?dashboardHistory=test', assign(url) { navigations.push(url); } },
             Res: { Dashboard: {} }, history: { replaceState() {} }, addEventListener() {} },
         sessionStorage: {
             getItem() { if (blockedStorage) throw new Error('Storage blocked');
@@ -199,6 +200,10 @@ function keyboardEditor({ direction = 'ltr', blockedStorage = false, allowedSize
         submitted: () => JSON.parse(form.elements.changesJson.value),
         undo: () => controls.get('#dashboard-undo').click(),
         redo: () => controls.get('#dashboard-redo').click(),
+        cancel: () => controls.get('#dashboard-cancel').click(),
+        canCancel: () => !controls.get('#dashboard-cancel').disabled,
+        navigations,
+        changeLayer: layer => controls.get('[data-dashboard-edit]').click.call({ dataset: { dashboardEdit: layer } }),
         canSave: () => !controls.get(form.elements.save).disabled,
         reset: () => controls.get('#dashboard-reset').click(),
         resetSubmitted: () => form.elements.reset.value,
@@ -296,14 +301,18 @@ test('pointer and keyboard resizing use only allowed widths and keep the opposit
 test('personal dashboard saves changes without a confirmation', () => {
     const editor = keyboardEditor();
     assert.equal(editor.canSave(), false);
+    assert.equal(editor.canCancel(), false);
     editor.save();
     assert.equal(editor.submissions(), 0);
     editor.press('width', 'ArrowRight');
     assert.equal(editor.canSave(), true);
+    assert.equal(editor.canCancel(), true);
     editor.undo();
     assert.equal(editor.canSave(), false);
+    assert.equal(editor.canCancel(), false);
     editor.redo();
     assert.equal(editor.canSave(), true);
+    assert.equal(editor.canCancel(), true);
     editor.save();
     assert.equal(editor.hasConfirmation(), false);
     assert.equal(editor.submissions(), 1);
@@ -792,3 +801,35 @@ for (const layer of ['User', 'Global']) {
         assert.equal(editor.canUndo(), false);
     });
 }
+
+test('cancel is inactive without changes and only discards after confirmation', () => {
+    const editor = keyboardEditor();
+    editor.cancel();
+    assert.equal(editor.hasConfirmation(), false);
+    assert.deepEqual(editor.navigations, []);
+    editor.press('width', 'ArrowRight');
+    editor.cancel();
+    assert.equal(editor.hasConfirmation(), true);
+    editor.confirm(false);
+    assert.deepEqual(editor.navigations, []);
+    assert.equal(editor.canCancel(), true);
+    editor.cancel();
+    editor.confirm(true);
+    assert.deepEqual(editor.navigations, ['/admin']);
+    assert.equal(editor.submissions(), 0);
+});
+
+test('changing dashboard view only asks to discard when there are changes', () => {
+    const clean = keyboardEditor();
+    clean.changeLayer('Global');
+    assert.equal(clean.hasConfirmation(), false);
+    assert.deepEqual(clean.navigations, ['/admin?edit=true&layer=Global']);
+    const dirty = keyboardEditor({ dirty: true });
+    dirty.changeLayer('Global');
+    dirty.confirm(false);
+    assert.deepEqual(dirty.navigations, []);
+    dirty.changeLayer('Global');
+    dirty.confirm(true);
+    assert.deepEqual(dirty.navigations, ['/admin?edit=true&layer=Global']);
+    assert.equal(dirty.submissions(), 0);
+});

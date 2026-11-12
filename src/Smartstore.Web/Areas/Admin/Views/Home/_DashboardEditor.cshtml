@@ -15,15 +15,6 @@
     <link rel="stylesheet" href="~/bundle/css/dashboard-editor.css" sm-target-zone="stylesheets" sm-key="dashboard-editor" />
     <script src="~/admin/js/smartstore.dashboard.editor.js" asp-append-version="true" sm-target-zone="scripts" sm-key="dashboard-editor"></script>
 
-    <modal id="dashboard-leave" sm-size="Large" sm-center-vertically="true">
-        <modal-header sm-title="@T(editorKey + "Unsaved")" sm-show-close="false"></modal-header>
-        <modal-body>@T(editorKey + "UnsavedHint")</modal-body>
-        <modal-footer class="flex-nowrap">
-            <button type="button" class="btn btn-light" data-dismiss="modal">@T(editorKey + "KeepEditing")</button>
-            <button type="button" class="btn btn-secondary" id="dashboard-discard">@T(editorKey + "Discard")</button>
-            <button type="button" class="btn btn-primary" id="dashboard-save-leave">@T(editorKey + "SaveAndSwitch")</button>
-        </modal-footer>
-    </modal>
 }
 
 <div class="section-header">
@@ -105,7 +96,7 @@
                     <button type="button" class="btn btn-light btn-destructive" id="dashboard-reset" title="@resetLabel" aria-label="@resetLabel">
                         <icon name="hi:eraser!" />
                     </button>
-                    <button type="button" class="btn btn-light" id="dashboard-cancel">@T("Common.Cancel")</button>
+                    <button type="button" class="btn btn-light" id="dashboard-cancel" disabled="@(!Model.IsDirty)">@T("Common.Cancel")</button>
                     <div sm-if="Model.CanManageGlobal" class="dropdown">
                         <button type="button" class="btn btn-light dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" aria-label="@T(editorKey + "View"): @T(editorKey + "Dashboard." + Model.State.Layer)">
                             @T(editorKey + "Dashboard." + Model.State.Layer)
