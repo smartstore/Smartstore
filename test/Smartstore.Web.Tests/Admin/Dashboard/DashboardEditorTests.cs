@@ -330,66 +330,6 @@ public class HomeControllerDashboardTests
         Assert.That(((DashboardEditorModel)result.Model).State.Layer, Is.EqualTo(DashboardLayoutLayer.User));
     }
 
-    [TestCase(true, false, DashboardLayoutLayer.User, DashboardLayoutLayer.Global)]
-    [TestCase(false, true, DashboardLayoutLayer.Global, DashboardLayoutLayer.User)]
-    [TestCase(true, true, DashboardLayoutLayer.User, DashboardLayoutLayer.System)]
-    public void Alternative_Save_Target_Requires_Its_Own_Permission(bool personal, bool global,
-        DashboardLayoutLayer source, DashboardLayoutLayer target)
-    {
-        var controller = CreateController(personal, global, source);
-        Assert.ThrowsAsync<AccessDeniedException>(async () => await controller.DashboardSave(source, "", false, saveLayer: target));
-    }
-
-    [TestCase(DashboardLayoutLayer.User, DashboardLayoutLayer.Global, false)]
-    [TestCase(DashboardLayoutLayer.Global, DashboardLayoutLayer.User, false)]
-    [TestCase(DashboardLayoutLayer.User, DashboardLayoutLayer.Global, true)]
-    [TestCase(DashboardLayoutLayer.Global, DashboardLayoutLayer.User, true)]
-    public async Task Alternative_Save_Writes_Only_The_Target(DashboardLayoutLayer source, DashboardLayoutLayer target, bool reset)
-    {
-        var descriptor = new StoreReportDashboardWidget(Mock.Of<IPermissionService>()).Descriptor;
-        var widget = new Mock<IDashboardWidget>();
-        widget.SetupGet(x => x.Descriptor).Returns(descriptor);
-        widget.Setup(x => x.IsAvailableAsync(It.IsAny<DashboardWidgetContext>(), It.IsAny<CancellationToken>()))
-            .Returns(ValueTask.FromResult(true));
-        var baseline = new DashboardLayout("admin-dashboard")
-        {
-            Widgets = [new DashboardWidgetInstance("report", descriptor.SystemName)
-            {
-                Positions = [new DashboardWidgetPosition { Size = new DashboardWidgetSize(4) }]
-            }]
-        };
-        var positions = Enum.GetValues<DashboardBreakpoint>().Select(breakpoint => new DashboardWidgetPosition
-        {
-            Breakpoint = breakpoint,
-            Row = 4 + (int)breakpoint,
-            Size = new DashboardWidgetSize(4, 2)
-        }).ToArray();
-        var changes = JsonSerializer.Serialize(new DashboardLayoutChanges([
-            new DashboardWidgetPlacement("report", descriptor.SystemName, positions)]), SmartJsonOptions.CamelCased);
-        Mock<IDashboardService> service = null;
-        var controller = CreateController(true, true, source, mock =>
-        {
-            service = mock;
-            mock.Setup(x => x.GetDescriptors()).Returns([descriptor]);
-            mock.Setup(x => x.GetWidget(descriptor.SystemName)).Returns(widget.Object);
-            mock.Setup(x => x.GetLayoutStateAsync("admin-dashboard", It.IsAny<Customer>(), It.IsAny<DashboardLayoutLayer>(), It.IsAny<bool>(), It.IsAny<CancellationToken>()))
-                .Returns((string id, Customer customer, DashboardLayoutLayer layer, bool resetting, CancellationToken token) =>
-                    ValueTask.FromResult(new DashboardLayoutState
-                    {
-                        Layout = JsonSerializer.Deserialize<DashboardLayout>(JsonSerializer.Serialize(baseline)),
-                        Layer = layer,
-                        Source = resetting ? DashboardLayoutLayer.System : layer
-                    }));
-        });
-        Assert.That(await controller.DashboardSave(source, changes, reset, saveLayer: target), Is.TypeOf<RedirectToActionResult>());
-        service.Verify(x => x.ValidateDraftAsync(It.Is<DashboardLayout>(layout => layout.Widgets.Single().Positions.SequenceEqual(positions)),
-            It.IsAny<Customer>(), source, It.IsAny<CancellationToken>()), Times.Once());
-        service.Verify(x => x.SaveLayoutAsync(It.Is<DashboardLayout>(layout => layout.Widgets.Single().Positions.SequenceEqual(positions)),
-            It.IsAny<Customer>(), target, false, It.IsAny<CancellationToken>()), Times.Once());
-        service.Verify(x => x.SaveLayoutAsync(It.IsAny<DashboardLayout>(), It.IsAny<Customer>(), source, It.IsAny<bool>(), It.IsAny<CancellationToken>()), Times.Never());
-        service.Verify(x => x.SelectLayerAsync("admin-dashboard", It.IsAny<Customer>(), target, It.IsAny<CancellationToken>()), Times.Once());
-    }
-
     [Test]
     public async Task Personal_Save_Does_Not_Persist_A_View_Selection()
     {
@@ -482,10 +422,16 @@ public class HomeControllerDashboardTests
             }));
         configure?.Invoke(dashboard);
         var modules = new ModuleManager(null, null, null, Mock.Of<ILocalizationService>(), null, null, null, null);
+        var url = new Mock<IUrlHelper>();
+        url.Setup(x => x.Action(It.IsAny<Microsoft.AspNetCore.Mvc.Routing.UrlActionContext>()))
+            .Returns((Microsoft.AspNetCore.Mvc.Routing.UrlActionContext context) =>
+                context.Action == "DashboardPreview" ? "/preview"
+                    : new RouteValueDictionary(context.Values).ContainsKey("edit") ? "/edit" : "/cancel");
         return new HomeController(Mock.Of<IUserAgentFactory>(), Mock.Of<IUserAgent>(), dashboard.Object,
             Mock.Of<IModuleCatalog>(), modules)
         {
             Services = services.Object,
+            Url = url.Object,
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
         };
     }
@@ -508,6 +454,19 @@ public class HomeControllerDashboardTests
             Assert.That(model.Dashboard.Layout, Is.SameAs(model.State.Layout));
             Assert.That(model.Dashboard.Context.IsEditMode, Is.EqualTo(editing));
         });
+        if (editing)
+        {
+            var data = JsonNode.Parse(model.EditorJson);
+            Assert.That(data["editUrl"].GetValue<string>(), Is.EqualTo("/edit"));
+            Assert.That(data["cancelUrl"].GetValue<string>(), Is.EqualTo("/cancel"));
+            Assert.That(data["previewUrl"].GetValue<string>(), Is.EqualTo("/preview"));
+            Assert.That(data["layer"].GetValue<string>(), Is.EqualTo(selected.ToString()));
+            Assert.That(data["layout"]["id"].GetValue<string>(), Is.EqualTo(model.State.Layout.Id));
+        }
+        else
+        {
+            Assert.That(model.EditorJson, Is.Null);
+        }
         service.Verify(x => x.GetDashboardAsync(It.IsAny<string>(), It.IsAny<Customer>(), It.IsAny<bool>(), It.IsAny<CancellationToken>()), Times.Never());
         service.Verify(x => x.PrepareDashboardAsync(model.State.Layout, It.IsAny<Customer>(), editing, It.IsAny<CancellationToken>()), Times.Once());
         service.Verify(x => x.GetLayoutStateAsync("admin-dashboard", It.IsAny<Customer>(), selected, false, It.IsAny<CancellationToken>()), Times.Once());
@@ -655,88 +614,6 @@ public class DashboardEditorMapperTests
         Assert.That(result.Widgets[0].GetPosition(DashboardBreakpoint.Xs).Size.RowSpan, Is.EqualTo(2));
     }
 
-    [Test]
-    public void Template_Preserves_Target_Settings_And_Copies_Editor_Locked_Placements()
-    {
-        var source = new AdminDashboardLayoutProvider().GetDefaultLayout();
-        var target = new AdminDashboardLayoutProvider().GetDefaultLayout();
-        var registrations = target.Widgets.Single(x => x.Id == "registered-customers");
-        var news = target.Widgets.Single(x => x.Id == "news-feed");
-        target.Widgets[target.Widgets.IndexOf(registrations)] = registrations with
-        {
-            Settings = new JsonObject { ["existingSetting"] = "keep" },
-            Positions = [new DashboardWidgetPosition { Column = 3, Row = 60, Size = new DashboardWidgetSize(3) }]
-        };
-        target.Widgets[target.Widgets.IndexOf(news)] = news with
-        {
-            Positions = [new DashboardWidgetPosition { Column = 10, Row = 0, Size = new DashboardWidgetSize(2) }]
-        };
-        var service = new Mock<IDashboardService>();
-        service.Setup(x => x.GetDescriptors()).Returns([
-            new RegisteredCustomersDashboardWidget(Mock.Of<Smartstore.Core.Security.IPermissionService>()).Descriptor,
-            new NewsFeedDashboardWidget(Mock.Of<Smartstore.Core.Security.IPermissionService>()).Descriptor]);
-
-        var draft = DashboardEditorMapper.ApplyTemplate(source, target, service.Object.GetDescriptors(), service.Object);
-        var copied = draft.Widgets.Single(x => x.Id == registrations.Id);
-        Assert.Multiple(() =>
-        {
-            Assert.That(copied.GetPosition(DashboardBreakpoint.Xxl).Size.ColumnSpan, Is.EqualTo(7));
-            Assert.That(copied.GetPosition(DashboardBreakpoint.Md).Size.ColumnSpan, Is.EqualTo(12));
-            Assert.That(copied.Settings["existingSetting"].GetValue<string>(), Is.EqualTo("keep"));
-            Assert.That(draft.Widgets.Single(x => x.Id == news.Id).Positions,
-                Is.EqualTo(source.Widgets.Single(x => x.Id == news.Id).Positions));
-            Assert.That(source.Widgets.Single(x => x.Id == news.Id).GetPosition(DashboardBreakpoint.Xs).Column, Is.Zero);
-        });
-    }
-
-    /// <summary>
-    /// Template adoption excludes unavailable widgets from both source and target.
-    /// </summary>
-    [TestCase(true, true)]
-    [TestCase(false, true)]
-    [TestCase(true, false)]
-    public void Template_Excludes_Unavailable_Widgets(bool sourceContainsHidden, bool targetContainsHidden)
-    {
-        var descriptor = new StoreReportDashboardWidget(Mock.Of<Smartstore.Core.Security.IPermissionService>()).Descriptor;
-        var source = new DashboardLayout(AdminDashboardLayoutProvider.Id);
-        var target = new DashboardLayout(AdminDashboardLayoutProvider.Id);
-        source.Widgets.Add(new DashboardWidgetInstance("visible", descriptor.SystemName)
-        {
-            Positions = [new DashboardWidgetPosition { Column = 2, Row = 10, Size = new DashboardWidgetSize(6) }]
-        });
-        target.Widgets.Add(new DashboardWidgetInstance("visible", descriptor.SystemName)
-        {
-            Positions = [new DashboardWidgetPosition { Column = 0, Row = 0, Size = new DashboardWidgetSize(4) }]
-        });
-        var hidden = new DashboardWidgetInstance("hidden", BestsellersDashboardWidget.SystemName)
-        {
-            Order = 700,
-            Settings = new JsonObject { ["keep"] = true },
-            Positions =
-            [
-                new DashboardWidgetPosition { Column = 0, Row = 30, Size = new DashboardWidgetSize(4, 20) },
-                new DashboardWidgetPosition { Breakpoint = DashboardBreakpoint.Lg, Column = 8, Row = 10, Size = new DashboardWidgetSize(4, 30) }
-            ]
-        };
-        if (sourceContainsHidden)
-            source.Widgets.Add(hidden with { Positions = [new DashboardWidgetPosition { Size = new DashboardWidgetSize(12) }] });
-        if (targetContainsHidden)
-            target.Widgets.Add(hidden);
-        var sourceBefore = JsonSerializer.Serialize(source);
-        var hiddenBefore = JsonSerializer.Serialize(hidden);
-        var service = new Mock<IDashboardService>(MockBehavior.Strict);
-
-        var draft = DashboardEditorMapper.ApplyTemplate(source, target, [descriptor], service.Object);
-
-        Assert.Multiple(() =>
-        {
-            Assert.That(draft.Widgets.Single(x => x.Id == "visible").Positions, Is.EqualTo(source.Widgets[0].Positions));
-            Assert.That(draft.Widgets.Any(x => x.Id == "hidden"), Is.False);
-            Assert.That(JsonSerializer.Serialize(hidden), Is.EqualTo(hiddenBefore));
-            Assert.That(JsonSerializer.Serialize(source), Is.EqualTo(sourceBefore));
-        });
-        service.VerifyNoOtherCalls();
-    }
 
     /// <summary>
     /// Editor placement input remains bounded without restricting provider layouts in the core.

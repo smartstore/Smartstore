@@ -100,8 +100,7 @@ public class HomeController : AdminController
                 state.Layout.Widgets[state.Layout.Widgets.IndexOf(instance)] = instance with { Settings = settings };
                 ModelState.Clear();
 
-                var item = await _dashboardService.PrepareWidgetAsync(
-                    state.Layout, instanceId, customer, parameters: parameters, cancelToken: HttpContext.RequestAborted);
+                var item = await _dashboardService.PrepareWidgetAsync(state.Layout, instanceId, customer, parameters: parameters, cancelToken: HttpContext.RequestAborted);
                 if (item == null)
                 {
                     return NotFound();
@@ -232,8 +231,7 @@ public class HomeController : AdminController
         string changesJson, 
         bool reset, 
         string command, 
-        string widgetSystemName, 
-        DashboardLayoutLayer? templateSource = null)
+        string widgetSystemName)
     {
         if (!ModelState.IsValid)
         {
@@ -245,12 +243,7 @@ public class HomeController : AdminController
         try
         {
             reset = reset || command == "reset";
-            
-            if (reset)
-            {
-                templateSource = null;
-            }
-            
+
             var state = await ReadDashboardDraftAsync(changesJson, layer, reset);
             var draft = state.Layout;
 
@@ -279,7 +272,7 @@ public class HomeController : AdminController
                 draft.Widgets.Add(instance with { Positions = DashboardEditorMapper.GetInsertionPositions(draft, widget.Descriptor.DefaultSize) });
                 reset = false;
             }
-            return View("Index", await BuildDashboardModelAsync(layer, true, state, reset, true, templateSource));
+            return View("Index", await BuildDashboardModelAsync(layer, true, state, reset, true));
         }
         catch (Exception ex) when (ex is JsonException or ArgumentException or InvalidOperationException or KeyNotFoundException)
         {
@@ -297,9 +290,7 @@ public class HomeController : AdminController
         DashboardLayoutLayer layer, 
         string changesJson, 
         bool reset, 
-        string next = null, 
-        DashboardLayoutLayer? templateSource = null, 
-        DashboardLayoutLayer? saveLayer = null)
+        string next = null)
     {
         if (!ModelState.IsValid)
         {
@@ -308,37 +299,10 @@ public class HomeController : AdminController
 
         await AuthorizeDashboardEditAsync(layer);
         
-        var target = saveLayer ?? layer;
-        if (target != layer)
-        {
-            await AuthorizeDashboardEditAsync(target);
-        }
-
         DashboardLayoutState state;
         try
         {
             state = await ReadDashboardDraftAsync(changesJson, layer, reset);
-            if (target != layer)
-            {
-                if (reset)
-                {
-                    DashboardEditorMapper.ApplyChanges(DashboardEditorMapper.ReadChanges(changesJson), state.Layout, _dashboardService);
-                }
-                await _dashboardService.ValidateDraftAsync(state.Layout, Services.WorkContext.CurrentCustomer, layer, HttpContext.RequestAborted);
-
-                var targetState = await _dashboardService.GetLayoutStateAsync(
-                    AdminDashboardLayoutProvider.Id,
-                    Services.WorkContext.CurrentCustomer, 
-                    target, 
-                    cancelToken: HttpContext.RequestAborted);
-
-                var catalog = await GetAvailableDashboardWidgetsAsync();
-                DashboardEditorMapper.ApplyTemplate(state.Layout, targetState.Layout, catalog, _dashboardService);
-                state = targetState;
-                templateSource = layer;
-                layer = target;
-                reset = false;
-            }
         }
         catch (Exception ex) when (ex is JsonException or ArgumentException or InvalidOperationException or KeyNotFoundException)
         {
@@ -354,13 +318,13 @@ public class HomeController : AdminController
         {
             Logger.Warn(ex, "Rejected dashboard customization.");
             NotifyError(T("Admin.Dashboard.Editor.Invalid"));
-            return View("Index", await BuildDashboardModelAsync(layer, true, state, reset, true, templateSource));
+            return View("Index", await BuildDashboardModelAsync(layer, true, state, reset, true));
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or IO.FileSystemException or DbUpdateException)
         {
             Logger.Error(ex, "Failed to save dashboard layout.");
             NotifyError(T("Admin.Dashboard.Editor.SaveFailed"));
-            return View("Index", await BuildDashboardModelAsync(layer, true, state, reset, true, templateSource));
+            return View("Index", await BuildDashboardModelAsync(layer, true, state, reset, true));
         }
 
         NotifySuccess(T("Admin.Dashboard.Editor.Saved"));
@@ -407,13 +371,19 @@ public class HomeController : AdminController
     /// </summary>
     private async Task<DashboardLayoutState> ReadDashboardDraftAsync(string json, DashboardLayoutLayer layer, bool reset)
     {
-        var state = await _dashboardService.GetLayoutStateAsync(AdminDashboardLayoutProvider.Id,
-            Services.WorkContext.CurrentCustomer, layer, reset, HttpContext.RequestAborted);
+        var state = await _dashboardService.GetLayoutStateAsync(
+            AdminDashboardLayoutProvider.Id,
+            Services.WorkContext.CurrentCustomer, 
+            layer, 
+            reset, 
+            HttpContext.RequestAborted);
+
         if (!reset)
         {
             var changes = DashboardEditorMapper.ReadChanges(json);
             DashboardEditorMapper.ApplyChanges(changes, state.Layout, _dashboardService);
         }
+
         return state;
     }
 
@@ -421,7 +391,7 @@ public class HomeController : AdminController
     /// Builds a normal view or an isolated, unpersisted edit session.
     /// </summary>
     private async Task<DashboardEditorModel> BuildDashboardModelAsync(DashboardLayoutLayer? layer, bool editing,
-        DashboardLayoutState state = null, bool reset = false, bool dirty = false, DashboardLayoutLayer? templateSource = null)
+        DashboardLayoutState state = null, bool reset = false, bool dirty = false)
     {
         var customer = Services.WorkContext.CurrentCustomer;
         var canPersonalize = await Services.Permissions.AuthorizeAsync(Permissions.Dashboard.Personalize);
@@ -445,7 +415,7 @@ public class HomeController : AdminController
         {
             _dashboardService.ApplyDraftMetadata(state.Layout, state, customer);
         }
-        return new DashboardEditorModel
+        var model = new DashboardEditorModel
         {
             State = state,
             Dashboard = await _dashboardService.PrepareDashboardAsync(state.Layout, customer, editing, HttpContext.RequestAborted),
@@ -455,9 +425,18 @@ public class HomeController : AdminController
             CanManageGlobal = canManageGlobal,
             IsEditing = editing,
             Reset = reset,
-            IsDirty = dirty,
-            TemplateSource = !reset && templateSource.HasValue && Enum.IsDefined(templateSource.Value) ? templateSource : null
+            IsDirty = dirty
         };
+
+        if (editing)
+        {
+            model.EditorJson = DashboardEditorMapper.CreateJson(model,
+                Url.Action("Index", "Home", new { area = "Admin", edit = true }),
+                Url.Action("Index", "Home", new { area = "Admin" }),
+                Url.Action("DashboardPreview", "Home", new { area = "Admin" }));
+        }
+
+        return model;
     }
 
     private List<DashboardWidgetGroupModel> PrepareWidgetGroups(IEnumerable<DashboardWidgetDescriptor> catalog)

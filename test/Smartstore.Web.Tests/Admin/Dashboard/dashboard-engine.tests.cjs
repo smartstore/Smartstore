@@ -5,7 +5,7 @@ const vm = require('node:vm');
 const { test } = require('node:test');
 const context = { Smartstore: { Admin: {} }, jQuery() {} };
 vm.createContext(context);
-vm.runInContext(fs.readFileSync(path.resolve(__dirname, '../../../../src/Smartstore.Web/wwwroot/admin/js/smartstore.dashboard.js'), 'utf8'), context);
+vm.runInContext(fs.readFileSync(path.resolve(__dirname, '../../../../src/Smartstore.Web/wwwroot/admin/js/smartstore.dashboard.editor.js'), 'utf8'), context);
 const Engine = context.Smartstore.Admin.DashboardEngine;
 const item = (id, column, row, width, extra = {}) => ({ id, column, row, size: { columnSpan: width, rowSpan: 1 }, ...extra });
 test('moving into an occupied cell pushes the other card to the next row', () => {
@@ -124,8 +124,7 @@ function keyboardEditor({ direction = 'ltr', blockedStorage = false, allowedSize
         body: { style: {}, classList: { add() {}, remove() {} }, appendChild() {} },
         createElement: () => ({ style: {}, setAttribute() {}, remove() {}, appendChild() {}, replaceChildren() {} }),
         getElementById: id => ({
-            'dashboard-editor': { dataset: { editing: 'true', editorConfig: 'config' } },
-            config: { textContent: JSON.stringify(config) },
+            'dashboard-editor-data': { textContent: JSON.stringify(config) },
             'dashboard-grid': container,
             content: scrollContainer,
             'dashboard-draft-form': form
@@ -166,7 +165,7 @@ function keyboardEditor({ direction = 'ltr', blockedStorage = false, allowedSize
     };
     vm.createContext(sandbox);
     vm.runInContext(fs.readFileSync(path.resolve(__dirname, '../../../../src/Smartstore.Web/wwwroot/lib/underscore/underscore.js'), 'utf8'), sandbox);
-    vm.runInContext(fs.readFileSync(path.resolve(__dirname, '../../../../src/Smartstore.Web/wwwroot/admin/js/smartstore.dashboard.js'), 'utf8'), sandbox);
+    vm.runInContext(fs.readFileSync(path.resolve(__dirname, '../../../../src/Smartstore.Web/wwwroot/admin/js/smartstore.dashboard.editor.js'), 'utf8'), sandbox);
     return {
         style: element.style,
         belowStyle: belowElement.style,
@@ -543,7 +542,7 @@ for (const outcome of ['configuration', 'validation', 'configuration-error', 're
             jQuery: $, Smartstore: {}, document, Chart,
             window: { Chart, Res: { Dashboard: { invalid: 'invalid', refreshFailed: 'failed' } }, setTimeout(fn) { fn(); } },
             performance: { now() { return 0; } },
-            $, previewing: false, root: {}, config: { layer: 'User' },
+            $, previewing: false, config: { layer: 'User' },
             widgetsById: new Map([['payments', entry]]), layout: { widgets: [entry] },
             capture() { return settings; }, remember() { remembered++; },
             flipConfiguration() { flipped = true; },
@@ -551,13 +550,13 @@ for (const outcome of ['configuration', 'validation', 'configuration-error', 're
             displayNotification(message) { notifications.push(message); }
         };
         vm.runInNewContext(fs.readFileSync(path.resolve(__dirname,
-            '../../../../src/Smartstore.Web/wwwroot/admin/js/smartstore.dashboard.widgets.js'), 'utf8'), sandbox);
+            '../../../../src/Smartstore.Web/wwwroot/admin/js/smartstore.dashboard.js'), 'utf8'), sandbox);
         if (outcome === 'refresh') {
             sandbox.Smartstore.Admin.Dashboard.loadWidget(widget, true).done(value => { result = value; });
         }
         else {
             const editorSource = fs.readFileSync(path.resolve(__dirname,
-                '../../../../src/Smartstore.Web/wwwroot/admin/js/smartstore.dashboard.js'), 'utf8');
+                '../../../../src/Smartstore.Web/wwwroot/admin/js/smartstore.dashboard.editor.js'), 'utf8');
             vm.runInNewContext(editorSource.slice(editorSource.indexOf('        function serializeLayout('),
                 editorSource.indexOf('        function submit(')) + editorSource.slice(
                 editorSource.indexOf('        function setConfigurationContent('),
@@ -583,7 +582,7 @@ for (const outcome of ['configuration', 'validation', 'configuration-error', 're
             assert.equal(entry.settings, settings);
             assert.equal(remembered, 0);
             assert.equal(flipped, false);
-            assert.equal(sandbox.root.inert, false);
+            assert.equal(sandbox.previewing, false);
             return;
         }
         const response = outcome === 'configuration' ? { settings: { count: 3 }, html: 'updated' }
@@ -596,7 +595,7 @@ for (const outcome of ['configuration', 'validation', 'configuration-error', 're
             assert.equal(entry.settings, outcome === 'configuration' ? response.settings : settings);
             assert.equal(formContent, outcome === 'validation' ? response : undefined);
             assert.deepEqual(formSteps, outcome === 'validation' ? ['destroy', 'html', 'controls', 'validator', 'off', 'tab', 'focus'] : []);
-            assert.equal(sandbox.root.inert, false);
+            assert.equal(sandbox.previewing, false);
         }
         assert.equal(requests.length, 1);
         assert.equal(content, outcome === 'validation' ? 'original' : outcome === 'configuration' ? 'updated' : 'refreshed');
@@ -609,7 +608,7 @@ for (const outcome of ['configuration', 'validation', 'configuration-error', 're
 for (const fail of [false, true]) {
     test(`configuration undo/redo loads the history draft and preserves history on failure (${fail})`, async () => {
         const editorSource = fs.readFileSync(path.resolve(__dirname,
-            '../../../../src/Smartstore.Web/wwwroot/admin/js/smartstore.dashboard.js'), 'utf8');
+            '../../../../src/Smartstore.Web/wwwroot/admin/js/smartstore.dashboard.editor.js'), 'utf8');
         const start = editorSource.indexOf('        function historyStep(');
         const end = editorSource.indexOf("        $('#dashboard-undo')", start);
         const oldLayout = { widgets: [{ id: 'payments', settings: { count: 3 } }] };
@@ -627,7 +626,7 @@ for (const fail of [false, true]) {
             return promise;
         };
         const sandbox = {
-            $, structuredClone, previewing: false, root: {}, config: { layer: 'User', previewUrl: '/preview' },
+            $, structuredClone, previewing: false, config: { layer: 'User', previewUrl: '/preview' },
             container: { dataset: { dashboardLoadUrl: '/load' } },
             layout: newLayout, widgetsById: new Map([['payments', newLayout.widgets[0]]]),
             elements: new Map([['payments', element]]),
@@ -648,11 +647,10 @@ for (const fail of [false, true]) {
         assert.equal(requests[0].options.data.parameters.period, '30');
         assert.equal(JSON.parse(requests[0].options.data.changesJson).widgets[0].settings.count, 3);
         assert.equal(undo.length, 1);
-        assert.equal(sandbox.root.inert, true);
+        assert.equal(sandbox.previewing, true);
         if (fail) requests[0].reject(new Error('Load failed'));
         else requests[0].resolve('old widget');
         await new Promise(resolve => setImmediate(resolve));
-        assert.equal(sandbox.root.inert, false);
         assert.equal(sandbox.previewing, false);
         if (fail) {
             assert.equal(undo.length, 1);

@@ -37,6 +37,10 @@ public class DashboardEditorModel
     /// </summary>
     public bool IsEditing { get; set; }
     /// <summary>
+    /// Gets or sets the prepared JSON configuration for the editor.
+    /// </summary>
+    public string EditorJson { get; set; }
+    /// <summary>
     /// Gets or sets whether deletion of the selected customization is pending.
     /// </summary>
     public bool Reset { get; set; }
@@ -44,11 +48,6 @@ public class DashboardEditorModel
     /// Gets or sets whether the submitted draft contains unsaved changes.
     /// </summary>
     public bool IsDirty { get; set; }
-
-    /// <summary>
-    /// Gets or sets the view whose placements were used to start this draft.
-    /// </summary>
-    public DashboardLayoutLayer? TemplateSource { get; set; }
 }
 
 

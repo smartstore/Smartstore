@@ -82,25 +82,6 @@ public static class DashboardEditorMapper
     }
 
     /// <summary>
-    /// Applies template placements to the supplied target draft while retaining its metadata and widget restrictions.
-    /// </summary>
-    public static DashboardLayout ApplyTemplate(
-        DashboardLayout source, 
-        DashboardLayout target,
-        IReadOnlyCollection<DashboardWidgetDescriptor> availableWidgets, 
-        IDashboardService dashboardService)
-    {
-        var availableNames = availableWidgets.Select(widget => widget.SystemName)
-            .ToHashSet(StringComparer.OrdinalIgnoreCase);
-        var placements = source.Widgets
-            .Where(widget => availableNames.Contains(widget.WidgetSystemName))
-            .Select(widget => new DashboardWidgetPlacement(widget.Id, widget.WidgetSystemName, widget.Positions))
-            .ToArray();
-
-        return ApplyChanges(new(placements), target, dashboardService);
-    }
-
-    /// <summary>
     /// Applies proposed placements to a detached server layout, preserving existing metadata and creating new instances from registered defaults.
     /// </summary>
     public static DashboardLayout ApplyChanges(

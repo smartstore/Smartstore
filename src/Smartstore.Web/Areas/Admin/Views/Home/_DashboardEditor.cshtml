@@ -1,4 +1,3 @@
-@using Smartstore.Admin.Infrastructure.Dashboard
 @using Smartstore.Admin.Models.Dashboard
 @using Smartstore.Core.Widgets.Dashboard
 
@@ -7,6 +6,24 @@
 @{
     var dashboardKey = "Admin.Dashboard.";
     var editorKey = dashboardKey + "Editor.";
+}
+
+@if (Model.IsEditing)
+{
+    <script id="dashboard-editor-data" type="application/json">@Html.Raw(Model.EditorJson)</script>
+
+    <link rel="stylesheet" href="~/bundle/css/dashboard-editor.css" sm-target-zone="stylesheets" sm-key="dashboard-editor" />
+    <script src="~/admin/js/smartstore.dashboard.editor.js" asp-append-version="true" sm-target-zone="scripts" sm-key="dashboard-editor"></script>
+
+    <modal id="dashboard-leave" sm-size="Large" sm-center-vertically="true">
+        <modal-header sm-title="@T(editorKey + "Unsaved")" sm-show-close="false"></modal-header>
+        <modal-body>@T(editorKey + "UnsavedHint")</modal-body>
+        <modal-footer class="flex-nowrap">
+            <button type="button" class="btn btn-light" data-dismiss="modal">@T(editorKey + "KeepEditing")</button>
+            <button type="button" class="btn btn-secondary" id="dashboard-discard">@T(editorKey + "Discard")</button>
+            <button type="button" class="btn btn-primary" id="dashboard-save-leave">@T(editorKey + "SaveAndSwitch")</button>
+        </modal-footer>
+    </modal>
 }
 
 <div class="section-header">
@@ -43,7 +60,6 @@
 
             <form id="dashboard-draft-form" asp-area="Admin" asp-controller="Home" asp-action="DashboardSave" method="post" class="mb-0">
                 <input type="hidden" name="layer" value="@Model.State.Layer" />
-                <input type="hidden" name="templateSource" value="@Model.TemplateSource" />
                 <input type="hidden" name="changesJson" />
                 <input type="hidden" name="reset" value="@Model.Reset.ToString().ToLowerInvariant()" />
                 <input type="hidden" name="command" />
@@ -152,35 +168,3 @@
         }
     </div>
 </div>
-
-@if (Model.IsEditing)
-{
-    var editorJson = DashboardEditorMapper.CreateJson(Model,
-        Url.Action("Index", "Home", new { area = "Admin", edit = true }),
-        Url.Action("Index", "Home", new { area = "Admin" }),
-        Url.Action("DashboardPreview", "Home", new { area = "Admin" }));
-
-    <script id="dashboard-editor-data" type="application/json">@Html.Raw(editorJson)</script>
-
-    <link rel="stylesheet" href="~/bundle/css/dashboard-editor.css" sm-target-zone="stylesheets" sm-key="dashboard-editor" />
-    <script src="~/admin/js/smartstore.dashboard.js" asp-append-version="true" sm-target-zone="scripts" sm-key="dashboard-editor"></script>
-
-    <div id="dashboard-editor"
-            data-editor-config="dashboard-editor-data"
-            data-editing="true">
-
-        <div sm-if="Model.TemplateSource.HasValue" class="alert alert-info" role="status">
-            @T(editorKey + "TemplateNotice", T(editorKey + "Dashboard." + Model.TemplateSource.Value), T(editorKey + "Dashboard." + Model.State.Layer))
-        </div>
-    </div>
-
-    <modal id="dashboard-leave" sm-size="Large" sm-center-vertically="true">
-        <modal-header sm-title="@T(editorKey + "Unsaved")" sm-show-close="false"></modal-header>
-        <modal-body>@T(editorKey + "UnsavedHint")</modal-body>
-        <modal-footer class="flex-nowrap">
-            <button type="button" class="btn btn-light" data-dismiss="modal">@T(editorKey + "KeepEditing")</button>
-            <button type="button" class="btn btn-secondary" id="dashboard-discard">@T(editorKey + "Discard")</button>
-            <button type="button" class="btn btn-primary" id="dashboard-save-leave">@T(editorKey + "SaveAndSwitch")</button>
-        </modal-footer>
-    </modal>
-}

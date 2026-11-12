@@ -159,17 +159,9 @@ public class SmartDbContextDataSeeder : IDataSeeder<SmartDbContext>
             "Mit diesen Angaben schätzt das Widget die Zahlungsgebühren für alle bezahlten Bestellungen. Änderungen gelten auch für frühere Bestellungen. Steuern und Versand gehören zur Berechnungsgrundlage; Erstattungen werden nicht berücksichtigt.");
         builder.Delete("FixedValueOrPercent.Absolute", "FixedValueOrPercent.Percentage",
             "Common.AmountOrPercent.Absolute", "Common.AmountOrPercent.Percentage");
-        builder.AddOrUpdate("Admin.Dashboard.PaymentMethods.FixedFee", "Fixed fee per paid order", "Feste Gebühr je bezahlter Bestellung");
-        builder.AddOrUpdate("Admin.Dashboard.PaymentMethods.Fee",
-            "Fee",
-            "Gebühr",
-            "Choose a percentage of the paid order total or a fixed amount per paid order.",
-            "Wähle einen Prozentsatz auf den bezahlten Bestellgesamtbetrag oder einen Festbetrag je bezahlter Bestellung.");
-        builder.AddOrUpdate("Admin.Dashboard.PaymentMethods.FeePercentage",
-            "Fee percentage",
-            "Gebührensatz",
-            "Estimated payment provider fee in percent (0–100). Applied to paid order totals including tax and shipping, across all order dates.",
-            "Geschätzte Gebühr des Zahlungsanbieters in Prozent (0–100). Gilt für bezahlte Bestellgesamtbeträge einschließlich Steuer und Versand über alle Bestellzeiträume.");
+        builder.Delete("Admin.Dashboard.PaymentMethods.FixedFee");
+        builder.Delete("Admin.Dashboard.PaymentMethods.Fee", "Admin.Dashboard.PaymentMethods.Fee.Hint");
+        builder.Delete("Admin.Dashboard.PaymentMethods.FeePercentage", "Admin.Dashboard.PaymentMethods.FeePercentage.Hint");
 
         builder.AddOrUpdate("Permissions.DisplayName.Dashboard", "Dashboard", "Dashboard");
         builder.AddOrUpdate("Permissions.DisplayName.Widgets", "Widgets", "Widgets");
@@ -771,30 +763,28 @@ public class SmartDbContextDataSeeder : IDataSeeder<SmartDbContext>
         builder.Delete("Admin.Dashboard.Editor.Layer.System", "Admin.Dashboard.Editor.Layer.Global", "Admin.Dashboard.Editor.Layer.User",
             "Admin.Dashboard.Editor.Using", "Admin.Dashboard.Editor.SharedHint");
 
-        builder.AddOrUpdate("Admin.Dashboard.Editor.Dashboard.System", "Default dashboard", "Standard-Dashboard");
+        builder.Delete("Admin.Dashboard.Editor.Dashboard.System");
         builder.AddOrUpdate("Admin.Dashboard.Editor.Dashboard.Global", "Dashboard for everyone", "Dashboard für alle");
         builder.AddOrUpdate("Admin.Dashboard.Editor.Dashboard.User", "My dashboard", "Mein Dashboard");
         builder.AddOrUpdate("Admin.Dashboard.Editor.Status.Unsaved", "Not saved", "Nicht gespeichert");
-        builder.AddOrUpdate("Admin.Dashboard.Editor.TemplateNotice",
-            "{0} is the template for this draft. Save replaces the layout of {1}. Cancel leaves your saved dashboards unchanged.",
-            "{0} dient als Vorlage für diesen Entwurf. Speichern ersetzt die Anordnung von {1}. Abbrechen lässt Ihre gespeicherten Dashboards unverändert.");
+        builder.Delete("Admin.Dashboard.Editor.TemplateNotice");
         builder.AddOrUpdate("Admin.Dashboard.Editor.Status.Reset", "Reset pending", "Zurücksetzen vorgemerkt");
         builder.AddOrUpdate("Admin.Dashboard.Editor.Customize", "Customize dashboard", "Dashboard anpassen");
         builder.AddOrUpdate("Admin.Dashboard.Editor.View", "Dashboard view", "Dashboard-Ansicht");
-        builder.AddOrUpdate("Admin.Dashboard.Editor.Editing", "Editing", "Bearbeiten");
+        builder.Delete("Admin.Dashboard.Editor.Editing");
         builder.AddOrUpdate("Admin.Dashboard.Editor.RemoveWidgetConfirm", "Really remove this widget?", "Dieses Widget wirklich entfernen?");
         builder.AddOrUpdate("Admin.Dashboard.Editor.ResetConfirm", "Really reset the dashboard?", "Das Dashboard wirklich zurücksetzen?");
         builder.AddOrUpdate("Admin.Dashboard.Editor.Widgets", "Add widget", "Widget hinzufügen");
-        builder.AddOrUpdate("Admin.Dashboard.Editor.AddWidget", "Add widget", "Widget hinzufügen");
+        builder.Delete("Admin.Dashboard.Editor.AddWidget");
         builder.AddOrUpdate("Admin.Dashboard.Editor.Search", "Search widgets", "Widgets suchen");
         builder.AddOrUpdate("Admin.Dashboard.Editor.ResetPersonal", "Reset to the shared dashboard", "Auf gemeinsame Vorgabe zurücksetzen");
         builder.AddOrUpdate("Admin.Dashboard.Editor.ResetGlobal", "Reset to the default dashboard", "Auf Standard zurücksetzen");
-        builder.AddOrUpdate("Admin.Dashboard.Editor.SaveUser", "Save for me", "Für mich speichern");
+        builder.Delete("Admin.Dashboard.Editor.SaveUser");
         builder.AddOrUpdate("Admin.Dashboard.Editor.SaveGlobal", "Save for everyone", "Für alle speichern");
         builder.AddOrUpdate("Admin.Dashboard.Editor.SaveGlobalConfirm",
             "This dashboard will be saved as the shared default for all users. Personal dashboards will be retained. Do you want to continue?",
             "Dieses Dashboard wird als gemeinsame Vorgabe für alle Benutzer gespeichert. Persönliche Dashboards bleiben erhalten. Möchten Sie fortfahren?");
-        builder.AddOrUpdate("Admin.Dashboard.Editor.SaveTarget", "Choose where to save", "Speicherziel wählen");
+        builder.Delete("Admin.Dashboard.Editor.SaveTarget");
         builder.AddOrUpdate("Admin.Dashboard.Editor.ResetPending", "Customization will be removed when saved", "Anpassung wird beim Speichern entfernt");
         builder.AddOrUpdate("Admin.Dashboard.Editor.Saved", "Dashboard saved.", "Dashboard gespeichert.");
         builder.AddOrUpdate("Admin.Dashboard.Editor.SelectionFailed", "The dashboard was saved, but the view selection could not be saved.", "Das Dashboard wurde gespeichert, die Ansichtsauswahl konnte jedoch nicht gespeichert werden.");

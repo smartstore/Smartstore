@@ -4,7 +4,7 @@
 @inject IDashboardCssBuilder DashboardCssBuilder
 
 @* INFO: Handles caching invalidation *@
-<script src="~/admin/js/smartstore.dashboard.widgets.js" asp-append-version="true" sm-target-zone="scripts" sm-key="dashboard-widgets"></script>
+<script src="~/admin/js/smartstore.dashboard.js" asp-append-version="true" sm-target-zone="scripts" sm-key="dashboard-widgets"></script>
 
 <style sm-target-zone="stylesheets" data-origin="@Model.Layout.Id">
     @Html.Raw(DashboardCssBuilder.Build(Model))

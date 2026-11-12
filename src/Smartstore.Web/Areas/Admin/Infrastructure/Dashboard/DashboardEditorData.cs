@@ -29,7 +29,7 @@ public sealed record DashboardEditorData(
 /// </summary>
 /// <param name="Id">The dashboard's DOM identifier.</param>
 /// <param name="ColumnCount">The number of grid columns.</param>
-/// <param name="Widgets">The widget placements, including preserved placements of unavailable instances that do not occupy grid space.</param>
+/// <param name="Widgets">The placements of the widgets rendered in the editor.</param>
 /// <param name="Rules">The placement constraints for each responsive layout tier.</param>
 public sealed record DashboardEditorLayout(
     string Id,
@@ -56,7 +56,7 @@ public sealed record DashboardEditorLayoutRule(
 /// <param name="Id">The instance identifier.</param>
 /// <param name="WidgetSystemName">The widget type used to update the picker.</param>
 /// <param name="Positions">The responsive placements.</param>
-/// <param name="AllowMove">The effective move permission; the server rechecks it on submission.</param>
+/// <param name="AllowMove">Whether the editor allows moving the widget.</param>
 public sealed record DashboardEditorWidget(
     string Id,
     string WidgetSystemName,
