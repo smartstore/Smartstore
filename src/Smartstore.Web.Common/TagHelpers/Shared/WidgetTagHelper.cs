@@ -44,13 +44,6 @@ public class WidgetTagHelper : SmartTagHelper
     [HtmlAttributeName(KeyAttributeName)]
     public virtual string Key { get; set; }
 
-    /// <summary>
-    /// Gets or sets whether AJAX requests render this content in place instead of suppressing it.
-    /// Use for fragment initialization, not for shared script libraries.
-    /// </summary>
-    [HtmlAttributeName("render-on-ajax")]
-    public virtual bool RenderOnAjax { get; set; }
-
     protected override string GenerateTagId(TagHelperContext context)
         => null;
 
@@ -72,16 +65,18 @@ public class WidgetTagHelper : SmartTagHelper
 
         if (ViewContext.HttpContext.Request.IsAjax())
         {
-            if (RenderOnAjax)
-            {
-                var inlineContent = await GetContentAsync(context, output);
-                output.TagName = null;
-                output.Content.SetHtmlContent(inlineContent);
-            }
-            else
-            {
-                output.SuppressOutput();
-            }
+            //// Don't re-inject content during AJAX requests, the target zones are most probably rendered already.
+            //// Just output the content in-place.
+            //if (output.TagName == "widget")
+            //{
+            //    output.TagName = null;
+            //}
+            //else if (output.TagName == "meta")
+            //{
+            //    output.SuppressOutput();
+            //}
+
+            output.SuppressOutput();
 
             return;
         }
@@ -165,14 +160,6 @@ public class HtmlWidgetTagHelper : WidgetTagHelper
     {
         get => base.Key;
         set => base.Key = value;
-    }
-
-    /// <inheritdoc />
-    [HtmlAttributeName("sm-render-on-ajax")]
-    public override bool RenderOnAjax
-    {
-        get => base.RenderOnAjax;
-        set => base.RenderOnAjax = value;
     }
 
     protected override async Task<TagHelperContent> GetContentAsync(TagHelperContext context, TagHelperOutput output)
