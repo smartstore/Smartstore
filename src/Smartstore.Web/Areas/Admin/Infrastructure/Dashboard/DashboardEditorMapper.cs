@@ -62,7 +62,6 @@ public static class DashboardEditorMapper
             editorLayout,
             model.State.Layer.ToString(),
             model.IsDirty,
-            model.Reset,
             editUrl,
             cancelUrl,
             previewUrl,

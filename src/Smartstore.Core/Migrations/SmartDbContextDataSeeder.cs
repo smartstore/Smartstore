@@ -766,14 +766,16 @@ public class SmartDbContextDataSeeder : IDataSeeder<SmartDbContext>
         builder.Delete("Admin.Dashboard.Editor.Dashboard.System");
         builder.AddOrUpdate("Admin.Dashboard.Editor.Dashboard.Global", "Dashboard for everyone", "Dashboard für alle");
         builder.AddOrUpdate("Admin.Dashboard.Editor.Dashboard.User", "My dashboard", "Mein Dashboard");
-        builder.AddOrUpdate("Admin.Dashboard.Editor.Status.Unsaved", "Not saved", "Nicht gespeichert");
+        builder.Delete("Admin.Dashboard.Editor.Status.Unsaved");
         builder.Delete("Admin.Dashboard.Editor.TemplateNotice");
-        builder.AddOrUpdate("Admin.Dashboard.Editor.Status.Reset", "Reset pending", "Zurücksetzen vorgemerkt");
+        builder.Delete("Admin.Dashboard.Editor.Status.Reset");
         builder.AddOrUpdate("Admin.Dashboard.Editor.Customize", "Customize dashboard", "Dashboard anpassen");
         builder.AddOrUpdate("Admin.Dashboard.Editor.View", "Dashboard view", "Dashboard-Ansicht");
         builder.Delete("Admin.Dashboard.Editor.Editing");
         builder.AddOrUpdate("Admin.Dashboard.Editor.RemoveWidgetConfirm", "Really remove this widget?", "Dieses Widget wirklich entfernen?");
-        builder.AddOrUpdate("Admin.Dashboard.Editor.ResetConfirm", "Really reset the dashboard?", "Das Dashboard wirklich zurücksetzen?");
+        builder.AddOrUpdate("Admin.Dashboard.Editor.ResetConfirm",
+            "Remove the customization immediately and return to the default dashboard? Unsaved changes will be discarded.",
+            "Die Anpassung jetzt entfernen und zur Dashboard-Vorgabe zurückkehren? Ungespeicherte Änderungen werden verworfen.");
         builder.AddOrUpdate("Admin.Dashboard.Editor.Widgets", "Add widget", "Widget hinzufügen");
         builder.Delete("Admin.Dashboard.Editor.AddWidget");
         builder.AddOrUpdate("Admin.Dashboard.Editor.Search", "Search widgets", "Widgets suchen");
@@ -785,7 +787,10 @@ public class SmartDbContextDataSeeder : IDataSeeder<SmartDbContext>
             "This dashboard will be saved as the shared default for all users. Personal dashboards will be retained. Do you want to continue?",
             "Dieses Dashboard wird als gemeinsame Vorgabe für alle Benutzer gespeichert. Persönliche Dashboards bleiben erhalten. Möchten Sie fortfahren?");
         builder.Delete("Admin.Dashboard.Editor.SaveTarget");
-        builder.AddOrUpdate("Admin.Dashboard.Editor.ResetPending", "Customization will be removed when saved", "Anpassung wird beim Speichern entfernt");
+        builder.Delete("Admin.Dashboard.Editor.ResetPending");
+        builder.AddOrUpdate("Admin.Dashboard.Editor.ResetFailed",
+            "The dashboard could not be reset. Please try again.",
+            "Das Dashboard konnte nicht zurückgesetzt werden. Bitte versuche es erneut.");
         builder.AddOrUpdate("Admin.Dashboard.Editor.Saved", "Dashboard saved.", "Dashboard gespeichert.");
         builder.AddOrUpdate("Admin.Dashboard.Editor.SelectionFailed", "The dashboard was saved, but the view selection could not be saved.", "Das Dashboard wurde gespeichert, die Ansichtsauswahl konnte jedoch nicht gespeichert werden.");
         builder.AddOrUpdate("Admin.Dashboard.Editor.SaveFailed", "Could not save the dashboard. Your draft is still available.", "Dashboard konnte nicht gespeichert werden. Ihr Entwurf bleibt erhalten.");

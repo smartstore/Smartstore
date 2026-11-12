@@ -206,7 +206,6 @@
         }
         setLayout(structuredClone(config.layout));
         let dirty = config.dirty;
-        let reset = config.reset;
         let leaving = false;
         let pending;
         let previewing = false;
@@ -364,9 +363,9 @@
             if (updateToolbar) updateControls();
         }
         // History includes editor-only row minimums; saving submits only widget placements and settings.
-        function capture() { return structuredClone({ layout, reset, dirty }); }
+        function capture() { return structuredClone({ layout, dirty }); }
         function remember(state, preview = false) {
-            if (!preview && _.isEqual(state.layout, layout) && state.reset === reset) return;
+            if (!preview && _.isEqual(state.layout, layout)) return;
 
             undo.push(state);
 
@@ -374,15 +373,12 @@
 
             redo.length = 0;
             dirty = true;
-            reset = false;
             updateControls();
         }
         function updateControls() {
             $('#dashboard-undo').prop('disabled', !undo.length);
             $('#dashboard-redo').prop('disabled', !redo.length);
-            $('.dashboard-status').toggleClass('d-none', !dirty && !reset);
-            $('#dashboard-reset-status').toggleClass('d-none', !reset);
-            $('#dashboard-dirty-status').toggleClass('d-none', !dirty || reset);
+            $(form.elements.save).prop('disabled', !dirty || previewing || leaving);
             document.querySelectorAll('[data-add-widget]').forEach(button => {
                 const descriptor = config.widgets.find(w => w.systemName === button.dataset.addWidget);
                 button.disabled = !descriptor?.allowMultipleInstances && layout.widgets.some(w => w.widgetSystemName === button.dataset.addWidget);
@@ -714,7 +710,7 @@
             remember(before);
         });
 
-        // A one-use, tab-local transfer keeps undo across server-rendered add/reset previews.
+        // A one-use, tab-local transfer keeps undo across server-rendered add previews.
         // Only placement data is transferred; widget HTML, settings and credentials never enter storage.
         let addedWidgetId;
         const transferToken = new URL(window.location.href).searchParams.get('dashboardHistory');
@@ -742,8 +738,8 @@
                             }
                         }
 
-                        layout.rowCounts = config.reset ? {} : history.rowCounts;
-                        layout.rowMinimums = config.reset ? {} : history.rowMinimums;
+                        layout.rowCounts = history.rowCounts;
+                        layout.rowMinimums = history.rowMinimums;
                     }
                 }
             }
@@ -774,7 +770,7 @@
 
             updateNewsPositions();
             form.elements.changesJson.value = serializeLayout(layout);
-            form.elements.reset.value = reset ? 'true' : 'false';
+            form.elements.reset.value = command === 'reset' ? 'true' : 'false';
             form.elements.command.value = command || '';
             form.elements.widgetSystemName.value = widget || '';
             const url = new URL(action || form.action, window.location.href);
@@ -796,6 +792,7 @@
 
             form.action = url.href;
             leaving = true;
+            updateControls();
             HTMLFormElement.prototype.submit.call(form);
         }
         function navigate(url) { leaving = true; window.location.assign(url); }
@@ -806,6 +803,8 @@
             $('#dashboard-leave').modal('show');
         }
         function save(next) {
+            if (!dirty || previewing || leaving) return;
+
             const commit = () => {
                 if (next) {
                     const input = document.createElement('input');
@@ -840,7 +839,7 @@
         $('#dashboard-save-leave').on('click', () => {
             $('#dashboard-leave').one('hidden.bs.modal', () => { if (pending) pending(true); }).modal('hide');
         });
-        window.addEventListener('pageshow', () => { leaving = false; });
+        window.addEventListener('pageshow', () => { leaving = false; updateControls(); });
         window.addEventListener('beforeunload', event => {
             if (dirty && !leaving) { event.preventDefault(); event.returnValue = ''; }
         });
@@ -859,11 +858,10 @@
                 to.push(previous);
                 from.pop();
                 setLayout(structuredClone(state.layout));
-                reset = state.reset;
                 dirty = state.dirty;
 
                 if (missing) {
-                    // A reset can introduce widgets not rendered on this page. Use their normal server lifecycle.
+                    // Restored widgets may not be rendered on this page. Use their normal server lifecycle.
                     submit(config.previewUrl, null, null, true);
                 }
                 else render();
@@ -871,6 +869,7 @@
 
             if (!missing && settingsChanged.length) {
                 previewing = true;
+                updateControls();
                 const changesJson = serializeLayout(state.layout);
                 const requests = settingsChanged.filter(widget => elements.get(widget.id)?.isConnected).map(widget => {
                     const el = elements.get(widget.id);
@@ -882,8 +881,7 @@
                             instanceId: widget.id,
                             parameters: $(el).data('dashboardParameters'),
                             changesJson,
-                            layer: config.layer,
-                            reset: state.reset
+                            layer: config.layer
                         }
                     }).done(html => {
                         Smartstore.Admin.Dashboard.updateWidget(el, html);
@@ -893,7 +891,7 @@
                 });
                 Promise.allSettled(requests).then(results => {
                     if (results.every(result => result.status === 'fulfilled')) apply();
-                }).finally(() => { previewing = false; });
+                }).finally(() => { previewing = false; updateControls(); });
             }
             else apply();
         }
@@ -974,8 +972,7 @@
                 data: {
                     instanceId: el.dataset.instanceId,
                     changesJson: serializeLayout(layout),
-                    layer: config.layer,
-                    reset
+                    layer: config.layer
                 }
             }).done(html => {
                 setConfigurationContent(back, html);
@@ -1017,10 +1014,10 @@
                 parameters: $(el).data('dashboardParameters'),
                 instanceId: widget.id,
                 changesJson: serializeLayout(layout),
-                layer: config.layer,
-                reset: false
+                layer: config.layer
             });
             previewing = true;
+            updateControls();
             $.ajax({
                 url: this.dataset.configurationUrl,
                 type: 'POST',
@@ -1040,6 +1037,7 @@
                 displayNotification(window.Res.Dashboard.invalid, 'error');
             }).always(() => {
                 previewing = false;
+                updateControls();
             });
         });
         $(form).on('submit', event => { event.preventDefault(); save(); });
@@ -1051,9 +1049,7 @@
                 callback: accepted => {
                     if (!accepted) return;
 
-                    remember(capture(), true);
-                    reset = true;
-                    submit(config.previewUrl, 'reset', null, true);
+                    submit(null, 'reset');
                 }
             });
         });

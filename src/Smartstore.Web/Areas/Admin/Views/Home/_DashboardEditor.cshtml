@@ -37,33 +37,10 @@
             var presentWidgets = Model.State.Layout.Widgets.Select(x => x.WidgetSystemName).ToHashSet(StringComparer.Ordinal);
             var resetLabel = T(editorKey + (Model.State.Layer == DashboardLayoutLayer.User ? "ResetPersonal" : "ResetGlobal")).Value;
 
-            <div class="hstack gap-2">
-                <div class="dashboard-status d-flex align-items-center"
-                     attr-class='(!Model.IsDirty && !Model.Reset, "d-none")'
-                     aria-live="polite">
-                    <span id="dashboard-reset-status"
-                          class="badge badge-warning badge-subtle badge-ring"
-                          attr-class='(!Model.Reset, "d-none")'
-                          title="@T(editorKey + "ResetPending")"
-                          aria-label="@T(editorKey + "ResetPending")">
-                        <icon name="warning" />
-                        <span class="dashboard-status-label">@T(editorKey + "Status.Reset")</span>
-                    </span>
-                    <span id="dashboard-dirty-status"
-                          class="badge badge-warning badge-subtle badge-ring"
-                          attr-class='(!Model.IsDirty || Model.Reset, "d-none")'
-                          title="@T(editorKey + "Unsaved")"
-                          aria-label="@T(editorKey + "Unsaved")">
-                        <icon name="warning" />
-                        <span class="dashboard-status-label">@T(editorKey + "Status.Unsaved")</span>
-                    </span>
-                </div>
-            </div>
-
             <form id="dashboard-draft-form" asp-area="Admin" asp-controller="Home" asp-action="DashboardSave" method="post" class="mb-0">
                 <input type="hidden" name="layer" value="@Model.State.Layer" />
                 <input type="hidden" name="changesJson" />
-                <input type="hidden" name="reset" value="@Model.Reset.ToString().ToLowerInvariant()" />
+                <input type="hidden" name="reset" value="false" />
                 <input type="hidden" name="command" />
                 <input type="hidden" name="widgetSystemName" />
                 <div class="hstack gap-2 text-nowrap" role="toolbar" aria-label="@T(editorKey + "Customize")">
@@ -142,7 +119,7 @@
                             </button>
                         </div>
                     </div>
-                    <button type="submit" name="save" class="btn btn-primary">
+                    <button type="submit" name="save" class="btn btn-primary" disabled="@(!Model.IsDirty)">
                         <icon name="check" />
                         <span>@T("Admin.Common.Save")</span>
                     </button>

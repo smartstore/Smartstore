@@ -41,10 +41,6 @@ public class DashboardEditorModel
     /// </summary>
     public string EditorJson { get; set; }
     /// <summary>
-    /// Gets or sets whether deletion of the selected customization is pending.
-    /// </summary>
-    public bool Reset { get; set; }
-    /// <summary>
     /// Gets or sets whether the submitted draft contains unsaved changes.
     /// </summary>
     public bool IsDirty { get; set; }

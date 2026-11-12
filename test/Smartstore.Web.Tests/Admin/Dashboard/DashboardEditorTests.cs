@@ -82,7 +82,8 @@ public class HomeControllerDashboardTests
         {
             Widgets = [new DashboardWidgetInstance("instance", descriptor.SystemName)
             {
-                Policy = new DashboardWidgetPolicy { AllowConfigure = true }
+                Policy = new DashboardWidgetPolicy { AllowConfigure = true },
+                Positions = [new DashboardWidgetPosition { Size = new DashboardWidgetSize(4, 1) }]
             }]
         };
         Mock<IDashboardService> dashboard = null;
@@ -98,12 +99,13 @@ public class HomeControllerDashboardTests
                     layout.Id,
                     It.IsAny<Customer>(),
                     DashboardLayoutLayer.User,
-                    true,
+                    false,
                     It.IsAny<CancellationToken>()))
                     .ReturnsAsync(new DashboardLayoutState { Layout = layout, Layer = DashboardLayoutLayer.User, Source = DashboardLayoutLayer.Global });
             });
 
-        var result = await controller.DashboardConfigure("instance", descriptor.SystemName, DashboardLayoutLayer.User, null, true);
+        var changes = new DashboardLayoutChanges([new("instance", descriptor.SystemName, layout.Widgets[0].Positions, null)]);
+        var result = await controller.DashboardConfigure("instance", descriptor.SystemName, DashboardLayoutLayer.User, JsonSerializer.Serialize(changes, SmartJsonOptions.CamelCased));
 
         if (available && configurable)
         {
@@ -449,7 +451,7 @@ public class HomeControllerDashboardTests
 
     [TestCase(false)]
     [TestCase(true)]
-    public async Task Preview_Reuses_The_Loaded_Draft_And_Reset_Ignores_Submitted_Changes(bool reset)
+    public async Task Preview_Does_Not_Persist_And_Reset_Saves_Immediately(bool reset)
     {
         Mock<IDashboardService> service = null;
         var state = new DashboardLayoutState
@@ -474,16 +476,23 @@ public class HomeControllerDashboardTests
                     .ReturnsAsync(state);
             });
 
-        var result = (ViewResult)await controller.DashboardPreview(
-            DashboardLayoutLayer.User,
-            reset ? "invalid discarded JSON" : "{\"widgets\":[]}",
-            reset,
-            "",
-            "");
-        var model = (DashboardEditorModel)result.Model;
+        var result = reset
+            ? await controller.DashboardSave(DashboardLayoutLayer.User, "invalid discarded JSON", true)
+            : await controller.DashboardPreview(DashboardLayoutLayer.User, "{\"widgets\":[]}", "", "");
 
-        Assert.That(model.State, Is.SameAs(state));
-        Assert.That(model.Reset, Is.EqualTo(reset));
+        if (reset)
+        {
+            var redirect = (RedirectToActionResult)result;
+            Assert.That(redirect.ActionName, Is.EqualTo(nameof(HomeController.Index)));
+            Assert.That(redirect.RouteValues.ContainsKey("edit"), Is.False);
+        }
+        else
+        {
+            var model = (DashboardEditorModel)((ViewResult)result).Model;
+            Assert.That(model.State, Is.SameAs(state));
+            Assert.That(model.IsDirty, Is.True);
+        }
+
         service.Verify(x => x.GetLayoutStateAsync(
             It.IsAny<string>(),
             It.IsAny<Customer>(),
@@ -496,15 +505,16 @@ public class HomeControllerDashboardTests
             DashboardLayoutLayer.User,
             It.IsAny<CancellationToken>()), reset ? Times.Never() : Times.Once());
         service.Verify(x => x.SaveLayoutAsync(
-            It.IsAny<DashboardLayout>(),
+            state.Layout,
             It.IsAny<Customer>(),
-            It.IsAny<DashboardLayoutLayer>(),
-            It.IsAny<bool>(),
-            It.IsAny<CancellationToken>()), Times.Never);
+            DashboardLayoutLayer.User,
+            reset,
+            It.IsAny<CancellationToken>()), reset ? Times.Once() : Times.Never());
     }
 
-    [Test]
-    public async Task Write_Error_Retains_The_Loaded_Draft()
+    [TestCase(false)]
+    [TestCase(true)]
+    public async Task Write_Error_Retains_The_Draft_Or_Reloads_The_Saved_Layout_After_Reset(bool reset)
     {
         Mock<IDashboardService> service = null;
         DashboardLayout saved = null;
@@ -515,27 +525,39 @@ public class HomeControllerDashboardTests
             mock =>
             {
                 service = mock;
+                mock.Setup(x => x.GetLayoutStateAsync(
+                    "admin-dashboard",
+                    It.IsAny<Customer>(),
+                    DashboardLayoutLayer.User,
+                    true,
+                    It.IsAny<CancellationToken>()))
+                    .ReturnsAsync(new DashboardLayoutState
+                    {
+                        Layout = new DashboardLayout("admin-dashboard"),
+                        Layer = DashboardLayoutLayer.User,
+                        Source = DashboardLayoutLayer.Global
+                    });
                 mock.Setup(x => x.SaveLayoutAsync(
                     It.IsAny<DashboardLayout>(),
                     It.IsAny<Customer>(),
                     DashboardLayoutLayer.User,
-                    false,
+                    reset,
                     It.IsAny<CancellationToken>()))
-                    .Callback<DashboardLayout, Customer, DashboardLayoutLayer, bool, CancellationToken>((layout, customer, layer, reset, token) => saved = layout)
+                    .Callback<DashboardLayout, Customer, DashboardLayoutLayer, bool, CancellationToken>((layout, customer, layer, resetLayout, token) => saved = layout)
                     .ThrowsAsync(new System.IO.IOException("Test write failure."));
             });
 
-        var result = (ViewResult)await controller.DashboardSave(DashboardLayoutLayer.User, "{\"widgets\":[]}", false);
+        var result = (ViewResult)await controller.DashboardSave(DashboardLayoutLayer.User, "{\"widgets\":[]}", reset);
         var model = (DashboardEditorModel)result.Model;
 
-        Assert.That(model.State.Layout, Is.SameAs(saved));
-        Assert.That(model.IsDirty, Is.True);
+        Assert.That(ReferenceEquals(model.State.Layout, saved), Is.EqualTo(!reset));
+        Assert.That(model.IsDirty, Is.EqualTo(!reset));
         service.Verify(x => x.GetLayoutStateAsync(
             It.IsAny<string>(),
             It.IsAny<Customer>(),
             It.IsAny<DashboardLayoutLayer>(),
             It.IsAny<bool>(),
-            It.IsAny<CancellationToken>()), Times.Once);
+            It.IsAny<CancellationToken>()), Times.Exactly(reset ? 2 : 1));
     }
 
     private static HomeController CreateController(
@@ -689,7 +711,7 @@ public class HomeControllerDashboardTests
     {
         var controller = CreateController(personal, global, DashboardLayoutLayer.User);
         Assert.ThrowsAsync<AccessDeniedException>(async () => await controller.Index(true, layer));
-        Assert.ThrowsAsync<AccessDeniedException>(async () => await controller.DashboardPreview(layer, "", false, "", ""));
+        Assert.ThrowsAsync<AccessDeniedException>(async () => await controller.DashboardPreview(layer, "", "", ""));
         Assert.ThrowsAsync<AccessDeniedException>(async () => await controller.DashboardSave(layer, "", false));
         Assert.ThrowsAsync<AccessDeniedException>(async () => await controller.DashboardConfigure("widget", "type", layer, ""));
     }

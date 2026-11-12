@@ -9,7 +9,6 @@ namespace Smartstore.Admin.Infrastructure.Dashboard;
 /// <param name="Layout">The placements and grid width required for local editing.</param>
 /// <param name="Layer">The authorized layer being edited.</param>
 /// <param name="Dirty">Whether the server returned an unsaved draft.</param>
-/// <param name="Reset">Whether removing the customization is pending.</param>
 /// <param name="EditUrl">The route for changing the edited layer.</param>
 /// <param name="CancelUrl">The route for leaving the editor.</param>
 /// <param name="PreviewUrl">The route for previewing draft commands.</param>
@@ -18,7 +17,6 @@ public sealed record DashboardEditorData(
     DashboardEditorLayout Layout,
     string Layer,
     bool Dirty,
-    bool Reset,
     string EditUrl,
     string CancelUrl,
     string PreviewUrl,

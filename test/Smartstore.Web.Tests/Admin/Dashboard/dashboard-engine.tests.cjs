@@ -75,7 +75,7 @@ test('expanding left displaces a neighbor without moving the opposite edge', () 
 });
 
 // Run the editor's actual keyboard handlers with a minimal DOM and the bundled Underscore.
-function keyboardEditor({ direction = 'ltr', blockedStorage = false, allowedSizes = [], layer = 'User', belowPosition, news = false, breakpoint = 'xl' } = {}) {
+function keyboardEditor({ direction = 'ltr', blockedStorage = false, allowedSizes = [], layer = 'User', belowPosition, news = false, breakpoint = 'xl', dirty = false } = {}) {
     const handlers = new Map();
     const controls = new Map();
     const element = {
@@ -102,7 +102,7 @@ function keyboardEditor({ direction = 'ltr', blockedStorage = false, allowedSize
             { id: 'a', widgetSystemName: 'Test', allowMove: true,
                 positions: [{ breakpoint: 'xs', column: 2, row: 1, size: { columnSpan: 4, rowSpan: 1 } }] }
         ] },
-        maxHeight: 310, widgets: [{ systemName: 'Test', allowedSizes }], layer, dirty: false, reset: false
+        maxHeight: 310, widgets: [{ systemName: 'Test', allowedSizes }], layer, dirty
     };
 
     if (belowPosition) {
@@ -127,7 +127,7 @@ function keyboardEditor({ direction = 'ltr', blockedStorage = false, allowedSize
     let submissions = 0;
     const form = {
         action: 'https://example.test/admin/Home/DashboardSave',
-        elements: Object.fromEntries(['changesJson', 'reset', 'command', 'widgetSystemName'].map(name => [name, { value: '' }]))
+        elements: Object.fromEntries(['changesJson', 'reset', 'command', 'widgetSystemName', 'save'].map(name => [name, { value: '' }]))
     };
     const document = {
         body: { style: {}, classList: { add() {}, remove() {} }, appendChild() {} },
@@ -199,6 +199,10 @@ function keyboardEditor({ direction = 'ltr', blockedStorage = false, allowedSize
         submitted: () => JSON.parse(form.elements.changesJson.value),
         undo: () => controls.get('#dashboard-undo').click(),
         redo: () => controls.get('#dashboard-redo').click(),
+        canSave: () => !controls.get(form.elements.save).disabled,
+        reset: () => controls.get('#dashboard-reset').click(),
+        resetSubmitted: () => form.elements.reset.value,
+        action: () => form.action,
         canUndo: () => !controls.get('#dashboard-undo').disabled,
         drag(kind, ...points) {
             const handle = { dataset: { dashboardResize: kind }, closest: () => element };
@@ -289,8 +293,17 @@ test('pointer and keyboard resizing use only allowed widths and keep the opposit
     }
 });
 
-test('personal dashboard saves immediately without a confirmation', () => {
+test('personal dashboard saves changes without a confirmation', () => {
     const editor = keyboardEditor();
+    assert.equal(editor.canSave(), false);
+    editor.save();
+    assert.equal(editor.submissions(), 0);
+    editor.press('width', 'ArrowRight');
+    assert.equal(editor.canSave(), true);
+    editor.undo();
+    assert.equal(editor.canSave(), false);
+    editor.redo();
+    assert.equal(editor.canSave(), true);
     editor.save();
     assert.equal(editor.hasConfirmation(), false);
     assert.equal(editor.submissions(), 1);
@@ -298,6 +311,7 @@ test('personal dashboard saves immediately without a confirmation', () => {
 
 test('global dashboard only saves after confirmation and can be cancelled', () => {
     const editor = keyboardEditor({ layer: 'Global' });
+    editor.press('width', 'ArrowRight');
     editor.save();
     assert.equal(editor.hasConfirmation(), true);
     assert.equal(editor.submissions(), 0);
@@ -389,7 +403,7 @@ test('pointer resizing snaps to rows and undo restores the row span', () => {
 });
 
 test('saving compacts every responsive layout without removing occupied spans', () => {
-    const editor = keyboardEditor();
+    const editor = keyboardEditor({ dirty: true });
     assert.equal(editor.style.gridRow, '2 / span 1');
     editor.save();
 
@@ -581,7 +595,7 @@ for (const outcome of ['configuration', 'validation', 'configuration-error', 're
             jQuery: $, Smartstore: {}, document, Chart,
             window: { Chart, Res: { Dashboard: { invalid: 'invalid', refreshFailed: 'failed' } }, setTimeout(fn) { fn(); } },
             performance: { now() { return 0; } },
-            $, previewing: false, config: { layer: 'User' },
+            updateControls() {}, $, previewing: false, config: { layer: 'User' },
             widgetsById: new Map([['payments', entry]]), layout: { widgets: [entry] },
             capture() { return settings; }, remember() { remembered++; },
             flipConfiguration() { flipped = true; },
@@ -667,7 +681,7 @@ for (const fail of [false, true]) {
         const end = editorSource.indexOf("        $('#dashboard-undo')", start);
         const oldLayout = { widgets: [{ id: 'payments', settings: { count: 3 } }] };
         const newLayout = { widgets: [{ id: 'payments', settings: { count: 7 } }] };
-        const undo = [{ layout: oldLayout, reset: false, dirty: false }], redo = [];
+        const undo = [{ layout: oldLayout, dirty: false }], redo = [];
         const requests = [], updates = [], notifications = [];
         const element = { isConnected: true };
         const $ = () => ({ data() { return { period: '30' }; } });
@@ -680,13 +694,13 @@ for (const fail of [false, true]) {
             return promise;
         };
         const sandbox = {
-            $, structuredClone, previewing: false, config: { layer: 'User', previewUrl: '/preview' },
+            updateControls() {}, $, structuredClone, previewing: false, config: { layer: 'User', previewUrl: '/preview' },
             container: { dataset: { dashboardLoadUrl: '/load' } },
             layout: newLayout, widgetsById: new Map([['payments', newLayout.widgets[0]]]),
             elements: new Map([['payments', element]]),
             _: { isEqual: (a, b) => JSON.stringify(a) === JSON.stringify(b) },
             finish() {}, render() {},
-            capture() { return { layout: sandbox.layout, reset: false, dirty: true }; },
+            capture() { return { layout: sandbox.layout, dirty: true }; },
             setLayout(layout) { sandbox.layout = layout; sandbox.widgetsById = new Map(layout.widgets.map(w => [w.id, w])); },
             Smartstore: { Admin: { Dashboard: { updateWidget(el, html) { updates.push({ el, html }); } } } },
             window: { Res: { Dashboard: { invalid: 'invalid' } } },
@@ -741,7 +755,7 @@ for (const fail of [false, true]) {
 for (const hasNews of [false, true]) {
     test(`available news positions follow the draft across breakpoints and saving (news: ${hasNews})`, () => {
         for (const breakpoint of ['xs', 'sm', 'md', 'lg', 'xl', 'xxl']) {
-            const editor = keyboardEditor({ news: hasNews, breakpoint });
+            const editor = keyboardEditor({ news: hasNews, breakpoint, dirty: true });
             const desktop = ['lg', 'xl', 'xxl'].includes(breakpoint);
 
             if (hasNews) assert.equal(editor.newsStyle.gridRow, desktop ? '1 / span 2' : '3 / span 1');
@@ -760,5 +774,21 @@ for (const hasNews of [false, true]) {
             assert.ok(news.positions.slice(0, 3).every(p => p.row === 1 && p.size.rowSpan === 1 && p.column === 0 && p.size.columnSpan === 12));
             assert.ok(news.positions.slice(3).every(p => p.row === 0 && p.size.rowSpan === 1 && p.column === 10 && p.size.columnSpan === 2));
         }
+    });
+}
+
+for (const layer of ['User', 'Global']) {
+    test(`reset submits directly to save only after confirmation (${layer})`, () => {
+        const editor = keyboardEditor({ layer, blockedStorage: true });
+        editor.reset();
+        assert.equal(editor.submissions(), 0);
+        editor.confirm(false);
+        assert.equal(editor.submissions(), 0);
+        editor.reset();
+        editor.confirm(true);
+        assert.equal(editor.submissions(), 1);
+        assert.equal(editor.resetSubmitted(), 'true');
+        assert.equal(editor.action(), 'https://example.test/admin/Home/DashboardSave');
+        assert.equal(editor.canUndo(), false);
     });
 }
