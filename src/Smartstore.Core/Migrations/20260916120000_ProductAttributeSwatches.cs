@@ -116,7 +116,7 @@ internal class ProductAttributeSwatches : Migration, ILocaleResourcesProvider, I
 
         builder.AddOrUpdate("Admin.Common.ClickToSetDifferentValue",
             "Set a value that differs from the default by clicking.",
-            "Klicken, um einen vom Standard abweichenden Wert festzulegen.");
+            "Klicken, um den Standardwert für diese Einstellung zu überschreiben.");
 
         builder.AddOrUpdate("Admin.Common.ClickToSetValue",
             "No value set (default). Click to set a value.",
@@ -131,7 +131,7 @@ internal class ProductAttributeSwatches : Migration, ILocaleResourcesProvider, I
 
         builder.AddOrUpdate("Admin.Catalog.Attributes.ProductAttributes.Swatches",
             "Color and image swatches",
-            "Farb- und Bildmuster");
+            "Swatches (Farb- und Bildmuster)");
 
         builder.AddOrUpdate("Admin.Catalog.Attributes.ProductAttributes.EditSwatches",
             "Edit color and image swatches",
@@ -140,13 +140,13 @@ internal class ProductAttributeSwatches : Migration, ILocaleResourcesProvider, I
 
         builder.AddOrUpdate("Admin.Configuration.Settings.Catalog.DefaultSwatchSize",
             "Default size of swatches",
-            "Standardgröße von Farb- und Bildmustern",
+            "Standardgröße von Swatches (Farb- und Bildmuster)",
             "Sets the default swatch size. It can be overridden for product and checkout attributes and for individual products. Recommended size is M.",
             "Legt die Standardgröße der Muster fest. Sie kann bei Produkt- und Checkoutattributen sowie bei einzelnen Produkten überschrieben werden. Empfohlen wird Größe M.");
 
         builder.AddOrUpdate("Admin.Configuration.Settings.Catalog.DefaultSwatchShape",
             "Default shape of swatches",
-            "Standardform von Farb- und Bildmustern",
+            "Standardform von Swatches (Farb- und Bildmuster)",
             "Sets the default swatch shape. It can be overridden for product and checkout attributes and for individual products. Default is \"Pill\".",
             "Legt die Standardform der Muster fest. Sie kann bei Produkt- und Checkoutattributen sowie bei einzelnen Produkten überschrieben werden. Standard ist \"Abgerundet\".");
 

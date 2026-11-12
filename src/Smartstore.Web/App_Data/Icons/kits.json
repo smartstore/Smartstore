@@ -228,6 +228,7 @@
       "power",
       "puzzle",
       "receipt",
+      "rect-sharp",
       "recycle",
       "redo",
       "refresh",
@@ -291,6 +292,7 @@
       "wrench"
     ],
     "sources": {
+      "rect-sharp": "system:rect-sharp",
       "discount": "hi:percent!/sr",
       "float-right": "hi:text-firstline-left!",
       "float-left": "hi:text-firstline-right!",

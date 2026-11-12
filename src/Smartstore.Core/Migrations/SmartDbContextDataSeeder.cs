@@ -469,6 +469,8 @@ public class SmartDbContextDataSeeder : IDataSeeder<SmartDbContext>
             "All characters are allowed.",
             "Alle Zeichen sind erlaubt.");
 
+        builder.AddOrUpdate("Common.Variants", "Variants", "Varianten");
+
         builder.AddOrUpdate(prefix + "DisplayAllImagesNumber",
             "Show all product images up to",
             "Alle Produktbilder anzeigen bis",

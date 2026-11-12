@@ -159,7 +159,7 @@
                     <smart-label asp-for="SwatchShape" />
                 </div>
                 <div class="adminData">
-                    <select asp-for="SwatchShape" asp-items="Html.GetLocalizedEnumSelectList(typeof(SwatchShape))" asp-placeholder="@ViewBag.DefaultSwatchShape"></select>
+                    <editor asp-for="SwatchShape" asp-template="SwatchShape" />
                     <span asp-validation-for="SwatchShape"></span>
                 </div>
             </div>

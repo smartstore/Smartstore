@@ -489,8 +489,7 @@ public class CheckoutAttributeController : AdminController
             .Select(x => localization.GetLocalizedEnum(x))
             .ToList();
 
-        ViewBag.DefaultSwatchShape = localization.GetLocalizedEnum(_catalogSettings.DefaultSwatchShape).NullEmpty()
-            ?? localization.GetLocalizedEnum(SwatchShape.Rounded);
+        ViewData[nameof(CheckoutAttributeModel.SwatchShape) + "DefaultValue"] = _catalogSettings.DefaultSwatchShape;
 
         ViewBag.SwatchPriceDisplayModes = new List<SelectListItem>
         {

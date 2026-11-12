@@ -614,8 +614,7 @@ public partial class ProductController : AdminController
 
         ViewData[nameof(ProductAttributeModel.SwatchAspectRatio) + "DefaultValue"] = attribute.SwatchAspectRatio;
 
-        ViewBag.DefaultSwatchShape = localization.GetLocalizedEnum(attribute.SwatchShape ?? _catalogSettings.DefaultSwatchShape).NullEmpty()
-            ?? localization.GetLocalizedEnum(SwatchShape.Rounded);
+        ViewData[nameof(ProductAttributeModel.SwatchShape) + "DefaultValue"] = attribute.SwatchShape ?? _catalogSettings.DefaultSwatchShape;
 
         ViewBag.DefaultPriceDisplayMode = localization.GetLocalizedEnum(pva.SwatchPriceDisplay ?? attribute.SwatchPriceDisplay);
 

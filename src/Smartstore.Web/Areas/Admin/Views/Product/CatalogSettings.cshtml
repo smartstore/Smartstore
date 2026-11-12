@@ -658,6 +658,29 @@
                 </div>
                 <div class="adminRow">
                     <div class="adminTitle">
+                        <smart-label asp-for="ProductsAlsoPurchasedEnabled" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="ProductsAlsoPurchasedEnabled" data-toggler-for="#pnlProductsAlsoPurchasedNumber"></setting-editor>
+                        <span asp-validation-for="ProductsAlsoPurchasedEnabled"></span>
+                    </div>
+                </div>
+                <div class="adminRow" id="pnlProductsAlsoPurchasedNumber">
+                    <div class="adminTitle">
+                        <smart-label asp-for="ProductsAlsoPurchasedNumber" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="ProductsAlsoPurchasedNumber"></setting-editor>
+                        <span asp-validation-for="ProductsAlsoPurchasedNumber"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="admin-config-group">
+                        <div class="title">@T("Common.Variants")</div>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
                         <smart-label asp-for="DisplayAllImagesNumber" />
                     </div>
                     <div class="adminData">
@@ -699,28 +722,8 @@
                         <smart-label asp-for="DefaultSwatchShape" />
                     </div>
                     <div class="adminData">
-                        <setting-editor asp-for="DefaultSwatchShape">
-                            <select asp-for="DefaultSwatchShape" asp-items="Html.GetLocalizedEnumSelectList(typeof(SwatchShape))"></select>
-                        </setting-editor>
+                        <setting-editor asp-for="DefaultSwatchShape" asp-template="SwatchShape" />
                         <span asp-validation-for="DefaultSwatchShape"></span>
-                    </div>
-                </div>
-                <div class="adminRow">
-                    <div class="adminTitle">
-                        <smart-label asp-for="ProductsAlsoPurchasedEnabled" />
-                    </div>
-                    <div class="adminData">
-                        <setting-editor asp-for="ProductsAlsoPurchasedEnabled" data-toggler-for="#pnlProductsAlsoPurchasedNumber"></setting-editor>
-                        <span asp-validation-for="ProductsAlsoPurchasedEnabled"></span>
-                    </div>
-                </div>
-                <div class="adminRow" id="pnlProductsAlsoPurchasedNumber">
-                    <div class="adminTitle">
-                        <smart-label asp-for="ProductsAlsoPurchasedNumber" />
-                    </div>
-                    <div class="adminData">
-                        <setting-editor asp-for="ProductsAlsoPurchasedNumber"></setting-editor>
-                        <span asp-validation-for="ProductsAlsoPurchasedNumber"></span>
                     </div>
                 </div>
             </div>

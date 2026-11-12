@@ -1,74 +1,37 @@
 @model object
 
 @{
-    ViewData["tools"] = false;
-
     var name = ViewData.TemplateInfo.GetFullHtmlFieldName(string.Empty);
     var id = Html.GenerateIdFromName(name);
-    var isNullable = Nullable.GetUnderlyingType(ViewData.ModelMetadata.ModelType) != null;
-    var hasValue = Model != null;
 
-    // INFO: These values represent a practical compromise designed to avoid a "step" that is too fine.
-    // The deviation from the mathematically exact ratio remains below approximately 0.5%.
-    var presets = new[]
+    // Defer initialization until the local coordinate conversion is available.
+    ViewData["editor"] = "aspect-ratio";
+    ViewData["min"] = -2m;
+    ViewData["max"] = 2m;
+    ViewData["step"] = 0.0001m;
+    ViewData["format"] = "{0}";
+    ViewData["defaultValue"] = 1m;
+    // Use the same reciprocal coordinates as the slider, including the familiar intermediate formats.
+    var ticks = new[]
     {
-        (Value: 0.5m, Label: "2:1"),
-        (Value: 0.56m, Label: "16:9"),
-        (Value: 0.67m, Label: "3:2"),
-        (Value: 0.75m, Label: "4:3"),
-        (Value: 0m, Label: string.Empty),
-        (Value: 1m, Label: "1:1"),
-        (Value: 0m, Label: string.Empty),
-        (Value: 1.33m, Label: "3:4"),
-        (Value: 1.5m, Label: "2:3"),
-        (Value: 1.78m, Label: "9:16"),
-        (Value: 2m, Label: "1:2"),
-        (Value: 3m, Label: "1:3")
+        (Ratio: 1m / 3m, Label: "3:1"), (Ratio: 0.5m, Label: "2:1"),
+        (Ratio: 9m / 16m, Label: "16:9"), (Ratio: 2m / 3m, Label: "3:2"),
+        (Ratio: 0.75m, Label: "4:3"), (Ratio: 1m, Label: "1:1"),
+        (Ratio: 4m / 3m, Label: "3:4"), (Ratio: 1.5m, Label: "2:3"),
+        (Ratio: 16m / 9m, Label: "9:16"), (Ratio: 2m, Label: "1:2"),
+        (Ratio: 3m, Label: "1:3")
     };
+    ViewData["ticks"] = string.Join(",", ticks.Select(x =>
+        $"{(x.Ratio < 1m ? 1m - 1m / x.Ratio : x.Ratio - 1m).ToStringInvariant()}|{x.Label}"));
 }
 
 <div id="aspect-ratio-@id" class="row xs-gutters aspect-ratio-editor">
     <div class="col">
         <partial name="~/Views/Shared/EditorTemplates/Range.cshtml" model="@Model" view-data="ViewData" />
     </div>
-    <div class="col-auto">
-        <div class="d-flex align-items-start">
-            <div style="width: 20px; height: 60px;">
-                <div class="aspect-ratio-preview" style="width: 20px; background-color: var(--gray-600); transition: height 0.08s linear;"></div>
-            </div>
-            <div class="dropdown ml-1">
-                <button type="button"
-                        class="btn btn-sm btn-light btn-flat btn-no-border btn-icon dropdown-toggle no-chevron"
-                        data-toggle="dropdown"
-                        title="@ViewData.ModelMetadata.GetDisplayName()">
-                    <icon name="aspect-ratio" />
-                </button>
-                <div class="dropdown-menu dropdown-menu-right">
-                    @foreach (var preset in presets)
-                    {
-                        if (preset.Value == 0m)
-                        {
-                            <div class="dropdown-divider"></div>
-                        }
-                        else
-                        {
-                            <button type="button" class="dropdown-item aspect-ratio-preset" data-value="@preset.Value.ToStringInvariant()">
-                                @preset.Label
-                            </button>
-                        }
-                    }
-                    @if (isNullable)
-                    {
-                        <div class="dropdown-divider"></div>
-                        <button type="button"
-                                class="dropdown-item range-reset"
-                                title="@T("Admin.Common.ResetToDefault")"
-                                attr-disabled='(!hasValue, "disabled")'>
-                            @T("Admin.Common.Clear")
-                        </button>
-                    }
-                </div>
-            </div>
+    <div class="col-auto d-flex align-items-center justify-content-center">
+        <div class="aspect-ratio-editor-preview-frame">
+            <div class="aspect-ratio-editor-preview"></div>
         </div>
     </div>
 </div>
@@ -76,44 +39,38 @@
 <script sm-target-zone="scripts" data-origin="aspect-ratio-template">
     $(function() {
         const $container = $('#aspect-ratio-@id');
-        const $rangeContainer = $container.find('[data-editor="range"]');
-        const $range = $container.find('.form-control-range');
-        const $preview = $container.find('.aspect-ratio-preview');
-        const $presets = $container.find('.aspect-ratio-preset');
-        const $resetBtn = $container.find('.range-reset');
+        const $rangeContainer = $container.find('[data-editor="aspect-ratio"]');
+        const $range = $rangeContainer.find('.form-control-range');
+        const $preview = $container.find('.aspect-ratio-editor-preview');
+        const ratios = [1 / 3, 0.5, 9 / 16, 2 / 3, 0.75, 1, 4 / 3, 1.5, 16 / 9, 2, 3];
+        const labels = ['3:1', '2:1', '16:9', '3:2', '4:3', '1:1', '3:4', '2:3', '9:16', '1:2', '1:3'];
+        const round = value => Number(value.toFixed(4));
 
-        $rangeContainer.rangeSlider();
-        const rangeSlider = $rangeContainer.data('rangeSlider');
-
-        function updatePreview(e, value) {
-            let val = parseFloat(value ?? $range.val());
-            if (isNaN(val) || val <= 0) {
-                val = 1;
-            }
-
-            $resetBtn.prop('disabled', rangeSlider.isUnspecified());
-
-            const previewWidth = parseFloat($preview.css('width'));
-            $preview.css('height', (previewWidth * val) + 'px');
-
-            $presets.each((_, element) => {
-                const $preset = $(element);
-                const isActive = Math.abs(parseFloat($preset.data('value')) - val) < 0.00005;
-                $preset.toggleClass('active', isActive);
-            });
+        // Reciprocal ratios sit equally far from the square; storage has four decimal places.
+        function toPosition(value) {
+            const numeric = Number(value);
+            const ratio = Number.isFinite(numeric) && numeric >= round(1 / 3) && numeric <= 3
+                ? Math.max(1 / 3, numeric) : 1;
+            return ratio < 1 ? 1 - 1 / ratio : ratio - 1;
         }
 
-        $rangeContainer.on('rangeslider:change', updatePreview);
+        function fromPosition(value) {
+            const position = Number(value);
+            return round(position < 0 ? 1 / (1 - position) : 1 + position);
+        }
 
-        $presets.on('click', (e) => {
-            rangeSlider.setValue($(e.currentTarget).data('value'));
+        $rangeContainer.on('rangeslider:change', (e, value) => {
+            const ratio = Number(value);
+            const preset = ratios.findIndex(x => round(x) === ratio);
+            const part = Number((ratio < 1 ? 1 / ratio : ratio).toFixed(2));
+            const localized = String(part).replace('.', Smartstore.globalization.culture.numberFormat["."]);
+            const label = labels[preset] ?? (ratio < 1 ? localized + ':1' : '1:' + localized);
+            $rangeContainer.find('.range-value-inner').text(label);
+            $range.attr('aria-valuetext', label);
+            $preview.css('--preview-ratio', ratio);
         });
 
-        $resetBtn.on('click', (e) => {
-            e.preventDefault();
-            rangeSlider.reset();
-        });
-
-        updatePreview();
+        // Range still owns binding and nullable reset; snapping uses its existing track-coordinate mechanism.
+        $rangeContainer.rangeSlider({ toPosition, fromPosition, snapValues: ratios.map(toPosition), snapTolerance: 0.03 });
     });
 </script>

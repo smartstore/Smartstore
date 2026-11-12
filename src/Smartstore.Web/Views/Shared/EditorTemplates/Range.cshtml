@@ -101,7 +101,7 @@
 <div id="range-container-@id"
      class="@containerCssClass"
      data-format="@Html.Raw(format)"
-     data-editor="range"
+     data-editor="@(GetMetadata<string>("editor") ?? "range")"
      data-nullable="@isNullable.ToString().ToLowerInvariant()"
      data-default-value="@defaultValue.Value.ToStringInvariant()">
     @* INFO: We have to distinguish here because the HTML wrapping for nullable properties will break the sliders in PageBuilder. *@
@@ -120,7 +120,7 @@
             <div class="ml-2 hstack" style="min-width: 64px; height: 24px;">
                 @* Clickable badge for default state *@
                 <span role="button"
-                      class="badge badge-light muted range-badge"
+                      class="badge badge-secondary range-badge"
                       attr-class='(hasValue, "d-none")'
                       title="@T(hasDefaultValue ? "Admin.Common.ClickToSetDifferentValue" : "Admin.Common.ClickToSetValue")">
                     @T("Admin.Common.Standard")
@@ -130,7 +130,7 @@
                         class="btn btn-sm btn-light btn-flat btn-no-border btn-icon range-reset"
                         attr-class='(!hasValue, "d-none")'
                         title="@T("Admin.Common.ResetToDefault")">
-                    <icon name="undo"  />
+                    <icon name="close" />
                 </button>
             </div>
         </div>

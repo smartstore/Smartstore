@@ -178,12 +178,39 @@
 }
 
 [dir=rtl] .range-slider .range-value {
-
     &[data-placement=right] {
         transform: translateX(calc(#{$custom-range-thumb-width * 1.7} + #{$custom-range-thumb-width * 2}));
     }
 
     &[data-placement=left] {
         transform: translateX(calc(#{$custom-range-thumb-width * -1.7} + #{$custom-range-thumb-width / 2}));
+    }
+}
+
+.aspect-ratio-editor {
+    .range-tick[data-value="1:1"] {
+        background-color: var(--gray-800);
+
+        &:after {
+            color: var(--gray-800);
+            font-weight: $font-weight-bold;
+        }
+    }
+
+    .aspect-ratio-editor-preview-frame {
+        display: grid;
+        place-items: center;
+        width: 40px;
+        height: 40px;
+    }
+
+    .aspect-ratio-editor-preview {
+        // Include the border in the ratio and keep the longer side at 40px.
+        box-sizing: border-box;
+        width: calc(40px / max(1, var(--preview-ratio, 1)));
+        border: 2px solid var(--gray-400);
+        background-color: var(--gray-200);
+        border-radius: 5px;
+        aspect-ratio: 1 / var(--preview-ratio, 1);
     }
 }

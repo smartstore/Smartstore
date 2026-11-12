@@ -14,6 +14,9 @@
         const snapValues = (this.options.snapValues || []).map(Number).filter(Number.isFinite);
         const snapTolerance = this.options.snapTolerance
             ?? (Number(slider.prop('max')) - Number(slider.prop('min'))) * 0.015;
+        // Optional conversion separates track coordinates from stored values without changing ordinary ranges.
+        const toPosition = this.options.toPosition || (value => value);
+        const fromPosition = this.options.fromPosition || (value => value);
         let dragging = false;
 
         function snapToTick() {
@@ -68,12 +71,12 @@
         function updateSlider(e, syncInput) {
             // Move invariant value from slider to an associated hidden field
             // as formatted value. Client validation will fail otherwise.
-            const val = slider.val();
+            const val = String(fromPosition(slider.val()));
             const bubble = el.find('.range-value').first();
             const fmt = el.data('format');
 
             el
-                .css('--slider-value', val)
+                .css('--slider-value', slider.val())
                 .find('.range-value-inner')
                 .text(fmt === '{0}' ? fmt.format(val) : eval(fmt.format(val)));
 
@@ -93,7 +96,7 @@
         };
 
         this.setValue = function (value) {
-            slider.val(value).trigger('input').trigger('change');
+            slider.val(toPosition(value)).trigger('input').trigger('change');
         };
 
         this.reset = function () {
@@ -103,13 +106,20 @@
 
             setUnspecified(true);
             hiddenInput.val('').trigger('change');
-            slider.val(el.data('default-value'));
+            slider.val(toPosition(el.data('default-value')));
             updateSlider(null, false);
         };
 
         this.init = function () {
             if (slider.length === 0) {
                 return;
+            }
+
+            if (this.options.toPosition) {
+                slider.val(toPosition(slider.attr('value')));
+                if (!self.isUnspecified()) {
+                    hiddenInput.val(String(fromPosition(slider.val())).replace('.', Smartstore.globalization.culture.numberFormat["."]));
+                }
             }
 
             if (snapValues.length) {
@@ -130,7 +140,7 @@
             });
 
             badge.on('click', () => {
-                self.setValue(slider.val());
+                self.setValue(fromPosition(slider.val()));
             });
 
             resetBtn.on('click', (e) => {
