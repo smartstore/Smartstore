@@ -1,42 +1,36 @@
-using System.Text.Encodings.Web;
-using Microsoft.AspNetCore.Razor.TagHelpers;
-using Smartstore.Web.TagHelpers.Shared;
-using FluentValidation;
-using FluentValidation.AspNetCore;
-using Microsoft.AspNetCore.Html;
-using Microsoft.Extensions.Primitives;
-using Smartstore.Engine.Modularity;
-using Smartstore.Core.Localization;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
-using Microsoft.AspNetCore.Mvc.ViewFeatures;
-using Smartstore.Core.Widgets;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text.Json.Nodes;
 using System.Text.Json;
-using System.Threading.Tasks;
+using System.Text.Json.Nodes;
 using System.Threading;
-using System;
+using System.Threading.Tasks;
+using FluentValidation;
+using FluentValidation.AspNetCore;
+using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Abstractions;
 using Microsoft.AspNetCore.Mvc.Filters;
-using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Primitives;
 using Moq;
 using NUnit.Framework;
 using Smartstore.Admin.Controllers;
 using Smartstore.Admin.Infrastructure.Dashboard;
 using Smartstore.Admin.Models.Dashboard;
+using Smartstore.Core;
 using Smartstore.Core.Identity;
+using Smartstore.Core.Localization;
 using Smartstore.Core.Security;
 using Smartstore.Core.Web;
+using Smartstore.Core.Widgets;
 using Smartstore.Core.Widgets.Dashboard;
-using Smartstore.Core;
+using Smartstore.Engine.Modularity;
 using Smartstore.Json;
-using Smartstore.Web.Models;
 using Smartstore.Web.Modelling;
 
 namespace Smartstore.Web.Tests.Admin.Dashboard;
@@ -47,7 +41,7 @@ namespace Smartstore.Web.Tests.Admin.Dashboard;
 /// Exercises dashboard view selection, edit authorization and the read-permission filter.
 /// </summary>
 [TestFixture]
-public class HomeControllerDashboardTests
+public class DashboardControllerTests
 {
     [TestCase(true, true)]
     [TestCase(false, true)]
@@ -729,366 +723,5 @@ public class HomeControllerDashboardTests
 
         Assert.ThrowsAsync<AccessDeniedException>(async () => await filter.OnAuthorizationAsync(context));
         permission.Verify(x => x.AuthorizeAsync(Permissions.Dashboard.Read, null, false), Times.Once);
-    }
-}
-
-#nullable disable
-
-/// <summary>
-/// Verifies the editor boundary, trusted metadata preservation and script-safe initialization data.
-/// </summary>
-[TestFixture]
-public class DashboardEditorMapperTests
-{
-    /// <summary>
-    /// Server insertion and client editing receive the same named layout constraints.
-    /// </summary>
-    [Test]
-    public void Layout_Rules_Reserve_The_News_Rail_Only_On_Large_Tiers()
-    {
-        var layout = new AdminDashboardLayoutProvider().GetDefaultLayout();
-        var rules = DashboardEditorMapper.GetLayoutRules(layout);
-
-        Assert.Multiple(() =>
-        {
-            Assert.That(rules.Select(rule => rule.Breakpoint), Is.EqualTo(Enum.GetValues<DashboardBreakpoint>()));
-            Assert.That(rules.Where(rule => rule.Breakpoint < DashboardBreakpoint.Md).All(rule => rule.FullWidthWidgets), Is.True);
-            Assert.That(rules.Where(rule => rule.Breakpoint >= DashboardBreakpoint.Md).All(rule => !rule.FullWidthWidgets), Is.True);
-            Assert.That(rules.Where(rule => rule.Breakpoint < DashboardBreakpoint.Lg).All(rule => rule.ColumnCount == 12 && !rule.HasNewsRail), Is.True);
-            Assert.That(rules.Where(rule => rule.Breakpoint >= DashboardBreakpoint.Lg).All(rule => rule.ColumnCount == 10 && rule.HasNewsRail), Is.True);
-        });
-    }
-
-    /// <summary>
-    /// An empty dashboard can place widgets at every named tier without any pixel-based defaults.
-    /// </summary>
-    [Test]
-    public void Empty_Layout_Uses_All_Columns_And_Named_Insertion_Positions()
-    {
-        var layout = new DashboardLayout("test");
-        var positions = DashboardEditorMapper.GetInsertionPositions(layout, new DashboardWidgetSize(4, 2));
-
-        Assert.Multiple(() =>
-        {
-            Assert.That(DashboardEditorMapper.GetLayoutRules(layout).All(rule => rule.ColumnCount == 12 && !rule.HasNewsRail), Is.True);
-            Assert.That(positions.Select(position => position.Breakpoint), Is.EqualTo(Enum.GetValues<DashboardBreakpoint>()));
-            Assert.That(positions.All(position => position.Row == 0 && position.Column == 0 && position.Size.RowSpan == 2), Is.True);
-            Assert.That(positions.Where(position => position.Breakpoint < DashboardBreakpoint.Md).All(position => position.Size.ColumnSpan == 12), Is.True);
-            Assert.That(positions.Where(position => position.Breakpoint >= DashboardBreakpoint.Md).All(position => position.Size.ColumnSpan == 4), Is.True);
-        });
-    }
-
-    [TestCase("minHeight", "700")]
-    [TestCase("stretch", "false")]
-    public void Rejects_Pixel_Height_Overrides(string property, string value)
-    {
-        var json = "{\"widgets\":[{\"id\":\"a\",\"widgetSystemName\":\"Test\",\"positions\":[{\"size\":{\"columnSpan\":4},\"" + property + "\":" + value + "}]}]}";
-        Assert.Throws<JsonException>(() => DashboardEditorMapper.ReadChanges(json));
-    }
-
-    [Test]
-    public void Row_Span_Roundtrips_Through_Editor_Contract()
-    {
-        var baseline = Baseline();
-        var changes = new DashboardLayoutChanges(baseline.Widgets.Select(w => new DashboardWidgetPlacement(
-            w.Id,
-            w.WidgetSystemName,
-            [new DashboardWidgetPosition { Size = new DashboardWidgetSize(4, 2) }])).ToArray());
-        var json = JsonSerializer.Serialize(changes, SmartJsonOptions.CamelCased);
-        var result = DashboardEditorMapper.ApplyChanges(DashboardEditorMapper.ReadChanges(json), baseline, Mock.Of<IDashboardService>());
-        Assert.That(result.Widgets[0].GetPosition(DashboardBreakpoint.Xs).Size.RowSpan, Is.EqualTo(2));
-    }
-
-
-    /// <summary>
-    /// Editor placement input remains bounded without restricting provider layouts in the core.
-    /// </summary>
-    [TestCase(10001, 0, 1)]
-    [TestCase(0, 10001, 1)]
-    [TestCase(0, 0, 1001)]
-    public void Changes_Reject_Positions_Beyond_Editor_Limits(int breakpoint, int row, int rowSpan)
-    {
-        var baseline = Baseline();
-        var instance = baseline.Widgets[0];
-        var changes = new DashboardLayoutChanges(
-            [new DashboardWidgetPlacement(
-                instance.Id,
-                instance.WidgetSystemName,
-                [new DashboardWidgetPosition { Breakpoint = (DashboardBreakpoint)breakpoint, Row = row, Size = new DashboardWidgetSize(4, rowSpan) }])]);
-
-        Assert.Throws<ArgumentException>(() => DashboardEditorMapper.ApplyChanges(changes, baseline, new Mock<IDashboardService>(MockBehavior.Strict).Object));
-        Assert.That(baseline.Widgets[0], Is.SameAs(instance));
-    }
-
-
-    private static DashboardLayout Baseline()
-        => new(AdminDashboardLayoutProvider.Id)
-        {
-            CustomerId = 42,
-            Scope = DashboardLayoutScope.User,
-            Revision = 7,
-            Widgets =
-            [
-                new DashboardWidgetInstance("existing", StoreReportDashboardWidget.SystemName)
-                {
-                    Order = 300,
-                    SettingsVersion = 4,
-                    Settings = new JsonObject { ["serverSetting"] = "preserve-me" },
-                    Policy = new DashboardWidgetPolicy { AllowMove = false },
-                    Positions = [new DashboardWidgetPosition { Size = new DashboardWidgetSize(4) }]
-                },
-                new DashboardWidgetInstance("unavailable", "Missing.Module.Widget")
-                {
-                    Order = 400,
-                    Positions = [new DashboardWidgetPosition { Column = 4, Size = new DashboardWidgetSize(4) }]
-                }
-            ]
-        };
-
-    private static DashboardEditorModel EditorModel(DashboardLayout layout)
-    {
-        var widget = new StoreReportDashboardWidget(Mock.Of<Smartstore.Core.Security.IPermissionService>());
-        var context = new DashboardWidgetContext { DashboardId = layout.Id, Customer = new Customer { Id = 42 }, IsEditMode = true };
-        return new DashboardEditorModel
-        {
-            IsEditing = true,
-            State = new DashboardLayoutState { Layout = layout, Layer = DashboardLayoutLayer.User, Source = DashboardLayoutLayer.User },
-            Dashboard = new DashboardRenderModel
-            {
-                Layout = layout,
-                Context = context,
-                Widgets = [new DashboardRenderItem
-                {
-                    Instance = layout.Widgets[0], Descriptor = widget.Descriptor,
-                    Policy = new DashboardWidgetPolicy(), Widget = widget.CreateWidget(context, layout.Widgets[0])
-                }]
-            },
-            Catalog = [widget.Descriptor]
-        };
-    }
-
-    /// <summary>
-    /// Keeps settings, persistence metadata and unavailable widgets off the wire.
-    /// </summary>
-    [Test]
-    public void Start_Data_Contains_Only_Editor_Fields()
-    {
-        var baseline = Baseline();
-        baseline.Widgets.Add(new DashboardWidgetInstance("news-feed", NewsFeedDashboardWidget.SystemName)
-        {
-            Positions = [new DashboardWidgetPosition { Column = 10, Size = new DashboardWidgetSize(2) }]
-        });
-        var json = DashboardEditorMapper.CreateJson(EditorModel(baseline), "/edit", "/cancel", "/preview");
-        using var document = JsonDocument.Parse(json);
-        var widgets = document.RootElement.GetProperty("layout").GetProperty("widgets").EnumerateArray().ToArray();
-        Assert.Multiple(() =>
-        {
-            Assert.That(
-                document.RootElement.GetProperty("layout").EnumerateObject().Select(x => x.Name),
-                Is.EquivalentTo(new[] { "id", "columnCount", "widgets", "rules" }));
-            Assert.That(json, Does.Not.Contain("preserve-me").And.Not.Contain("serverSetting").And.Not.Contain("revision").And.Not.Contain("customerId"));
-            Assert.That(widgets.Single(x => x.GetProperty("id").GetString() == "existing").GetProperty("allowMove").GetBoolean(), Is.True);
-            Assert.That(widgets.Select(x => x.GetProperty("id").GetString()), Is.EqualTo(new[] { "existing" }));
-            Assert.That(document.RootElement.GetProperty("layout").GetProperty("rules").EnumerateArray()
-                .All(rule => rule.GetProperty("columnCount").GetInt32() == 12 && !rule.GetProperty("hasNewsRail").GetBoolean()), Is.True);
-            Assert.That(baseline.Widgets, Has.Count.EqualTo(3));
-        });
-    }
-
-    /// <summary>
-    /// Ensures embedded JSON cannot terminate its application/json script element.
-    /// </summary>
-    [Test]
-    public void Start_Data_Encodes_Script_Closing_Sequences()
-    {
-        const string url = "</script><script>alert(1)</script>";
-        var json = DashboardEditorMapper.CreateJson(EditorModel(Baseline()), url, "/cancel", "/preview");
-        Assert.That(json, Does.Not.Contain("</script>"));
-        using var document = JsonDocument.Parse(json);
-        Assert.That(document.RootElement.GetProperty("editUrl").GetString(), Is.EqualTo(url));
-    }
-
-    /// <summary>
-    /// Rejects client attempts to send metadata outside the explicit changes contract.
-    /// </summary>
-    [TestCase("{\"widgets\":[],\"customerId\":42}")]
-    [TestCase("{\"widgets\":[{\"id\":\"existing\",\"widgetSystemName\":\"Widget\",\"positions\":[],\"settingsVersion\":2}]}")]
-    [TestCase("{\"widgets\":[{\"id\":\"existing\",\"widgetSystemName\":\"Widget\",\"positions\":[],\"allowMove\":true}]}")]
-    public void Changes_Reject_Server_Metadata(string json)
-        => Assert.Throws<JsonException>(() => DashboardEditorMapper.ReadChanges(json));
-
-    /// <summary>
-    /// Preserves existing settings, restrictions, ownership and revision information during placement changes.
-    /// </summary>
-    [Test]
-    public void Applying_Placement_Changes_Preserves_Existing_Settings_And_Server_Metadata()
-    {
-        var baseline = Baseline();
-        var existing = baseline.Widgets[0];
-        var unavailable = baseline.Widgets[1];
-        var changes = new DashboardLayoutChanges(
-        [
-            new DashboardWidgetPlacement(
-                existing.Id,
-                existing.WidgetSystemName,
-                [new DashboardWidgetPosition { Row = 2, Size = new DashboardWidgetSize(4) }]),
-            new DashboardWidgetPlacement(unavailable.Id, unavailable.WidgetSystemName, unavailable.Positions)
-        ]);
-        var result = DashboardEditorMapper.ApplyChanges(changes, baseline, new Mock<IDashboardService>(MockBehavior.Strict).Object);
-        Assert.Multiple(() =>
-        {
-            Assert.That(result.CustomerId, Is.EqualTo(42));
-            Assert.That(result.Scope, Is.EqualTo(DashboardLayoutScope.User));
-            Assert.That(result.Widgets[0].Settings.ToJsonString(), Is.EqualTo(existing.Settings.ToJsonString()));
-            Assert.That(result.Widgets[0].SettingsVersion, Is.EqualTo(4));
-            Assert.That(result.Widgets[0].Order, Is.EqualTo(300));
-            Assert.That(result.Widgets[0].Policy, Is.EqualTo(existing.Policy));
-            Assert.That(result.Widgets[0].Positions.Single().Row, Is.EqualTo(2));
-            Assert.That(result.Widgets[1], Is.EqualTo(unavailable));
-        });
-    }
-
-    /// <summary>
-    /// Rebuilds newly added, unsaved instances from registered defaults across subsequent preview requests.
-    /// </summary>
-    [Test]
-    public void New_Instances_Use_Server_Defaults()
-    {
-        var descriptor = new DashboardWidgetDescriptor("New.Widget", "New widget")
-        {
-            SettingsVersion = 5, DefaultSize = new DashboardWidgetSize(4),
-            MinSize = new DashboardWidgetSize(1), MaxSize = new DashboardWidgetSize(12)
-        };
-        var widget = new Mock<IDashboardWidget>();
-        widget.SetupGet(x => x.Descriptor).Returns(descriptor);
-        widget.Setup(x => x.CreateDefaultSettings()).Returns(() => new JsonObject { ["default"] = "server" });
-        var service = new Mock<IDashboardService>(MockBehavior.Strict);
-        service.Setup(x => x.GetWidget("New.Widget")).Returns(widget.Object);
-        var changes = new DashboardLayoutChanges(
-            [new DashboardWidgetPlacement("widget-new", "New.Widget", [new DashboardWidgetPosition { Size = new DashboardWidgetSize(4) }])]);
-        var result = DashboardEditorMapper.ApplyChanges(changes, Baseline(), service.Object);
-        Assert.Multiple(() =>
-        {
-            Assert.That(result.Widgets, Has.Count.EqualTo(1));
-            Assert.That(result.Widgets[0].SettingsVersion, Is.EqualTo(5));
-            Assert.That(result.Widgets[0].Settings["default"].GetValue<string>(), Is.EqualTo("server"));
-            Assert.That(result.Widgets[0].Order, Is.EqualTo(500));
-        });
-    }
-
-    /// <summary>
-    /// Rejects changing an existing instance's type and duplicate instance identities.
-    /// </summary>
-    [TestCase(true)]
-    [TestCase(false)]
-    public void Changes_Reject_Identity_Conflicts(bool changeType)
-    {
-        var baseline = Baseline();
-        var instance = baseline.Widgets[0];
-        var placement = new DashboardWidgetPlacement(
-            instance.Id,
-            changeType ? "Another.Widget" : instance.WidgetSystemName,
-            instance.Positions);
-        var changes = new DashboardLayoutChanges(changeType ? [placement] : [placement, placement]);
-        Assert.Throws<ArgumentException>(() => DashboardEditorMapper.ApplyChanges(changes, baseline, new Mock<IDashboardService>(MockBehavior.Strict).Object));
-    }
-}
-
-[TestFixture]
-public class LatestOrdersConfigurationTests
-{
-    [Test]
-    public async Task Base_Uses_The_Injected_Widget_Validator_And_Cancellation_Token()
-    {
-        var settings = new JsonObject { ["count"] = 12 };
-        using var cancellation = new CancellationTokenSource();
-        var receivedToken = CancellationToken.None;
-        var receivedCount = 0;
-        var validator = new LatestOrdersDashboardWidgetValidator();
-        validator.RuleFor(x => x.Count).MustAsync((count, token) =>
-        {
-            receivedToken = token;
-            receivedCount = count;
-            return Task.FromResult(false);
-        }).WithMessage("Widget-specific failure");
-        var widget = new LatestOrdersDashboardWidget(Mock.Of<IPermissionService>(), validator);
-
-        var error = Assert.ThrowsAsync<ArgumentException>(async () => await widget.ValidateSettingsAsync(settings, cancellation.Token));
-        Assert.That(error.Message, Does.Contain("Widget-specific failure"));
-        Assert.That(receivedCount, Is.EqualTo(12));
-        Assert.That(receivedToken, Is.EqualTo(cancellation.Token));
-
-        var validWidget = new LatestOrdersDashboardWidget(Mock.Of<IPermissionService>(), new LatestOrdersDashboardWidgetValidator());
-        await validWidget.ValidateSettingsAsync(settings, cancellation.Token);
-    }
-
-    [Test]
-    public async Task Editor_Settings_Survive_Layout_Serialization_And_Reach_Renderer()
-    {
-        var widget = new LatestOrdersDashboardWidget(Mock.Of<IPermissionService>(), new LatestOrdersDashboardWidgetValidator());
-        var service = new Mock<IDashboardService>();
-        service.Setup(x => x.GetWidget(LatestOrdersDashboardWidget.SystemName)).Returns(widget);
-        var layout = new AdminDashboardLayoutProvider().GetDefaultLayout();
-        var instance = layout.Widgets.Single(x => x.WidgetSystemName == LatestOrdersDashboardWidget.SystemName);
-        layout.Widgets = [instance];
-        var changes = new DashboardLayoutChanges([
-            new(instance.Id, instance.WidgetSystemName, instance.Positions, new JsonObject { ["count"] = 12 })]);
-        var wire = JsonSerializer.Serialize(changes, SmartJsonOptions.CamelCased);
-        DashboardEditorMapper.ApplyChanges(DashboardEditorMapper.ReadChanges(wire), layout, service.Object);
-        var stored = JsonSerializer.Serialize(layout, SmartJsonOptions.CamelCased);
-        var loaded = JsonSerializer.Deserialize<DashboardLayout>(stored, SmartJsonOptions.CamelCased).Widgets.Single();
-        await widget.ValidateSettingsAsync(loaded.Settings);
-        var rendered = (ComponentWidget)widget.CreateWidget(new DashboardWidgetContext { DashboardId = layout.Id }, loaded);
-        Assert.Multiple(() =>
-        {
-            Assert.That(loaded.Settings["count"].GetValue<int>(), Is.EqualTo(12));
-            Assert.That(rendered.Arguments.GetType().GetProperty("count").GetValue(rendered.Arguments), Is.EqualTo(12));
-            Assert.That(loaded.Policy.AllowConfigure, Is.True);
-            Assert.That(instance.Settings.Count, Is.Zero);
-        });
-    }
-
-    [Test]
-    public void Editor_Cannot_Change_Settings_Of_Locked_Instance()
-    {
-        var widget = new LatestOrdersDashboardWidget(Mock.Of<IPermissionService>(), new LatestOrdersDashboardWidgetValidator());
-        var service = new Mock<IDashboardService>();
-        service.Setup(x => x.GetWidget(LatestOrdersDashboardWidget.SystemName)).Returns(widget);
-        var layout = new AdminDashboardLayoutProvider().GetDefaultLayout();
-        var instance = layout.Widgets.Single(x => x.WidgetSystemName == LatestOrdersDashboardWidget.SystemName)
-            with { Policy = new() { AllowConfigure = false } };
-        layout.Widgets = [instance];
-        var changes = new DashboardLayoutChanges([
-            new(instance.Id, instance.WidgetSystemName, instance.Positions, new JsonObject { ["count"] = 12 })]);
-        Assert.Throws<InvalidOperationException>(() => DashboardEditorMapper.ApplyChanges(changes, layout, service.Object));
-    }
-}
-
-[TestFixture]
-public class WidgetAjaxRenderingTests
-{
-    [TestCase(false)]
-    [TestCase(true)]
-    public async Task Ajax_Only_Renders_Explicitly_Opted_In_Initialization(bool renderOnAjax)
-    {
-        var provider = new Mock<IWidgetProvider>();
-        var http = new DefaultHttpContext();
-        http.Request.Headers["X-Requested-With"] = "XMLHttpRequest";
-        var helper = new HtmlWidgetTagHelper(provider.Object)
-        {
-            TargetZone = "scripts",
-            RenderOnAjax = renderOnAjax,
-            ViewContext = new ViewContext { HttpContext = http }
-        };
-        var context = new TagHelperContext("script", new TagHelperAttributeList(), new Dictionary<object, object>(), "init");
-        var output = new TagHelperOutput("script", new TagHelperAttributeList(), (_, _) =>
-            Task.FromResult<TagHelperContent>(new DefaultTagHelperContent().SetHtmlContent("initializeChart();")));
-
-        await helper.ProcessAsync(context, output);
-
-        using var writer = new System.IO.StringWriter();
-        output.WriteTo(writer, HtmlEncoder.Default);
-        Assert.That(writer.ToString(), Is.EqualTo(renderOnAjax ? "<script>initializeChart();</script>" : ""));
-        provider.VerifyNoOtherCalls();
     }
 }
