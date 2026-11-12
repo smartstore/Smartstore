@@ -137,6 +137,8 @@
   - Fixed missing order number in JSON deserialization of `WithdrawalRequest`.
   - "Challenge" instead of "Forbid" for a customer who has already logged in but has not been authorized.
   - A digital product cannot be withdrawn if the buyer is given direct access to it and expressly waives their right of withdrawal.
+  - Changes to name and email will not be saved when submitting the withdrawal edit page.
+  - A guest customer must not be able to overwrite the temporary request for another user's order.
 - Corrected an incorrect regular bundle price when bundle items are discounted.
 - **Wishlist**:
   - #1562 Wish list shows the wrong price if the currency is not primary.
