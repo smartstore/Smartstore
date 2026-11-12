@@ -10,8 +10,10 @@ Smartstore.Admin.Charts = {
 
         const customTooltip = function (tooltip) {
             const canvas = this._chart.canvas;
-            const tooltipContainer = canvas.closest('.canvas-container');
-            let tooltipEl = tooltipContainer.querySelector('.chart-tooltip');
+            const chartContainer = canvas.closest('.canvas-container');
+            const tooltipContainer = canvas.closest('.report').parentElement;
+            tooltipContainer.classList.add('dashboard-chart-tooltip-host');
+            let tooltipEl = tooltipContainer.querySelector(':scope > .chart-tooltip');
             if (!tooltipEl) {
                 tooltipEl = document.createElement('div');
                 tooltipEl.classList.add('chart-tooltip');
@@ -58,9 +60,24 @@ Smartstore.Admin.Charts = {
             }
 
             // Display tooltip and set position
+            const canvasRect = canvas.getBoundingClientRect();
+            const hostRect = tooltipContainer.getBoundingClientRect();
+            const canvasLeft = canvasRect.left - hostRect.left;
+            const caretX = canvasLeft + tooltip.caretX;
             tooltipEl.style.opacity = 1;
-            tooltipEl.style.left = tooltip.caretX + 'px';
-            tooltipEl.style.top = tooltip.caretY + 'px';
+            tooltipEl.style.left = caretX + 'px';
+            tooltipEl.style.top = canvasRect.top - hostRect.top + tooltip.caretY + 'px';
+            tooltipEl.style.removeProperty('--chart-tooltip-caret-x');
+
+            if (tooltip.yAlign === 'bottom') {
+                // Allow a small overhang so the arrow can follow the edge points without chart padding.
+                const width = tooltipEl.offsetWidth;
+                const minLeft = Math.max(canvasLeft - 15, -hostRect.left);
+                const maxLeft = Math.min(canvasLeft + chartContainer.clientWidth + 15, document.documentElement.clientWidth - hostRect.left) - width;
+                const left = Math.max(minLeft, Math.min(caretX - width / 2, maxLeft));
+                tooltipEl.style.left = left + width / 2 + 'px';
+                tooltipEl.style.setProperty('--chart-tooltip-caret-x', caretX - left + 'px');
+            }
         };
 
         const chartToggleListener = function (el, setChartData) {

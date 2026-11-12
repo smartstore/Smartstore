@@ -121,6 +121,23 @@ $dashboard-row: auto;
     height: 100%;
     overflow: hidden;
 
+    &#orders-report,
+    &#customers-report {
+        display: flex;
+        flex-direction: column;
+
+        > .canvas-container {
+            flex: 1;
+            margin-bottom: .75rem;
+
+            > canvas {
+                position: absolute;
+                top: 0;
+                left: 0;
+            }
+        }
+    }
+
     &.sticky-report {
         position: sticky;
         top: 0.625rem;
@@ -321,12 +338,12 @@ $dashboard-row: auto;
         }
     }
 
-    .chart-tooltip {
+    @at-root .chart-tooltip {
         --chart-tooltip-background: #{mix($black, $white, 80%)};
 
         opacity: 1;
         position: absolute;
-        width: fit-content;
+        width: max-content;
         background: var(--chart-tooltip-background);
         color: $light;
         border-radius: var(--border-radius-sm);
@@ -359,22 +376,8 @@ $dashboard-row: auto;
             &:after {
                 border-top: 9px solid var(--chart-tooltip-background);
                 top: calc(100% - 1px);
-            }
-
-            &.left {
-                transform: translate(-10%, calc(-100% - 15px));
-
-                &:after {
-                    inset-inline-start: 10%;
-                }
-            }
-
-            &.right {
-                transform: translate(-90%, calc(-100% - 15px));
-
-                &:after {
-                    inset-inline-start: 90%;
-                }
+                inset-inline-start: auto;
+                left: var(--chart-tooltip-caret-x, 50%);
             }
         }
 
@@ -439,6 +442,10 @@ $dashboard-row: auto;
             }
         }
     }
+}
+
+.dashboard-chart-tooltip-host {
+    position: relative;
 }
 
 // Use the widget width instead of the viewport when arranging the charts.
