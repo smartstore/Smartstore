@@ -77,6 +77,7 @@
 - **Withdrawal**: 
   - Case-insensitive email check.
   - Added the order as a liquid placeholder to the withdrawal message templates.
+  - Show all withdrawn items in the withdrawals info tab.
 - **GeoBlocker**: 
   - A whitelisted IP address was still blocked when its country was blocked, although IP addresses take precedence.
   - Literal IP addresses are matched directly instead of by regex, which makes large lists cheap.
