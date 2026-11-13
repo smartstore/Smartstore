@@ -40,6 +40,7 @@
             var css = item.GetSwatchStyle();
             var hasColor = item.HasColor;
             var hasImage = item.HasImage;
+            var colorClass = " swatch-color" + (item.HasMultipleColors ? " swatch-multicolor" : null);
             var isDark = hasColor && ImagingHelper.GetPerceivedBrightness(item.Color) < 200;
             var swatchPrice = item.GetSwatchPriceText(Model.SwatchPriceDisplay);
             var label = useCardLayout
@@ -54,7 +55,7 @@
                 + (isDark ? " dark" : null)
                 + (item.IsDisabled ? " disabled" : item.IsUnavailable ? " unavailable" : null);
             var elementClass = "swatch-element"
-                + (useCardLayout ? " swatch-card" : hasImage ? " swatch-image" : hasColor ? " swatch-color" : " swatch-text");
+                + (useCardLayout ? " swatch-card" : hasImage ? " swatch-image" : hasColor ? colorClass : " swatch-text");
 
             <li class="@swatchClass" data-swatch-value="@dynamicLabel">
                 <input type="radio"
@@ -74,7 +75,7 @@
                                 ? LocalizedValue.FixBrackets(item.SwatchBasePriceInfo, WorkContext.WorkingLanguage)
                                 : null;
                             <span class="@elementClass">
-                                <span class="swatch-media swatch-visual@(hasImage ? " swatch-image" : " swatch-color")" attr-style="(css.HasValue(), css)"></span>
+                                <span class="swatch-media swatch-visual@(hasImage ? " swatch-image" : colorClass)" attr-style="(css.HasValue(), css)"></span>
                                 <span class="swatch-details">
                                     <span class="swatch-value">@item.SwatchValueText</span>
                                     <span sm-if="swatchPrice.HasValue()" class="swatch-price">@swatchPrice</span>

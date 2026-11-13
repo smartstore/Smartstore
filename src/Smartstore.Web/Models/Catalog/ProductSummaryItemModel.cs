@@ -102,6 +102,12 @@ public class ProductSummaryItemModel : EntityModelBase
 
         public int Id { get; set; }
         public string Color { get; set; }
+
+        /// <summary>
+        /// Gets or sets the ordered additional colors of this attribute value.
+        /// </summary>
+        public string[] AdditionalColors { get; set; }
+
         public string Alias { get; set; }
         public LocalizedValue<string> FriendlyName { get; set; }
         public string ProductUrl { get; set; }

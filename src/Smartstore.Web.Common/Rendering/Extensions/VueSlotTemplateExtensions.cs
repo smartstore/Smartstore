@@ -174,12 +174,16 @@ public static class VueSlotTemplateExtensions
     /// <returns>Attribute value color palette.</returns>
     public static IHtmlContent ColorPalette(this IHtmlHelper _)
     {
+        var swatch = new TagBuilder("span");
+        swatch.Attributes.Add("class", "color");
+        swatch.Attributes.Add(":class", "{ 'swatch-multicolor': item.row.Colors.SwatchColors.length > 1 }");
+        swatch.Attributes.Add(":style", "item.row.Colors.SwatchStyle");
+        swatch.Attributes.Add(":title", "item.row.Colors.SwatchColors.join(', ')");
+
         var colorSpan = new TagBuilder("span");
-        colorSpan.Attributes.Add("v-if", "item.row.HasColor");
+        colorSpan.Attributes.Add("v-if", "item.row.Colors?.SwatchColors.length");
         colorSpan.Attributes.Add("class", "color-container");
-        colorSpan.InnerHtml.AppendHtml("<span class='color' :style='{ background: item.row.Color }' :title='item.row.Color'>&nbsp;</span>");
-        colorSpan.InnerHtml.AppendHtml(
-            "<span v-for='(color, index) in item.row.Colors.AdditionalColors' :key='index' class='color ml-1' :style='{ background: color }' :title='color'>&nbsp;</span>");
+        colorSpan.InnerHtml.AppendHtml(swatch);
 
         return colorSpan;
     }

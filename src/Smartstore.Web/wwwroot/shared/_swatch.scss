@@ -319,3 +319,19 @@
     opacity: 1;
     transform: scale(1);
 }
+
+// Shared color surface for two to four equal, hard-edged color bands.
+// Supply --swatch-color-count and --swatch-color-1 through --swatch-color-4.
+// Size, shape and decoration belong to the consuming component.
+.swatch-multicolor {
+    --_swatch-color-2: var(--swatch-color-2, var(--swatch-color-1));
+    --_swatch-color-3: var(--swatch-color-3, var(--_swatch-color-2));
+    --_swatch-color-4: var(--swatch-color-4, var(--_swatch-color-3));
+    --_swatch-color-step: calc(100% / var(--swatch-color-count, 1));
+
+    background-image: linear-gradient(var(--swatch-multicolor-angle, 135deg),
+        var(--swatch-color-1) 0% var(--_swatch-color-step),
+        var(--_swatch-color-2) var(--_swatch-color-step) calc(2 * var(--_swatch-color-step)),
+        var(--_swatch-color-3) calc(2 * var(--_swatch-color-step)) calc(3 * var(--_swatch-color-step)),
+        var(--_swatch-color-4) calc(3 * var(--_swatch-color-step)) calc(4 * var(--_swatch-color-step)));
+}

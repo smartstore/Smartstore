@@ -1,5 +1,4 @@
-﻿using System.Globalization;
-using Smartstore.Core.Catalog.Attributes;
+﻿using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Common;
 using Smartstore.Web.Modelling;
 
@@ -50,7 +49,13 @@ public abstract class ChoiceItemModel : EntityModelBase
     /// Gets a value indicating whether this item has a non-transparent swatch color.
     /// </summary>
     public bool HasColor
-        => Color.HasValue() && !Color.EqualsNoCase("transparent");
+        => Color.HasValue() && !Color.Trim().EqualsNoCase("transparent");
+
+    /// <summary>
+    /// Gets a value indicating whether this item has more than one visible swatch color.
+    /// </summary>
+    public bool HasMultipleColors
+        => SwatchColorHelper.HasMultipleColors(Color, AdditionalColors);
 
     /// <summary>
     /// Gets a value indicating whether this item has a swatch image.
@@ -76,45 +81,7 @@ public abstract class ChoiceItemModel : EntityModelBase
     /// </summary>
     /// <returns>The inline CSS string for the swatch color.</returns>
     public string GetSwatchColorCss()
-    {
-        if (Color.IsEmpty() || Color.EqualsNoCase("transparent"))
-        {
-            return null;
-        }
-
-        var colors = new List<string>(4) { Color.Trim() };
-
-        foreach (var color in AdditionalColors ?? [])
-        {
-            if (colors.Count == 4)
-            {
-                break;
-            }
-
-            if (color.HasValue() && !color.EqualsNoCase("transparent"))
-            {
-                colors.Add(color.Trim());
-            }
-        }
-
-        var css = $"background-color: {colors[0]};";
-        if (colors.Count == 1)
-        {
-            return css;
-        }
-
-        var stops = new List<string>(colors.Count * 2);
-        for (var i = 0; i < colors.Count; i++)
-        {
-            var start = (i * 100d / colors.Count).ToString("0.####", CultureInfo.InvariantCulture);
-            var end = ((i + 1) * 100d / colors.Count).ToString("0.####", CultureInfo.InvariantCulture);
-
-            stops.Add($"{colors[i]} {start}%");
-            stops.Add($"{colors[i]} {end}%");
-        }
-
-        return $"{css}background-image: linear-gradient(var(--swatch-multicolor-angle, 135deg), {string.Join(", ", stops)});";
-    }
+        => SwatchColorHelper.GetCss(Color, AdditionalColors);
 
     /// <summary>
     /// Gets the inline CSS for a swatch, which may include a color and/or an image.

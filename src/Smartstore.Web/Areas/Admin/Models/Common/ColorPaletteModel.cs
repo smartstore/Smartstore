@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using Smartstore.Web.Rendering;
 
 namespace Smartstore.Admin.Models.Common;
 
@@ -22,6 +23,16 @@ public class ColorPaletteModel
     /// Gets or sets the optional additional colors.
     /// </summary>
     public List<string> AdditionalColors { get; set; } = [];
+
+    /// <summary>
+    /// Gets the normalized colors for the grid swatch and its tooltip.
+    /// </summary>
+    public string[] SwatchColors => SwatchColorHelper.GetColors(Color, AdditionalColors);
+
+    /// <summary>
+    /// Gets the shared inline CSS for the grid swatch.
+    /// </summary>
+    public string SwatchStyle => SwatchColorHelper.GetCss(Color, AdditionalColors);
 
     /// <summary>
     /// Creates a color palette from a primary and optional additional colors.

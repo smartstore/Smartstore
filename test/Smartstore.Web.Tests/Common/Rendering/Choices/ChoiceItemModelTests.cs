@@ -26,10 +26,8 @@ public class ChoiceItemModelTests
         };
 
         Assert.That(item.GetSwatchColorCss(), Is.EqualTo(
-            "background-color: #ff0000;background-image: linear-gradient(var(--swatch-multicolor-angle, 135deg), " +
-            "#ff0000 0%, #ff0000 33.3333%, " +
-            "#00ff00 33.3333%, #00ff00 66.6667%, " +
-            "#0000ff 66.6667%, #0000ff 100%);"));
+            "--swatch-color-count: 3;--swatch-color-1: #ff0000;" +
+            "--swatch-color-2: #00ff00;--swatch-color-3: #0000ff;"));
     }
 
     [Test]
@@ -38,7 +36,7 @@ public class ChoiceItemModelTests
         var item = new TestChoiceItemModel
         {
             Color = "#111111",
-            AdditionalColors = [null, "transparent", "#222222", "#333333", "#444444", "#555555"]
+            AdditionalColors = [null, " transparent ", " ", "#222222", "#333333", "#444444", "#555555"]
         };
 
         var css = item.GetSwatchColorCss();
@@ -51,6 +49,8 @@ public class ChoiceItemModelTests
     [TestCase(null)]
     [TestCase("")]
     [TestCase("transparent")]
+    [TestCase(" Transparent ")]
+    [TestCase(" ")]
     public void Does_not_generate_css_without_primary_color(string color)
     {
         var item = new TestChoiceItemModel
@@ -59,7 +59,12 @@ public class ChoiceItemModelTests
             AdditionalColors = ["#123456"]
         };
 
-        Assert.That(item.GetSwatchColorCss(), Is.Null);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(item.GetSwatchColorCss(), Is.Null);
+            Assert.That(item.HasColor, Is.False);
+            Assert.That(item.HasMultipleColors, Is.False);
+        }
     }
 
     [TestCase(12.5, "+€12.50")]

@@ -454,6 +454,7 @@ public partial class CatalogHelper
                         {
                             Id = x.Id,
                             Color = x.Color,
+                            AdditionalColors = x.AdditionalColors,
                             Alias = x.Alias,
                             FriendlyName = x.GetLocalized(l => l.Name),
                             AttributeId = x.ProductVariantAttributeId,

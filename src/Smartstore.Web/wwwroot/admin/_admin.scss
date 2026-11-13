@@ -1274,12 +1274,13 @@ a.editable {
     line-height: 1;
 
     .color {
-        width: $font-size-base;
-        height: $font-size-base;
+        width: 16px;
+        height: 16px;
         vertical-align: bottom;
         display: inline-block;
-        border-radius: var(--border-radius-sm);
-        border: 1px solid rgba($black, 0.06);
+        border-radius: 3px;
+        outline: 1px solid rgb(0 0 0 / 8%);
+        outline-offset: -1px;
     }
 }
 
