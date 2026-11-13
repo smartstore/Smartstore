@@ -133,6 +133,7 @@
   - Allow immediate withdrawal regardless of when the withdrawal period begins.
   - Fixed a `SecurityException` when a return case is saved.
   - Emails were not sent to customers.
+  - Include the receipt time in confirmation emails.
   - #1550 Clearly distinguish between the terms "withdrawal" and "return", and do not use "withdrawal" when referring to returns.
   - Fixed missing order number in JSON deserialization of `WithdrawalRequest`.
   - "Challenge" instead of "Forbid" for a customer who has already logged in but has not been authorized.
