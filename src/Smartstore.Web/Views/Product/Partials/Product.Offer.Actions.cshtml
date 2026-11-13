@@ -18,13 +18,13 @@
                         class="btn btn-secondary btn-lg btn-block action-ask-question" 
                         data-href="@Url.Action("AskQuestionAjax", "Product", new { id = Model.Id })"
                         data-form-selector="#pd-form">
-                    <i class="fa fa-envelope" aria-hidden="true"></i>
+                    <icon name="mail"  aria-hidden="true" />
                     <span>@T("Products.CallForPrice.GoToForm")</span>
                 </button>
                 <div sm-if="Model.HotlineTelephoneNumber.HasValue()" class="quote-request-hotline">
                     <div class="hstack justify-content-center gap-1">
                         <span>@T("Products.AskQuestion.CallHotline")</span>
-                        <i class="fas fa-phone-flip" aria-hidden="true"></i>
+                        <icon name="phone"  aria-hidden="true" />
                         <span class="fwm">@Model.HotlineTelephoneNumber</span>
                     </div>
                 </div>
@@ -46,7 +46,7 @@
                         data-toggle="offcanvas" 
                         data-target="#offcanvas-cart"
                         attr-aria-describedby='(toCart.AddToCartSummary.HasValue(), "pd-addtocart-desc")'>
-                    <i class="fa fa-cart-arrow-down d-none d-sm-inline-block d-md-none d-xl-inline-block" aria-hidden="true"></i>
+                    <icon name="cart-add" class="d-none d-sm-inline-block d-md-none d-xl-inline-block" aria-hidden="true" />
                     <span>@T(toCart.AvailableForPreOrder ? "ShoppingCart.PreOrder" : "ShoppingCart.AddToCart")</span>
                 </button>
             </div>

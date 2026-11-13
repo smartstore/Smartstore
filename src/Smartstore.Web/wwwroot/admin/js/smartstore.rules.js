@@ -197,8 +197,8 @@ Smartstore.Admin.Rules = (function () {
                 if (result.Success) {
                     operator.find('input[name=LogicalOperator]').val(op);
                     operator.find('.logical-operator-chooser').removeClass('show');
-                    operator.find('.ruleset-op-one').toggleClass('hide', op == 'And').toggleClass('d-flex', op != 'And');
-                    operator.find('.ruleset-op-all').toggleClass('hide', op != 'And').toggleClass('d-flex', op == 'And');
+                    operator.find('.ruleset-op-one').toggleClass('hide', op == 'And').toggleClass('hstack', op != 'And');
+                    operator.find('.ruleset-op-all').toggleClass('hide', op != 'And').toggleClass('hstack', op == 'And');
                 }
             }
         });

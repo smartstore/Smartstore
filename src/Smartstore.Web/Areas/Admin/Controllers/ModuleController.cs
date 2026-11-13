@@ -242,7 +242,7 @@ public class ModuleController : AdminController
         model.SelectedStoreIds = (await Services.Settings.GetSettingByKeyAsync<string>(descriptor.GetSettingKey("LimitedToStores"))).ToIntArray();
 
         // Icon
-        model.IconUrl = _moduleManager.GetIconUrl(descriptor);
+        model.Icon = _moduleManager.GetIcon(descriptor);
 
         if (model.Installed)
         {

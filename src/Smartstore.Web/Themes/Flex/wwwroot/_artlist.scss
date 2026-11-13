@@ -1,12 +1,15 @@
 /// <reference path="references.scss" />
 
 //
+@use "sass:math";
+@use "sass:color";
+
 // CSS variables
 // --------------------------------------------------
 
 .artlist {
-    --art-padding: #{$grid-gutter-width / 2};
-    --art-gutter: #{$grid-gutter-width / 2};
+    --art-padding: #{math.div($grid-gutter-width, 2)};
+    --art-gutter: #{math.div($grid-gutter-width, 2)};
     --art-line-height: 1.25;
     --art-font-size: #{$font-size-sm};
     --art-font-size-sm: #{$font-size-xs};
@@ -15,11 +18,11 @@
     --art-finalprice-font-size: 1rem;
     --art-finalprice-color: #{$product-price-color};
     --art-finalprice-offer-color: #{$product-price-color};
-    --art-muted-color: #{mix($body-color, $white, 67%)};
+    --art-muted-color: #{color.mix($body-color, $white, 67%)};
     --art-muted-color-2: #{$text-muted};
     --art-border-color: transparent;
     --art-divider-color: #{$gray-300};
-    --art-border-radius: var(--border-radius-md);
+    --art-border-radius: var(--border-radius-lg);
     --art-box-shadow: var(--box-shadow-sm);
     --art-active-bg-color: #{$art-active-bg-color};
     --art-active-border-color: #{$art-active-border-color};
@@ -356,6 +359,8 @@
 }
 
 .art-btn-group {
+    --icon-size: 20px;
+
     margin: 0;
 
     .art-btn {
@@ -371,7 +376,7 @@
         }
 
         &.btn-secondary {
-            color: #666;
+            color: var(--gray-800);
         }
     }
 }
@@ -471,7 +476,7 @@
 
     .art-data-block {
         @include make-art-row();
-        padding-inline-start: $grid-gutter-width / 1.5;
+        padding-inline-start: math.div($grid-gutter-width, 1.5);
         padding-inline-end: 0;
         margin-inline-start: 0;
         margin-inline-end: 0;
@@ -492,7 +497,7 @@
 
     .art-actions-block {
         width: 220px;
-        padding-inline-start: $grid-gutter-width / 1.5;
+        padding-inline-start: math.div($grid-gutter-width, 1.5);
     }
 
     .art-description {
@@ -767,7 +772,7 @@
 
     .art {
         display: inline-block !important;
-        max-width: none !important;
+        max-width: none;
         //width: 180px; // avoids flickering during initial load
     }
 }
@@ -778,7 +783,7 @@
 
 .artlist-no-separators .artlist-grid:not(.artlist-boxed) {
     .art {
-        border-bottom-width: 0 !important;
+        border-bottom-width: 0;
     }
     &:after {
         height: 0 !important;
@@ -790,7 +795,7 @@
 // ---------------------------------------------
 
 .art.show-all-items {
-    padding: 0 !important;
+    padding: 0;
     border-color: transparent !important;
     box-shadow: none !important;
     overflow: hidden;
@@ -803,11 +808,11 @@
         text-align: center;
         align-items: center;
         padding: 1rem;
-        text-decoration: none !important;
+        text-decoration: none;
         font-size: 1.25rem;
         font-weight: $font-weight-normal;
 
-        color: inherit !important;
+        color: inherit;
         background: rgba(#000, 0.06);
         opacity: 0.5;
 

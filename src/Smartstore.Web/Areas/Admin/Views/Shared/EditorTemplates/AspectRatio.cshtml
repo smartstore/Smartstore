@@ -1,0 +1,87 @@
+@model object
+
+@{
+    var name = ViewData.TemplateInfo.GetFullHtmlFieldName(string.Empty);
+    var id = Html.GenerateIdFromName(name);
+
+    // Defer initialization until the local coordinate conversion is available.
+    ViewData["editor"] = "aspect-ratio";
+    ViewData["min"] = -2m;
+    ViewData["max"] = 2m;
+    ViewData["step"] = 0.0001m;
+    ViewData["format"] = "{0}";
+    ViewData["defaultValue"] = 1m;
+    // Use the same reciprocal coordinates as the slider, including the familiar intermediate formats.
+    var ticks = new[]
+    {
+        (Ratio: 1m / 3m, Label: "3:1"), (Ratio: 0.5m, Label: "2:1"),
+        (Ratio: 9m / 16m, Label: "16:9"), (Ratio: 2m / 3m, Label: "3:2"),
+        (Ratio: 0.75m, Label: "4:3"), (Ratio: 1m, Label: "1:1"),
+        (Ratio: 4m / 3m, Label: "3:4"), (Ratio: 1.5m, Label: "2:3"),
+        (Ratio: 16m / 9m, Label: "9:16"), (Ratio: 2m, Label: "1:2"),
+        (Ratio: 3m, Label: "1:3")
+    };
+    ViewData["ticks"] = string.Join(",", ticks.Select(x =>
+        $"{(x.Ratio < 1m ? 1m - 1m / x.Ratio : x.Ratio - 1m).ToStringInvariant()}|{x.Label}"));
+}
+
+<div id="aspect-ratio-@id" class="aspect-ratio-editor">
+    <partial name="~/Views/Shared/EditorTemplates/Range.cshtml" model="@Model" view-data="ViewData" />
+    <div class="aspect-ratio-editor-preview-frame d-none" aria-hidden="true">
+        <div class="aspect-ratio-editor-preview"></div>
+    </div>
+</div>
+
+<script sm-target-zone="scripts" data-origin="aspect-ratio-template">
+    $(function() {
+        const $container = $('#aspect-ratio-@id');
+        const $rangeContainer = $container.find('[data-editor="aspect-ratio"]');
+        const $range = $rangeContainer.find('.form-control-range');
+        const $preview = $container.find('.aspect-ratio-editor-preview');
+        $container.find('.aspect-ratio-editor-preview-frame')
+            .appendTo($rangeContainer.find('.range-value'))
+            .removeClass('d-none');
+        const ratios = [1 / 3, 0.5, 9 / 16, 2 / 3, 0.75, 1, 4 / 3, 1.5, 16 / 9, 2, 3];
+        const labels = ['3:1', '2:1', '16:9', '3:2', '4:3', '1:1', '3:4', '2:3', '9:16', '1:2', '1:3'];
+        const round = value => Number(value.toFixed(4));
+
+        // Reciprocal ratios sit equally far from the square; storage has four decimal places.
+        function toPosition(value) {
+            const numeric = Number(value);
+            const ratio = Number.isFinite(numeric) && numeric >= round(1 / 3) && numeric <= 3
+                ? Math.max(1 / 3, numeric) : 1;
+            return ratio < 1 ? 1 - 1 / ratio : ratio - 1;
+        }
+
+        function fromPosition(value) {
+            const position = Number(value);
+            return round(position < 0 ? 1 / (1 - position) : 1 + position);
+        }
+
+        $rangeContainer.on('rangeslider:change', (e, value) => {
+            const ratio = Number(value);
+            const preset = ratios.findIndex(x => round(x) === ratio);
+            const part = Number((ratio < 1 ? 1 / ratio : ratio).toFixed(2));
+            const localized = String(part).replace('.', Smartstore.globalization.culture.numberFormat["."]);
+            const label = labels[preset] ?? (ratio < 1 ? localized + ':1' : '1:' + localized);
+            $rangeContainer.find('.range-value-inner').text(label);
+            $range.attr('aria-valuetext', label);
+            $preview.css('--preview-ratio', ratio);
+        });
+
+        function setAdjusting(adjusting) {
+            $container.toggleClass('is-adjusting', adjusting);
+        }
+
+        $range.on('pointerdown', () => setAdjusting(true))
+            .on('keydown', e => {
+                if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home', 'End', 'PageUp', 'PageDown'].includes(e.key)) {
+                    setAdjusting(true);
+                }
+            })
+            .on('pointerup pointercancel lostpointercapture keyup blur', () => setAdjusting(false));
+
+        // Range still owns binding and nullable reset; snapping uses its existing track-coordinate mechanism.
+        $rangeContainer.rangeSlider({ toPosition, fromPosition, snapValues: ratios.map(toPosition), snapTolerance: 0.03 });
+    });
+</script>

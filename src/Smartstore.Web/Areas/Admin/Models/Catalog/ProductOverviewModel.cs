@@ -32,7 +32,7 @@ public class ProductOverviewModel : TabbableModel
     [LocalizedDisplay("*ShowOnHomePage")]
     public bool ShowOnHomePage { get; set; }
 
-    [LocalizedDisplay("Common.DisplayOrder")]
+    [LocalizedDisplay("*HomePageDisplayOrder")]
     public int HomePageDisplayOrder { get; set; }
 
     [LocalizedDisplay("*Sku")]

@@ -32,19 +32,19 @@
     <toolbar>
         <toolbar-group sm-if="isOrderEditPage && canAddNewShipments">
             <a asp-action="Create" asp-controller="Shipment" asp-route-orderId="@orderId" class="btn btn-primary btn-flat">
-                <i class="fa fa-plus"></i>
+                <icon name="plus"  />
                 <span>@T("Admin.Orders.Shipments.AddNew")</span>
             </a>
         </toolbar-group>
         <toolbar-group sm-if="!isOrderEditPage">
-            <button datagrid-action="DataGridToolAction.ToggleSearchPanel" type="button" class="btn btn-light btn-icon">
-                <i class="fa fa-fw fa-filter"></i>
+            <button datagrid-action="DataGridToolAction.ToggleSearchPanel" type="button" class="btn btn-plain btn-icon">
+                <icon name="filter" />
             </button>
         </toolbar-group>
         <toolbar-group class="dropdown" sm-if="!isOrderEditPage">
             <fragment>
-                <button type="button" class="btn btn-flat btn-light dropdown-toggle" data-toggle="dropdown">
-                    <i class="fa fa-print"></i>
+                <button type="button" class="btn btn-plain dropdown-toggle" data-toggle="dropdown">
+                    <icon name="printer" />
                     <span>@T("Admin.Common.Print")</span>
                 </button>
                 <div class="dropdown-menu">

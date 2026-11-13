@@ -4,16 +4,17 @@ using SixLabors.ImageSharp.Formats.Gif;
 using SixLabors.ImageSharp.Formats.Jpeg;
 using SixLabors.ImageSharp.Formats.Png;
 using SixLabors.ImageSharp.Formats.Webp;
+using SixLabors.ImageSharp.Processing.Processors.Quantization;
 using SharpBmpBitsPerPixel = SixLabors.ImageSharp.Formats.Bmp.BmpBitsPerPixel;
 using SharpFormat = SixLabors.ImageSharp.Formats.IImageFormat;
-using SharpGifColorTableMode = SixLabors.ImageSharp.Formats.Gif.GifColorTableMode;
-using SharpJpgColorType = SixLabors.ImageSharp.Formats.Jpeg.JpegEncodingColor;
+using SharpFrameColorTableMode = SixLabors.ImageSharp.Formats.FrameColorTableMode;
+using SharpJpgColorType = SixLabors.ImageSharp.Formats.Jpeg.JpegColorType;
 using SharpPngBitDepth = SixLabors.ImageSharp.Formats.Png.PngBitDepth;
 using SharpPngChunkFilter = SixLabors.ImageSharp.Formats.Png.PngChunkFilter;
 using SharpPngColorType = SixLabors.ImageSharp.Formats.Png.PngColorType;
 using SharpPngCompressionLevel = SixLabors.ImageSharp.Formats.Png.PngCompressionLevel;
 using SharpPngInterlaceMode = SixLabors.ImageSharp.Formats.Png.PngInterlaceMode;
-using SharpPngTransparentColorMode = SixLabors.ImageSharp.Formats.Png.PngTransparentColorMode;
+using SharpTransparentColorMode = SixLabors.ImageSharp.Formats.TransparentColorMode;
 using SharpWebpEncodingMethod = SixLabors.ImageSharp.Formats.Webp.WebpEncodingMethod;
 using SharpWebpFileFormatType = SixLabors.ImageSharp.Formats.Webp.WebpFileFormatType;
 
@@ -105,7 +106,18 @@ internal class JpegFormat : SharpImageFormat, IJpegFormat
             return new JpegEncoder
             {
                 Quality = Quality,
-                ColorType = (SharpJpgColorType?)ColorType
+                ColorType = ColorType switch
+                {
+                    null => null,
+                    JpegColorType.YCbCrRatio420 => SharpJpgColorType.YCbCrRatio420,
+                    JpegColorType.YCbCrRatio444 => SharpJpgColorType.YCbCrRatio444,
+                    JpegColorType.YCbCrRatio422 => SharpJpgColorType.YCbCrRatio422,
+                    JpegColorType.YCbCrRatio411 => SharpJpgColorType.YCbCrRatio411,
+                    JpegColorType.YCbCrRatio410 => SharpJpgColorType.YCbCrRatio410,
+                    JpegColorType.Luminance => SharpJpgColorType.Luminance,
+                    JpegColorType.Rgb => SharpJpgColorType.Rgb,
+                    _ => throw new ArgumentOutOfRangeException(nameof(ColorType), ColorType, null)
+                }
             };
         }
 
@@ -164,6 +176,12 @@ internal class PngFormat : SharpImageFormat, IPngFormat
             || IgnoreMetadata)
         {
             var defaultEncoder = new PngEncoder();
+            var quantizer = ImageSharpUtility.CreateQuantizer(QuantizationMethod);
+            if (Threshold.HasValue)
+            {
+                quantizer ??= new WuQuantizer();
+                quantizer.Options.TransparencyThreshold = Threshold.Value / 255f;
+            }
 
             var encoder = new PngEncoder
             {
@@ -172,9 +190,8 @@ internal class PngFormat : SharpImageFormat, IPngFormat
                 Gamma = Gamma,
                 InterlaceMethod = (SharpPngInterlaceMode?)InterlaceMode,
                 ChunkFilter = (SharpPngChunkFilter?)ChunkFilter,
-                Quantizer = ImageSharpUtility.CreateQuantizer(QuantizationMethod),
-                Threshold = Threshold ?? defaultEncoder.Threshold,
-                TransparentColorMode = TransparentColorMode == null ? defaultEncoder.TransparentColorMode : (SharpPngTransparentColorMode)TransparentColorMode.Value,
+                Quantizer = quantizer,
+                TransparentColorMode = TransparentColorMode == null ? defaultEncoder.TransparentColorMode : (SharpTransparentColorMode)TransparentColorMode.Value,
                 CompressionLevel = CompressionLevel == null ? defaultEncoder.CompressionLevel : (SharpPngCompressionLevel)CompressionLevel.Value,
                 SkipMetadata = IgnoreMetadata
             };
@@ -273,7 +290,7 @@ internal class GifFormat : SharpImageFormat, IGifFormat
         {
             return new GifEncoder
             {
-                ColorTableMode = (SharpGifColorTableMode?)ColorTableMode,
+                ColorTableMode = (SharpFrameColorTableMode?)ColorTableMode,
                 Quantizer = ImageSharpUtility.CreateQuantizer(QuantizationMethod)
             };
         }

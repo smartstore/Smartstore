@@ -1,0 +1,69 @@
+// Key field: type
+[
+  {
+    "name": "Send emails",
+    "cronExpression": "* * * * *",
+    "type": "QueuedMessagesSendTask",
+    "enabled": true,
+    "priority": "High"
+  },
+  {
+    "name": "Clear email queue",
+    "cronExpression": "0 2 * * *",
+    "type": "QueuedMessagesClearTask",
+    "enabled": true
+  },
+  {
+    "name": "Delete guests",
+    "cronExpression": "*/10 * * * *",
+    "type": "DeleteGuestsTask",
+    "enabled": true
+  },
+  {
+    "name": "Delete logs",
+    "cronExpression": "0 1 * * *",
+    "type": "DeleteLogsTask",
+    "enabled": true
+  },
+  {
+    "name": "Clear cache",
+    "cronExpression": "0 */12 * * *",
+    "type": "ClearCacheTask"
+  },
+  {
+    "name": "Update currency exchange rates",
+    "cronExpression": "0 */6 * * *",
+    "type": "UpdateExchangeRateTask",
+    "priority": "High"
+  },
+  {
+    "name": "Clear transient uploads",
+    "cronExpression": "30 1,13 * * *",
+    "type": "TransientMediaClearTask",
+    "enabled": true
+  },
+  {
+    "name": "Cleanup temporary files",
+    "cronExpression": "30 3 * * *",
+    "type": "TempFileCleanupTask",
+    "enabled": true
+  },
+  {
+    "name": "Rebuild XML Sitemap",
+    "cronExpression": "45 3 * * *",
+    "type": "RebuildXmlSitemapTask",
+    "enabled": true
+  },
+  {
+    "name": "Update assignments of customers to customer roles",
+    "cronExpression": "15 2 * * *",
+    "type": "TargetGroupEvaluatorTask",
+    "enabled": true
+  },
+  {
+    "name": "Update assignments of products to categories",
+    "cronExpression": "20 2 * * *",
+    "type": "ProductRuleEvaluatorTask",
+    "enabled": true
+  }
+]

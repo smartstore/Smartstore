@@ -13,7 +13,11 @@
   @include rfs($nav-link-font-size, --nav-link-font-size);
   --nav-link-font-weight: #{$nav-link-font-weight};
   --nav-link-color: #{$nav-link-color};
+  --nav-link-bg: transparent;
   --nav-link-hover-color: #{$nav-link-hover-color};
+  --nav-link-hover-bg: var(--nav-link-bg);
+  --nav-link-active-color: initial;
+  --nav-link-active-bg: initial;
   --nav-link-disabled-color: #{$nav-link-disabled-color};
   --nav-link-transition: #{$nav-link-transition};
 
@@ -29,16 +33,24 @@
   padding: var(--nav-link-padding-y) var(--nav-link-padding-x);
   @include font-size(var(--nav-link-font-size));
   font-weight: var(--nav-link-font-weight);
-  color: var(--nav-link-color);
-  background: none;
+  color: var(--nav-link-state-color, var(--nav-link-color));
+  background: var(--nav-link-state-bg, var(--nav-link-bg, none));
   border: 0;
   text-decoration: if($link-decoration == none, null, none);
   transition: var(--nav-link-transition);
 
   &:hover,
   &:focus {
-    color: var(--nav-link-hover-color);
+    color: var(--nav-link-state-color, var(--nav-link-hover-color));
+    background: var(--nav-link-state-bg, var(--nav-link-hover-bg, none));
     text-decoration: if($link-hover-decoration == underline, none, null);
+  }
+
+  &:is(:active, .active, [aria-current="page"]),
+  :is(.active, .show) > & {
+    // Unset active colors preserve the default link and hover appearance.
+    --nav-link-state-color: var(--nav-link-active-color);
+    --nav-link-state-bg: var(--nav-link-active-bg);
   }
 
   &:focus-visible {

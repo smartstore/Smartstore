@@ -1,18 +1,18 @@
 
 Smartstore.media = (function () {
-    var img = { name: "far fa-file-image", color: "#e77c00", mediaType: 'image' };
-    var video = { name: "far fa-file-video", color: "#ff5722", mediaType: 'video' };
-    var word = { name: "far fa-file-word", color: "#2b579a", mediaType: 'document' };
-    var excel = { name: "far fa-file-excel", color: "#217346", mediaType: 'document' };
-    var ppt = { name: "far fa-file-powerpoint", color: "#d24726", mediaType: 'document' };
-    var pdf = { name: "far fa-file-pdf", color: "#f44336", mediaType: 'document' };
-    var zip = { name: "far fa-file-archive", color: "#3f51b5", mediaType: 'bin' };
-    var csv = { name: "fas fa-file-csv", color: "#607d8b", mediaType: 'text' };
-    var markup = { name: "far fa-file-code", color: "#4caf50", mediaType: 'text' };
-    var app = { name: "fa fa-cog", color: "#58595b", mediaType: 'bin' };
-    var db = { name: "fa fa-database", color: "#3ba074", mediaType: 'bin' };
-    var font = { name: "fa fa-font", color: "#797985", mediaType: 'bin' };
-    var code = { name: "fa fa-bolt", color: "#4caf50", mediaType: 'text' };
+    var img = { address: "file-image", color: "#e77c00", mediaType: 'image' };
+    var video = { address: "file-video", color: "#ff5722", mediaType: 'video' };
+    var word = { address: "file-word", color: "#2b579a", mediaType: 'document' };
+    var excel = { address: "file-spreadsheet", color: "#217346", mediaType: 'document' };
+    var ppt = { address: "file-presentation", color: "#d24726", mediaType: 'document' };
+    var pdf = { address: "file-pdf", color: "#f44336", mediaType: 'document' };
+    var zip = { address: "file-archive", color: "#3f51b5", mediaType: 'bin' };
+    var csv = { address: "file-csv", color: "#607d8b", mediaType: 'text' };
+    var markup = { address: "file-xml", color: "#4caf50", mediaType: 'text' };
+    var app = { address: "gear", color: "#58595b", mediaType: 'bin' };
+    var db = { address: "database", color: "#3ba074", mediaType: 'bin' };
+    var font = { address: "font", color: "#797985", mediaType: 'bin' };
+    var code = { address: "bolt", color: "#4caf50", mediaType: 'text' };
 
     var iconHints = {
         // Common extensions
@@ -32,12 +32,12 @@ Smartstore.media = (function () {
         // Media types
         "image": img,
         "video": video,
-        "audio": { name: "far fa-file-audio", color: "#009688", mediaType: 'audio' },
-        "document": { name: "fas fa-file-lines", color: "#2b579a", mediaType: 'document' },
-        "text": { name: "far fa-file-lines", color: "#607d8B", mediaType: 'text' },
-        "bin": { name: "far fa-file", color: "#bbb", mediaType: 'bin' },
+        "audio": { address: "file-audio", color: "#009688", mediaType: 'audio' },
+        "document": { address: "file-text", color: "#2b579a", mediaType: 'document' },
+        "text": { address: "file-text", color: "#607d8B", mediaType: 'text' },
+        "bin": { address: "file", color: "#bbb", mediaType: 'bin' },
         // Rescue
-        "misc": { name: "far fa-file", color: "#bbb", mediaType: 'bin', isFallback: true }
+        "misc": { address: "file", color: "#bbb", mediaType: 'bin', isFallback: true }
     };
 
     return {
@@ -107,9 +107,7 @@ Smartstore.media = (function () {
                 ? 'file-img ' + opts.imgCssClasses
                 : 'file-img';
 
-            var iconCssClasses = !_.isEmpty(opts.iconCssClasses)
-                ? 'file-icon show fa-fw ' + opts.iconCssClasses + ' '
-                : 'file-icon show fa-fw ';
+            var iconSize = opts.iconSize || "1x";
 
             if (o.isImage) {
                 o.thumbHtml = `<img src="${file.thumbUrl}" class="${imgCssClasses}" title="${file.title}" alt="${file.title}" />`;
@@ -117,7 +115,8 @@ Smartstore.media = (function () {
             else {
                 // Title must be on the Picture attribute, otherwise it's covered by the CSS play-video symbol.
                 o.thumbHtml = '<figure class="file-figure">'
-                    + '<i class="' + iconCssClasses + iconHint.name + '" style="color: ' + iconHint.color + '"></i>'
+                    + $('<sm-icon class="file-icon show" fw aria-hidden="true"></sm-icon>')
+                        .attr({ name: iconHint.address, size: iconSize, color: iconHint.color })[0].outerHTML
                     + '<picture class="file-thumb" data-type="' + file.type + '" title="' + file.title + '">'
                     + `<img data-src="${file.thumbUrl}" class="${imgCssClasses}" alt="${file.title}" />`
                     + '</picture>'

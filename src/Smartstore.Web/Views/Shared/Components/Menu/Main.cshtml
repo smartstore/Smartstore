@@ -12,80 +12,15 @@
         return;
     }
 
-    var cutOffItems = Model.Root.Children
-        .Where(x => x.Value.Id != "brand" && x.GetMetadata<bool>("spare", false))
-        .ToList();
+    var navbarModel = ViewData["MainMenuNavbarModel"] as MenuModel ?? Model;
+    var dropdownModel = ViewData["MainMenuDropdownModel"] as MenuModel ?? Model;
 }
 
 <div class="megamenu simple">
-
-    @*TODO: (core) Find a better solution, maybe by extending ViewExpander *@
-
-    @{ await Html.RenderPartialAsync("Components/Menu/Navbar", Model); }
+    @{ await Html.RenderPartialAsync("Components/Menu/Navbar", navbarModel); }
 </div>
 
-<div class="megamenu-dropdown-container simple">
-    @foreach (var node in Model.Root.Children)
-    {
-        <div id="dropdown-menu-@node.Value.Id" data-id="@node.Value.Id" role="menu" aria-labelledby="main-nav-item-@node.Value.Id">
-            @{ await CreateDrilldownMenuAsync(node.Children, true); }
-        </div>
-    }
-
-    <div sm-if="cutOffItems.Any()" id="dropdown-menu--1" data-id="-1">
-        @{ await CreateDrilldownMenuAsync(cutOffItems, true); }
-    </div>
-</div>
-
-@{
-    async Task CreateDrilldownMenuAsync(IEnumerable<TreeNode<MenuItem>> nodes, bool isRoot, string parentId = "")
-    {
-        if (isRoot)
-        {
-            if (parentId.HasValue())
-            {
-                @Html.Raw($"<div id='dropdown-submenu-{parentId}' class='dropdown-menu' aria-labelledby='dropdown-item-link-{parentId}' role='menu'>")
-            }
-            else
-            {
-                @Html.Raw($"<div class='dropdown-menu'>")
-            }
-        }
-
-        foreach (var node in nodes.Where(x => x.Value.Visible))
-        {
-            var item = node.Value;
-            var itemUrl = item.GenerateUrl(this.ViewContext);
-            var itemState = node.GetNodePathState(Model.Path);
-
-            var attrs = item.GetCombinedAttributes().PrependCssClass("dropdown-item" + ((itemState & NodePathState.Selected) == NodePathState.Selected ? " selected" : ""));
-
-            if (node.HasChildren)
-            {
-                attrs["aria-haspopup"] = "menu";
-                attrs["aria-expanded"] = "false";
-                attrs["aria-controls"] = "dropdown-submenu-" + item.Id;
-            }
-
-            attrs["id"] = "dropdown-item-link-" + item.Id;
-
-            <div id="dropdown-item-@item.Id" data-id="@item.Id" attr-class='(node.HasChildren, "dropdown-group")' role="none">
-                <a href="@itemUrl" attrs="@attrs" role="menuitem">
-                    <span sm-language-attributes-for="item">@item.Text</span>
-                </a>
-                @if (node.HasChildren)
-                {
-                    await CreateDrilldownMenuAsync(node.Children, node.HasChildren, item.Id);
-                }
-            </div>
-        }
-
-        if (isRoot)
-        {
-            @Html.Raw("</div>")
-        }
-    }
-}
+@{ await Html.RenderPartialAsync("Components/Menu/Main.Dropdown", dropdownModel); }
 
 <script>
     $(function () {

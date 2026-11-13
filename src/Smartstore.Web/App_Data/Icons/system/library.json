@@ -1,0 +1,27 @@
+{
+  "displayName": "System",
+  "icon": "smartstore",
+  "version": "1.0.0",
+  "shortName": "sys",
+  "defaultVariant": "outline",
+  "variants": {
+    "outline": {
+      "displayName": "Outline",
+      "defaultViewBox": "0 0 24 24",
+      "stroke": "currentColor",
+      "supportsStrokeScaling": true,
+      "fallbacks": [
+        "fill"
+      ]
+    },
+    "fill": {
+      "displayName": "Fill",
+      "defaultViewBox": "0 0 24 24",
+      "stroke": "currentColor",
+      "supportsStrokeScaling": false,
+      "fallbacks": [
+        "outline"
+      ]
+    }
+  }
+}

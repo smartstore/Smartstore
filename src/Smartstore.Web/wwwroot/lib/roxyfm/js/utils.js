@@ -107,21 +107,23 @@ RoxyLang = {
 };
 
 var RoxyIconHints = {
-	"pdf": { name: "far fa-file-pdf", color: "#F44336" },
-	"document": { name: "far fa-file-word", color: "#2B579A" },
-	"spreadsheet": { name: "far fa-file-excel", color: "#217346" },
-	"database": { name: "fa fa-database", color: "#3ba074" },
-	"presentation": { name: "far fa-file-powerpoint", color: "#D24726" },
-	"archive": { name: "far fa-file-archive", color: "#3F51B5" },
-	"audio": { name: "far fa-file-audio", color: "#009688" },
-	"markup": { name: "far fa-file-code", color: "#4CAF50" },
-	"code": { name: "fa fa-bolt", color: "#4CAF50" },
-	"exe": { name: "fa fa-cog", color: "#58595B" },
-	"image": { name: "far fa-file-image", color: "#e77c00" },
-	"text": { name: "far fa-file-lines", color: "#607D8B" },
-	"video": { name: "far fa-file-video", color: "#FF5722" },
-	"font": { name: "fa fa-font", color: "#797985" },
-	"misc": { name: "far fa-file", color: "#ccc" }
+	"pdf": { name: "file-pdf", color: "#F44336" },
+	"word": { name: "file-word", color: "#2B579A" },
+	"document": { name: "file-text", color: "#2B579A" },
+	"csv": { name: "file-csv", color: "#607D8B" },
+	"spreadsheet": { name: "file-spreadsheet", color: "#217346" },
+	"database": { name: "database", color: "#3ba074" },
+	"presentation": { name: "file-presentation", color: "#D24726" },
+	"archive": { name: "file-archive", color: "#3F51B5" },
+	"audio": { name: "file-audio", color: "#009688" },
+	"markup": { name: "file-xml", color: "#4CAF50" },
+	"code": { name: "bolt", color: "#4CAF50" },
+	"exe": { name: "gear", color: "#58595B" },
+	"image": { name: "file-image", color: "#e77c00" },
+	"text": { name: "file-text", color: "#607D8B" },
+	"video": { name: "file-video", color: "#FF5722" },
+	"font": { name: "font", color: "#797985" },
+	"misc": { name: "file", color: "#bbb" }
 };
 
 function RoxyUtils() { }
@@ -271,10 +273,9 @@ RoxyUtils.GetFileType = function (path, mime) {
 		case "docm":
 		case "odt":
 		case "dot":
-		case "rtf":
 		case "dotx":
 		case "dotm":
-			ret = "document";
+			ret = "word";
 			break;
 		case "mdb":
 		case "db":
@@ -286,8 +287,10 @@ RoxyUtils.GetFileType = function (path, mime) {
 		case "xlsm":
 		case "xlsb":
 		case "ods":
-		case "csv":
 			ret = "spreadsheet";
+			break;
+		case "csv":
+			ret = "csv";
 			break;
 		case "ppt":
 		case "pptx":
@@ -318,10 +321,11 @@ RoxyUtils.GetFileType = function (path, mime) {
 			break;
 		case "mp3":
 		case "wav":
-		case "ogg":
 		case "wma":
 			ret = "audio";
 			break;
+		case "ogg":
+		case "webm":
 		case "mp4":
 		case "mkv":
 		case "wmv":
@@ -337,6 +341,7 @@ RoxyUtils.GetFileType = function (path, mime) {
 		case "css":
 			ret = "text";
 			break;
+		case "dll":
 		case "exe":
 			ret = "exe";
 			break;

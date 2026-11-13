@@ -20,6 +20,23 @@
 	box-shadow: $box-shadow-sm;
 }
 
+.card > .card-body {
+    // Nested flush lists stay square unless they reach an outer edge of the card.
+    > .list-group-flush {
+        @include border-radius(0);
+    }
+
+    // Round the top only when neither a header nor body content precedes the list.
+    &:first-child > .list-group-flush:first-child {
+        @include border-top-radius($card-inner-border-radius);
+    }
+
+    // Round the bottom only when neither a footer nor body content follows the list.
+    &:last-child > .list-group-flush:last-child {
+        @include border-bottom-radius($card-inner-border-radius);
+    }
+}
+
 .card-body > p:last-child {
     margin-bottom:  0;
 }

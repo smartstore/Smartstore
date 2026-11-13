@@ -3,14 +3,14 @@
 namespace Smartstore.Core.Widgets.Dashboard;
 
 /// <summary>
-/// Describes a responsive grid position that applies from <see cref="MinViewportWidth"/> upwards.
+/// Describes a responsive grid position that applies from <see cref="Breakpoint"/> upwards.
 /// </summary>
 public sealed record DashboardWidgetPosition
 {
     /// <summary>
-    /// Gets the minimum viewport width in pixels. Zero represents the base layout.
+    /// Gets the named layout tier. The base layout is extra small.
     /// </summary>
-    public int MinViewportWidth { get; init; }
+    public DashboardBreakpoint Breakpoint { get; init; }
 
     /// <summary>
     /// Gets the zero-based grid column at which the widget starts.

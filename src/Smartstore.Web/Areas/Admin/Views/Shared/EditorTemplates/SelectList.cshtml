@@ -1,13 +1,27 @@
-﻿@{
-    var multiple = GetMetadata<string>("multiple");
-    var dataTags = GetMetadata<string>("data_tags");
-    var selectOptions = GetMetadata<IList<ExtendedSelectListItem>>("selectOptions", new List<ExtendedSelectListItem>());
+﻿@inject IHtmlGenerator HtmlGenerator
+
+@{
+    var allowMultiple = GetMetadata<bool>("multiple", false);
+    var allowTags = GetMetadata<bool>("data_tags", false);
+    var selectOptions = GetMetadata<IList<ExtendedSelectListItem>>("selectOptions");
     var name = Html.NameForModel();
     var id = Html.GenerateIdFromName(name);
+    var hasErrors = ViewData.ModelState.TryGetValue(name, out var state) && state.Errors.Count > 0;
+
+    if (selectOptions == null && allowTags)
+    {
+        var currentValues = HtmlGenerator.GetCurrentValues(ViewContext, ViewData.ModelExplorer, string.Empty, allowMultiple);
+        selectOptions = [];
+
+        foreach (var value in currentValues ?? [])
+        {
+            selectOptions.Add(new ExtendedSelectListItem { Value = value, Text = value, Selected = true });
+        }
+    }
 }
 
-<select id="@id" name="@name" class="form-control" attr-multiple='(multiple.HasValue(), "multiple")' attr-data-tags='(dataTags.HasValue(), dataTags)'>
-    @foreach (var item in selectOptions)
+<select id="@id" name="@name" class="form-control" attr-class='(hasErrors, "input-validation-error")' attr-multiple='(allowMultiple, "multiple")' attr-data-tags='(allowTags, "true")'>
+    @foreach (var item in selectOptions ?? [])
     {
         var hint = item.Get<string>("hint");
         <option value="@item.Value" attr-selected='(item.Selected, "selected")' attr-data-hint='(hint.HasValue(), hint)'>@item.Text</option>

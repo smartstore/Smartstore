@@ -1,0 +1,43 @@
+﻿@model ReturnCaseModel
+
+<div class="table-responsive">
+    <table class="table table-sm table-hover mb-0">
+        <thead>
+            <tr>
+                <th>@T("Admin.Orders.Shipments.ID")</th>
+                <th class="text-center">@T("Admin.Orders.Shipments.Products.QtyShipped")</th>
+                <th>@T("Admin.Orders.Shipments.ShippedDate")</th>
+                <th>@T("Admin.Orders.Shipments.DeliveryDate")</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var shipment in Model.Shipments)
+            {
+                <tr>
+                    <td><a href="@Url.Action("Edit", "Shipment", new { id = shipment.Id })">@shipment.Id</a></td>
+                    <td class="text-center">@shipment.Quantity</td>
+                    <td>
+                        @if (shipment.ShippedOn.HasValue)
+                        {
+                            @shipment.ShippedOn
+                        }
+                        else
+                        {
+                            <span class="text-muted">@T("Admin.Orders.Shipments.ShippedDate.NotYet")</span>
+                        }
+                    </td>
+                    <td>
+                        @if (shipment.DeliveredOn.HasValue)
+                        {
+                            @shipment.DeliveredOn
+                        }
+                        else
+                        {
+                            <span class="text-muted">@T("Admin.Orders.Shipments.DeliveryDate.NotYet")</span>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

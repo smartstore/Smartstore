@@ -79,7 +79,7 @@
         {
             <div class="btn-group panel-switcher" title='@T("Admin.Download.UploadFile")'>
                 <a class="btn btn-secondary btn-icon dropdown-toggle" data-toggle="dropdown" href="#">
-                    <i class="fa fa-@(initiallyShowUrlPanel ? "globe": "upload") panel-switcher-icon"></i>
+                    <sm-icon name="@(initiallyShowUrlPanel ? "globe" : "upload")" class="panel-switcher-icon"></sm-icon>
                 </a>
                 <div class="dropdown-menu">
                     <a href="#" class="dropdown-item toggle-file" attr-class='(!initiallyShowUrlPanel, "disabled")'>@T("Admin.Download.UploadFile")</a>
@@ -88,7 +88,7 @@
                     {
                         <div class="dropdown-divider"></div>
                         <a href="#" class="dropdown-item remove-download">
-                            <i class="far fa-trash-can"></i>
+                            <icon name="trash" />
                             <span>@T("Common.Remove")</span>
                         </a>
                     }
@@ -140,7 +140,7 @@
                     <input type="text" class="download-url-value form-control" value='@value' data-value='@value' />
                     <div class="input-group-append">
                         <a class="btn btn-outline-secondary save-download-url disabled" href="@saveDownloadUrl">
-                            <i class="fa fa-check"></i>
+                            <icon name="check" />
                             <span>@T("Common.Save")</span>
                         </a>
                     </div>

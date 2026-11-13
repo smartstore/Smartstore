@@ -128,12 +128,14 @@ public partial class ShippingService : IShippingService
         return weight;
     }
 
-    public virtual async Task<decimal> GetCartTotalWeightAsync(ShoppingCart cart, bool includeFreeShippingProducts = true)
+    public virtual async Task<decimal> GetCartTotalWeightAsync(
+        ShoppingCart cart,
+        bool includeFreeShippingProducts = true,
+        bool cache = true)
     {
         Guard.NotNull(cart);
 
-        var cacheKey = $"shipping-cart-total-weight:{cart.GetHashCode()}-{includeFreeShippingProducts}";
-        var cartWeight = await _requestCache.GetAsync(cacheKey, async () =>
+        async Task<decimal> calculateWeight()
         {
             var weight = await GetCartWeight(cart.Items, true, includeFreeShippingProducts);
 
@@ -143,15 +145,21 @@ public partial class ShippingService : IShippingService
                 var checkoutAttributes = cart.Customer.GenericAttributes.CheckoutAttributes;
                 if (checkoutAttributes.AttributesMap.Any())
                 {
-                    var attributeValues = await _checkoutAttributeMaterializer.MaterializeCheckoutAttributeValuesAsync(checkoutAttributes);
-                    weight += attributeValues.Sum(x => x.WeightAdjustment);
+                    var materializedAttributes = await _checkoutAttributeMaterializer.MaterializeCheckoutAttributesAsync(cart);
+                    weight += materializedAttributes.SelectedValues.Sum(x => x.WeightAdjustment);
                 }
             }
 
             return weight;
-        });
+        }
 
-        return cartWeight;
+        if (!cache)
+        {
+            return await calculateWeight();
+        }
+
+        var cacheKey = $"shipping-cart-total-weight:{cart.GetHashCode()}-{includeFreeShippingProducts}";
+        return await _requestCache.GetAsync(cacheKey, calculateWeight);
     }
 
     public virtual async Task<ShippingOptionRequest> CreateShippingOptionRequestAsync(

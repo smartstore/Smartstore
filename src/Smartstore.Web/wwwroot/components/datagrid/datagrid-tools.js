@@ -1,36 +1,36 @@
-﻿Vue.component("sm-datagrid-tools", {
+﻿Smartstore.Admin.DataGridVue.components["sm-datagrid-tools"] = {
     template: `
         <div class="dg-tools dropdown text-align-center border-left pl-1 ml-1">
-            <a href="#" class="dg-tools-toggle btn btn-light btn-flat btn-icon btn-sm dropdown-toggle no-chevron" data-toggle="dropdown" data-boundary="window">
-                <i class="fa fa-cog"></i>
+            <a href="#" class="dg-tools-toggle btn btn-plain btn-sm dropdown-toggle" data-toggle="dropdown" data-boundary="window">
+                <sm-icon name="gear"></sm-icon>
             </a>
             <div class="dg-tools-dropdown dropdown-menu dropdown-menu-right" v-on:click="$event.stopPropagation()">
                 <div class="dg-tools-group px-3 pt-1">
-                    <label class="d-flex align-items-center justify-content-between m-0">
+                    <label class="hstack justify-content-between m-0">
                         <span>{{ T.vborders }}</span>
                         <div class="form-check form-check-warning form-switch m-0">
                             <input type="checkbox" class="form-check-input m-0" v-model="options.vborders">
                         </div>
                     </label>
-                    <label class="d-flex align-items-center justify-content-between m-0">
+                    <label class="hstack justify-content-between m-0">
                         <span>{{ T.hborders }}</span>
                         <div class="form-check form-check-warning form-switch m-0">
                             <input type="checkbox" class="form-check-input m-0" v-model="options.hborders">
                         </div>
                     </label>
-                    <label class="d-flex align-items-center justify-content-between m-0">
+                    <label class="hstack justify-content-between m-0">
                         <span>{{ T.striped }}</span>
                         <div class="form-check form-check-warning form-switch m-0">
                             <input type="checkbox" class="form-check-input m-0" v-model="options.striped">
                         </div>
                     </label>
-                    <label class="d-flex align-items-center justify-content-between m-0">
+                    <label class="hstack justify-content-between m-0">
                         <span>{{ T.hover }}</span>
                         <div class="form-check form-check-warning form-switch m-0">
                             <input type="checkbox" class="form-check-input m-0" v-model="options.hover">
                         </div>
                     </label>
-                    <label v-if="paging.enabled" class="d-flex align-items-center justify-content-between m-0">
+                    <label v-if="paging.enabled" class="hstack justify-content-between m-0">
                         <span>{{ T.pagerPos }}</span>
                         <select class="form-control form-control-sm noskin w-auto" v-model="paging.position">
                             <option value="top">{{ T.pagerTop }}</option>
@@ -38,25 +38,28 @@
                             <option value="both">{{ T.pagerBoth }}</option>
                         </select>
                     </label>
+                </div>
+                <div class="dropdown-divider mt-2"></div>
+                <div class="dg-tools-group dg-tools-columns px-3 pb-1">
+                    <div v-for="(column, columnIndex) in columns" :key="column.member || columnIndex" class="dg-column-toggle form-check form-check-gray my-1">
+                        <input class="form-check-input" type="checkbox" v-model="column.visible" :id="columnToggleIdPrefix + columnIndex" :disabled="column.hideable ? null : true">
+                        <label class="form-check-label d-block text-truncate" :for="columnToggleIdPrefix + columnIndex">{{ column.name }}</label>
+                    </div>
+                </div>
+                <div class="dropdown-divider"></div>
+                <div class="dg-tools-group px-2 py-1">
                     <div class="row xs-gutters">
                         <div class="col">
-                            <button type="button" class="btn btn-sm btn-block btn-secondary mt-2" @click="$parent.$parent.resetState()">
+                            <button type="button" class="btn btn-sm btn-block btn-secondary" @click="$parent.$parent.resetState()">
                                 <span>{{ T.resetState }}</span>
                             </button>
                         </div>
                         <div class="col">
-                            <button type="button" class="btn btn-sm btn-block btn-secondary text-truncate mt-2" @click="$parent.$parent.autoSizeAllColumns()">
-                                <i class="fa fa-arrows-left-right-to-line"></i>
+                            <button type="button" class="btn btn-sm btn-block btn-secondary text-truncate" @click="$parent.$parent.autoSizeAllColumns()">
+                                <sm-icon name="unfold"></sm-icon>
                                 <span>{{ T.fitColumns }}</span>
                             </button>
                         </div>
-                    </div>
-                </div>
-                <div class="dropdown-divider"></div>
-                <div class="dg-tools-group dg-tools-columns px-3 pb-1">
-                    <div v-for="(column, columnIndex) in columns" class="dg-column-toggle form-check my-1">
-                        <input class="form-check-input" type="checkbox" v-model="column.visible" :id="'dg-column-toggle-' + columnIndex" :disabled="column.hideable ? null : true">
-                        <label class="form-check-label d-block text-truncate" :for="'dg-column-toggle-' + columnIndex">{{ column.name }}</label>
                     </div>
                 </div>
             </div>
@@ -69,7 +72,13 @@
         columns: Array
     },
 
+    data() {
+        return {
+            columnToggleIdPrefix: 'dg-column-toggle-' + (++Smartstore.Admin.DataGridVue.nextComponentId) + '-'
+        };
+    },
+
     created() {
         this.T = window.Res.DataGrid;
     }
-});
+};

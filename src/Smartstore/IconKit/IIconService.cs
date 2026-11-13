@@ -1,0 +1,122 @@
+#nullable enable
+
+namespace Smartstore.IconKit;
+
+/// <summary>
+/// Discovers local SVG libraries, resolves addresses and implicitly applies library mappings.
+/// </summary>
+public interface IIconService
+{
+    /// <summary>
+    /// Gets the configured default library.
+    /// </summary>
+    IconLibrary DefaultLibrary { get; }
+
+    /// <summary>
+    /// Finds a library by system name or short name, or returns null.
+    /// </summary>
+    /// <param name="nameOrShortName">The library directory name or optional short name, matched case-insensitively.</param>
+    /// <returns>An immutable library manifest, or null when the selector is unknown.</returns>
+    IconLibrary? GetLibrary(string nameOrShortName);
+
+    /// <summary>
+    /// Gets locally configured libraries.
+    /// </summary>
+    /// <param name="cancelToken">Reserved for asynchronous implementations; synchronous metadata resolution does not observe cancellation.</param>
+    /// <returns>Immutable manifests, with one entry per library regardless of its short name.</returns>
+    Task<IReadOnlyList<IconLibrary>> GetLibrariesAsync(CancellationToken cancelToken = default);
+
+    /// <summary>
+    /// Gets the number of available icons in a variant from its name index, without loading SVG content or tags.
+    /// </summary>
+    /// <param name="library">The library system name or short name. Null uses the configured default.</param>
+    /// <param name="variant">The variant name or short name. Null uses the selected library's effective default.</param>
+    /// <returns>The unique icon count, or zero when the library or variant is unknown.</returns>
+    int GetIconCount(string? library = null, string? variant = null);
+
+    /// <summary>
+    /// Gets the complete immutable name index of a variant without loading SVGs or search metadata.
+    /// </summary>
+    /// <param name="library">The library name or short name; null selects the default.</param>
+    /// <param name="variant">The variant name or short name; null selects its default.</param>
+    /// <returns>The cached name set, or an empty set for an unknown library or variant.</returns>
+    IReadOnlySet<string> GetIconNames(string? library = null, string? variant = null);
+
+
+    /// <summary>
+    /// Gets an icon after mapping and configured fallbacks, or null if unavailable.
+    /// Presentation modifiers are applied separately by the renderer.
+    /// </summary>
+    /// <param name="address">The icon or conceptual address. Mapping bypass disables mapping and library fallback; variant fallbacks still apply.</param>
+    /// <param name="area">The area selecting kit defaults and declaration priority. Null resolves the current request area, or public outside a request.</param>
+    /// <param name="cancelToken">Reserved for asynchronous implementations; synchronous metadata resolution does not observe cancellation.</param>
+    /// <returns>The mapped icon with its canonical address, or null when the library, variant or target icon is unavailable.</returns>
+    /// <exception cref="ArgumentException">The address is empty.</exception>
+    Task<IconInfo?> GetIconAsync(IconAddress address, string? area = null, CancellationToken cancelToken = default);
+
+    /// <summary>
+    /// Gets a cached, validated SVG payload for an already resolved icon, without applying mapping again.
+    /// Rendering options are applied separately.
+    /// </summary>
+    /// <param name="icon">The resolved library, variant and actual icon name. The canonical address is derived from these fields.</param>
+    /// <returns>An immutable shared payload, or null when the library, variant or icon is no longer available.</returns>
+    /// <exception cref="ArgumentException">The icon identity is incomplete or invalid.</exception>
+    /// <exception cref="InvalidDataException">The SVG contains unsupported content or invalid coordinates.</exception>
+    /// <exception cref="IOException">A source cannot be opened or changed during preparation. Retry after the catalog reloads.</exception>
+    Task<IconSvg?> GetSvgAsync(IconInfo icon, CancellationToken cancelToken = default);
+
+    /// <summary>
+    /// Searches available icons by actual name, conceptual name and supplemental tags.
+    /// </summary>
+    /// <param name="query">The search words, library and variant selectors, and page boundaries. Every word must match a name or tag.</param>
+    /// <param name="cancelToken">Reserved for asynchronous implementations; synchronous metadata resolution does not observe cancellation.</param>
+    /// <returns>The requested page in icon-name order and the total matching count before pagination.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">Skip is negative or Take is outside the range 1 through 500.</exception>
+    Task<IconSearchResult> SearchAsync(IconSearchQuery query, CancellationToken cancelToken = default);
+}
+
+public static class IIconServiceExtensions
+{
+    /// <summary>
+    /// Resolves a name with optional library and variant selectors through the typed service contract.
+    /// </summary>
+    /// <param name="service">The icon service used for resolution.</param>
+    /// <param name="name">The icon or conceptual address, without presentation modifiers.</param>
+    /// <param name="library">Fills a missing library qualifier in the address.</param>
+    /// <param name="variant">Fills a missing variant qualifier in the address.</param>
+    /// <param name="area">The area used for kit selection.</param>
+    /// <param name="cancelToken">The cancellation token.</param>
+    /// <returns>The resolved icon, or null when unavailable.</returns>
+    public static Task<IconInfo?> GetIconAsync(this IIconService service, string name, string? library = null,
+        string? variant = null, string? area = null, CancellationToken cancelToken = default)
+    {
+        Guard.NotNull(service);
+
+        var address = IconAddress.Parse(name);
+        if ((address.Library == null && library != null) || (address.Variant == null && variant != null))
+        {
+            address = new IconAddress(address.Name, address.Library ?? library, address.Variant ?? variant, address.SkipMapping);
+        }
+
+        return service.GetIconAsync(address, area, cancelToken);
+    }
+
+    /// <summary>
+    /// Resolves an icon address with mapping and configured fallbacks and gets its cached SVG payload.
+    /// </summary>
+    /// <param name="service">The icon service used for resolution and preparation.</param>
+    /// <param name="name">The icon or conceptual address, without presentation modifiers.</param>
+    /// <param name="library">Fills a missing library qualifier in the address.</param>
+    /// <param name="variant">Fills a missing variant qualifier in the address.</param>
+    /// <param name="cancelToken">The cancellation token.</param>
+    /// <returns>An immutable shared SVG payload, or null when the icon is unavailable.</returns>
+    public static async Task<IconSvg?> GetSvgAsync(this IIconService service, string name, string? library = null,
+        string? variant = null, CancellationToken cancelToken = default)
+    {
+        Guard.NotNull(service);
+
+        cancelToken.ThrowIfCancellationRequested();
+        var icon = await GetIconAsync(service, name, library, variant, cancelToken: cancelToken);
+        return icon == null ? null : await service.GetSvgAsync(icon, cancelToken);
+    }
+}

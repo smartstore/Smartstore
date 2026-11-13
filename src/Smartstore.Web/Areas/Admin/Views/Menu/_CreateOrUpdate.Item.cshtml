@@ -1,25 +1,7 @@
 ﻿@using Smartstore.Admin.Models.Menus
+@using Smartstore.Web.Models.Media
 
 @model MenuItemModel
-
-@{ 
-    var brandColors = Display.GetThemeVariable<string>("brand-colors");
-    var iconColors = brandColors
-        .Trim()
-        .SplitSafe(',')
-        .Select(x => new SelectListItem { Text = x, Value = x })
-        .ToList();
-    iconColors.Add(new SelectListItem { Text = T("Common.White"), Value = "white" });
-    iconColors.Add(new SelectListItem { Text = "gray-100", Value = "gray-100" });
-    iconColors.Add(new SelectListItem { Text = "gray-200", Value = "gray-200" });
-    iconColors.Add(new SelectListItem { Text = "gray-300", Value = "gray-300" });
-    iconColors.Add(new SelectListItem { Text = "gray-400", Value = "gray-400" });
-    iconColors.Add(new SelectListItem { Text = "gray-500", Value = "gray-500" });
-    iconColors.Add(new SelectListItem { Text = "gray-600", Value = "gray-600" });
-    iconColors.Add(new SelectListItem { Text = "gray-700", Value = "gray-700" });
-    iconColors.Add(new SelectListItem { Text = "gray-800", Value = "gray-800" });
-    iconColors.Add(new SelectListItem { Text = "gray-900", Value = "gray-900" });
-}
 
 @*
     TODO: (mc), TODO: (mh) This is only temporary!! 
@@ -173,20 +155,11 @@
                 </div>
                 <div class="adminRow" attr-class='(Model.ProviderAppendsMultipleItems, "d-none")'>
                     <div class="adminTitle">
-                        <smart-label asp-for="Icon"/>
+                        <smart-label asp-for="IconModel"/>
                     </div>
                     <div class="adminData">
-                        <partial name="FontAwesomeIcon" model="Model" />
-                        <span asp-validation-for="Icon"></span>
-                    </div>
-                </div>
-                <div class="adminRow" attr-class='(Model.ProviderAppendsMultipleItems, "d-none")'>
-                    <div class="adminTitle">
-                        <smart-label asp-for="IconColor"/>
-                    </div>
-                    <div class="adminData">
-                        <select asp-for="IconColor" asp-items="@iconColors" class="theme-color-chooser" asp-placeholder="@T("Common.Unspecified")"></select>
-                        <span asp-validation-for="IconColor"></span>
+                        <editor asp-for="IconModel" />
+                        <span asp-validation-for="IconModel"></span>
                     </div>
                 </div>
                 @*For later use.

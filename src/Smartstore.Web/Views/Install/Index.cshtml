@@ -36,8 +36,6 @@
         }
     </script>
 
-    <link rel="stylesheet" href="~/lib/fontastic/fontastic.css" />
-    <link rel="stylesheet" href="~/lib/fa7/css/all.min.css" />
     <link rel="stylesheet" href="~/bundle/css/admin-theme.css" />
 
     <script src="~/lib/jquery/jquery-3.7.1.min.js"></script>
@@ -51,13 +49,23 @@
             margin-right: auto !important;
         }
 
+        #navbar .nav-item .navbar-tool {
+            height: 56px;
+            min-width: 56px;
+            justify-content: center;
+        }
+
+        #navbar .dropdown-menu {
+            margin-top: -8px;
+        }
+
         .redirect-info > a {
             color: #fff;
             text-decoration: underline;
         }
     </style>
 </head>
-<body data-url-install="@Url.Action("Install", "Install")"
+<body class="installation" data-url-install="@Url.Action("Install", "Install")"
       data-url-progress="@Url.Action("Progress", "Install")"
       data-url-finalize="@Url.Action("Finalize", "Install")"
       data-url-checkalive="@Url.Content("~/taskscheduler/noop")"
@@ -102,8 +110,8 @@
                 showThrobber: function (message = null) {
                     $.throbber.show({
                         message: `
-                            <div id="install-message">${message || Res['Installing']}</div>
-                            <div id="install-progress" style="font-size: 16px; font-weight: 400; margin: 10px 0 30px 0">${progressMessage}</div>`
+                            <div id="install-message" class="fwb">${message || Res['Installing']}</div>
+                            <div id="install-progress" class="fwn" style="font-size: 16px; margin: 10px 0 30px 0">${progressMessage}</div>`
                     });
                 },
 

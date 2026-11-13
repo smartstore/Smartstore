@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Categories;
 using Smartstore.Core.Catalog.Discounts;
+using Smartstore.Core.Checkout.Attributes;
 using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Checkout.Shipping;
 using Smartstore.Core.Identity;
@@ -106,6 +107,16 @@ public partial class RuleSetEntity : EntityWithAttributes, IAuditable
     {
         get => _categories ?? LazyLoader.Load(this, ref _categories) ?? (_categories ??= new HashSet<Category>());
         protected set => _categories = value;
+    }
+
+    private ICollection<CheckoutAttribute> _checkoutAttributes;
+    /// <summary>
+    /// Gets or sets assigned checkout attributes.
+    /// </summary>
+    public ICollection<CheckoutAttribute> CheckoutAttributes
+    {
+        get => _checkoutAttributes ?? LazyLoader.Load(this, ref _checkoutAttributes) ?? (_checkoutAttributes ??= new HashSet<CheckoutAttribute>());
+        protected set => _checkoutAttributes = value;
     }
 
     private ICollection<ShippingMethod> _shippingMethods;

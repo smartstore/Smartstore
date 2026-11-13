@@ -6,7 +6,8 @@ public class AmazonPayButtonModel : ModelBase
         AmazonPaySettings settings,
         string buttonType,
         string ledgerCurrency,
-        string languageSeoCode = null)
+        string languageSeoCode = null,
+        bool isPaymentSelection = false)
     {
         Guard.NotNull(settings, nameof(settings));
         Guard.NotEmpty(buttonType, nameof(buttonType));
@@ -23,7 +24,8 @@ public class AmazonPayButtonModel : ModelBase
         LedgerCurrency = ledgerCurrency;
         ButtonType = buttonType;
         ButtonColor = signIn ? settings.AuthButtonColor : settings.PayButtonColor;
-        ButtonPlacement = signIn ? "Other" : "Cart";
+        ButtonPlacement = signIn ? "Other" : isPaymentSelection ? "Checkout" : "Cart";
+        IsPaymentSelection = isPaymentSelection;
 
         Marketplace = settings.Marketplace.EmptyNull().ToLower();
         CheckoutScriptUrl = settings.GetCheckoutScriptUrl();
@@ -73,4 +75,14 @@ public class AmazonPayButtonModel : ModelBase
     /// Supported values: Gold, LightGray, DarkGray.
     /// </summary>
     public string ButtonColor { get; }
+
+    /// <summary>
+    /// Gets a value indicating whether the button is rendered on the checkout payment method page.
+    /// </summary>
+    public bool IsPaymentSelection { get; }
+
+    /// <summary>
+    /// Gets a value indicating whether Amazon Pay is the currently selected payment method.
+    /// </summary>
+    public bool IsSelectedMethod { get; init; }
 }

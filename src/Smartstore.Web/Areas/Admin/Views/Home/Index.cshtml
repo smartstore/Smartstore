@@ -1,17 +1,15 @@
+@using Smartstore.Admin.Models.Dashboard
+@model DashboardEditorModel
+
 @{
     Layout = "_AdminLayout";
-    Assets.BodyAttributes.AppendCssClass("minimal-admin");
+    Assets.BodyAttributes.AppendCssClass("dashboard-page");
 }
 
-<div class="section-header">
-    <div class="title">
-        <i class="far fa-chart-bar"></i>
-        @T("Admin.Dashboard.StoreStatistics")
-    </div>
-</div>
+<partial name="_DashboardEditor" model="Model" />
 
 <zone name="admin_dashboard_before"></zone>
 
-@await Component.InvokeAsync("Dashboard", new { dashboardId = "admin-dashboard", skipUserLayout = false })
+@await Component.InvokeAsync("Dashboard", new { dashboardId = "admin-dashboard", skipUserLayout = false, prepared = Model.Dashboard })
 
 <zone name="admin_dashboard_after"></zone>

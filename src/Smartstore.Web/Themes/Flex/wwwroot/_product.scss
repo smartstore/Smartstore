@@ -1,12 +1,15 @@
 /// <reference path="references.scss" />
 
+@use "sass:math";
+@use "sass:color";
+
 $pd-offer-bg:                   $product-detail-addtocart-box-bg;
 $pd-price-color:                $product-price-color;
 $pd-price-offer-color:          $product-price-color;
 $pd-line-height:                1.3;
 
-$pd-offer-muted-color:          mix($body-color, $pd-offer-bg, 76%);
-$pd-offer-spacing:              $grid-gutter-width / 2;
+$pd-offer-muted-color:          color.mix($body-color, $pd-offer-bg, 76%);
+$pd-offer-spacing:              math.div($grid-gutter-width, 2);
 
 //
 // Article Detail Styles
@@ -199,8 +202,7 @@ $pd-offer-spacing:              $grid-gutter-width / 2;
 
 .pd-review-amount {
     flex-basis: 100%;
-    // Award icon (.fa-award)
-    --alert-icon-content: '\f559';
+    --alert-icon-mask: #{icon-url("award")};
 }
 
 
@@ -216,11 +218,14 @@ $pd-offer-spacing:              $grid-gutter-width / 2;
     --pd-offer-font-size-base: inherit;
     --pd-offer-font-size-sm: #{$font-size-sm};
 
-    background: $pd-offer-bg;
-    padding: $pd-offer-spacing;
     line-height: $pd-line-height;
     width: 100%;
-    border-radius: var(--border-radius-lg);
+
+    @include media-breakpoint-up(md) {
+        background: $pd-offer-bg;
+        padding: $pd-offer-spacing;
+        border-radius: var(--border-radius-lg);
+    }
 }
 
 .row.pd-offer-actions {
@@ -359,8 +364,9 @@ $pd-offer-spacing:              $grid-gutter-width / 2;
 }
 
 .pd-promoprice-tip {
+    display: inline-flex;
     margin-inline-start: 0.5rem;
-    color: $gray-600 !important;
+    color: var(--gray-600) !important;
 }
 
 .pd-promosaving {
@@ -384,7 +390,7 @@ $pd-offer-spacing:              $grid-gutter-width / 2;
 
 .pd-tierprices {
     .table {
-        background-color: #fff;
+        background-color: $card-bg;
         margin-bottom: 0;
         font-size: $font-size-sm;
         overflow-x: auto;
@@ -444,9 +450,9 @@ $pd-offer-spacing:              $grid-gutter-width / 2;
         text-decoration: none;
     }
     &:after {
-        display: inline-block;
-        @include fontawesome-font("\f067", regular);
-        padding: 0 0.2rem;
+        @include icon-mask(var(--icon-mask-plus), 1rem);
+        margin-inline: 0.2rem;
+        vertical-align: middle;
     }
     &:last-child:after {
         display: none;
@@ -506,8 +512,10 @@ $pd-offer-spacing:              $grid-gutter-width / 2;
 
 .delivery-time,
 .delivery-date-block {
-    display: inline-block;
-    vertical-align: middle;
+    display: inline-flex;
+    flex-flow: row nowrap;
+    align-items: center;
+    gap: 0.2em;
     max-width: 100%;
     @include text-truncate();
 }
@@ -536,6 +544,7 @@ $pd-offer-spacing:              $grid-gutter-width / 2;
 // =====================================================
 
 .pd-actions-container {
+    container: product-actions / inline-size;
     margin-top: $pd-offer-spacing;
     padding-top: $pd-offer-spacing;
     border-top: 1px solid rgba(#000, 0.15);
@@ -543,7 +552,7 @@ $pd-offer-spacing:              $grid-gutter-width / 2;
 
 .pd-actions-primary:not(:empty) {
     margin-bottom: $pd-offer-spacing;
-    > *:not(:last-child) { margin-bottom: $pd-offer-spacing / 2;  }
+    > *:not(:last-child) { margin-bottom: math.div($pd-offer-spacing, 2);  }
 }
 
 .pd-actions {
@@ -568,17 +577,15 @@ $pd-offer-spacing:              $grid-gutter-width / 2;
         &.col .pd-action-label, &.col-2 .pd-action-label {
             display: none !important;
 
-            @include media-breakpoint-only(sm) {
-                display: block !important;
-            }
-
-            @include media-breakpoint-up(xl) {
+            // Show labels when the action area has enough room.
+            @container product-actions (min-width: 30rem) {
                 display: block !important;
             }
         }
     }
 
     .pd-action-link {
+        max-width: 100%;
         display: inline-flex;
         flex-direction: column;
         text-decoration: none;
@@ -586,9 +593,12 @@ $pd-offer-spacing:              $grid-gutter-width / 2;
         height: 100%;
 
         .pd-action-icon {
+            --icon-size: 24px;
+            font-size: 24px;
+            align-self: center;
             display: block;
-            height: 20px;
-            line-height: 20px;
+            height: 24px;
+            line-height: 24px;
             vertical-align: middle;
             color: $pd-offer-muted-color;
             transition: all 0.125s ease-out;
@@ -596,10 +606,9 @@ $pd-offer-spacing:              $grid-gutter-width / 2;
         }
 
         .pd-action-label {
+            @include text-truncate();
             padding-top: 0.375rem;
             display: block;
-            overflow: hidden;
-            text-overflow: ellipsis;
         }
 
         &:hover .pd-action-icon {

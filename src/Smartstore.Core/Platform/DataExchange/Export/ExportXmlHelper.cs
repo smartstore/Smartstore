@@ -428,6 +428,7 @@ public class ExportXmlHelper : Disposable
             _writer.WriteElementString(nameof(Category.Published), entity.Published.ToString());
             _writer.WriteElementString(nameof(Category.IgnoreInMenus), entity.IgnoreInMenus.ToString());
             _writer.WriteElementString(nameof(Category.WithdrawalPeriodDays), entity.WithdrawalPeriodDays?.ToString() ?? string.Empty);
+            _writer.WriteElementString(nameof(Category.AllowWithdrawalBeforeShipping), entity.AllowWithdrawalBeforeShipping?.ToString() ?? string.Empty);
             _writer.WriteElementString(nameof(Category.Deleted), entity.Deleted.ToString());
             _writer.WriteElementString(nameof(Category.DisplayOrder), entity.DisplayOrder.ToString());
             _writer.WriteElementString(nameof(Category.CreatedOnUtc), entity.CreatedOnUtc.ToString(_culture));
@@ -724,6 +725,7 @@ public class ExportXmlHelper : Disposable
         _writer.WriteElementString(nameof(Product.Condition), ((int)entity.Condition).ToString());
         _writer.WriteElementString(nameof(Product.DisplayOrder), entity.DisplayOrder.ToString());
         _writer.WriteElementString(nameof(Product.WithdrawalPeriodDays), entity.WithdrawalPeriodDays?.ToString() ?? string.Empty);
+        _writer.WriteElementString(nameof(Product.AllowWithdrawalBeforeShipping), entity.AllowWithdrawalBeforeShipping?.ToString() ?? string.Empty);
         _writer.WriteElementString(nameof(Product.IsSystemProduct), entity.IsSystemProduct.ToString());
         _writer.WriteElementString(nameof(Product.BundleTitleText), entity.BundleTitleText);
         _writer.WriteElementString(nameof(Product.BundlePerItemPricing), entity.BundlePerItemPricing.ToString());
@@ -974,6 +976,11 @@ public class ExportXmlHelper : Disposable
                 _writer.WriteElementString(nameof(ProductVariantAttribute.IsRequired), entityPva.IsRequired.ToString());
                 _writer.WriteElementString(nameof(ProductVariantAttribute.AttributeControlTypeId), entityPva.AttributeControlTypeId.ToString());
                 _writer.WriteElementString(nameof(ProductVariantAttribute.DisplayOrder), entityPva.DisplayOrder.ToString());
+                _writer.WriteElementString(nameof(ProductVariantAttribute.SwatchSize), entityPva.SwatchSize != null ? ((int)entityPva.SwatchSize).ToString() : string.Empty);
+                _writer.WriteElementString(nameof(ProductVariantAttribute.SwatchShape), entityPva.SwatchShape != null ? ((int)entityPva.SwatchShape).ToString() : string.Empty);
+                _writer.WriteElementString(nameof(ProductVariantAttribute.SwatchAspectRatio), entityPva.SwatchAspectRatio?.ToString(_culture) ?? string.Empty);
+                _writer.WriteElementString(nameof(ProductVariantAttribute.ShowValueNameInSwatch), entityPva.ShowValueNameInSwatch?.ToString() ?? string.Empty);
+                _writer.WriteElementString(nameof(ProductVariantAttribute.SwatchPriceDisplay), entityPva.SwatchPriceDisplay != null ? ((int)entityPva.SwatchPriceDisplay).ToString() : string.Empty);
 
                 _writer.WriteStartElement("Attribute");
                 _writer.WriteElementString(nameof(ProductAttribute.Id), entityPa.Id.ToString());
@@ -984,6 +991,12 @@ public class ExportXmlHelper : Disposable
                 _writer.WriteElementString(nameof(ProductAttribute.DisplayOrder), entityPa.DisplayOrder.ToString());
                 _writer.WriteElementString(nameof(ProductAttribute.FacetTemplateHint), ((int)entityPa.FacetTemplateHint).ToString());
                 _writer.WriteElementString(nameof(ProductAttribute.IndexOptionNames), entityPa.IndexOptionNames.ToString());
+                _writer.WriteElementString(nameof(ProductAttribute.SwatchSize), entityPa.SwatchSize != null ? ((int)entityPa.SwatchSize).ToString() : string.Empty);
+                _writer.WriteElementString(nameof(ProductAttribute.SwatchShape), entityPa.SwatchShape != null ? ((int)entityPa.SwatchShape).ToString() : string.Empty);
+                _writer.WriteElementString(nameof(ProductAttribute.SwatchAspectRatio), entityPa.SwatchAspectRatio.ToString(_culture));
+                _writer.WriteElementString(nameof(ProductAttribute.ShowValueNameInSwatch), entityPa.ShowValueNameInSwatch.ToString());
+                _writer.WriteElementString(nameof(ProductAttribute.SwatchPriceDisplay), ((int)entityPa.SwatchPriceDisplay).ToString());
+                _writer.WriteElementString(nameof(ProductAttribute.ExportMappings), entityPa.ExportMappings);
 
                 WriteLocalized(pva.Attribute);
                 _writer.WriteEndElement();  // Attribute
@@ -998,6 +1011,7 @@ public class ExportXmlHelper : Disposable
                     _writer.WriteElementString(nameof(ProductVariantAttributeValue.Alias), (string)value.Alias);
                     _writer.WriteElementString(nameof(ProductVariantAttributeValue.Name), (string)value.Name);
                     _writer.WriteElementString(nameof(ProductVariantAttributeValue.Color), (string)value.Color);
+                    _writer.WriteElementString(nameof(ProductVariantAttributeValue.AdditionalColors), string.Join(',', entityPvav.AdditionalColors ?? []));
                     _writer.WriteElementString(nameof(ProductVariantAttributeValue.PriceAdjustment), ((decimal)value.PriceAdjustment).ToString(_culture));
                     _writer.WriteElementString(nameof(ProductVariantAttributeValue.WeightAdjustment), ((decimal)value.WeightAdjustment).ToString(_culture));
                     _writer.WriteElementString(nameof(ProductVariantAttributeValue.IsPreSelected), entityPvav.IsPreSelected.ToString());

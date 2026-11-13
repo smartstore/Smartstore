@@ -2,6 +2,7 @@
 using Smartstore.Admin.Models.Scheduling;
 using Smartstore.Core.DataExchange;
 using Smartstore.Core.Localization;
+using Smartstore.Engine.Modularity;
 using Smartstore.IO;
 
 namespace Smartstore.Admin.Models.Export;
@@ -83,7 +84,7 @@ public class ExportProfileModel : EntityModelBase
     public class ProviderModel
     {
         [LocalizedDisplay("Common.Image")]
-        public string ThumbnailUrl { get; set; }
+        public ModuleIcon Icon { get; set; }
 
         [LocalizedDisplay("Common.Website")]
         public string Url { get; set; }
@@ -125,7 +126,7 @@ public class ExportProfileModel : EntityModelBase
         public int Id { get; set; }
         public string SystemName { get; set; }
         public string FriendlyName { get; set; }
-        public string ImageUrl { get; set; }
+        public ModuleIcon Icon { get; set; }
         public string Description { get; set; }
     }
 }

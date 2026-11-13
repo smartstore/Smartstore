@@ -44,11 +44,7 @@ public class ModuleModel : ModelBase, ILocalizedModel<ModuleLocalizedModel>
 
     public IModuleDescriptor ModuleDescriptor { get; set; }
 
-    /// <summary>
-    /// Returns the absolute path of the provider's icon url. 
-    /// </summary>
-    /// <remarks>
-    public string IconUrl { get; set; }
+    public ModuleIcon Icon { get; set; }
 
     public List<ModuleLocalizedModel> Locales { get; set; } = new();
 

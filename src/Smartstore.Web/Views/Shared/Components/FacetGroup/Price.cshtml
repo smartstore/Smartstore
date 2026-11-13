@@ -33,10 +33,10 @@
     
     @if (customRangeFacet != null)
     {
-        string value = customRangeFacet.Value.Value != null ? customRangeFacet.Value.Value.ToString() : string.Empty;
-        string upperValue = customRangeFacet.Value.UpperValue != null ? customRangeFacet.Value.UpperValue.ToString() : string.Empty;
+        double? value = (double?)customRangeFacet.Value.Value;
+        double? upperValue = (double?)customRangeFacet.Value.UpperValue;
 
-        <fieldset class="facet-range-container d-flex align-items-center mt-2">
+        <fieldset class="facet-range-container hstack mt-2">
             <legend class="sr-only">@T("Aria.Label.PriceRange")</legend>
             <div class="flex-grow-1 pr-2">
                 <label for="price-range-from" class="sr-only">@T("Search.PriceRange.From")</label>
@@ -51,7 +51,7 @@
             </div>
             <div class="flex-grow-0 pl-2">
                 <button type="button" class="btn-custom-range btn btn-primary btn-sm btn-icon" id="btn-custom-price-range" data-qname="p" aria-label="@T("Aria.Label.ApplyPriceRange")">
-                    <i class="fa fa-angle-right fs-h5" aria-hidden="true"></i>
+                    <icon name="chevron-right" class="fs-h5" aria-hidden="true" />
                 </button>
             </div>
         </fieldset>

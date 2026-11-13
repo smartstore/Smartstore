@@ -618,6 +618,8 @@ public abstract partial class DataProvider : Disposable
     /// <param name="tableName">Name of table to optimize.</param>
     public int OptimizeTable(string tableName)
     {
+        ValidateTableName(tableName);
+
         var timeout = Database.GetCommandTimeout();
         try
         {
@@ -638,6 +640,8 @@ public abstract partial class DataProvider : Disposable
     /// <param name="tableName">Name of table to optimize.</param>
     public Task<int> OptimizeTableAsync(string tableName, CancellationToken cancelToken = default)
     {
+        ValidateTableName(tableName);
+
         var timeout = Database.GetCommandTimeout();
         try
         {
@@ -647,6 +651,16 @@ public abstract partial class DataProvider : Disposable
         finally
         {
             Database.SetCommandTimeout(timeout);
+        }
+    }
+
+    private static void ValidateTableName(string tableName)
+    {
+        Guard.NotEmpty(tableName);
+
+        if (tableName.Any(c => !char.IsLetterOrDigit(c) && c != '_' && c != '-'))
+        {
+            throw new ArgumentException("Invalid table name.", nameof(tableName));
         }
     }
 
@@ -848,7 +862,7 @@ public abstract partial class DataProvider : Disposable
     /// <param name="fileName">File name of a database backup.</param>
     public virtual DbBackupValidationResult ValidateBackupFileName(string fileName)
     {
-        if (fileName.HasValue())
+        if (PathUtility.IsFileName(fileName))
         {
             var match = _rgDbName.Match(fileName.Trim());
 

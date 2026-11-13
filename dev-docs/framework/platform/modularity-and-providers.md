@@ -14,6 +14,14 @@ Each of these provider interfaces is derived from the marker interface [IProvide
 A provider can be activated or deactivated using the provider list. For example, a deactivated payment provider does not appear in the checkout payment method list.
 {% endhint %}
 
+### Provider icons
+
+Providers can declare their own icon address or concept with `[Icon("icon-name")]`.
+The attribute is stored in `ProviderMetadata.Icon` during registration. When resolving
+an icon from provider metadata, `ModuleManager.GetIcon` prefers this declaration over
+provider-specific images and module artwork. Without it, the existing image and module
+fallbacks remain unchanged. Icon choices belong to the provider, not the consuming controller.
+
 ### Configuration
 
 Providers are configurable via `IConfigurable`. It specifies a `RouteInfo` that points to an action method used for configuration.

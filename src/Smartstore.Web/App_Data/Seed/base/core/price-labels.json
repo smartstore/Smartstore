@@ -1,0 +1,24 @@
+// Key field: key
+[
+  {
+    "key": "msrp",
+    "shortName": "MSRP",
+    "name": "Suggested retail price",
+    "description": "The Suggested Retail Price (MSRP) is the suggested or recommended retail price of a product set by the manufacturer and provided by a manufacturer, supplier, or seller.",
+    "isRetailPrice": true,
+    "displayShortNameInLists": true
+  },
+  {
+    "key": "lowest",
+    "shortName": "Lowest",
+    "name": "Lowest recent price",
+    "description": "This is the lowest price of the product in the past 30 days prior to the application of the price reduction.",
+    "displayShortNameInLists": true
+  },
+  {
+    "key": "regular",
+    "shortName": "Regular",
+    "name": "Regular price",
+    "description": "The Regular Price is the median selling price paid by customers for a product, excluding promotional prices"
+  }
+]

@@ -9,8 +9,8 @@
 @await Component.InvokeAsync("StoreScope")
 
 <widget target-zone="admin_button_toolbar_before">
-    <button id="SaveConfigButton" type="submit" name="save" class="btn btn-warning" value="save">
-        <i class="fa fa-check"></i>
+    <button id="SaveConfigButton" type="submit" name="save" class="btn btn-primary" value="save">
+        <icon name="check"  />
         <span>@T("Admin.Common.Save")</span>
     </button>
 </widget>
@@ -83,6 +83,15 @@
         </div>
         <div class="adminRow">
             <div class="adminTitle">
+                <smart-label asp-for="ItemIdentifier" />
+            </div>
+            <div class="adminData">
+                <setting-editor asp-for="ItemIdentifier" />
+                <span asp-validation-for="ItemIdentifier"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
                 <smart-label asp-for="TrackingScript" />
             </div>
             <div class="adminData wide">
@@ -115,7 +124,7 @@
                 <button type="submit" name="restore-scripts" class="btn btn-danger" value="restore-scripts"
                         title="@T("Plugins.Widgets.GoogleAnalytics.RestoreScripts.Hint")"
                         onclick="return confirm(@T("Admin.Common.AreYouSure").JsValue);">
-                    <i class="far fa-bolt"></i>
+                    <icon name="bolt"  />
                     <span>@T("Plugins.Widgets.GoogleAnalytics.RestoreScripts")</span>
                 </button>
             </div>

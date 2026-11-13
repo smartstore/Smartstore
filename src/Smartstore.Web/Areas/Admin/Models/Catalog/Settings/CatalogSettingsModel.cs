@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using FluentValidation;
 using Smartstore.Core.Catalog;
+using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Products;
 
 namespace Smartstore.Admin.Models.Catalog;
@@ -94,6 +95,9 @@ public class CatalogSettingsModel : ILocalizedModel<PriceSettingsLocalizedModel>
     [LocalizedDisplay("*ShowProductCondition")]
     public bool ShowProductCondition { get; set; }
 
+    [LocalizedDisplay("*LegalInfoInProductDetail")]
+    public int[] LegalInfoInProductDetail { get; set; }
+
     #endregion
 
     #region Product lists
@@ -120,7 +124,7 @@ public class CatalogSettingsModel : ILocalizedModel<PriceSettingsLocalizedModel>
 
     #endregion
 
-    #region Product list
+    #region Product list general
 
     [LocalizedDisplay("*AllowProductSorting")]
     public bool AllowProductSorting { get; set; }
@@ -137,8 +141,11 @@ public class CatalogSettingsModel : ILocalizedModel<PriceSettingsLocalizedModel>
     [LocalizedDisplay("*DefaultProductListPageSize")]
     public int DefaultProductListPageSize { get; set; }
 
+    [UIHint("SelectList")]
+    [AdditionalMetadata("multiple", true)]
+    [AdditionalMetadata("data_tags", true)]
     [LocalizedDisplay("*DefaultPageSizeOptions")]
-    public string DefaultPageSizeOptions { get; set; }
+    public int[] DefaultPageSizeOptions { get; set; } = [];
 
     [LocalizedDisplay("*GridStyleListColumnSpan")]
     public GridColumnSpan GridStyleListColumnSpan { get; set; }
@@ -155,6 +162,9 @@ public class CatalogSettingsModel : ILocalizedModel<PriceSettingsLocalizedModel>
     #endregion
 
     #region Products
+
+    [LocalizedDisplay("*LegalInfoInLists")]
+    public int[] LegalInfoInLists { get; set; }
 
     [LocalizedDisplay("*ShowShortDescriptionInGridStyleLists")]
     public bool ShowShortDescriptionInGridStyleLists { get; set; }
@@ -279,6 +289,17 @@ public class CatalogSettingsModel : ILocalizedModel<PriceSettingsLocalizedModel>
     [LocalizedDisplay("*ShowProductTags")]
     public bool ShowProductTags { get; set; }
 
+    [UIHint("Range"), Range(0, 50)]
+    [AdditionalMetadata("min", 0)]
+    [AdditionalMetadata("max", 50)]
+    [AdditionalMetadata("step", 10)]
+    [AdditionalMetadata("format", "")]
+    [LocalizedDisplay("*DefaultSwatchSize")]
+    public int DefaultSwatchSize { get; set; } = (int)SwatchSize.Medium;
+
+    [LocalizedDisplay("*DefaultSwatchShape")]
+    public SwatchShape DefaultSwatchShape { get; set; } = SwatchShape.Rounded;
+
     public GroupedProductSettingsModel GroupedProductSettings { get; set; } = new();
 
     #endregion
@@ -308,6 +329,14 @@ public partial class CatalogSettingsValidator : SettingModelValidator<CatalogSet
             .GreaterThan(0);
 
         RuleFor(x => x.DefaultProductListPageSize)
+            .GreaterThan(0);
+
+        RuleFor(x => x.DefaultPageSizeOptions)
+            .NotEmpty();
+
+        RuleForEach(x => x.DefaultPageSizeOptions)
+            // Associate item errors with the DefaultPageSizeOptions field.
+            .OverrideIndexer((_, _, _, _) => string.Empty)
             .GreaterThan(0);
 
         RuleFor(x => x.NumberOfProductTags)

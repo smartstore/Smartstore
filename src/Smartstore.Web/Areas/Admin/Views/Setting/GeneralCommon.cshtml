@@ -8,12 +8,12 @@
 <form asp-action="GeneralCommon">
     <div class="section-header">
         <div class="title">
-            <i class="fa fa-sliders-h"></i>
+            <icon name="sliders" />
             @T("Admin.Configuration.Settings.GeneralCommon")
         </div>
         <div class="options">
-            <button type="submit" name="save" value="save" class="btn btn-warning">
-                <i class="fa fa-check"></i>
+            <button type="submit" name="save" value="save" class="btn btn-primary">
+                <icon name="check" />
                 <span>@T("Admin.Common.Save")</span>
             </button>
         </div>
@@ -132,7 +132,7 @@
                 <div class="robots-container display-allows adminRow">
                     <div class="adminTitle">
                         <smart-label asp-for="SeoSettings.ExtraRobotsLines" />
-                        <div class="text-muted pr-2">
+                        <div class="adminTitle-addon text-muted">
                             @T("Admin.Configuration.Settings.GeneralCommon.RobotsHint")
                         </div>
                     </div>
@@ -266,7 +266,7 @@
                             <editor asp-for="SeoSettings.TestSeoNameCreation" />
                             <span class="input-group-append">
                                 <button id="TestSeoNameCreationButton" type="button" class="btn btn-secondary">
-                                    <i class="fa fa-sync"></i>
+                                    <icon name="refresh"  />
                                     <span>@T("Admin.Common.Check")</span>
                                 </button>
                             </span>
@@ -441,7 +441,8 @@
                                         @foreach (var cpm in Model.CaptchaSettings.AvailableProviders)
                                         {
                                             <option value="@cpm.SystemName"
-                                                    data-imageurl="@Url.Content(cpm.IconUrl)"
+                                                    data-imageurl="@Url.Content(cpm.Icon?.ImageUrl)"
+                                                    data-icon="@cpm.Icon?.Address"
                                                     data-item-style="--choice-item-border-width: 0"
                                                     data-hint="@T("Admin.Common." + (cpm.IsConfigured ? "Configured" : "NotConfigured"))"
                                                     data-hint-class="badge badge-pill @(cpm.IsConfigured ? "badge-success" : "badge-warning badge-outline")"
@@ -455,7 +456,7 @@
                                 <div class="col-auto">
                                     <button type="button" class="d-none" id="btn-refresh-captcha"></button>
                                     <button type="button" id="btn-configure-captcha" class="btn btn-secondary">
-                                        <bootstrap-icon name="gear" />
+                                        <icon name="gear" />
                                         <span>@T("Admin.Common.Configure")...</span>
                                     </button>
                                 </div>

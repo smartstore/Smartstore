@@ -4,5 +4,45 @@
 // --------------------------------------------------
 
 .menubar-inverse.menubar-section {
-    border-bottom: 0; 
+    border-bottom: 0;
+}
+
+.menubar-section .menubar {
+    padding-block: 0.2rem;
+}
+
+#header {
+    background-color: $blue;
+    background-image: radial-gradient(ellipse at 50% 45%, rgba(#fff, 0.14), rgba(#fff, 0) 75%);
+}
+
+.shopbar-section,
+.megamenu-section {
+    background: transparent;
+}
+
+.megamenu-section .navbar {
+    background: transparent;
+}
+
+.shopbar-section .instasearch-form {
+    --search-border-radius: #{$border-radius-lg};
+}
+
+.megamenu-section {
+    border-bottom: 1px solid rgba(#fff, 0.1);
+}
+
+.megamenu .nav-item {
+    &.selected > .nav-link:before,
+    &.expanded > .nav-link:before {
+        width: auto;
+        inset-inline: var(--mm-link-padding-x);
+        height: 2px;
+        border-radius: 1px;
+    }
+}
+
+#footer.footer-inverse {
+    --footer-link-hover-color: #ffbd8c;
 }

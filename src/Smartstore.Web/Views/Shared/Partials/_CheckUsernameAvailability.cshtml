@@ -5,11 +5,9 @@
     	$('#Username').on('input propertychange paste', function (e) {
     		$('#username-availabilty').text('');
     		$('#check-availability-button')
-				.removeClass("btn-success btn-warning")
+				.removeClass("btn-success")
 				.addClass("btn-secondary")
-				.find(">i")
-				.removeClass("fa-check fa-exclamation-circle")
-				.addClass("fa-question-circle");
+				.find("sm-icon").attr("name", "question-circle");
         });
 
         $('#check-availability-button').on('click', function (e) {
@@ -27,11 +25,9 @@
                     success: function (data) {
                         btn.removeAttr('disabled');
                         btn
-                            .removeClass("btn-success btn-warning btn-secondary")
-                            .addClass(data.Available ? "btn-success" : "btn-warning")
-                            .find(">i")
-                            .removeClass("fa-check fa-question-circle fa-exclamation-circle")
-                            .addClass(data.Available ? "fa-check" : "fa-exclamation-circle");
+                            .removeClass("btn-success btn-secondary")
+                            .addClass(data.Available ? "btn-success" : "btn-secondary")
+                            .find("sm-icon").attr("name", data.Available ? "check" : "alert-danger");
 
                         displayNotification(data.Text, data.Available ? "success" : "error");
                     },
@@ -56,6 +52,6 @@
             class="btn btn-secondary btn-icon check-username-availability-button tooltip-toggle" 
             title="@T("Account.CheckUsernameAvailability.Button")"
             aria-label="@T("Account.CheckUsernameAvailability.Button")">
-        <i class="fa fa-question-circle" aria-hidden="true"></i>
+        <sm-icon name="question-circle" aria-hidden="true"></sm-icon>
     </button>
 </span>

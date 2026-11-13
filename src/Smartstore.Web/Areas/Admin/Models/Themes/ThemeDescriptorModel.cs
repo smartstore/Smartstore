@@ -9,6 +9,8 @@ public class ThemeDescriptorModel : ITopologicSortable<string>
 
     public string BaseTheme { get; set; }
 
+    public string RootTheme { get; set; }
+
     public string FriendlyName { get; set; }
 
     public string Description { get; set; }

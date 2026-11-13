@@ -463,7 +463,7 @@ public class CustomerRoleController : AdminController
             ? ((TaxDisplayType)model.TaxDisplayType.Value).ToSelectList()
             : TaxDisplayType.IncludingTax.ToSelectList(false);
 
-        ViewBag.UsernamesEnabled = _customerSettings.CustomerLoginType != CustomerLoginType.Email;
+        ViewBag.UsernamesEnabled = _customerSettings.SupportsUsernames();
     }
 
     private void ApplyPermissionRoleMappings(CustomerRole role, IFormCollection form)

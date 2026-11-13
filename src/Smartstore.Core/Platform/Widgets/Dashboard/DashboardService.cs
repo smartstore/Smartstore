@@ -14,7 +14,7 @@ namespace Smartstore.Core.Widgets.Dashboard;
 /// <summary>
 /// Provides dashboard registration, layered layout resolution and render-model preparation.
 /// </summary>
-public class DashboardService : IDashboardService
+public partial class DashboardService : IDashboardService
 {
     /// <summary>
     /// Defines the prefix used for customer-specific dashboard layout attributes.
@@ -99,6 +99,19 @@ public class DashboardService : IDashboardService
         Customer? customer,
         CancellationToken cancelToken = default)
     {
+        var resolved = await ResolveLayoutAsync(dashboardId, customer, DashboardLayoutLayer.User, cancelToken);
+        return resolved.Layout;
+    }
+
+    /// <summary>
+    /// Resolves a requested layer and its fallbacks without copying or modifying the layout.
+    /// </summary>
+    private async ValueTask<(DashboardLayout Layout, DashboardLayoutLayer Source)> ResolveLayoutAsync(
+        string dashboardId,
+        Customer? customer,
+        DashboardLayoutLayer layer,
+        CancellationToken cancelToken)
+    {
         Guard.NotEmpty(dashboardId);
 
         if (!LayoutProviders.TryGetValue(dashboardId, out var providerRegistration))
@@ -107,15 +120,18 @@ public class DashboardService : IDashboardService
         }
 
         var canonicalDashboardId = providerRegistration.Metadata.SystemName;
-        var layout = LoadUserLayout(canonicalDashboardId, customer);
+        var source = layer;
+        var layout = layer == DashboardLayoutLayer.User ? LoadUserLayout(canonicalDashboardId, customer) : null;
 
-        if (layout == null)
+        if (layout == null && layer != DashboardLayoutLayer.System)
         {
+            source = DashboardLayoutLayer.Global;
             layout = await LoadGlobalLayoutAsync(canonicalDashboardId, cancelToken);
         }
 
         if (layout == null)
         {
+            source = DashboardLayoutLayer.System;
             var provider = providerRegistration.Value;
             layout = Guard.NotNull(provider.GetDefaultLayout());
 
@@ -123,14 +139,13 @@ public class DashboardService : IDashboardService
 
             if (layout.Scope != DashboardLayoutScope.Global || layout.CustomerId != 0)
             {
-                throw new InvalidOperationException(
-                    $"System-default layout for dashboard '{canonicalDashboardId}' must be global.");
+                throw new InvalidOperationException($"System-default layout for dashboard '{canonicalDashboardId}' must be global.");
             }
 
             ValidateLayout(layout, canonicalDashboardId, customer);
         }
 
-        return layout;
+        return (layout, source);
     }
 
     public virtual async ValueTask<DashboardRenderModel> GetDashboardAsync(
@@ -140,6 +155,18 @@ public class DashboardService : IDashboardService
         CancellationToken cancelToken = default)
     {
         var layout = await GetEffectiveLayoutAsync(dashboardId, customer, cancelToken);
+        return await PrepareDashboardAsync(layout, customer, isEditMode, cancelToken);
+    }
+
+    /// <inheritdoc />
+    public virtual async ValueTask<DashboardRenderModel> PrepareDashboardAsync(
+        DashboardLayout layout,
+        Customer? customer,
+        bool isEditMode = false,
+        CancellationToken cancelToken = default)
+    {
+        ValidateLayout(layout, layout.Id, customer);
+
         var context = new DashboardWidgetContext
         {
             DashboardId = layout.Id,
@@ -156,8 +183,7 @@ public class DashboardService : IDashboardService
             {
                 if (instance.Policy.IsRequired)
                 {
-                    throw new InvalidOperationException(
-                        $"Required dashboard widget '{instance.WidgetSystemName}' is not registered.");
+                    throw new InvalidOperationException($"Required dashboard widget '{instance.WidgetSystemName}' is not registered.");
                 }
 
                 continue;
@@ -165,10 +191,10 @@ public class DashboardService : IDashboardService
 
             var dashboardWidget = ResolveWidget(widgetRegistration);
             var descriptor = dashboardWidget.Descriptor;
+
             if (!descriptor.AllowMultipleInstances && !singletonWidgets.Add(descriptor.SystemName))
             {
-                throw new InvalidOperationException(
-                    $"Dashboard widget '{descriptor.SystemName}' does not allow multiple instances.");
+                throw new InvalidOperationException($"Dashboard widget '{descriptor.SystemName}' does not allow multiple instances.");
             }
 
             if (!await dashboardWidget.IsAvailableAsync(context, cancelToken))
@@ -176,36 +202,7 @@ public class DashboardService : IDashboardService
                 continue;
             }
 
-            var settings = (JsonObject)instance.Settings.DeepClone();
-            var settingsVersion = instance.SettingsVersion;
-
-            if (settingsVersion != descriptor.SettingsVersion)
-            {
-                settings = Guard.NotNull(await dashboardWidget.MigrateSettingsAsync(
-                    settings,
-                    settingsVersion,
-                    cancelToken));
-
-                settingsVersion = descriptor.SettingsVersion;
-            }
-
-            await dashboardWidget.ValidateSettingsAsync(settings, cancelToken);
-
-            var runtimeInstance = instance with
-            {
-                Settings = settings,
-                SettingsVersion = settingsVersion
-            };
-
-            var policy = DashboardWidgetPolicy.Combine(descriptor.Policy, runtimeInstance.Policy);
-
-            items.Add(new DashboardRenderItem
-            {
-                Instance = runtimeInstance,
-                Descriptor = descriptor,
-                Policy = policy,
-                Widget = dashboardWidget.CreateWidget(context, runtimeInstance)
-            });
+            items.Add(await PrepareRenderItemAsync(dashboardWidget, instance, context, cancelToken));
         }
 
         return new DashboardRenderModel
@@ -214,6 +211,81 @@ public class DashboardService : IDashboardService
             Context = context,
             Widgets = items
         };
+    }
+
+    /// <inheritdoc />
+    public virtual async ValueTask<DashboardRenderItem?> PrepareWidgetAsync(
+        DashboardLayout layout,
+        string instanceId,
+        Customer? customer,
+        bool refresh = false,
+        IReadOnlyDictionary<string, string>? parameters = null,
+        CancellationToken cancelToken = default)
+    {
+        Guard.NotEmpty(instanceId);
+        ValidateLayout(layout, layout.Id, customer);
+        var instance = layout.Widgets.FirstOrDefault(x => x.Id == instanceId);
+
+        if (instance == null || !Widgets.TryGetValue(instance.WidgetSystemName, out var registration))
+        {
+            return null;
+        }
+
+        var context = new DashboardWidgetContext
+        {
+            DashboardId = layout.Id,
+            Customer = customer,
+            Refresh = refresh,
+            Parameters = parameters ?? new Dictionary<string, string>()
+        };
+        var widget = ResolveWidget(registration);
+
+        if (!await widget.IsAvailableAsync(context, cancelToken))
+        {
+            return null;
+        }
+
+        return await PrepareRenderItemAsync(widget, instance, context, cancelToken);
+    }
+
+    private async ValueTask<DashboardRenderItem> PrepareRenderItemAsync(
+        IDashboardWidget widget,
+        DashboardWidgetInstance instance,
+        DashboardWidgetContext context,
+        CancellationToken cancelToken)
+    {
+        var runtimeInstance = await PrepareWidgetInstanceAsync(widget, instance, cancelToken);
+        var policy = DashboardWidgetPolicy.Combine(widget.Descriptor.Policy, runtimeInstance.Policy);
+
+        return new DashboardRenderItem
+        {
+            Instance = runtimeInstance,
+            Descriptor = widget.Descriptor,
+            Policy = policy,
+            Widget = widget.CreateWidget(context, runtimeInstance)
+        };
+    }
+
+    /// <summary>
+    /// Migrates and validates a detached settings copy without changing the stored widget instance.
+    /// </summary>
+    private async ValueTask<DashboardWidgetInstance> PrepareWidgetInstanceAsync(
+        IDashboardWidget widget,
+        DashboardWidgetInstance instance,
+        CancellationToken cancelToken)
+    {
+        var settings = (JsonObject)instance.Settings.DeepClone();
+        var settingsVersion = instance.SettingsVersion;
+
+        if (settingsVersion != widget.Descriptor.SettingsVersion)
+        {
+            settings = Guard.NotNull(await widget.MigrateSettingsAsync(settings, settingsVersion, cancelToken));
+            settingsVersion = widget.Descriptor.SettingsVersion;
+        }
+
+        await widget.ValidateSettingsAsync(settings, cancelToken);
+
+        return instance with { Settings = settings, SettingsVersion = settingsVersion };
     }
 
     private IReadOnlyDictionary<string, Lazy<IDashboardWidget, DashboardMetadata>> CreateWidgetMap()
@@ -226,8 +298,7 @@ public class DashboardService : IDashboardService
 
             if (!widgets.TryAdd(systemName, registration))
             {
-                throw new InvalidOperationException(
-                    $"Dashboard widget '{systemName}' is registered more than once.");
+                throw new InvalidOperationException($"Dashboard widget '{systemName}' is registered more than once.");
             }
         }
 
@@ -244,8 +315,7 @@ public class DashboardService : IDashboardService
 
             if (!providers.TryAdd(systemName, registration))
             {
-                throw new InvalidOperationException(
-                    $"Dashboard layout provider for '{systemName}' is registered more than once.");
+                throw new InvalidOperationException($"Dashboard layout provider for '{systemName}' is registered more than once.");
             }
         }
 
@@ -270,8 +340,7 @@ public class DashboardService : IDashboardService
 
         if (!widget.Descriptor.SystemName.EqualsNoCase(registration.Metadata.SystemName))
         {
-            throw new InvalidOperationException(
-                $"Dashboard widget metadata '{registration.Metadata.SystemName}' does not match descriptor '{widget.Descriptor.SystemName}'.");
+            throw new InvalidOperationException($"Dashboard widget metadata '{registration.Metadata.SystemName}' does not match descriptor '{widget.Descriptor.SystemName}'.");
         }
 
         return widget;
@@ -303,11 +372,9 @@ public class DashboardService : IDashboardService
             var layout = DeserializeLayout(json);
             return ValidateCustomLayout(layout, dashboardId, customer, DashboardLayoutScope.User, "user");
         }
-        catch (JsonException exception)
+        catch (Exception exception) when (exception is JsonException or ArgumentException)
         {
-            Logger.Error(
-                exception,
-                $"Failed to load user layout for dashboard '{dashboardId}' and customer '{customer.Id}'.");
+            Logger.Error(exception, $"Failed to load user layout for dashboard '{dashboardId}' and customer '{customer.Id}'.");
 
             return null;
         }
@@ -339,6 +406,7 @@ public class DashboardService : IDashboardService
             try
             {
                 var json = await fileSystem.ReadAllTextAsync(fileName);
+
                 if (json.IsEmpty())
                 {
                     Logger.Warn($"Ignored empty global layout file '{fileName}' for dashboard '{dashboardId}'.");
@@ -348,13 +416,12 @@ public class DashboardService : IDashboardService
                 var candidate = DeserializeLayout(json);
                 return ValidateCustomLayout(candidate, dashboardId, null, DashboardLayoutScope.Global, "global");
             }
-            catch (JsonException ex)
+            catch (Exception ex) when (ex is JsonException or ArgumentException)
             {
                 Logger.Error(ex, $"Failed to load global layout for dashboard '{dashboardId}' from '{fileName}'.");
                 return null;
             }
-            catch (Exception ex) when (
-                ex is IOException or UnauthorizedAccessException or FileSystemException)
+            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or FileSystemException)
             {
                 Logger.Error(ex, $"Failed to read global layout for dashboard '{dashboardId}' from '{fileName}'.");
                 return null;
@@ -412,15 +479,14 @@ public class DashboardService : IDashboardService
 
         if (descriptor.SettingsVersion <= 0)
         {
-            throw new InvalidOperationException(
-                $"Dashboard widget '{descriptor.SystemName}' must declare a positive settings version.");
+            throw new InvalidOperationException($"Dashboard widget '{descriptor.SystemName}' must declare a positive settings version.");
         }
 
         var defaultColumns = descriptor.DefaultSize.ColumnSpan;
+
         if (defaultColumns < descriptor.MinSize.ColumnSpan || defaultColumns > descriptor.MaxSize.ColumnSpan)
         {
-            throw new InvalidOperationException(
-                $"The default size of dashboard widget '{descriptor.SystemName}' is outside its declared bounds.");
+            throw new InvalidOperationException($"The default size of dashboard widget '{descriptor.SystemName}' is outside its declared bounds.");
         }
     }
 
@@ -435,8 +501,7 @@ public class DashboardService : IDashboardService
     {
         if (!layout.Id.EqualsNoCase(requestedDashboardId))
         {
-            throw new InvalidOperationException(
-                $"Dashboard layout provider returned layout '{layout.Id}' for requested dashboard '{requestedDashboardId}'.");
+            throw new InvalidOperationException($"Dashboard layout provider returned layout '{layout.Id}' for requested dashboard '{requestedDashboardId}'.");
         }
 
         if (layout.Version <= 0 || layout.ColumnCount <= 0 || layout.GridTemplateColumns.IsEmpty())
@@ -451,56 +516,60 @@ public class DashboardService : IDashboardService
 
         if (layout.Scope == DashboardLayoutScope.User && (layout.CustomerId <= 0 || layout.CustomerId != customer?.Id))
         {
-            throw new InvalidOperationException(
-                $"User dashboard layout '{layout.Id}' is not assigned to customer '{customer?.Id}'.");
+            throw new InvalidOperationException($"User dashboard layout '{layout.Id}' is not assigned to customer '{customer?.Id}'.");
         }
 
         if (layout.Widgets is null)
+        {
             throw new InvalidOperationException($"Dashboard layout '{layout.Id}' has no widget collection.");
-
+        }
+        
         var instanceIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
         foreach (var instance in layout.Widgets)
         {
             if (instance is null || instance.Id.IsEmpty() || instance.WidgetSystemName.IsEmpty())
+            {
                 throw new InvalidOperationException($"Dashboard layout '{layout.Id}' contains an invalid widget instance.");
-
+            }
+            
             if (!instanceIds.Add(instance.Id))
             {
-                throw new InvalidOperationException(
-                    $"Dashboard layout '{layout.Id}' contains duplicate widget instance ID '{instance.Id}'.");
+                throw new InvalidOperationException($"Dashboard layout '{layout.Id}' contains duplicate widget instance ID '{instance.Id}'.");
             }
 
             if (instance.Settings is null || instance.Policy is null || instance.Positions is null)
-                throw new InvalidOperationException($"Dashboard widget instance '{instance.Id}' is incomplete.");
-
-            if (instance.Positions.Count == 0 || !instance.Positions.Any(x => x?.MinViewportWidth == 0))
             {
-                throw new InvalidOperationException(
-                    $"Dashboard widget instance '{instance.Id}' must declare a base position.");
+                throw new InvalidOperationException($"Dashboard widget instance '{instance.Id}' is incomplete.");
+            }
+                
+
+            if (instance.Positions.Count == 0 || !instance.Positions.Any(x => x?.Breakpoint == DashboardBreakpoint.Xs))
+            {
+                throw new InvalidOperationException($"Dashboard widget instance '{instance.Id}' must declare a base position.");
             }
 
             if (instance.SettingsVersion <= 0)
             {
-                throw new InvalidOperationException(
-                    $"Dashboard widget instance '{instance.Id}' must declare a positive settings version.");
+                throw new InvalidOperationException($"Dashboard widget instance '{instance.Id}' must declare a positive settings version.");
             }
 
-            if (instance.Positions.GroupBy(x => x.MinViewportWidth).Any(x => x.Count() > 1))
+            if (instance.Positions.Where(x => x != null).GroupBy(x => x.Breakpoint).Any(x => x.Count() > 1))
             {
-                throw new InvalidOperationException(
-                    $"Dashboard widget instance '{instance.Id}' declares a viewport breakpoint more than once.");
+                throw new InvalidOperationException($"Dashboard widget instance '{instance.Id}' declares a viewport breakpoint more than once.");
             }
 
             foreach (var position in instance.Positions)
             {
                 if (position?.Size is null)
-                    throw new InvalidOperationException($"Dashboard widget instance '{instance.Id}' contains an invalid grid position.");
-
-                if (position.MinViewportWidth < 0 || position.Column < 0 || position.Row < 0 ||
-                    position.Column + position.Size.ColumnSpan > layout.ColumnCount)
                 {
-                    throw new InvalidOperationException(
-                        $"Dashboard widget instance '{instance.Id}' contains an invalid grid position.");
+                    throw new InvalidOperationException($"Dashboard widget instance '{instance.Id}' contains an invalid grid position.");
+                }
+                
+                if (!Enum.IsDefined(position.Breakpoint) || position.Column < 0 || position.Row < 0 ||
+                    (long)position.Column + position.Size.ColumnSpan > layout.ColumnCount)
+                {
+                    throw new InvalidOperationException($"Dashboard widget instance '{instance.Id}' contains an invalid grid position.");
                 }
             }
         }

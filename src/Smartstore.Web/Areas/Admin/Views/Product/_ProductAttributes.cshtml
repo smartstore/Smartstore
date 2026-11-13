@@ -21,7 +21,10 @@
             <div class="adminData">
                 <div class="controls">
                     <select name="@controlId" id="@controlId" class="form-control" attr-multiple='(multiple, "multiple")'>
-                        <option sm-if="!attribute.IsRequired && !multiple" value="0">---</option>
+                        @* INFO: When manually adding attribute combinations, it must be possible to remove attributes even if they are marked as required, 
+                           because attribute combinations are only found if they do not contain the hidden attribute—which is necessary for hiding individual 
+                           attributes using a Rule Builder rule. *@
+                        <option sm-if="!multiple" value="0">---</option>
                         @foreach (var pvaValue in attribute.Values)
                         {
                             <option attr-selected='(pvaValue.IsPreSelected, "selected")' value="@pvaValue.Id">@pvaValue.Name</option>

@@ -196,16 +196,7 @@ public partial class MessageFactory : IMessageFactory
         Guard.NotNull(messageContext);
         Guard.NotNull(queuedEmail);
 
-        // Publish event so that integrators can add attachments, alter the email etc.
-        await _eventPublisher.PublishAsync(new MessageQueuingEvent
-        {
-            QueuedEmail = queuedEmail,
-            MessageContext = messageContext,
-            MessageModel = messageContext.Model
-        });
-
-        _db.QueuedEmails.Add(queuedEmail);
-        await _db.SaveChangesAsync();
+        await _queuedEmailService.QueueEmailAsync(queuedEmail, messageContext);
     }
 
     private async Task<List<MailAddress>> RenderEmailAddressAsync(string email, MessageContext ctx, bool required = true)
@@ -503,7 +494,7 @@ public partial class MessageFactory : IMessageFactory
             { nameof(NewsletterSubscription), () => GetRandomEntity<NewsletterSubscription>(x => true) },
             { nameof(Campaign), () => GetRandomEntity<Campaign>(x => true) },
             { nameof(ReturnCase), () => GetRandomEntity<ReturnCase>(x => true) },
-            { nameof(OrderItem), () => GetRandomEntity<OrderItem>(x => !x.Order.Deleted) },
+            { nameof(OrderItem), () => GetRandomEntity<OrderItem>(x => !x.Order.Deleted && !x.Product.Deleted) },
             { nameof(GiftCard), () => GetRandomEntity<GiftCard>(x => true) },
             { nameof(ProductReview), () => GetRandomEntity<ProductReview>(x => !x.Product.Deleted && !x.Product.IsSystemProduct && x.Product.Visibility != ProductVisibility.Hidden && x.Product.Published) },
             { nameof(WalletHistory), () => GetRandomEntity<WalletHistory>(x => true) }

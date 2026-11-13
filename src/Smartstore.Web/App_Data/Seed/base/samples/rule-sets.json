@@ -1,0 +1,50 @@
+// Key field: key
+[
+  {
+    "key": "sale",
+    "name": "Sale",
+    "description": "Products with applied discounts.",
+    "scope": "Product",
+    "rules": [
+      {
+        "ruleType": "Discount",
+        "operator": "=",
+        "value": "true"
+      }
+    ]
+  },
+  {
+    "key": "inactive-new-customers",
+    "name": "Inactive new customers",
+    "description": "One completed order placed at least 90 days ago.",
+    "scope": "Customer",
+    "rules": [
+      {
+        "ruleType": "CompletedOrderCount",
+        "operator": "=",
+        "value": "1"
+      },
+      {
+        "ruleType": "LastOrderDateDays",
+        "operator": ">=",
+        "value": "90"
+      }
+    ],
+    "customerRoles": [
+      "InactiveNewCustomers"
+    ]
+  },
+  {
+    "key": "cart-subtotal-50",
+    "name": "Cart subtotal from 50",
+    "description": "The subtotal of the shopping cart is at least 50.",
+    "scope": "Cart",
+    "rules": [
+      {
+        "ruleType": "CartSubtotal",
+        "operator": ">=",
+        "value": "50"
+      }
+    ]
+  }
+]

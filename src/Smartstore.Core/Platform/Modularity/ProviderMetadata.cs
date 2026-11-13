@@ -79,6 +79,12 @@ public class ProviderMetadata : IProviderMetadata
     public string FriendlyName { get; set; }
 
     /// <summary>
+    /// Gets or sets the optional provider icon address or concept name.
+    /// Takes precedence over module artwork.
+    /// </summary>
+    public string Icon { get; set; }
+
+    /// <summary>
     /// Gets or sets the provider description
     /// </summary>
     public string Description { get; set; }

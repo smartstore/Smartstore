@@ -1,9 +1,13 @@
 #nullable enable
 
+using FluentValidation;
 using Smartstore.Admin.Components;
 using Smartstore.Core.Localization;
+using Smartstore.Core.Security;
+using Smartstore.Core.Widgets;
 using Smartstore.Core.Widgets.Dashboard;
 using Smartstore.Engine.Modularity;
+using Smartstore.Web.Modelling;
 
 namespace Smartstore.Admin.Infrastructure.Dashboard;
 
@@ -11,7 +15,12 @@ namespace Smartstore.Admin.Infrastructure.Dashboard;
 /// Describes and creates the dashboard widget that renders the latest orders report.
 /// </summary>
 [SystemName(SystemName)]
-public sealed class LatestOrdersDashboardWidget : DashboardViewComponentWidget<DashboardLatestOrdersViewComponent>
+public sealed class LatestOrdersDashboardWidget(
+    IPermissionService permissions,
+    IValidator<LatestOrdersDashboardWidgetSettings> validator) : DashboardViewComponentWidget<DashboardLatestOrdersViewComponent, LatestOrdersDashboardWidgetSettings>(
+        permissions,
+        DashboardLatestOrdersViewComponent.RequiredPermission,
+        validator)
 {
     public const string SystemName = "Smartstore.Admin.Dashboard.LatestOrders";
 
@@ -20,23 +29,45 @@ public sealed class LatestOrdersDashboardWidget : DashboardViewComponentWidget<D
     /// </summary>
     private static readonly DashboardWidgetDescriptor _descriptor = new(SystemName, ResolvableText.Resource("Admin.SalesReport.LatestOrders"))
     {
-        Description = ResolvableText.Resource("Admin.SalesReport.LatestOrders"),
         Group = KnownDashboardWidgetGroups.Sales,
-        IconName = "card-checklist",
+        IconName = "clipboard",
         CssClass = "report-latest-orders",
         Order = 600,
         AllowMultipleInstances = false,
         SupportsRefresh = false,
+        Policy = new() { AllowConfigure = true },
         DefaultSize = new DashboardWidgetSize(6, 1),
-        MinSize = new DashboardWidgetSize(4, 1),
-        MaxSize = new DashboardWidgetSize(12, 1),
-        AllowedSizes =
-        [
-            new DashboardWidgetSize(6, 1),
-            new DashboardWidgetSize(10, 1),
-            new DashboardWidgetSize(12, 1)
-        ]
+        MinSize = new DashboardWidgetSize(5, 1),
+        MaxSize = new DashboardWidgetSize(12)
     };
 
+    /// <inheritdoc />
     public override DashboardWidgetDescriptor Descriptor => _descriptor;
+
+    /// <inheritdoc />
+    public override Task<Widget?> CreateConfigurationWidgetAsync(DashboardWidgetContext context, DashboardWidgetInstance instance)
+        => Task.FromResult<Widget?>(new PartialViewWidget("Components/DashboardLatestOrders/Configure", LoadSettings(instance.Settings)));
+
+    /// <inheritdoc />
+    protected override object GetWidgetArguments(DashboardWidgetContext context, DashboardWidgetInstance instance, LatestOrdersDashboardWidgetSettings settings)
+        => new { count = settings.Count };
+}
+
+/// <summary>Contains the settings of the LatestOrders dashboard widget.</summary>
+[LocalizedDisplay("Admin.Dashboard.Widget.")]
+public class LatestOrdersDashboardWidgetSettings
+{
+    /// <summary>Gets or sets the maximum number of items to display.</summary>
+    [LocalizedDisplay("*Count")]
+    public int Count { get; set; } = 7;
+}
+
+/// <summary>Validates settings of the LatestOrders dashboard widget.</summary>
+public class LatestOrdersDashboardWidgetValidator : AbstractValidator<LatestOrdersDashboardWidgetSettings>
+{
+    public LatestOrdersDashboardWidgetValidator()
+    {
+        RuleFor(x => x.Count).InclusiveBetween(1, 50)
+            .WithMessage("The number of latest orders must be between 1 and 50.");
+    }
 }

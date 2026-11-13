@@ -8,6 +8,11 @@ namespace Smartstore.Core.Widgets.Dashboard;
 public sealed class DashboardRenderModel
 {
     /// <summary>
+    /// Gets or sets the layout state resolved by the dashboard service, when available.
+    /// </summary>
+    public DashboardLayoutState? State { get; set; }
+
+    /// <summary>
     /// Gets the effective dashboard layout.
     /// </summary>
     public required DashboardLayout Layout { get; init; }

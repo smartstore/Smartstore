@@ -3,21 +3,122 @@
 @model DashboardRenderModel
 @inject IDashboardCssBuilder DashboardCssBuilder
 
+@* INFO: Handles caching invalidation *@
+<script src="~/admin/js/smartstore.dashboard.js" asp-append-version="true" sm-target-zone="scripts" sm-key="dashboard-widgets"></script>
+
 <style sm-target-zone="stylesheets" data-origin="@Model.Layout.Id">
     @Html.Raw(DashboardCssBuilder.Build(Model))
 </style>
 
+<script sm-target-zone="scripts">
+    window.Res.Dashboard = {
+        refreshFailed: @T("Admin.Dashboard.RefreshFailed").JsValue,
+        invalid: @T("Admin.Dashboard.Editor.Invalid").JsValue,
+        removeWidgetConfirm: @T("Admin.Dashboard.Editor.RemoveWidgetConfirm").JsValue,
+        back: @T("Common.Back").JsValue,
+        cancel: @T("Common.Cancel").JsValue,
+        discardConfirm: @T("Admin.Dashboard.Editor.DiscardConfirm").JsValue,
+        resetConfirm: @T("Admin.Dashboard.Editor.ResetConfirm").JsValue,
+        saveGlobalConfirm: @T("Admin.Dashboard.Editor.SaveGlobalConfirm").JsValue,
+        saveGlobalLabel: @T("Admin.Dashboard.Editor.SaveGlobal").JsValue
+    };
+</script>
+
 <div id="@(Model.Layout.Id)-grid"
+     data-dashboard-load-url="@Url.Action("DashboardWidget", "Home", new { area = "Admin" })"
      style="display: grid; grid-template-columns: @Model.Layout.GridTemplateColumns; column-gap: @Model.Layout.ColumnGap; row-gap: @Model.Layout.RowGap; grid-auto-rows: @Model.Layout.GridAutoRows;">
     
-    <zone name="dashboard_top"></zone>
+     <zone name="dashboard_top"></zone>
 
     @foreach (var item in Model.Widgets)
     {
-        <div id="@Model.Layout.BuildWidgetId(item.Instance.Id)" class="dashboard-widget @item.Descriptor.CssClass">
-            @await item.Widget.InvokeAsync(ViewContext)
+        var canConfigure = Model.Context.IsEditMode && item.Policy.AllowConfigure;
+        var canEdit = Model.Context.IsEditMode && (item.Policy.AllowMove || item.Policy.AllowResize || !item.Policy.IsRequired || canConfigure);
+
+        <div id="@Model.Layout.BuildWidgetId(item.Instance.Id)"
+             class="dashboard-widget @item.Descriptor.CssClass"
+             attr-class='(canConfigure, "dashboard-widget-configurable")'
+             data-instance-id="@item.Instance.Id"
+             attr-data-min-width='(Model.Context.IsEditMode, item.Descriptor.MinSize.ColumnSpan.ToString())'
+             attr-data-max-width='(Model.Context.IsEditMode, item.Descriptor.MaxSize.ColumnSpan.ToString())'>
+            <div class="dashboard-widget-body">
+                <div sm-if="canEdit"
+                     class="dashboard-widget-overlay"
+                     attr-tabindex='(item.Policy.AllowMove, "0")'
+                     attr-aria-label='(item.Policy.AllowMove, T("Admin.Dashboard.Editor.Move").ToString())'
+                     attr-aria-hidden='(!item.Policy.AllowMove, "true")'></div>
+
+                <div sm-if="!Model.Context.IsEditMode || !item.Policy.IsRequired || canConfigure" class="dashboard-widget-tools">
+                    <button sm-if="!Model.Context.IsEditMode"
+                            type="button"
+                            class="btn btn-xs btn-light btn-flat btn-icon dashboard-refresh"
+                            title="@T("Common.Refresh")"
+                            aria-label="@T("Common.Refresh")">
+                        <icon name="refresh" />
+                    </button>
+                    <button sm-if="canConfigure"
+                            type="button"
+                            class="btn btn-xs btn-plain btn-flat btn-icon dashboard-configure"
+                            title="@T("Admin.Dashboard.Editor.Configure")"
+                            aria-label="@T("Admin.Dashboard.Editor.Configure")"
+                            aria-expanded="false">
+                        <icon name="hi:settings-01" />
+                    </button>
+                    <button sm-if="Model.Context.IsEditMode && !item.Policy.IsRequired"
+                            type="button"
+                            class="btn btn-xs btn-plain btn-flat btn-icon btn-destructive dashboard-remove"
+                            title="@T("Common.Remove")"
+                            aria-label="@T("Common.Remove")">
+                        <icon name="trash" />
+                    </button>
+                </div>
+
+                @if (Model.Context.IsEditMode && item.Policy.AllowResize)
+                {
+                    <button sm-if="item.Policy.AllowMove"
+                            type="button"
+                            class="dashboard-resize"
+                            data-dashboard-resize="width-start"
+                            aria-label="@T("Admin.Dashboard.Editor.Width")"></button>
+                    <button type="button"
+                            class="dashboard-resize"
+                            data-dashboard-resize="width"
+                            aria-label="@T("Admin.Dashboard.Editor.Width")"></button>
+                    <button type="button"
+                            class="dashboard-resize"
+                            data-dashboard-resize="height"
+                            aria-label="@T("Admin.Dashboard.Editor.Height")"></button>
+                    <button sm-if="item.Policy.AllowMove"
+                            type="button"
+                            class="dashboard-resize"
+                            data-dashboard-resize="height-start"
+                            aria-label="@T("Admin.Dashboard.Editor.Height")"></button>
+                }
+                <div class="dashboard-widget-content" attr-inert='(canEdit, "inert")'>
+                    @await item.Widget.InvokeAsync(ViewContext)
+                </div>
+            </div>
+
+            @if (canConfigure) 
+            {
+                <form class="dashboard-widget-config card"
+                      data-configuration-url="@Url.Action("DashboardConfigure", "Home", new { area = "Admin", widgetSystemName = item.Instance.WidgetSystemName })"
+                      novalidate
+                      inert>
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">@item.Descriptor.Title.Resolve(T)</h5>
+                        <div class="d-flex gap-2 ml-auto">
+                            <button type="button" class="btn btn-sm btn-light dashboard-config-cancel">@T("Common.Cancel")</button>
+                            <button type="submit" class="btn btn-sm btn-primary">
+                                <icon name="check" />
+                                <span>@T("Admin.Common.Save")</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body"></div>
+                </form>
+            }
         </div>
     }
-
     <zone name="dashboard_bottom"></zone>
 </div>

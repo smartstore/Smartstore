@@ -21,14 +21,14 @@
     <toolbar>
         <toolbar-group>
             <button datagrid-action="DataGridToolAction.InsertRow" type="button" class="btn btn-primary btn-flat no-anims mr-auto">
-                <i class="fa fa-plus"></i>
+                <icon name="plus"  />
                 <span>@T("Admin.Common.AddNew")</span>
             </button>
-            <button datagrid-action="DataGridToolAction.SaveChanges" type="button" class="btn btn-warning no-anims btn-flat">
-                <i class="fa fa-check"></i>
+            <button datagrid-action="DataGridToolAction.SaveChanges" type="button" class="btn btn-primary no-anims btn-flat">
+                <icon name="check" />
                 <span>@T("Admin.Common.SaveChanges")</span>
             </button>
-            <button datagrid-action="DataGridToolAction.CancelEdit" type="button" class="btn btn-light btn-flat mr-auto">
+            <button datagrid-action="DataGridToolAction.CancelEdit" type="button" class="btn btn-plain mr-auto">
                 <span>@T("Common.Cancel")</span>
             </button>
         </toolbar-group>
@@ -37,7 +37,7 @@
         <zone name="productvariantattribute_datagrid_toolbar_omega"></zone>
         <toolbar-group>
             <button datagrid-action="DataGridToolAction.DeleteSelectedRows" type="button" class="btn btn-danger no-anims btn-flat">
-                <i class="far fa-trash-can"></i>
+                <icon name="trash" />
                 <span>@T("Admin.Common.Delete.Selected")</span>
             </button>
         </toolbar-group>
@@ -50,7 +50,19 @@
         </column>
         <column for="AttributeControlTypeId" width="2fr">
             <display-template>
-                <div class="dg-cell-value">{{ item.row.AttributeControlType }}</div>
+                <div class="dg-cell-value w-100">
+                    <a v-if="item.row.IsSwatch"
+                       href="javascript:;" 
+                       class="grid-edit-attribute-swatch btn btn-sm btn-plain btn-block fwn justify-content-start"
+                       :data-key="item.row.Id"
+                       :title="item.row.SwatchOverridesInfo">
+                        <icon name="swatch" v-if="item.row.HasSwatchOverrides" class="text-gray-650 flex-shrink-0" />
+                        <span class="text-truncate">
+                            {{ item.row.AttributeControlTypeStr }}
+                        </span>
+                    </a>
+                    <div v-if="!item.row.IsSwatch" class="text-truncate">{{ item.row.AttributeControlTypeStr }}</div>
+                </div>
             </display-template>
         </column>
         <column for="TextPrompt" width="1fr" visible="false" />
@@ -59,11 +71,11 @@
         <column for="DisplayOrder" entity-member="DisplayOrder" halign="center" />
         <column for="EditUrl" width="1fr" sortable="false">
             <display-template>
-                <a :href="item.row.EditUrl" v-html="item.row.EditLinkText"></a>
+                <a :href="item.row.EditUrl" class="btn btn-sm btn-plain btn-block fwn justify-content-start" v-html="item.row.EditLinkText"></a>
             </display-template>
             <edit-template>
                 <div v-if="item.row.OptionSets.length > 0" :id="'OptionsSetsContainer' + item.row.Id">
-                    <select class='form-control' :id="'OptionsSetsChoice' + item.row.Id" :data-valcount='item.row.NumberOfOptions'>
+                    <select class='form-control form-control-sm' :id="'OptionsSetsChoice' + item.row.Id" :data-valcount='item.row.NumberOfOptions'>
                         <option v-for="o in item.row.OptionSets" v-bind:value="o.Id">{{ o.Name }}</option>
                     </select>
                 </div>
@@ -72,6 +84,32 @@
     </columns>
     <row-commands>
         <a datarow-action="DataRowAction.InlineEdit">@T("Common.Edit")</a>
+        <a datarow-action="DataRowAction.Custom" 
+           class="grid-edit-attribute-swatch" 
+           :data-key="item.row.Id"
+           v-bind:class="{ disabled: !item.row.IsSwatch }">
+           @T("Admin.Catalog.Attributes.ProductAttributes.EditSwatches")
+        </a>
+        <fragment><div class="dropdown-divider"></div></fragment>
         <a datarow-action="DataRowAction.Delete">@T("Common.Delete")</a>
     </row-commands>
 </datagrid>
+
+<input type="submit" id="btnRefreshProductVariants" name="btnRefreshProductVariants" class="d-none" />
+
+<script>
+    $(function() {
+        $(document).on('click', '.grid-edit-attribute-swatch', (e) =>  {
+            e.preventDefault();
+            const id = $(e.currentTarget).data('key');
+            openPopup('@(Url.Action("ProductAttributeSwatchEditPopup").EnsureEndsWith('/'))' + id + '?btnId=btnRefreshProductVariants&formId=product-form');
+            return false;
+        });
+
+        // Refresh grid after popup edit dialog was closed.
+        $(document).on('click', '#btnRefreshProductVariants', () => {
+            window["productvariantattributes-grid"].$children[0].read();
+            return false;
+        });
+    });
+</script>

@@ -1,0 +1,10 @@
+{
+  "in-store-pickup": {
+    "name": "Abholung",
+    "description": "Holen Sie Ihre Bestellung direkt bei uns ab."
+  },
+  "by-ground": {
+    "name": "Versand",
+    "description": "Ihre Bestellung wird Ihnen durch unsere Versandpartner zugestellt."
+  }
+}

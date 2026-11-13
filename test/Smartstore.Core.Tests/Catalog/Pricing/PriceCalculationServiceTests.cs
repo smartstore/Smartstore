@@ -114,7 +114,9 @@ public class PriceCalculationServiceTests : ServiceTestBase
         _taxCalculator = new TaxCalculator(DbContext, _workContext, _roundingHelper, _taxService, _taxSettings);
 
         // INFO: Create real instance of PriceCalculatorFactory with own instances of Calculators
-        _priceCalculatorFactory = new PriceCalculatorFactory(_requestCache, base.GetPriceCalculators(_priceCalculatorFactory, _discountService, _priceSettings));
+        var calculators = new List<Lazy<IPriceCalculator, PriceCalculatorMetadata>>();
+        _priceCalculatorFactory = new PriceCalculatorFactory(_requestCache, calculators);
+        calculators.AddRange(base.GetPriceCalculators(_priceCalculatorFactory, _discountService, _priceSettings));
 
         _priceCalcService = new PriceCalculationService(
             DbContext,
@@ -295,6 +297,129 @@ public class PriceCalculationServiceTests : ServiceTestBase
     }
 
     [Test]
+    public async Task Can_get_regular_bundle_price_from_item_prices()
+    {
+        var oliveOil = new Product
+        {
+            Id = 2,
+            Price = 12.90M,
+            Published = true,
+            ProductType = ProductType.SimpleProduct
+        };
+        var herbMix = new Product
+        {
+            Id = 3,
+            Price = 4.90M,
+            Published = true,
+            ProductType = ProductType.SimpleProduct
+        };
+
+        _product.ProductType = ProductType.BundledProduct;
+        _product.BundlePerItemPricing = true;
+        _product.Price = 17.03M;
+
+        _priceCalculationContext.BundleItems =
+        [
+            new ProductBundleItem
+            {
+                Product = oliveOil,
+                BundleProduct = _product,
+                Quantity = 1,
+                Discount = 25,
+                DiscountPercentage = true
+            },
+            new ProductBundleItem
+            {
+                Product = herbMix,
+                BundleProduct = _product,
+                Quantity = 2,
+                Discount = 25,
+                DiscountPercentage = true
+            }
+        ];
+
+        _priceCalculationContext.Options.ChildProductsBatchContext = new ProductBatchContext(
+            [oliveOil, herbMix],
+            DbContext,
+            LifetimeScope,
+            _store,
+            _customer,
+            false);
+        _priceCalculationContext.Options.IgnoreDiscounts = false;
+
+        var price = await _priceCalcService.CalculatePriceAsync(_priceCalculationContext);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(price.FinalPrice.Amount, Is.EqualTo(17.025M));
+            Assert.That(price.RegularPrice?.Amount, Is.EqualTo(22.70M));
+            Assert.That(price.Saving.SavingPercent, Is.EqualTo(25));
+        }
+    }
+
+    [TestCase(null, 0, 20, 20, 100)]
+    [TestCase(true, 15, 20, 17, 85)]
+    [TestCase(false, 10, 20, 20, 90)]
+    [TestCase(null, 0, -2, -2, 100)]
+    public async Task Can_get_attribute_price_adjustment(
+        bool? usePercentage,
+        decimal discountValue,
+        decimal adjustment,
+        decimal expectedAdjustment,
+        decimal expectedPrice)
+    {
+        _product.Price = 100m;
+
+        var attribute = new ProductVariantAttribute
+        {
+            Product = _product,
+            ProductAttribute = new ProductAttribute { Name = "Attribute" }
+        };
+        var attributeValue = new ProductVariantAttributeValue
+        {
+            ProductVariantAttribute = attribute,
+            Name = "Value",
+            PriceAdjustment = adjustment
+        };
+        attribute.ProductVariantAttributeValues.Add(attributeValue);
+        _product.ProductVariantAttributes.Add(attribute);
+
+        if (usePercentage.HasValue)
+        {
+            var discount = new Discount
+            {
+                Id = 1,
+                Name = "Discount",
+                DiscountType = DiscountType.AssignedToSkus,
+                UsePercentage = usePercentage.Value,
+                DiscountPercentage = usePercentage.Value ? discountValue : 0m,
+                DiscountAmount = usePercentage.Value ? 0m : discountValue,
+                DiscountLimitation = DiscountLimitationType.Unlimited
+            };
+
+            discount.AppliedToProducts.Add(_product);
+            _product.AppliedDiscounts.Add(discount);
+            _product.HasDiscountsApplied = true;
+            DbContext.Discounts.Add(discount);
+        }
+
+        DbContext.Products.Add(_product);
+        await DbContext.SaveChangesAsync();
+
+        _priceCalculationContext.Options.DeterminePriceAdjustments = true;
+        _priceCalculationContext.Options.IgnoreDiscounts = false;
+        _priceCalculationContext.Options.DiscountValidationFlags = DiscountValidationFlags.None;
+
+        var price = await _priceCalcService.CalculatePriceAsync(_priceCalculationContext);
+
+        using (Assert.EnterMultipleScope())
+        {
+            price.AttributePriceAdjustments.Single().Price.Amount.ShouldEqual(expectedAdjustment);
+            price.FinalPrice.Amount.ShouldEqual(expectedPrice);
+        }
+    }
+
+    [Test]
     public async Task Can_get_final_product_price_with_tier_prices()
     {
         InitTierPrices();
@@ -331,7 +456,7 @@ public class PriceCalculationServiceTests : ServiceTestBase
     }
 
     [Test]
-    public async Task Can_get_final_product_price_with_tier_prices_by_customerRole()
+    public async Task Can_get_final_product_price_with_tier_prices_by_customer_role()
     {
         InitTierPricesForCustomerRoles();
 
@@ -397,7 +522,7 @@ public class PriceCalculationServiceTests : ServiceTestBase
     }
 
     [Test]
-    public async Task Can_get_final_product_price_with_custom_additionalCharge()
+    public async Task Can_get_final_product_price_with_custom_additional_charge()
     {
         _priceCalculationContext.Metadata[CustomAdditionalChargeCalculator.AdditionalChargeKey] = 5m;
 
@@ -464,14 +589,96 @@ public class PriceCalculationServiceTests : ServiceTestBase
         {
             Id = 1,
             Price = 18.90M,
-            ProductId = 1
+            ProductId = 1,
+            IsActive = true
         };
 
-        // TODO: (mh) (core) Now the product is merged and is never unmerged for the following tests. Learn to ISOLATE each test, this is SOUP!!!!
-        _product.MergeWithCombination(combination);
+        _priceCalculationContext.AttributeCombination = combination;
 
         var price = await _priceCalcService.CalculatePriceAsync(_priceCalculationContext);
+
         price.FinalPrice.Amount.ShouldEqual(18.90M);
+        _product.Price.ShouldEqual(12.34M);
+    }
+
+    [Test]
+    public async Task Can_calculate_multiple_product_prices()
+    {
+        var contexts = new[]
+        {
+            new PriceCalculationContext(_priceCalculationContext.Product, _priceCalculationContext.Options)
+            {
+                AttributeCombination = new ProductVariantAttributeCombination
+                {
+                    Price = 18.90M,
+                    IsActive = true
+                }
+            },
+            new PriceCalculationContext(_priceCalculationContext.Product, _priceCalculationContext.Options)
+            {
+                AttributeCombination = new ProductVariantAttributeCombination
+                {
+                    Price = 21.50M,
+                    IsActive = true
+                }
+            }
+        };
+
+        var prices = await _priceCalcService.CalculatePricesAsync(contexts, DbContext);
+
+        prices.Select(x => x.FinalPrice.Amount).ShouldSequenceEqual([18.90M, 21.50M]);
+        _product.Price.ShouldEqual(12.34M);
+    }
+
+    [Test]
+    public async Task Can_calculate_multiple_product_prices_with_linked_products()
+    {
+        var linkedProduct = new Product
+        {
+            Id = 2,
+            Name = "Linked product",
+            Price = 5M,
+            Published = true,
+            ProductType = ProductType.SimpleProduct
+        };
+        var attribute = new ProductVariantAttribute
+        {
+            Product = _product,
+            ProductAttribute = new ProductAttribute { Name = "Linked product" },
+            AttributeControlType = AttributeControlType.DropdownList
+        };
+        var attributeValue = new ProductVariantAttributeValue
+        {
+            ProductVariantAttribute = attribute,
+            Name = "Linked product",
+            ValueType = ProductVariantAttributeValueType.ProductLinkage,
+            LinkedProductId = linkedProduct.Id,
+            Quantity = 2
+        };
+        attribute.ProductVariantAttributeValues.Add(attributeValue);
+
+        DbContext.Products.AddRange(_product, linkedProduct);
+        DbContext.ProductVariantAttributes.Add(attribute);
+        await DbContext.SaveChangesAsync();
+
+        var selection = new ProductVariantAttributeSelection(null);
+        selection.AddAttributeValue(attribute.Id, attributeValue.Id);
+        _priceCalculationContext.AddSelectedAttributes(selection, _product.Id);
+
+        var expectedPrice = new CalculatedPrice(_product);
+        var priceCalculationService = new Mock<IPriceCalculationService>();
+        priceCalculationService
+            .Setup(x => x.CalculatePriceAsync(_priceCalculationContext))
+            .ReturnsAsync(expectedPrice);
+
+        var prices = await priceCalculationService.Object.CalculatePricesAsync([_priceCalculationContext], DbContext);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(prices[0], Is.SameAs(expectedPrice));
+            Assert.That(_priceCalculationContext.LinkedProducts, Contains.Key(linkedProduct.Id));
+            Assert.That(_priceCalculationContext.LinkedProducts[linkedProduct.Id].Price, Is.EqualTo(linkedProduct.Price));
+        }
     }
 
     [Test]
@@ -530,14 +737,14 @@ public class PriceCalculationServiceTests : ServiceTestBase
     }
 
     [Test]
-    public async Task Ensure_discount_is_not_applied_to_products_with_prices_entered_by_customer()
+    public async Task Discount_is_not_applied_to_customer_priced_products()
     {
         _priceCalculationContext.Options.IgnoreDiscounts = false;
         _priceCalculationContext.Options.DiscountValidationFlags = DiscountValidationFlags.None;
 
         _product.CustomerEntersPrice = true;
 
-        var discount1 = new Discount()
+        var discount1 = new Discount
         {
             Id = 1,
             Name = "Discount 1",

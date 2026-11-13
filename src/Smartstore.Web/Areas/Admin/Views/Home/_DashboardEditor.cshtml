@@ -1,0 +1,132 @@
+@using Smartstore.Admin.Models.Dashboard
+@using Smartstore.Core.Widgets.Dashboard
+
+@model DashboardEditorModel
+
+@{
+    var dashboardKey = "Admin.Dashboard.";
+    var editorKey = dashboardKey + "Editor.";
+}
+
+@if (Model.IsEditing)
+{
+    <script id="dashboard-editor-data" type="application/json">@Html.Raw(Model.EditorJson)</script>
+
+    <link rel="stylesheet" href="~/bundle/css/dashboard-editor.css" sm-target-zone="stylesheets" sm-key="dashboard-editor" />
+    <script src="~/admin/js/smartstore.dashboard.editor.js" asp-append-version="true" sm-target-zone="scripts" sm-key="dashboard-editor"></script>
+
+}
+
+<div class="section-header">
+    <div class="title">
+        <icon name="home" class="d-flex" />
+        @T(dashboardKey + "StoreStatistics")
+    </div>
+    <div class="options">
+        @if (Model.IsEditing)
+        {
+            var presentWidgets = Model.State.Layout.Widgets.Select(x => x.WidgetSystemName).ToHashSet(StringComparer.Ordinal);
+            var resetLabel = T(editorKey + (Model.State.Layer == DashboardLayoutLayer.User ? "ResetPersonal" : "ResetGlobal")).Value;
+
+            <form id="dashboard-draft-form" asp-area="Admin" asp-controller="Home" asp-action="DashboardSave" method="post" class="mb-0">
+                <input type="hidden" name="layer" value="@Model.State.Layer" />
+                <input type="hidden" name="changesJson" />
+                <input type="hidden" name="reset" value="false" />
+                <input type="hidden" name="command" />
+                <input type="hidden" name="widgetSystemName" />
+                <div class="hstack gap-2 text-nowrap" role="toolbar" aria-label="@T(editorKey + "Customize")">
+                    <div class="dropdown">
+                        <button id="dashboard-picker-toggle"
+                                type="button"
+                                class="btn btn-light dropdown-toggle"
+                                data-toggle="dropdown"
+                                aria-haspopup="true"
+                                aria-expanded="false"
+                                aria-controls="dashboard-picker">
+                            <icon name="plus" />
+                            <span>@T(editorKey + "Widgets")</span>
+                        </button>
+                        <div id="dashboard-picker" class="dropdown-menu dropdown-menu-right" aria-labelledby="dashboard-picker-toggle">
+                            @foreach (var group in Model.WidgetGroups)
+                            {
+                                if (group.MenuId.HasValue())
+                                {
+                                    <div class="dropdown-group">
+                                        <button type="button" class="dropdown-item" aria-haspopup="true" aria-expanded="false" aria-controls="@group.MenuId">
+                                            <icon name="widgets" />
+                                            <span>@group.Title</span>
+                                        </button>
+                                        <div id="@group.MenuId" class="dropdown-menu">
+                                            @foreach (var widget in group.Widgets)
+                                            {
+                                                var present = !widget.AllowMultipleInstances && presentWidgets.Contains(widget.SystemName);
+
+                                                <button type="button" class="dropdown-item" data-add-widget="@widget.SystemName" disabled="@present">
+                                                    <icon name="@(widget.IconName ?? "widgets")" />
+                                                    <span>@widget.Title.Resolve(T)</span>
+                                                </button>
+                                            }
+                                        </div>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <h6 class="dropdown-header">@group.Title</h6>
+                                    @foreach (var widget in group.Widgets)
+                                    {
+                                        var present = !widget.AllowMultipleInstances && presentWidgets.Contains(widget.SystemName);
+
+                                        <button type="button" class="dropdown-item" data-add-widget="@widget.SystemName" disabled="@present">
+                                            <icon name="@(widget.IconName ?? "widgets")" />
+                                            <span>@widget.Title.Resolve(T)</span>
+                                        </button>
+                                    }
+                                }
+                            }
+                        </div>
+                    </div>
+                    <div class="btn-group" role="group">
+                        <button type="button" class="btn btn-light" id="dashboard-undo" title="@T(editorKey + "Undo")" aria-label="@T(editorKey + "Undo")" disabled>
+                            <icon name="undo" />
+                        </button>
+                        <button type="button" class="btn btn-light" id="dashboard-redo" title="@T(editorKey + "Redo")" aria-label="@T(editorKey + "Redo")" disabled>
+                            <icon name="redo" />
+                        </button>
+                    </div>
+                    <button type="button" class="btn btn-light btn-destructive" id="dashboard-reset" title="@resetLabel" aria-label="@resetLabel">
+                        <icon name="hi:eraser!" />
+                    </button>
+                    <button type="button" class="btn btn-light" id="dashboard-cancel">@T(Model.IsDirty ? "Common.Cancel" : "Common.Back")</button>
+                    <div sm-if="Model.CanManageGlobal" class="dropdown">
+                        <button type="button" class="btn btn-light dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" aria-label="@T(editorKey + "View"): @T(editorKey + "Dashboard." + Model.State.Layer)">
+                            @T(editorKey + "Dashboard." + Model.State.Layer)
+                        </button>
+                        <div class="dropdown-menu dropdown-menu-right">
+                            <button sm-if="Model.CanPersonalize" type="button" class="dropdown-item" attr-class='(Model.State.Layer == DashboardLayoutLayer.User, "active")' data-dashboard-edit="@DashboardLayoutLayer.User">
+                                @T(editorKey + "Dashboard." + DashboardLayoutLayer.User)
+                            </button>
+                            <button type="button" class="dropdown-item" attr-class='(Model.State.Layer == DashboardLayoutLayer.Global, "active")' data-dashboard-edit="@DashboardLayoutLayer.Global">
+                                @T(editorKey + "Dashboard." + DashboardLayoutLayer.Global)
+                            </button>
+                        </div>
+                    </div>
+                    <button type="submit" name="save" class="btn btn-primary" disabled="@(!Model.IsDirty)">
+                        <icon name="check" />
+                        <span>@T("Admin.Common.Save")</span>
+                    </button>
+                </div>
+            </form>
+        }
+        else if (Model.CanPersonalize || Model.CanManageGlobal)
+        {
+            <a asp-action="Index"
+               asp-controller="Home"
+               asp-area="Admin"
+               asp-route-edit="true"
+               class="btn btn-light btn-customize-dashboard">
+                <icon name="dashboard-circle-settings" stroke-scale="0.75" />
+                <span>@T(dashboardKey + "Customize")</span>
+            </a>
+        }
+    </div>
+</div>

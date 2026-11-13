@@ -32,33 +32,22 @@
             var itemText = node.GetItemText(T);
             var itemUrl = GetNodeLink(node);
 
-            if (ViewBag.SelectedMenuItem == itemText)
-            {
-                //item.Selected = true;
-            }
-
-        <li data-id="nav-@item.Id" class="nav-item@(node.HasChildren ? " dropdown" : "")@(item.Id == "dashboard" ? " dropdown d-none d-md-block" : "")">
-            <a class="nav-link@(node.HasChildren ? " dropdown-toggle" : "")" href="@itemUrl" attr-data-toggle='(node.HasChildren, "dropdown")'>
+        <li data-id="nav-@item.Id" class="nav-item@(node.HasChildren ? " dropdown" : "")">
+            <a class="nav-link@(node.HasChildren ? " dropdown-toggle" : "")" href="@itemUrl" title="@itemText" aria-label="@itemText" attr-aria-haspopup='(node.HasChildren, "true")' attr-aria-expanded='(node.HasChildren, "false")' attr-data-toggle='(node.HasChildren, "dropdown")'>
                 @if (item.Icon.HasValue())
                 {
-                    if (item.IconLibrary == "bi")
-                    {
-                        <bootstrap-icon name="@item.Icon" class="navbar-icon" attr-class='@(item.IconClass.HasValue(), item.IconClass)' />
-                    }
-                    else
-                    {
-                        <i class="@item.Icon navbar-icon" attr-class='@(item.IconClass.HasValue(), item.IconClass)'></i>
-                    }
+                    <icon name="@item.Icon" class="navbar-icon" attr-class='@(item.IconClass.HasValue(), item.IconClass)' />
                 }
                 else
                 {
-                    <img class="sm-icon" src="@Url.Content(imageUrl)" alt="" />
+                    <img class="icon" src="@Url.Content(imageUrl)" alt="" />
                 }
-                <span class="navbar-label d-none d-lg-block">@itemText</span>
+                <span class="navbar-label" aria-hidden="true">@itemText</span>
             </a>
             @if (node.HasChildren)
             {
-                await CreateDropdown(node.Children, true);
+                await CreateDropdown(node.Children);
+                <span class="sidebar-menu-arrow" aria-hidden="true"></span>
             }
         </li>
         }
@@ -76,12 +65,12 @@
         return node.Value.GenerateUrl(this.ViewContext);
     }
 
-    async Task CreateDropdown(IEnumerable<TreeNode<MenuItem>> nodes, bool isRoot)
+    async Task CreateDropdown(IEnumerable<TreeNode<MenuItem>> nodes)
     {
         var isFirst = true;
         var hasIcons = nodes.Any(x => x.Value.Icon.HasValue());
 
-        <ul class="dropdown-menu">
+        <ul class="dropdown-menu dropdown-menu-light-icons">
             @foreach (var node in nodes)
             {
                 var item = node.Value;
@@ -102,30 +91,23 @@
                 }
 
                 <li data-id="@item.Id" attr-class='(node.HasChildren, "dropdown-group")'>
-                    <a class="dropdown-item" href="@GetNodeLink(node)">
+                    <a class="dropdown-item" href="@GetNodeLink(node)" attrs="item.LinkHtmlAttributes">
                         @if (hasIcons)
                         {
                             if (item.Icon.HasValue())
                             {
-                                if (item.IconLibrary == "bi")
-                                {
-                                    <bootstrap-icon name="@item.Icon" class="dropdown-icon bi-fw" attr-class='@(item.IconClass.HasValue(), item.IconClass)' />
-                                }
-                                else
-                                {
-                                    <i class="@item.Icon" attr-class='@(item.IconClass.HasValue(), item.IconClass)'></i>
-                                }
+                                <icon name="@item.Icon" class="dropdown-icon icon-fw" attr-class='@(item.IconClass.HasValue(), item.IconClass)' />
                             }
                             else
                             {
-                                <i class="bi bi-fw"></i>
+                                <span class="icon icon-fw" aria-hidden="true"></span>
                             }
                         }
                         @itemText
                     </a>
                     @if (node.HasChildren)
                     {
-                        await CreateDropdown(node.Children, false);
+                        await CreateDropdown(node.Children);
                     }
                 </li>
 

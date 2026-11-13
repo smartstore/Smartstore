@@ -11,13 +11,13 @@
     <div class="section-header">
         <div class="title">
             <a sm-backto asp-action="Providers"></a>
-            <img src="@Url.Content(Model.IconUrl)" alt="@Model.FriendlyName" />
+            <module-icon model="Model.Icon" alt="@Model.FriendlyName" />
             <span>@ViewBag.Title</span>
         </div>
         <div class="options">
             <zone name="admin_button_toolbar_before"></zone>
-            <button type="submit" name="save" value="save" class="btn btn-warning">
-                <i class="fa fa-check"></i>
+            <button type="submit" name="save" value="save" class="btn btn-primary">
+                <icon name="check" />
                 <span>@T("Admin.Common.Save")</span>
             </button>
             <button type="submit" name="save" value="save-continue" class="btn btn-secondary">

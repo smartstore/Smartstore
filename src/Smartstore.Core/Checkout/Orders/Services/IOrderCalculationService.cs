@@ -18,6 +18,17 @@ public partial interface IOrderCalculationService
     /// Gets the shopping cart total.
     /// </summary>
     /// <param name="cart">Shopping cart.</param>
+    /// <param name="options">Calculation options.</param>
+    /// <returns>Shopping cart total.</returns>
+    Task<ShoppingCartTotal> GetShoppingCartTotalAsync(
+        ShoppingCart cart,
+        ShoppingCartTotalOptions options,
+        ProductBatchContext batchContext = null);
+
+    /// <summary>
+    /// Gets the shopping cart total.
+    /// </summary>
+    /// <param name="cart">Shopping cart.</param>
     /// <param name="includeRewardPoints">A value indicating whether to include reward points.</param>
     /// <param name="includePaymentFee">A value indicating whether to include payment additional fee of the selected payment method.</param>
     /// <param name="includeCreditBalance">A value indicating whether to include credit balance.</param>
@@ -26,8 +37,9 @@ public partial interface IOrderCalculationService
     /// If <c>null</c> (default), will be obtained via <see cref="IWorkContext.TaxDisplayType"/>.
     /// </param>
     /// <param name="batchContext">The product batch context used to load all cart products in one go. Will be created internally if <c>null</c>.</param>
-    /// <param name="cache">A value indicating whether to cache the result.</param>
+    /// <param name="cache">A value indicating whether to cache the result during the current request.</param>
     /// <returns>Shopping cart total.</returns>
+    [Obsolete("Use the overload accepting ShoppingCartTotalOptions instead.")]
     Task<ShoppingCartTotal> GetShoppingCartTotalAsync(
         ShoppingCart cart,
         bool includeRewardPoints = true,
@@ -161,3 +173,41 @@ public partial interface IOrderCalculationService
     /// <returns>Converted points.</returns>
     int ConvertAmountToRewardPoints(Money amount);
 }
+
+/// <summary>
+/// Provides options for calculating the total of a shopping cart.
+/// </summary>
+public sealed class ShoppingCartTotalOptions
+{
+    /// <summary>
+    /// Gets the default shopping cart total options.
+    /// </summary>
+    public static ShoppingCartTotalOptions Default { get; } = new();
+
+    /// <summary>
+    /// Gets or sets a value indicating whether reward points should be applied to the total.
+    /// </summary>
+    public bool ApplyRewardPoints { get; init; } = true;
+
+    /// <summary>
+    /// Gets or sets a value indicating whether the payment fee of the selected payment method should be included.
+    /// </summary>
+    public bool IncludePaymentFee { get; init; } = true;
+
+    /// <summary>
+    /// Gets or sets a value indicating whether the customer's credit balance should be applied to the total.
+    /// </summary>
+    public bool ApplyCreditBalance { get; init; } = true;
+
+    /// <summary>
+    /// Gets or sets a value indicating whether calculated prices should include tax.
+    /// If <c>null</c>, the value is obtained from the current work context.
+    /// </summary>
+    public bool? IncludeTax { get; init; }
+
+    /// <summary>
+    /// Gets or sets a value indicating whether to use the request cache.
+    /// </summary>
+    public bool UseRequestCache { get; init; } = true;
+}
+

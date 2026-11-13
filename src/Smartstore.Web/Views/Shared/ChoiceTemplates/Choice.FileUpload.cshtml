@@ -1,16 +1,13 @@
-﻿@using Smartstore.Core.Web;
-@using Smartstore.Utilities;
+﻿@using Smartstore.Utilities;
 
 @model ChoiceModel
 
-@inject IWebHelper WebHelper
-
 @{
-    var storeUrl = WebHelper.GetStoreLocation();
     var controlId = Model.BuildControlId();
     var clientId = "upload" + CommonHelper.GenerateRandomInteger();
     var containerId = clientId + "container";
     var allowedFileExtensions = string.Join("|", Model.AllowedFileExtensions.Select(x => x.Trim()).ToList());
+    var downloadUrl = Url.Action("GetFileUpload", "Download");
     Model.CustomProperties.TryGetValue("UploadedFileInfo", out var file);
 }
 
@@ -51,35 +48,45 @@
 </div>
 
 <script data-origin="choice-template">
-    window['onFileUploaded@(clientId)'] = function (file, result, progress) {
-        if (result.success && result.downloadGuid) {
-            setUploadedFile(result.downloadGuid, file.name, "@(containerId)");
-            displayNotification(result.message, "success");
+    (function () {
+        window['onFileUploaded@(clientId)'] = function (file, result, progress) {
+            if (result.success && result.downloadGuid) {
+                setUploadedFile(result.downloadGuid, file.name);
+                displayNotification(result.message, "success");
+            }
+        };
+
+        window['onFileRemoved@(clientId)'] = function (e, el) {
+            $('#@containerId .hidden').val('');
+        };
+
+        function setUploadedFile(downloadGuid, fileName) {
+            if (!_.isEmpty(downloadGuid) && downloadGuid !== '0') {
+                const container = $('#@containerId');
+                const downloadLink = $('<a class="fileuploadattribute" rel="nofollow" download></a>')
+                    .attr({
+                        href: '@(downloadUrl)?downloadId=' + encodeURIComponent(downloadGuid),
+                        title: @T("Common.Download").JsValue,
+                        'aria-label': @T("Common.Download").JsValue + ': ' + fileName
+                    })
+                    .on('click', (e) => { e.stopPropagation(); })
+                    .append($('<sm-icon name="download" class="mr-1" aria-hidden="true"></sm-icon>'))
+                    .append(document.createTextNode(fileName));
+
+                container.find('.hidden').val(downloadGuid);
+                container.find('.fu-message').empty().append(downloadLink);
+            }
         }
-	};
 
-    window['onFileRemoved@(clientId)'] = function (e, el) {
-        $('#@containerId .hidden').val('');
-    }
-
-    function setUploadedFile(downloadGuid, fileName, containerId) {
-        if (!_.isEmpty(downloadGuid) && downloadGuid !== '0') {
-            $('#' + containerId + ' .hidden').val(downloadGuid);
-
-        	var downloadLink = "@storeUrl" + "download/getfileupload/?downloadId=" + downloadGuid;
-        	var fileLink = '<a href="' + downloadLink + '" class="fileuploadattribute" rel="nofollow">' + fileName + '</a>';
-
-            $('#' + containerId + ' .fu-message').html(fileLink);
+        @if (file != null)
+        {
+            <text>
+                $(function () {
+                    const fuContainer = $("#@containerId").find(".fu-container");
+                    displaySingleFilePreview(JSON.parse('@Html.Raw(file)'), fuContainer, { downloadEnabled: true });
+                    setUploadedFile(@Json.Serialize(Model.UploadedFileGuid), @Json.Serialize(Model.UploadedFileName));
+                });
+            </text>
         }
-    }
-
-    @if(file != null)
-    {
-        <text>
-            $(function () {
-                var fuContainer = $("#@containerId").find(".fu-container");
-                displaySingleFilePreview(JSON.parse('@Html.Raw(file)'), fuContainer, { downloadEnabled: true });
-            });
-        </text>
-    }
+    })();
 </script>

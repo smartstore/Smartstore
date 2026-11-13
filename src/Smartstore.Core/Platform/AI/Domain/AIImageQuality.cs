@@ -8,8 +8,8 @@ namespace Smartstore.Core.AI;
 /// <summary>
 /// Represents a quality level for AI-generated images.
 /// </summary>
-/// <remarks>This is a string-backed value type with predefined quality levels including Auto, Low, Medium, and
-/// High. Supports implicit conversions to and from string values.</remarks>
+/// <remarks>This is a string-backed value type with predefined quality levels including Auto, Low, Medium, High,
+/// XHigh, and Max. Supports implicit conversions to and from string values.</remarks>
 [TypeConverter(typeof(StringBackedTypeConverter<AIImageQuality>))]
 public readonly partial struct AIImageQuality : IStringBacked<AIImageQuality>, IEquatable<AIImageQuality>
 {
@@ -43,9 +43,19 @@ public readonly partial struct AIImageQuality : IStringBacked<AIImageQuality>, I
     public static readonly AIImageQuality High = new("high");
 
     /// <summary>
+    /// Represents extra-high quality for AI image generation.
+    /// </summary>
+    public static readonly AIImageQuality XHigh = new("xhigh");
+
+    /// <summary>
+    /// Represents maximum quality for AI image generation.
+    /// </summary>
+    public static readonly AIImageQuality Max = new("max");
+
+    /// <summary>
     /// Represents a collection of all supported image qualities.
     /// </summary>
-    public static readonly AIImageQuality[] All = [Auto, Low, Medium, High];
+    public static readonly AIImageQuality[] All = [Auto, Low, Medium, High, XHigh, Max];
 
     public static implicit operator string?(AIImageQuality obj)
         => obj._value;
@@ -62,6 +72,8 @@ public readonly partial struct AIImageQuality : IStringBacked<AIImageQuality>, I
             "low" => Low,
             "medium" => Medium,
             "high" => High,
+            "xhigh" => XHigh,
+            "max" => Max,
             _ => throw new InvalidCastException($"Unknown image quality '{value}'."),
         };
     }

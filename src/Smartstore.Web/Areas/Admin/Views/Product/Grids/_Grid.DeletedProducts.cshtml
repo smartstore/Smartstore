@@ -15,8 +15,8 @@
     <sorting allow-unsort="true" allow-multisort="false"></sorting>
     <toolbar>
         <toolbar-group>
-            <button datagrid-action="DataGridToolAction.ToggleSearchPanel" type="button" class="btn btn-light btn-icon">
-                <i class="fa fa-fw fa-filter"></i>
+            <button datagrid-action="DataGridToolAction.ToggleSearchPanel" type="button" class="btn btn-plain btn-icon">
+                <icon name="filter" />
             </button>
         </toolbar-group>
         <zone name="datagrid_toolbar_alpha"></zone>
@@ -24,11 +24,11 @@
         <zone name="datagrid_toolbar_omega"></zone>
         <toolbar-group>
             <button datagrid-action="DataGridToolAction.ReactToSelection" type="button" class="btn btn-secondary btn-flat grid-command grid-restore-selected">
-                <i class="fa fa-repeat"></i>
+                <icon name="rotate-right" flip-h="true" />
                 <span>@T("Common.Restore")</span>
             </button>
             <button datagrid-action="DataGridToolAction.ReactToSelection" type="button" class="btn btn-danger no-anims btn-flat grid-command grid-delete-selected">
-                <i class="far fa-trash-can"></i>
+                <icon name="trash" />
                 <span>@T("Common.DeletePermanent")</span>
             </button>
         </toolbar-group>

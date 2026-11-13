@@ -121,7 +121,7 @@ csharp_preferred_modifier_order 				= public,private,protected,internal,static,e
 # Code-block preferences
 csharp_prefer_braces 						= true
 csharp_prefer_simple_using_statement 				= true
-csharp_style_namespace_declarations 				= block_scoped
+csharp_style_namespace_declarations = file_scoped:warning
 
 # Expression-level preferences
 csharp_prefer_simple_default_expression 			= true
@@ -240,4 +240,4 @@ dotnet_diagnostic.IDE0305.severity = none
 dotnet_diagnostic.IDE0130.severity = none
 dotnet_diagnostic.CA1510.severity = none
 
-csharp_style_namespace_declarations = file_scoped:warning
+

@@ -1,0 +1,225 @@
+{
+  "color": {
+    "name": "Farbe",
+    "options":  {
+      "white": {
+        "name": "Weiß"
+      },
+      "black": {
+        "name": "Schwarz"
+      }
+    }
+  },
+  "material": {
+    "options":  {
+      "aluminium": {
+        "name": "Aluminium"
+      },
+      "leather": {
+        "name": "Leder"
+      },
+      "100-organic-cotton": {
+        "name": "100% Bio-Baumwolle"
+      },
+      "polyamide": {
+        "name": "Polyamid"
+      },
+      "wood": {
+        "name": "Holz"
+      },
+      "wool": {
+        "name": "Wolle"
+      },
+      "merino-wool": {
+        "name": "Merinowolle"
+      }
+    }
+  },
+  "language": {
+    "name": "Sprache",
+    "options":  {
+      "english": {
+        "name": "Englisch"
+      }
+    }
+  },
+  "category": {
+    "name": "Genre",
+    "options":  {
+      "novel": {
+        "name": "Roman"
+      }
+    }
+  },
+  "origin": {
+    "name": "Herkunft",
+    "options":  {
+      "italy": { "name": "Italien" },
+      "spain": { "name": "Spanien" },
+      "colombia": { "name": "Kolumbien" },
+      "ethiopia": { "name": "Äthiopien" }
+    }
+  },
+  "roast": {
+    "name": "Röstung",
+    "options":  {
+      "light": { "name": "Hell" },
+      "medium": { "name": "Mittel" }
+    }
+  },
+  "dietary": {
+    "name": "Ernährung",
+    "options":  {
+      "vegan": { "name": "Vegan" },
+      "gluten-free": { "name": "Glutenfrei" },
+      "organic": { "name": "Bio" }
+    }
+  },
+  "bean": {
+    "name": "Bohne",
+    "options":  {
+      "arabica": { "name": "100 % Arabica" }
+    }
+  },
+  "intensity": {
+    "name": "Intensität",
+    "options":  {
+      "mild": { "name": "Mild" },
+      "strong": { "name": "Kräftig" }
+    }
+  },
+  "coffee-type": {
+    "name": "Kaffeeart",
+    "options":  {
+      "filter": { "name": "Filterkaffee" },
+      "rarity": { "name": "Rarität" }
+    }
+  },
+  "decaffeinated": {
+    "name": "Entkoffeiniert",
+    "options":  {
+      "no": { "name": "Nein" }
+    }
+  },
+  "olive-variety": {
+    "name": "Olivensorte"
+  },
+  "flavour": {
+    "name": "Geschmack",
+    "options":  {
+      "fruity": { "name": "Fruchtig" },
+      "savoury": { "name": "Würzig-herzhaft" },
+      "sweet": { "name": "Süß" },
+      "spicy": { "name": "Gewürzt" }
+    }
+  },
+  "occasion": {
+    "name": "Anlass",
+    "options":  {
+      "gift": { "name": "Geschenk" },
+      "christmas": { "name": "Weihnachten" }
+    }
+  },
+  "hardness": {
+    "name": "Härte",
+    "options":  {
+      "medium": { "name": "Mittel" }
+    }
+  },
+  "layers": {
+    "name": "Schichten",
+    "options":  {
+      "3-piece": { "name": "3-teilig" }
+    }
+  },
+  "level": {
+    "name": "Spielstärke",
+    "options":  {
+      "beginner": { "name": "Einsteiger" },
+      "advanced": { "name": "Fortgeschritten" }
+    }
+  },
+  "target-group": {
+    "name": "Zielgruppe",
+    "options":  {
+      "men": { "name": "Herren" },
+      "women": { "name": "Damen" },
+      "unisex": { "name": "Unisex" }
+    }
+  },
+  "tee-length": {
+    "name": "Tee-Länge"
+  },
+  "measuring-range": {
+    "name": "Messbereich",
+    "options":  {
+      "600m": { "name": "bis 600 m" }
+    }
+  },
+  "slope-function": {
+    "name": "Neigungsfunktion",
+    "options":  {
+      "yes": { "name": "Ja" }
+    }
+  },
+  "bag-type": {
+    "name": "Taschenart",
+    "options":  {
+      "stand-bag": { "name": "Standbag" }
+    }
+  },
+  "fit": {
+    "name": "Passform",
+    "options":  {
+      "regular": { "name": "Normal" },
+      "oversized": { "name": "Weit" }
+    }
+  },
+  "season": {
+    "name": "Saison",
+    "options":  {
+      "autumn-winter": { "name": "Herbst/Winter" },
+      "all-year": { "name": "Ganzjährig" }
+    }
+  },
+  "care": {
+    "name": "Pflege",
+    "options":  {
+      "machine-30": { "name": "Maschinenwäsche 30 °C" },
+      "machine-40": { "name": "Maschinenwäsche 40 °C" },
+      "hand-wash": { "name": "Handwäsche" }
+    }
+  },
+  "water-resistance": {
+    "name": "Wetterschutz",
+    "options":  {
+      "waterproof": { "name": "Wasserdicht" }
+    }
+  },
+  "style": {
+    "name": "Stil",
+    "options":  {
+      "scandinavian": { "name": "Skandinavisch" },
+      "modern": { "name": "Modern" }
+    }
+  },
+  "assembly": {
+    "name": "Montage",
+    "options":  {
+      "assembled": { "name": "Fertig montiert" },
+      "easy": { "name": "Einfacher Selbstaufbau" }
+    }
+  },
+  "dimmable": {
+    "name": "Dimmbar",
+    "options":  {
+      "yes": { "name": "Ja" }
+    }
+  },
+  "file-format": {
+    "name": "Dateiformat"
+  },
+  "platform": {
+    "name": "Plattform"
+  }
+}

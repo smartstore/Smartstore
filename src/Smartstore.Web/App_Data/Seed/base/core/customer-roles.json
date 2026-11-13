@@ -1,0 +1,27 @@
+// Key field: systemName
+[
+  {
+    "name": "Administrators",
+    "active": true,
+    "isSystemRole": true,
+    "systemName": "Administrators"
+  },
+  {
+    "name": "Forum Moderators",
+    "active": true,
+    "isSystemRole": true,
+    "systemName": "ForumModerators"
+  },
+  {
+    "name": "Registered",
+    "active": true,
+    "isSystemRole": true,
+    "systemName": "Registered"
+  },
+  {
+    "name": "Guests",
+    "active": true,
+    "isSystemRole": true,
+    "systemName": "Guests"
+  }
+]

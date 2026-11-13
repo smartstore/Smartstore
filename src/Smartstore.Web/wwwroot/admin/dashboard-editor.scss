@@ -1,0 +1,104 @@
+@import "../lib/bootstrap/scss/functions";
+@import "../shared/functions";
+@import "../shared/variables-shared-bootstrap";
+@import "variables";
+@import "../lib/bootstrap/scss/variables";
+
+$dashboard-resize-handle-size: 10px;
+
+.dashboard-widget-overlay,
+.dashboard-resize {
+    touch-action: none;
+}
+
+.dashboard-widget-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    border-radius: var(--border-radius-lg);
+    cursor: move;
+}
+
+.dashboard-widget:hover,
+.dashboard-interacting {
+    .dashboard-widget-overlay {
+        background: rgba($black, .12);
+    }
+}
+
+.dashboard-resize {
+    position: absolute;
+    z-index: 2;
+    border: 0;
+    background: transparent;
+    padding: 0;
+
+    &[data-dashboard-resize="width"],
+    &[data-dashboard-resize="width-start"] {
+        top: 0;
+        height: 100%;
+        width: $dashboard-resize-handle-size;
+        cursor: ew-resize;
+    }
+
+    &[data-dashboard-resize="height"],
+    &[data-dashboard-resize="height-start"] {
+        left: 0;
+        width: 100%;
+        height: $dashboard-resize-handle-size;
+        cursor: ns-resize;
+    }
+
+    &[data-dashboard-resize="width-start"] { left: 0; }
+    &[data-dashboard-resize="width"] { right: 0; }
+    &[data-dashboard-resize="height"] { bottom: 0; }
+    &[data-dashboard-resize="height-start"] { top: 0; }
+}
+
+.dashboard-dragging:not(.dashboard-moving) .dashboard-interacting {
+    outline: ($border-width * 2) dashed var(--primary);
+}
+
+.dashboard-widget-configurable {
+    perspective: 1200px;
+}
+.dashboard-widget-configurable > .dashboard-widget-body,
+.dashboard-widget-config {
+    backface-visibility: hidden;
+    transition: transform .3s ease;
+}
+.dashboard-widget-config {
+    transform: rotateY(180deg);
+}
+.dashboard-configuring > .dashboard-widget-body {
+    transform: rotateY(-180deg);
+}
+.dashboard-configuring > .dashboard-widget-config {
+    transform: rotateY(0);
+}
+@media (prefers-reduced-motion: reduce) {
+    .dashboard-widget-configurable > .dashboard-widget-body,
+    .dashboard-widget-config {
+        transition: none;
+    }
+}
+
+// These cells follow the native grid and only give empty editor targets a usable height.
+.dashboard-grid-cell {
+    min-width: 0;
+    min-height: 4rem;
+    border: $border-width dashed var(--gray-400);
+}
+
+.dashboard-moving .dashboard-grid-cell {
+    visibility: hidden;
+}
+
+.dashboard-grid-preview {
+    background: rgba($primary, .12);
+}
+
+// Pointer capture must not let hovered controls replace the active drag cursor.
+.dashboard-dragging * {
+    cursor: inherit !important;
+}

@@ -1,31 +1,124 @@
 # Release Notes
 
-## Smartstore 6.5.0
+## Smartstore 7.0.0
+
+### Breaking Changes
+
+- (DEV) Removed the obsolete `win-x86` build target.
+- (DEV) Removed Font Awesome from the storefront and administration in favor of the new IconKit system. The Fontastic icon font, its `.icm` / `.icm-*` CSS classes and the `<bootstrap-icon>` TagHelper have also been removed. Migrate affected themes, modules and views to IconKit.
+- (DEV) Custom bundling configuration must use `EnableCssTranspilation` instead of `EnableAutoprefixer` and `CssTranspiler:Targets` (a Browserslist query string) instead of `Autoprefixer:Browsers`. The old Autoprefixer-specific switches have been removed.
+- (DEV) `Category.BadgeStyle` changed from `int` to a nullable `string` containing a badge expression. The `BadgeStyle` enum was removed; badge APIs now accept strings. Existing values are migrated on SQL Server, PostgreSQL and MySQL. SQLite upgrades are not supported for this schema change; recreate SQLite test databases.
 
 ### New Features
 
+- **Theming**
+  - Added six new Flex themes:
+    - **Sorbet:** Warm porcelain, aubergine and botanical accents with serif headings.
+    - **Tidal:** Atlantic blue, coral accents and crisp white surfaces.
+    - **Afterglow:** A dark graphite theme with mint, orchid and apricot accents.
+    - **Lumen:** Bright white with iris-blue, lavender and petrol accents.
+    - **Riso:** Risograph-inspired cobalt, fluorescent pink and sunflower yellow on white, with DIN-style headings.
+    - **Porcelain:** White and soft gray surfaces, graphite typography and precise blue accents with a compact, light header.
+  - **Badge styling:** Added a compact editor with live previews and configurable Subtle, Outline, Ring and Pill modifiers for category and promotional badges.
+  - `.scroll-fade`: reusable responsive edge fades for horizontal and vertical scroll containers.
+- **Administration:** A new collapsible sidebar gives the administration area a modern, uncluttered layout with easy access to its main sections.
+- **Category icons:** Added support for assigning icons to categories, with customizable colors, rotation, mirroring and animations. Icons are displayed in the sidebar category navigation, main-menu dropdowns, MegaMenu, mobile menu and admin category tree.
+- **Media gallery:** Replaced PhotoSwipe with the new Smartstore *Lightbox* for viewing images and videos. A horizontal thumbnail strip lets shoppers jump directly to any image or video, including on mobile devices. Zoom, fullscreen viewing, touch gestures and keyboard controls remain available, with support for right-to-left layouts.
+- **Channable** plugin (commercial)
+  - Channable product feed integration with file-based exports in CSV, XML, and JSON formats.
+- (DEV) Added `Smartstore.Packager.Cli` for scriptable packaging of modules and themes, including batch processing and automation-friendly exit codes.
+- (DEV) Added `linux-arm64` builds and lazy deployment support for native ARM64 tools.
+- Enhanced color and image swatches for attributes
+  - Added configurable swatch presentation settings for product and checkout attributes, including size, shape, aspect ratio, value labels, and optional display of price adjustments or final prices.
+  - Swatch values now support images and up to four colors per option.
+- **Withdrawal**: 
+  - #1552 Added an option that allows users to withdraw non-withdrawable items that have not yet been shipped.
+  - #1560 Added an option to block online withdrawal for certain B2B customer roles.
+  - #1594 Added an option that allows to show guests a link to the contact form if they don't have their order number.
+  - #1571 Returns can be filtered in the data grid by the date they were completed.
+  - #1571 The message templates of returns have been extended to provide shipping information (placeholder `ReturnCase.Shipping.xyz`).
+  - #1571 Display shipping and delivery dates in the withdrawal and returns grid and on the edit page, along with whether the associated order has been canceled.
+- #1032 Add an option to also offer Amazon Pay on the payment method page in checkout.
+- #1564 MegaSearch: Added a setting to determine the relevance of a search hit using the best matching field.
+- #1580 Allow checkout attributes to be conditionally displayed using cart rules.
+- #1551 Allow users to set an alias username in the *My Account* section.
+- Dimension Pricing plugin (commercial module)
+	- Calculates product and shipping prices based on customer-entered dimensions and weight.
+	- Supports formulas, packing rules, girth and volumetric limits, rate tiers and surcharges.
 - (DEV) Added an extensible admin dashboard widget infrastructure with responsive layouts.
 - **AI**
   - Added configurable **reasoning effort levels** for supported AI models across providers, including model-specific defaults and automatic persistence of user selections.
+- **PageBuilder**
+  - Added three new section dividers (SVG masks that can be selected per block):
+    - **Torn:** A torn paper edge with irregular notches.
+    - **Drip:** Hanging drops with a slight overhang.
+    - **Scallop:** A row of semicircular arcs.
 - #1530 If a product is subsequently added to an order, update all price input controls with the price of the selected attribute combination.
 - Automated tax and total calculations now ensure that gross and net prices, as well as line and order totals, update instantly when editing orders or order items.
 - Enforce `MaxDownloadFileSize` in `DownloadManager` via the global `appsettings.json` setting (default: 50 MB).
 - Added generic reverse-proxy-based bot detection support to improve bot/human classification in proxied setups.
 - Added a setting to control whether rules calculate prices inclusive or exclusive of tax.
+- Stripe: Added option to enable enforced wallet button on payment selection page (this enables e.g. Apply Pay on Windows).
+- #1566 Add essential specification attributes to the order message templates.
+- #1559 Add a filter for customer roles when exporting orders.
+- New **Rule Builder** rules:
+  - #1541 Add a cart rule to check whether discount code(s) have been applied.
+  - #1542 Add a cart rule to check whether gift card code(s) have been applied.
+- **Editable List:** Added an admin editor for adding, removing and reordering text entries.
+- (DEV) Added property-level `TypeConverterAttribute` support to `ConvertUtility` and `MiniMapper`.
 
 ### Improvements
 
+- **Catalog administration:** Streamlined the catalog settings and product editor with clearer grouping, labels and help texts, making options easier to find and understand.
+- **PageBuilder**:
+  - Redesigned the button configuration UI with compact controls, compatible style combinations and a live preview.
+  - Various UI refinements throughout the editor improve clarity, consistency and ease of use.
 - SSRF guard for media downloads.
-- Withdrawal: Case-insensitive email check.
+- **Withdrawal**: 
+  - Case-insensitive email check.
+  - Added the order as a liquid placeholder to the withdrawal message templates.
+  - Show all withdrawn items in the withdrawals info tab.
 - **GeoBlocker**: 
   - A whitelisted IP address was still blocked when its country was blocked, although IP addresses take precedence.
   - Literal IP addresses are matched directly instead of by regex, which makes large lists cheap.
-- (DEV) `Wildcard`: Matching is culture-invariant by default (override via `Wildcard.DefaultOptions`), number ranges no longer capture, and a match timeout can be passed for untrusted input.
-- Checkout: The updated total is displayed immediately when the shipping or payment method is changed.
 - **Theming**: 
+  - Refreshed **Black** with a refined palette, typography and controls while preserving its boxed layout.
+  - Refreshed **Blue** with a subtly shaded blue header, refined typography and softer controls.
+  - Main-menu icons now inherit the link color in all Flex themes, improving visibility on colored headers even without hovering.
+  - Restyled the **off-canvas cart footer** as a receipt with a torn-off edge, a flat primary action and ghost secondary actions. Light by default, adapts to dark backgrounds.
+  - Improved the **theme selector** with a responsive card grid, larger 4:3 previews and localized descriptions.
+  - **Engine:**
+    - Replaced `LibSass/SharpScss` with native embedded `Dart Sass`. In internal tests, Sass compilation was slightly faster than LibSass. The compiler starts on demand; a new theme setting can keep it in memory during active Sass editing for faster repeated compilations.
+    - Replaced CSS minification and the JavaScript-based `Autoprefixer` with native `Lightning CSS` for minification, optimization and browser-targeted transpilation. Internal tests showed substantially faster CSS minification and transpilation; the CSS pipeline no longer requires `ClearScript` or `JavaScriptEngineSwitcher`.
   - Made `.prose` font-size and line-height configurable.
   - Refined the appearance of media gallery slider dots on mobile devices.
+  - Removed the product offer background and padding on small screens to provide a cleaner, wider mobile layout.
   - New theme variable `$enable-alert-icons` (`false` by default).
+  - Modernized the **text expander** with background-independent fading, an accessible toggle and reliable resizing for dynamic content.
+  - Integrated responsive **scroll fades** into touch-friendly swatches and the **MegaMenu** navigation.
+  - Modernized **MegaMenu navigation** with native horizontal scrolling, edge-aware controls and safer navigation buttons.
+  - Refined **border radii** across frontend and backend components, including better spacing for rounded **Select2** options.
+  - Simplified the appearance and interaction of **Select2** single-select controls and dropdowns.
+  - Replaced the **Color Picker** with a new Smartstore component featuring a refreshed design and improved mouse, touch and keyboard controls.
+  - Added smoother, configurable **collapse transitions** and standard collapse behavior for backend subcontrol groups.
+  - Improved **keyboard shortcut styling** in dropdowns and buttons.
+  - Refined **swatch selection states** and the presentation of unavailable values.
+  - Improved the layout and controls of the **DataGrid configuration dropdown**.
+- **SEO**: 
+  - Product-gallery images now expose valid `src` attributes and use native lazy loading, improving crawler visibility.
+  - #1569 Include page index parameter in canonical URL generation.
+- Checkout: The updated total is displayed immediately when the shipping or payment method is changed.
+- #1555 Cart sorting: the required sub-product must always come directly AFTER the main product.
+- #1244 Required products are added to cart without respect for ACL, Store Restrictions or even asking if the product is published.
+- #1563 Added separate controls for tax and shipping-cost notices on product pages, product lists and product comparison.
+- Improved server-side JavaScript minification with `NUglify`, correct block-scoped const handling, and automatic bundle cache invalidation. Files that fail minification now retain their original content with file-specific diagnostics.
+- #1565 Added settings for timeout and batch size when deleting guest accounts.
+- #1554 Validate/normalize the product search request parameters (especially those for pagination).
+- #1599 Required "Question" field is bypassed by auto-filled default text in product ask question form.
+- #1549 Export: Load product tags (for the filter) asynchronously in product export profiles.
+- (DEV) Updated **Vue** from 2.6 to 3.5 and migrated the DataGrid and MediaManager integrations to the Vue 3 application API.
+- (DEV) `Wildcard`: Matching is culture-invariant by default (override via `Wildcard.DefaultOptions`), number ranges no longer capture, and a match timeout can be passed for untrusted input.
+- (DEV) Refactored shopping cart total calculation options into `ShoppingCartTotalOptions` and marked the legacy overload as obsolete.
 
 ### Bugfixes
 
@@ -41,9 +134,26 @@
   - Allow immediate withdrawal regardless of when the withdrawal period begins.
   - Fixed a `SecurityException` when a return case is saved.
   - Emails were not sent to customers.
+  - Include the receipt time in confirmation emails.
   - #1550 Clearly distinguish between the terms "withdrawal" and "return", and do not use "withdrawal" when referring to returns.
   - Fixed missing order number in JSON deserialization of `WithdrawalRequest`.
   - "Challenge" instead of "Forbid" for a customer who has already logged in but has not been authorized.
+  - A digital product cannot be withdrawn if the buyer is given direct access to it and expressly waives their right of withdrawal.
+  - Changes to name and email will not be saved when submitting the withdrawal edit page.
+  - A guest customer must not be able to overwrite the temporary request for another user's order.
+- Corrected an incorrect regular bundle price when bundle items are discounted.
+- **Wishlist**:
+  - #1562 Wish list shows the wrong price if the currency is not primary.
+  - When copying items from the wish list to the shopping cart, the required products must also be copied.
+- **Product Details**:
+  - Weight adjustments for preselected products attributes were not taken into account.
+  - The images of linked products displayed for variants were too small and distorted.
+  - #427 Impossible to download a file uploaded for product attribute after selecting another attribute.
+- **Product Bundle**
+  - A deactivated bundle item should not prevent the bundle from being added to the shopping cart.
+  - An empty short description of a bundle item keeps the product short description as fallback, while whitespace explicitly suppresses it.
+- Negative price adjustments for checkout attributes were not taken into account on the checkout confirm page.
+- Percentage product discounts must also be taken into account when applying the displayed variant price adjustment.
 - #1575 Newsletter reward points are not awarded during customer registration.
 - MegaSearch: A single letter in the search term may incorrectly result in 0 search results if "Hits contain all searched terms" is enabled.
 - Currency: Edit page did not select/display the saved denominator for order total rounding.
@@ -52,6 +162,7 @@
 - **Warranty**:
   - Labels disappeared after `UpdateProductDetails` was called when switching a variant.
   - The manufacturer is displayed on the product detail page even though the catalog setting is disabled.
+  - Fixed layout shifts and inaccessible warranty dialogs after changing product variants.
 - JsonLd:
   - Removed duplicate reference of the *Product* entity.
   - Restored application of `SeoSettings.ProductDescriptionPriority`.
@@ -62,6 +173,7 @@
 - The multi-store settings for offline payment methods could not be configured.
 - Fixed script error "ce.easing[this.easing] is not a function" on installation page.
 - When adding a group of attribute rules, the attribute that is currently being edited must not be included in the list of product attributes.
+- #1561 When a single attribute combination is added, the respective attributes should be optional even if the attribute itself is marked as "required".
 - #1567 SQLite error when clearing logs: No such column "Log".
 - **Select2**: 
   - Clear the search input after adding a custom tag to a multiselect.
@@ -70,7 +182,13 @@
 - **Stripe**:
   - #1584 Multi-currency payments could remain pending and partial refunds used the wrong currency amount.
   - Fixed amount conversion for zero-decimal currencies.
-
+  - Redirect-based 3D Secure was already supported, but Stripe next actions handled through the client SDK, such as those required by Link, were not processed.
+- #1556 AI text optimization now distinguishes between rich and plain text, prevents unwanted HTML/Markdown output and respects configured word limits.
+- **AI:** Fixed web search not being used during AI-assisted product creation.
+- #1576 GoogleAnalytics: purchase event has no product-ID token (mismatch with Merchant Center feed id).
+- Sorting by creation date in the product grid did not work when the catalog search was enabled in the backend.
+- Fixed the discount calculation when the quantity of an order item is subsequently changed.
+- Fixed identity options were not applied when they were changed in the backend.
 
 ## Smartstore 6.4.0
 

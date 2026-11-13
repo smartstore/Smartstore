@@ -101,6 +101,7 @@ public sealed class ModularityModule : Module
             var systemName = GetSystemName(type, moduleDescriptor);
             var friendlyName = GetFriendlyName(type, moduleDescriptor);
             var displayOrder = GetDisplayOrder(type, moduleDescriptor);
+            type.TryGetAttribute<IconAttribute>(false, out var iconAttribute);
             var dependentWidgets = GetDependentWidgets(type);
             var resPattern = (moduleDescriptor != null ? "Plugins" : "Providers") + ".{1}.{0}"; // e.g. Plugins.FriendlyName.MySystemName
             var settingPattern = (moduleDescriptor != null ? "Plugins" : "Providers") + ".{0}.{1}"; // e.g. Plugins.MySystemName.DisplayOrder
@@ -126,6 +127,7 @@ public sealed class ModularityModule : Module
                 m.For(em => em.ResourceKeyPattern, resPattern);
                 m.For(em => em.SettingKeyPattern, settingPattern);
                 m.For(em => em.FriendlyName, friendlyName.Name);
+                m.For(em => em.Icon, iconAttribute?.Address);
                 m.For(em => em.Description, friendlyName.Description);
                 m.For(em => em.DisplayOrder, displayOrder);
                 m.For(em => em.DependentWidgets, dependentWidgets);

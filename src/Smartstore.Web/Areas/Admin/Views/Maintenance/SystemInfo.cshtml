@@ -28,7 +28,9 @@
     }
 
     .sysmetric {
-        display: inline-block;
+        display: inline-flex;
+        flex-flow: row nowrap;
+        align-items: center;
         min-width: 80px;
         margin-right: 10px;
     }
@@ -40,12 +42,11 @@
     $(function () {
         $(document).on('click', '.toggle-panel', function (e) {
 			let btn = $(this);
-            let fa = btn.find('.fa');
+            let icon = btn.find('sm-icon');
             let panel = btn.parent().next();
             let isPressed = btn.is('.active');
 
-            fa.toggleClass('fa-angle-down', !isPressed);
-            fa.toggleClass('fa-angle-up', isPressed);
+            icon.attr('name', isPressed ? 'chevron-up' : 'chevron-down');
             panel.toggleClass('d-none', !isPressed);
 		});
 
@@ -82,7 +83,7 @@
 
 <div class="section-header">
     <div class="title">
-        <i class="fa fa-info-circle"></i>
+        <icon name="info-circle" />
         @T("Admin.System.SystemInfo")
     </div>
 </div>
@@ -180,10 +181,10 @@
         </div>
         <div class="adminData">
             <div class="form-control-plaintext">
-                <span class="sysmetric">
+                <span class="sysmetric gap-1">
                     <span id="used-ram" data-raw="@Model.UsedMemorySize.ToStringInvariant()">@Model.UsedMemorySizeString.NaIfEmpty()</span>
-                    <i id="used-ram-up" class="fa fa-arrow-up text-danger pl-1" style="display: none"></i>
-                    <i id="used-ram-down" class="fa fa-arrow-down text-success pl-1" style="display: none"></i>
+                    <icon name="arrow-up" id="used-ram-up" class="text-danger" style="display: none" />
+                    <icon name="arrow-down" id="used-ram-down" class="text-success" style="display: none" />
                 </span>
                 <a href='@Url.Action("GarbageCollect")' class="fwm">@T("Admin.System.SystemInfo.GarbageCollect")</a>
             </div>
@@ -196,7 +197,7 @@
         <div class="adminData wide">
             <div class="toggle-panel-wrapper">
                 <button class="toggle-panel btn btn-secondary btn-sm" data-toggle="button" aria-pressed="false">
-                    <i class="fa fa-angle-down"></i>
+                    <sm-icon name="chevron-down"></sm-icon>
                     <span>@T("Admin.Common.Show")</span>
                 </button>
             </div>
@@ -224,7 +225,7 @@
         <div class="adminData wide">
             <div class="toggle-panel-wrapper">
                 <button class="toggle-panel btn btn-secondary btn-sm" data-toggle="button" aria-pressed="false">
-                    <i class="fa fa-angle-down"></i>
+                    <sm-icon name="chevron-down"></sm-icon>
                     <span>@T("Admin.Common.Show")</span>
                 </button>
             </div>
@@ -252,7 +253,7 @@
         <div class="adminData wide">
             <div class="toggle-panel-wrapper">
                 <button class="toggle-panel btn btn-secondary btn-sm" data-toggle="button" aria-pressed="false">
-                    <i class="fa fa-angle-down"></i>
+                    <sm-icon name="chevron-down"></sm-icon>
                     <span>@T("Admin.Common.Show") (@Model.LoadedAssemblies.Count)</span>
                 </button>
             </div>
@@ -307,7 +308,7 @@
         <div class="adminData">
             <div class="toggle-panel-wrapper">
                 <button class="toggle-panel btn btn-secondary btn-sm" data-toggle="button" aria-pressed="false">
-                    <i class="fa fa-angle-down"></i>
+                    <sm-icon name="chevron-down"></sm-icon>
                     <span>@T("Admin.Common.Show")</span>
                 </button>
             </div>

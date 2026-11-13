@@ -1,5 +1,9 @@
 /// <reference path="references.scss" />
 
+@use "sass:math";
+@use "sass:list";
+@use "sass:string";
+
 // Functions
 // ===============================================
 
@@ -32,15 +36,15 @@ $scrim-gradient-coords: (
                 $lightness, 
                 $alpha
             ) 
-            calc(var(--cstartpos, 0%) + (#{$colorstop / 100} * (var(--cendpos, 100%) - var(--cstartpos, 0%))));
-        $stops: append($stops, $stop, comma);
+                calc(var(--cstartpos, 0%) + (#{math.div($colorstop, 100)} * (var(--cendpos, 100%) - var(--cstartpos, 0%))));
+        $stops: list.append($stops, $stop, comma);
     }
 
-    @return if(
-        $radial,
-        radial-gradient(unquote(#{$direction}), #{$stops}),
-        linear-gradient(unquote(#{$direction}), #{$stops})
-    );
+    @if $radial {
+        @return radial-gradient(string.unquote(#{$direction}), #{$stops});
+    }
+
+    @return linear-gradient(string.unquote(#{$direction}), #{$stops});
 }
 
 @function scrim-gradient-generic($direction: 'to bottom', $radial: false) {
@@ -48,15 +52,15 @@ $scrim-gradient-coords: (
 
     @each $colorstop, $alpha in $scrim-gradient-coords {
         $stop: rgba(var(--cstart-rgb), $alpha) 
-            calc(var(--cstartpos, 0%) + (#{$colorstop / 100} * (var(--cendpos, 100%) - var(--cstartpos, 0%))));
-        $stops: append($stops, $stop, comma);
+            calc(var(--cstartpos, 0%) + (#{math.div($colorstop, 100)} * (var(--cendpos, 100%) - var(--cstartpos, 0%))));
+        $stops: list.append($stops, $stop, comma);
     }
 
-    @return if(
-        $radial,
-        radial-gradient(unquote(#{$direction}), #{$stops}),
-        linear-gradient(unquote(#{$direction}), #{$stops})
-    );
+    @if $radial {
+        @return radial-gradient(string.unquote(#{$direction}), #{$stops});
+    }
+
+    @return linear-gradient(string.unquote(#{$direction}), #{$stops});
 }
 
 @function color-yiq-ex($color, $text-dark: $yiq-text-dark, $text-light: $yiq-text-light) {

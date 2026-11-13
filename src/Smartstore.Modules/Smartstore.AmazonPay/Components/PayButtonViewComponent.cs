@@ -33,7 +33,7 @@ public class PayButtonViewComponent : SmartViewComponent
         _orderSettings = orderSettings;
     }
 
-    public async Task<IViewComponentResult> InvokeAsync()
+    public async Task<IViewComponentResult> InvokeAsync(bool isPaymentSelection = false)
     {
         var customer = Services.WorkContext.CurrentCustomer;
 
@@ -61,7 +61,7 @@ public class PayButtonViewComponent : SmartViewComponent
 
         // Do not render AmazonPay button if there's nothing to pay.
         // Avoids InvalidParameterValue: The value '0' provided for 'chargeAmount.Amount' is invalid.
-        var cartTotal = (Money?)await _orderCalculationService.Value.GetShoppingCartTotalAsync(cart);
+        var cartTotal = (Money?)await _orderCalculationService.Value.GetShoppingCartTotalAsync(cart, ShoppingCartTotalOptions.Default);
         if (cartTotal.HasValue && cartTotal.Value == decimal.Zero)
         {
             return Empty();
@@ -71,7 +71,11 @@ public class PayButtonViewComponent : SmartViewComponent
             _settings,
             cart.IsShippingRequired ? "PayAndShip" : "PayOnly",
             currencyCode,
-            Services.WorkContext.WorkingLanguage.UniqueSeoCode);
+            Services.WorkContext.WorkingLanguage.UniqueSeoCode,
+            isPaymentSelection)
+        {
+            IsSelectedMethod = customer.GenericAttributes.SelectedPaymentMethod.EqualsNoCase(AmazonPayProvider.SystemName)
+        };
 
         return View(model);
     }

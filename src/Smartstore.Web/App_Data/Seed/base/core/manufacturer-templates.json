@@ -1,0 +1,8 @@
+// Key field: viewPath
+[
+  {
+    "name": "Products in Grid or Lines",
+    "viewPath": "ManufacturerTemplate.ProductsInGridOrLines",
+    "displayOrder": 1
+  }
+]

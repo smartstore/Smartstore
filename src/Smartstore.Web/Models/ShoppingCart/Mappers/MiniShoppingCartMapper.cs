@@ -135,15 +135,10 @@ public class MiniShoppingCartModelMapper : Mapper<ShoppingCart, MiniShoppingCart
         var checkoutAttributes = await _checkoutAttributeMaterializer.GetCheckoutAttributesAsync(from, store.Id);
         to.DisplayCheckoutButton = !checkoutAttributes.Any(x => x.IsRequired) && from.Items.Any(x => x.Active);
 
-        var requiredProducts = new Dictionary<int, OrganizedShoppingCartItem>();
-        foreach (var item in from.Items.Where(x => x.Item.Product.RequireOtherProducts))
-        {
-            var requiredProductIds = item.Item.Product.RequiredProductIdList;
-            requiredProductIds.Each(id => requiredProducts[id] = item);
-        }
+        var sorter = new CartItemSorter(from.Items);
+        var orderedItems = sorter.Sort();
 
-        // Products sort descending (recently added products).
-        foreach (var cartItem in from.Items)
+        foreach (var cartItem in orderedItems)
         {
             var item = cartItem.Item;
             var product = item.Product;
@@ -220,7 +215,7 @@ public class MiniShoppingCartModelMapper : Mapper<ShoppingCart, MiniShoppingCart
             }
 
             // Required products.
-            if (requiredProducts.TryGetValue(product.Id, out var parent))
+            if (sorter.RequiredProductParents.TryGetValue(cartItem, out var parent))
             {
                 var expectedQuantity = parent.Item.Quantity * product.QuantityPerParentUnit;
 

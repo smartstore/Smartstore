@@ -38,6 +38,23 @@
         });
 
 
+        // Keep the newly selected content visible when switching a sticky side navigation.
+        $(document).on('shown.bs.tab', '.nav-sticky > .nav-item > a[data-toggle=tab]', function (e) {
+            const nav = $(this).closest('.nav-sticky');
+            if (!e.relatedTarget || nav.css('position') !== 'sticky') return;
+
+            const strip = nav.closest('.tabbable');
+            const scrollport = strip.parents().filter(function () {
+                return /^(auto|scroll|overlay)$/.test($(this).css('overflow-y'));
+            }).first();
+            const offset = parseFloat(nav.css('top')) || 0;
+            const top = scrollport.length ? scrollport[0].getBoundingClientRect().top : 0;
+            if (strip[0].getBoundingClientRect().top < top + offset) {
+                (scrollport.length ? scrollport : $(window)).scrollTo(strip, { offset: { top: -offset }, behavior: 'smooth' });
+            }
+        });
+
+
         // AJAX tabs
         // ------------------------------------------------------
 
@@ -119,17 +136,22 @@
             pane.parent().css('margin-bottom', '0');
 
             function adaptPaneHeight() {
-                var rect = pane[0].getBoundingClientRect();
-                var viewportHeight = document.documentElement.clientHeight;
-                pane.css('height', (viewportHeight - rect.top - contentPaddingBottom) + 'px');
+                const rect = pane[0].getBoundingClientRect();
+                const viewportHeight = document.documentElement.clientHeight;
+                // Bootstrap fires shown.bs.tab as the incoming pane starts moving.
+                const translateY = parseFloat(getComputedStyle(pane[0]).translate?.split(' ')[1]) || 0;
+                pane.css('height', (viewportHeight - rect.top + translateY - contentPaddingBottom) + 'px');
             }
 
             if (!pane.data('is-height-adapted')) {
-                $(window).on('resize', function () {
+                function refreshPaneHeight() {
                     if (pane.is(':visible')) {
                         adaptPaneHeight();
                     }
-                });
+                }
+
+                $(window).on('resize', refreshPaneHeight);
+                pane.on('layout:refresh', refreshPaneHeight);
             }
 
             pane.data('is-height-adapted', true);

@@ -161,23 +161,22 @@ public class LocalFileSystem : FileSystemBase, IFileProvider
             subpath = span.ToString();
         }
 
-        var mappedPath = Path.Join(Root, subpath);
+        // INFO: (core) Never skip these checks. "subpath" may originate from user input (e.g. from a request path),
+        // and Path.GetFullPath() resolves ".." segments without any notion of a root directory.
+        if (PathUtility.IsAbsolutePhysicalPath(span) || PathUtility.HasInvalidPathChars(span))
+        {
+            return HandleMapFailure(subpath, throwOnFailure);
+        }
 
-        //// TODO: (core) Do we really really need this check?
-        //// Verify that the resulting path is inside the root file system path.
-        //if (!IsUnderneathRoot(mappedPath))
-        //{
-        //    if (throwOnFailure)
-        //    {
-        //        throw new FileSystemException($"The path '{subpath}' resolves to a physical path outside the file system store root.");
-        //    }
-        //    else
-        //    {
-        //        return null;
-        //    }
-        //}
+        var fullPath = Path.GetFullPath(Path.Join(Root, subpath));
 
-        return Path.GetFullPath(mappedPath);
+        // Verify that the resulting path is inside the root file system path.
+        if (!IsUnderneathRoot(fullPath))
+        {
+            return HandleMapFailure(subpath, throwOnFailure);
+        }
+
+        return fullPath;
 
         static ReadOnlySpan<char> ApplySeparatorTransform(ReadOnlySpan<char> value)
         {
@@ -208,10 +207,38 @@ public class LocalFileSystem : FileSystemBase, IFileProvider
         return false;
     }
 
-    //private bool IsUnderneathRoot(string fullPath)
-    //{
-    //    return fullPath.StartsWith(Root, StringComparison.OrdinalIgnoreCase);
-    //}
+    private static string HandleMapFailure(string subpath, bool throwOnFailure)
+    {
+        if (throwOnFailure)
+        {
+            throw new FileSystemException($"The path '{subpath}' resolves to a physical path outside the file system store root.");
+        }
+
+        return null;
+    }
+
+    /// <summary>
+    /// Checks whether the given fully qualified path is the root directory itself or located underneath it.
+    /// </summary>
+    private bool IsUnderneathRoot(string fullPath)
+    {
+        // INFO: A plain StartsWith() check is not sufficient: for root "C:\store" it would also
+        // accept "C:\store-backup". The next char must be a separator, or the path IS the root.
+        var root = Root.AsSpan().TrimEnd(PathUtility.PathSeparators);
+
+        if (fullPath.Length < root.Length || !fullPath.AsSpan(0, root.Length).Equals(root, StringComparison.OrdinalIgnoreCase))
+        {
+            return false;
+        }
+
+        if (fullPath.Length == root.Length)
+        {
+            return true;
+        }
+
+        var c = fullPath[root.Length];
+        return c == Path.DirectorySeparatorChar || c == Path.AltDirectorySeparatorChar;
+    }
 
     #endregion
 }

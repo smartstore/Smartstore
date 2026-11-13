@@ -24,6 +24,9 @@ public class AIImageChatContext
     [JsonConverter(typeof(TypeConverterJsonConverter<AIImageResolution>))]
     public AIImageResolution? Resolution { get; init; }
 
+    [JsonConverter(typeof(TypeConverterJsonConverter<AIImageQuality>))]
+    public AIImageQuality? Quality { get; init; }
+
     [JsonConverter(typeof(TypeConverterJsonConverter<AIImageOutputFormat>))]
     public AIImageOutputFormat? OutputFormat { get; init; }
 }

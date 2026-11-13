@@ -242,7 +242,7 @@
                 else if (displayPreviewInList) {
                     var template = $(file.previewTemplate);
                     template.removeClass("dz-image-preview");
-                    var icon = template.find(".upload-status > i");
+                    var icon = template.find(".upload-status > :is(i, sm-icon)");
                     icon.removeClass("d-none");
                     template.find(".circular-progress").addClass("d-none");
                 }
@@ -578,7 +578,7 @@
                 var elImage = el.find('.file-figure > img').addClass(icon.mediaType == "image" ? "hide" : "d-none");
 
                 elFigure.attr("data-type", icon.mediaType);
-                elIcon.attr("class", "file-icon show " + icon.name + (small ? " fa-2x" : " fa-4x")).css("color", icon.color);
+                elIcon.attr({ name: icon.address, size: small ? "2x" : "4x", color: icon.color }).addClass("show");
 
                 if (small)
                     return;
@@ -942,7 +942,7 @@
 
     // Sets the preview image of a single file upload control after upload or selection (by MM plugin).
     window.displaySingleFilePreview = function (file, fuContainer, options) {
-        var preview = Smartstore.media.getPreview(file, { iconCssClasses: "fa-4x" });
+        var preview = Smartstore.media.getPreview(file, { iconSize: "4x" });
 
         fuContainer.find('.fu-thumb').removeClass("empty").html(preview.thumbHtml);
         Smartstore.media.lazyLoadThumbnails(fuContainer.find('.fu-thumb'));
@@ -983,7 +983,8 @@
 
         icon = icon || Smartstore.media.getIconHint({});
 
-        var html = '<i class="file-icon show fa-2x ' + icon.name + '" aria-hidden="true"></i>';
+        var html = $('<sm-icon class="file-icon show" size="2x" aria-hidden="true"></sm-icon>')
+            .attr("name", icon.address);
         fuContainer.find('.fu-thumb').addClass("empty").html(html);
         fuContainer.find('.fu-message').addClass("empty");
     }
@@ -1019,7 +1020,7 @@
         if (elStatusWindow.length > 0) {
             var el = $(file.previewElement);
             window.setCircularProgressValue(el, 0);
-            el.find(".upload-status > i").addClass("d-none");
+            el.find(".upload-status > :is(i, sm-icon)").addClass("d-none");
             el.find(".fu-item-canceled").addClass("d-none");
             el.find(".circular-progress").removeClass("d-none");
             el.removeClass("dz-processing dz-complete canceled");

@@ -34,6 +34,10 @@ on:
 jobs:
   del_runs:
     runs-on: ubuntu-latest
+    # This cleanup deletes workflow runs, not container package versions.
+    permissions:
+      actions: write
+      contents: read
     steps:
       - name: Delete workflow runs
         uses: Mattraks/delete-workflow-runs@v2

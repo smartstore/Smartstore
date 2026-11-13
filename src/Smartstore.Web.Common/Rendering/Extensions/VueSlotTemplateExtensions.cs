@@ -153,22 +153,39 @@ public static class VueSlotTemplateExtensions
     }
 
     /// <summary>
-    /// Renders a labeled variant attribute value name including link icon and color square for grids. Not intended to be used outside of grids.
+    /// Renders a labeled variant attribute value name including link icon and color squares for grids.
+    /// Not intended to be used outside of grids.
     /// </summary>
     /// <returns>Labeled variant attribute value name</returns>
     public static IHtmlContent VariantAttributeValueName(this IHtmlHelper _)
     {
         var builder = new SmartHtmlContentBuilder();
-        builder.AppendHtml("<i :class='item.row.TypeNameClass' :title='item.row.TypeName'></i>");
-
-        var colorSpan = new TagBuilder("span");
-        colorSpan.Attributes.Add("v-if", "item.row.HasColor");
-        colorSpan.Attributes.Add("class", "color-container");
-        colorSpan.InnerHtml.AppendHtml("<span class='color' :style='{ background: item.row.Color }' :title='item.row.Color'>&nbsp;</span>");
-        builder.AppendHtml(colorSpan);
+        builder.AppendHtml("<sm-icon v-if='item.row.TypeNameIcon' :name='item.row.TypeNameIcon' class='mr-2' :title='item.row.TypeName'></sm-icon>");
+        builder.AppendHtml(_.ColorPalette());
         builder.AppendHtml("<span><a href='javascript:;' class='edit-variant-attribute-value' :data-key='item.row.Id'>{{ item.value }} {{ item.row.QuantityInfo }}</a></span>");
 
         return builder;
+    }
+
+    /// <summary>
+    /// Renders the primary and additional colors of an attribute value for grids.
+    /// Not intended to be used outside of grids.
+    /// </summary>
+    /// <returns>Attribute value color palette.</returns>
+    public static IHtmlContent ColorPalette(this IHtmlHelper _)
+    {
+        var swatch = new TagBuilder("span");
+        swatch.Attributes.Add("class", "color");
+        swatch.Attributes.Add(":class", "{ 'swatch-multicolor': item.row.Colors.SwatchColors.length > 1 }");
+        swatch.Attributes.Add(":style", "item.row.Colors.SwatchStyle");
+        swatch.Attributes.Add(":title", "item.row.Colors.SwatchColors.join(', ')");
+
+        var colorSpan = new TagBuilder("span");
+        colorSpan.Attributes.Add("v-if", "item.row.Colors?.SwatchColors.length");
+        colorSpan.Attributes.Add("class", "color-container");
+        colorSpan.InnerHtml.AppendHtml(swatch);
+
+        return colorSpan;
     }
 
     /// <summary>

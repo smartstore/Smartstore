@@ -14,7 +14,7 @@
     padding-inline-end: $list-group-item-padding-x * 1.2;
 
     &:after {
-        @include fontawesome("\f054", 0.75rem);   
+        @include icon-mask(var(--icon-mask-chevron-right), 1rem);
         display: block;
         position: absolute;
         inset-inline-end: 0.625rem;
@@ -25,7 +25,9 @@
 
 .catmenu-path-item.expanded {
     color: $body-color;
-    &:after { content: '\f3bf'; font-size: inherit; }
+    &:after {
+        @include icon-mask("arrow-turn-up", 1rem);
+    }
 }
 
 .catmenu-path-item.active {
@@ -41,7 +43,7 @@
 .cms-menu-linklist {
     .menu-link {
         // Use --link-color and --link-hover-color variables to set colors.
-        text-decoration: none !important;
+        text-decoration: none;
         display: inline-flex;
         align-items: center;
         padding-block: 0.2em;

@@ -13,11 +13,11 @@
     top: 0;
     bottom: 0;
     z-index: 2147483640;
-    background-color: rgba(0,0,0, 0.7);
+    background-color: rgba($black, 0.7);
     backdrop-filter: blur(4px);
 
     &.white {
-        background-color: rgba(255,255,255, 0.85);
+        background-color: rgba($white, 0.85);
     }
 
     body > & {
@@ -49,11 +49,12 @@
 
     &.large .throbber-content {
         font-size: 1.5rem;
-        font-weight: $font-weight-medium;
+        font-weight: $font-weight-bold;
     }
 
     &.small .throbber-content {
         font-size: $lead-font-size;
+        font-weight: $font-weight-medium;
     }
 
     &:not(.white) .throbber-content {

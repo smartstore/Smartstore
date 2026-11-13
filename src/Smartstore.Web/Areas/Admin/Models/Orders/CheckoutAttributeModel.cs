@@ -1,6 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using FluentValidation;
+using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Checkout.Attributes;
+using Smartstore.Core.Rules;
 
 namespace Smartstore.Admin.Models.Orders;
 
@@ -41,7 +43,33 @@ public class CheckoutAttributeModel : EntityModelBase, ILocalizedModel<CheckoutA
     [LocalizedDisplay("Common.DisplayOrder")]
     public int DisplayOrder { get; set; }
 
-    public List<CheckoutAttributeLocalizedModel> Locales { get; set; } = new();
+    [UIHint("Range"), Range(0, 50)]
+    [AdditionalMetadata("min", 0)]
+    [AdditionalMetadata("max", 50)]
+    [AdditionalMetadata("step", 10)]
+    [AdditionalMetadata("format", "")]
+    [LocalizedDisplay("Admin.Catalog.Attributes.ProductAttributes.Fields.SwatchSize")]
+    public int? SwatchSize { get; set; }
+
+    [UIHint("AspectRatio"), Range(0.1, 3.0)]
+    [AdditionalMetadata("min", 0.1)]
+    [AdditionalMetadata("max", 3.0)]
+    [AdditionalMetadata("step", 0.01)]
+    [AdditionalMetadata("format", "{0:F2}")]
+    [AdditionalMetadata("ticks", "0.1|10:1, 1|1:1, 2|1:2, 3|1:3")]
+    [LocalizedDisplay("Admin.Catalog.Attributes.ProductAttributes.Fields.SwatchAspectRatio")]
+    public decimal SwatchAspectRatio { get; set; } = 1m;
+
+    [LocalizedDisplay("Admin.Catalog.Attributes.ProductAttributes.Fields.SwatchShape")]
+    public SwatchShape? SwatchShape { get; set; }
+
+    [LocalizedDisplay("Admin.Catalog.Attributes.ProductAttributes.Fields.ShowValueNameInSwatch")]
+    public bool ShowValueNameInSwatch { get; set; }
+
+    [LocalizedDisplay("Admin.Catalog.Attributes.ProductAttributes.Fields.SwatchPriceDisplay")]
+    public SwatchPriceDisplayMode SwatchPriceDisplay { get; set; }
+
+    public List<CheckoutAttributeLocalizedModel> Locales { get; set; } = [];
 
     [UIHint("Stores")]
     [AdditionalMetadata("multiple", true)]
@@ -50,6 +78,12 @@ public class CheckoutAttributeModel : EntityModelBase, ILocalizedModel<CheckoutA
 
     [LocalizedDisplay("Admin.Common.Store.LimitedTo")]
     public bool LimitedToStores { get; set; }
+
+    [UIHint("RuleSets")]
+    [AdditionalMetadata("multiple", true)]
+    [AdditionalMetadata("scope", RuleScope.Cart)]
+    [LocalizedDisplay("*Requirements")]
+    public int[] SelectedRuleSetIds { get; set; }
 
     [LocalizedDisplay("Admin.Catalog.Attributes.CheckoutAttributes.Values")]
     public int NumberOfOptions { get; set; }

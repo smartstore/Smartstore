@@ -39,4 +39,9 @@ public class StripeSettings : ISettings
     /// Specifies whether to display the checkout button in offcanvas shopping cart.
     /// </summary>
     public bool ShowButtonInMiniShoppingCart { get; set; } = true;
+
+    /// <summary>
+    /// Specifies which payment methods appear as Express Checkout buttons on the payment selection page.
+    /// </summary>
+    public string[] PaymentPageButtonMethods { get; set; } = [];
 }

@@ -24,26 +24,13 @@
 }
 
 .select2-results > .select2-results__options {
-    --select2-drop-padding-x: 0;
-    --select2-drop-padding-y: 0;
-
+    --select2-drop-padding-x: #{$dropdown-padding-x};
+    --select2-drop-padding-y: #{$dropdown-padding-y};
     // Limit the dropdown height.
     max-height: 320px;
     overflow-y: auto;
     padding: var(--select2-drop-padding-y) var(--select2-drop-padding-x);
-}
-
-
-&.select2-container--open {
-    .select2-selection,
-    .select2-selection__arrow {
-        background-color: $dropdown-bg;
-    }
-
-    .select2-selection__arrow {
-        border-color: transparent;
-        box-shadow: none;
-    }
+    scrollbar-width: thin;
 }
 
 .select2-results {
@@ -51,13 +38,12 @@
 }
 
 .select2-results__option {
+    --select2-check-space: 0px;
     position: relative;
 
     > :is(.select2-option, .select2-item-description) {
         font-size: $font-size-sm;
         word-break: break-word;
-        // padding for checkmark
-        padding-inline-start: 20px;
     }
 
     .select2-item-description {
@@ -66,38 +52,42 @@
     }
 
     > .select2-option {
-        &:after {
-            position: absolute;
-            inset-inline-start: 0;
-            top: 1px;
-            @include fontawesome("\f00c");
-            color: $success;
-            text-align: start;
-            width: 18px;
-            line-height: $line-height-base;
-            visibility: hidden;
-        }
+        padding-inline-end: var(--select2-check-space);
+    }
+
+    > .select2-option:after {
+        position: absolute;
+        inset-inline-end: 0;
+        top: 50%;
+        translate: 0 -50%;
+        @include icon-mask(var(--icon-mask-check), 1rem);
+        color: $success;
+        visibility: hidden;
     }
 
     > .select2-item-description {
         font-weight: normal;
     }
 
-    &[aria-selected=true] > .select2-option:after {
-        visibility: visible;
+    &[aria-selected=true] {
+        --select2-check-space: 1.5rem;
+
+        > .select2-option:after {
+            visibility: visible;
+        }
     }
 
     .select2-item-btn {
         position: absolute;
         z-index: $zindex-popover;
         inset-block-start: 2px;
-        inset-inline-end: 6px;
+        inset-inline-end: calc(6px + var(--select2-check-space));
         opacity: 0;
         transition: opacity 0.05s linear;
 
         + .select2-option {
             // Padding for edit button
-            padding-inline-end: 22px;
+            padding-inline-end: calc(22px + var(--select2-check-space));
         }
 
         > a.prevent-selection {
@@ -105,10 +95,6 @@
             --btn-height: 24px;
             width: 24px;
             height: 24px;
-
-            > i.prevent-selection {
-                width: unset;
-            }
         }
     }
 

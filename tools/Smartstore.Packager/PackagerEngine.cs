@@ -1,35 +1,34 @@
 ﻿using System.Reflection;
 using Smartstore.Engine;
 
-namespace Smartstore.Packager
+namespace Smartstore.Packager;
+
+internal class PackagerEngine : IEngine
 {
-    internal class PackagerEngine : IEngine
+    public IApplicationContext Application { get; set; }
+    public ScopedServiceContainer Scope { get; set; }
+    public bool IsStarted { get; set; }
+    public bool IsInitialized { get; set; }
+
+    public IEngineStarter Start(IApplicationContext application)
     {
-        public IApplicationContext Application { get; set; }
-        public ScopedServiceContainer Scope { get; set; }
-        public bool IsStarted { get; set; }
-        public bool IsInitialized { get; set; }
+        Guard.NotNull(application, nameof(application));
 
-        public IEngineStarter Start(IApplicationContext application)
+        Application = application;
+
+        return new EngineStarter(this);
+    }
+
+    class EngineStarter : EngineStarter<PackagerEngine>
+    {
+        public EngineStarter(PackagerEngine engine)
+            : base(engine)
         {
-            Guard.NotNull(application, nameof(application));
-
-            Application = application;
-
-            return new EngineStarter(this);
         }
 
-        class EngineStarter : EngineStarter<PackagerEngine>
+        protected override IEnumerable<Assembly> ResolveCoreAssemblies()
         {
-            public EngineStarter(PackagerEngine engine)
-                : base(engine)
-            {
-            }
-
-            protected override IEnumerable<Assembly> ResolveCoreAssemblies()
-            {
-                return new[] { typeof(IEngine).Assembly, typeof(Program).Assembly };
-            }
+            return [typeof(IEngine).Assembly, typeof(Program).Assembly];
         }
     }
 }

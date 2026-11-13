@@ -109,7 +109,7 @@ public class TaxPairTagHelper : SmartTagHelper
         output.TagMode = TagMode.StartTagAndEndTag;
 
         var isVertical = Align == TaxPairAlignment.Vertical;
-        var containerClass = isVertical ? "d-flex align-items-center" : "row g-1 flex-nowrap";
+        var containerClass = isVertical ? "hstack" : "row g-1 flex-nowrap";
         var inputsWrapperClass = isVertical ? "d-flex flex-column gap-1 flex-grow-1" : "row g-1 flex-nowrap";
 
         // Clear all existing attributes. We apply them on the editors.
@@ -160,7 +160,13 @@ public class TaxPairTagHelper : SmartTagHelper
                 lockTag.Attributes.Add("type", "button");
                 lockTag.AddCssClass("btn btn-sm border-0 shadow-none bg-transparent text-reset p-1 btn-tax-lock");
                 lockTag.Attributes.Add("title", T(active ? "Admin.Common.TaxCalculator.Disable" : "Admin.Common.TaxCalculator.Enable"));
-                lockTag.InnerHtml.AppendHtml("<i class='fa {0}'></i>".FormatInvariant(active ? "fa-lock" : "fa-lock-open text-muted"));
+                var icon = new TagBuilder("sm-icon");
+                icon.Attributes["name"] = active ? "lock" : "lock-open";
+                if (!active)
+                {
+                    icon.AddCssClass("text-muted");
+                }
+                lockTag.InnerHtml.AppendHtml(icon);
             }
             else
             {
@@ -168,7 +174,7 @@ public class TaxPairTagHelper : SmartTagHelper
                 lockTag = new TagBuilder("span");
                 lockTag.AddCssClass("p-1");
                 lockTag.Attributes.Add("title", T("Admin.Common.TaxCalculator.NoCalculation"));
-                lockTag.InnerHtml.AppendHtml("<i class='fa fa-lock-open text-danger'></i>");
+                lockTag.InnerHtml.AppendHtml("<sm-icon name='lock-open' class='text-danger'></sm-icon>");
             }
 
             return lockTag;

@@ -165,75 +165,23 @@ namespace Smartstore.Packager
             lstModules.Items.Clear();
             lstThemes.Items.Clear();
 
-            IEnumerable<IDirectory> dirs = Enumerable.Empty<IDirectory>();
+            var result = new ExtensionScanner().Scan(root);
 
-            var dirModules = root.GetDirectory("Modules");
-            var dirThemes = root.GetDirectory("Themes");
-
-            var modulesRoot = dirModules.Exists
-                ? new LocalFileSystem(dirModules.PhysicalPath)
-                : root;
-
-            var themesRoot = dirThemes.Exists
-                ? new LocalFileSystem(dirThemes.PhysicalPath)
-                : root;
-
-            if (dirModules.Exists || dirThemes.Exists)
+            foreach (var failure in result.Failures)
             {
-                if (dirModules.Exists)
-                {
-                    dirs = dirs.Concat(dirModules.EnumerateDirectories());
-                }
-
-                if (dirThemes.Exists)
-                {
-                    dirs = dirs.Concat(dirThemes.EnumerateDirectories());
-                }
-            }
-            else
-            {
-                dirs = root.EnumerateDirectories("");
+                Debug.WriteLine(failure.Exception.ToString());
             }
 
             lstModules.DisplayMember = "SystemName";
 
-            foreach (var dir in dirs)
+            foreach (var descriptor in result.Modules)
             {
-                bool isTheme = false;
+                lstModules.Items.Add(descriptor);
+            }
 
-                // is it a module?
-                var filePath = PathUtility.Join(dir.SubPath, "module.json");
-                if (!root.FileExists(filePath))
-                {
-                    // ...no! is it a theme?
-                    filePath = PathUtility.Join(dir.SubPath, "theme.config");
-                    if (!root.FileExists(filePath))
-                        continue;
-
-                    isTheme = true;
-                }
-
-                try
-                {
-                    if (isTheme)
-                    {
-                        var manifest = ThemeDescriptor.Create(dir.Name, themesRoot);
-                        lstThemes.Items.Add(manifest);
-                    }
-                    else
-                    {
-                        var descriptor = ModuleDescriptor.Create(dir, modulesRoot);
-                        if (descriptor != null)
-                        {
-                            lstModules.Items.Add(descriptor);
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Debug.WriteLine(ex.ToString());
-                    continue;
-                }
+            foreach (var descriptor in result.Themes)
+            {
+                lstThemes.Items.Add(descriptor);
             }
 
             if (lstModules.Items.Count > 0)

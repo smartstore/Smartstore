@@ -1,5 +1,6 @@
 ﻿using Smartstore.Admin.Models.Catalog;
 using Smartstore.ComponentModel;
+using Smartstore.Core.Catalog;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Localization;
@@ -9,6 +10,7 @@ using Smartstore.Core.Security;
 using Smartstore.Data;
 using Smartstore.Web.Models;
 using Smartstore.Web.Models.DataGrid;
+using Smartstore.Web.Rendering.Choices;
 
 namespace Smartstore.Admin.Controllers;
 
@@ -16,13 +18,18 @@ public class ProductAttributeController : AdminController
 {
     private readonly SmartDbContext _db;
     private readonly ILocalizedEntityService _localizedEntityService;
+    private readonly CatalogSettings _catalogSettings;
 
-    public ProductAttributeController(SmartDbContext db, ILocalizedEntityService localizedEntityService)
+    public ProductAttributeController(
+        SmartDbContext db, 
+        ILocalizedEntityService localizedEntityService,
+        CatalogSettings catalogSettings)
     {
         _db = db;
         _localizedEntityService = localizedEntityService;
+        _catalogSettings = catalogSettings;
     }
-
+    
     // AJAX.
     public async Task<IActionResult> AllProductAttributes(string label, int selectedId)
     {
@@ -175,6 +182,7 @@ public class ProductAttributeController : AdminController
         };
 
         AddLocales(model.Locales);
+        PrepareAttributeViewBag();
 
         return View(model);
     }
@@ -209,6 +217,8 @@ public class ProductAttributeController : AdminController
             }
         }
 
+        PrepareAttributeViewBag();
+
         return View(model);
     }
 
@@ -230,6 +240,7 @@ public class ProductAttributeController : AdminController
             locale.Alias = attribute.GetLocalized(x => x.Alias, languageId, false, false);
             locale.Description = attribute.GetLocalized(x => x.Description, languageId, false, false);
         });
+        PrepareAttributeViewBag();
 
         return View(model);
     }
@@ -267,6 +278,8 @@ public class ProductAttributeController : AdminController
                 ModelState.AddModelError(string.Empty, ex.Message);
             }
         }
+
+        PrepareAttributeViewBag();
 
         return View(model);
     }
@@ -396,7 +409,7 @@ public class ProductAttributeController : AdminController
 
         var linkedProducts = linkedProductIds.Any()
             ? await _db.Products.AsNoTracking().Where(x => linkedProductIds.Contains(x.Id)).ToDictionaryAsync(x => x.Id)
-            : new Dictionary<int, Product>();
+            : [];
 
         var rows = await options
             .SelectAwait(async x =>
@@ -450,7 +463,6 @@ public class ProductAttributeController : AdminController
         var model = new ProductAttributeOptionModel
         {
             Quantity = 1,
-            Color = string.Empty,
             DisplayOrder = ++maxDisplayOrder
         };
 
@@ -571,7 +583,7 @@ public class ProductAttributeController : AdminController
             model.PriceAdjustmentString = option.ValueType == ProductVariantAttributeValueType.Simple ? option.PriceAdjustment.ToString("G29") : string.Empty;
             model.WeightAdjustmentString = option.ValueType == ProductVariantAttributeValueType.Simple ? option.WeightAdjustment.ToString("G29") : string.Empty;
             model.TypeName = Services.Localization.GetLocalizedEnum(option.ValueType);
-            model.TypeNameClass = option.ValueType == ProductVariantAttributeValueType.ProductLinkage ? "fa fa-link mr-2" : "d-none hide hidden-xs-up";
+            model.TypeNameIcon = option.ValueType == ProductVariantAttributeValueType.ProductLinkage ? "link" : null;
 
             if (option.LinkedProductId != 0)
             {
@@ -590,6 +602,18 @@ public class ProductAttributeController : AdminController
                 }
             }
         }
+    }
+
+    private void PrepareAttributeViewBag()
+    {
+        var localization = Services.Localization;
+
+        ViewData[nameof(ProductAttributeModel.SwatchSize) + "DefaultValue"] = (int)_catalogSettings.DefaultSwatchSize;
+        ViewData[nameof(ProductAttributeModel.SwatchSize) + "RangeTicks"] = Enum.GetValues<SwatchSize>()
+            .Select(x => localization.GetLocalizedEnum(x))
+            .ToList();
+
+        ViewData[nameof(ProductAttributeModel.SwatchShape) + "DefaultValue"] = _catalogSettings.DefaultSwatchShape;
     }
 
     private async Task ApplyLocales(ProductAttributeModel model, ProductAttribute attribute)

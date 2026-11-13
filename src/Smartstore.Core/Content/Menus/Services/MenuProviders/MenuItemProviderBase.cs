@@ -1,12 +1,10 @@
 ﻿using Smartstore.Collections;
-using Smartstore.Core.Content.Media.Icons;
 using Smartstore.Core.Localization;
 
 namespace Smartstore.Core.Content.Menus;
 
 public abstract class MenuItemProviderBase : IMenuItemProvider
 {
-    public required IIconExplorer IconExplorer { protected get; set; }
     public Localizer T { get; set; } = NullLocalizer.Instance;
 
     public virtual async Task<TreeNode<MenuItem>> AppendAsync(MenuItemProviderRequest request)
@@ -117,12 +115,7 @@ public abstract class MenuItemProviderBase : IMenuItemProvider
         // Icon
         if (entity.Icon.HasValue() && !request.IsEditMode)
         {
-            menuItem.Icon = IconExplorer.GetIconByName(entity.Icon)?.GetCssClass(entity.Style);
-
-            if (entity.IconColor.HasValue())
-            {
-                menuItem.Icon += " text-" + entity.IconColor;
-            }
+            menuItem.Icon = entity.Icon;
         }
 
         // For future use: entity.ShowExpanded

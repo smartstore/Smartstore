@@ -1,4 +1,7 @@
-﻿using FluentValidation;
+﻿using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
+using FluentValidation;
+using Smartstore.ComponentModel.TypeConverters;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Localization;
 
@@ -29,10 +32,14 @@ public class OrderSettingsModel : TabbableModel, ILocalizedModel<OrderSettingsLo
     public bool ReturnRequestsEnabled { get; set; }
 
     [LocalizedDisplay("*ReturnRequestReasons")]
-    public string ReturnRequestReasons { get; set; }
+    [UIHint("EditableList"), AdditionalMetadata("sortable", true)]
+    [TypeConverter(typeof(JsonTypeConverter<string[]>))]
+    public string[] ReturnRequestReasons { get; set; } = [];
 
     [LocalizedDisplay("*ReturnRequestActions")]
-    public string ReturnRequestActions { get; set; }
+    [UIHint("EditableList"), AdditionalMetadata("sortable", true)]
+    [TypeConverter(typeof(JsonTypeConverter<string[]>))]
+    public string[] ReturnRequestActions { get; set; } = [];
 
     [LocalizedDisplay("*NumberOfDaysReturnRequestAvailable")]
     public int NumberOfDaysReturnRequestAvailable { get; set; }
@@ -68,10 +75,14 @@ public class OrderSettingsLocalizedModel : ILocalizedLocaleModel
     public int LanguageId { get; set; }
 
     [LocalizedDisplay("*ReturnRequestReasons")]
-    public string ReturnRequestReasons { get; set; }
+    [UIHint("EditableList"), AdditionalMetadata("sortable", true)]
+    [TypeConverter(typeof(JsonTypeConverter<string[]>))]
+    public string[] ReturnRequestReasons { get; set; } = [];
 
     [LocalizedDisplay("*ReturnRequestActions")]
-    public string ReturnRequestActions { get; set; }
+    [UIHint("EditableList"), AdditionalMetadata("sortable", true)]
+    [TypeConverter(typeof(JsonTypeConverter<string[]>))]
+    public string[] ReturnRequestActions { get; set; } = [];
 }
 
 public partial class OrderSettingsValidator : SettingModelValidator<OrderSettingsModel, OrderSettings>

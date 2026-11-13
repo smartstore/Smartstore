@@ -1,0 +1,63 @@
+// Key field: alias
+[
+  {
+    "name": "Color",
+    "alias": "color"
+  },
+  {
+    "name": "Custom Text",
+    "alias": "custom-text"
+  },
+  {
+    "name": "Size",
+    "alias": "size"
+  },
+  {
+    "name": "Material",
+    "alias": "material"
+  },
+  {
+    "name": "Pack size",
+    "alias": "pack-size"
+  },
+  {
+    "name": "Grind",
+    "alias": "grind"
+  },
+  {
+    "name": "Hand",
+    "alias": "hand"
+  },
+  {
+    "name": "Print",
+    "alias": "print"
+  },
+  {
+    "name": "Cover",
+    "alias": "cover"
+  },
+  {
+    "name": "Frame",
+    "alias": "frame"
+  },
+  {
+    "name": "Extras",
+    "alias": "extras"
+  },
+  {
+    "name": "Finish",
+    "alias": "finish"
+  },
+  {
+    "name": "Amount",
+    "alias": "amount"
+  },
+  {
+    "name": "First delivery on",
+    "alias": "first-delivery"
+  },
+  {
+    "name": "Delivery notes",
+    "alias": "delivery-notes"
+  }
+]

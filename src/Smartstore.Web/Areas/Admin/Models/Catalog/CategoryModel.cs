@@ -1,10 +1,14 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.AspNetCore.Mvc.ModelBinding;
+using System.Text.Json.Serialization;
+using System.ComponentModel.DataAnnotations;
 using FluentValidation;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Catalog.Categories;
 using Smartstore.Core.Catalog.Discounts;
 using Smartstore.Core.Rules;
 using Smartstore.Core.Seo;
+using Smartstore.IconKit;
+using Smartstore.Web.Models.Media;
 
 namespace Smartstore.Admin.Models.Catalog;
 
@@ -37,7 +41,15 @@ public class CategoryModel : TabbableModel, ILocalizedModel<CategoryLocalizedMod
     [LocalizedDisplay("*BadgeStyle")]
     [UIHint("BadgeStyles")]
     [AdditionalMetadata("badge-text-resource", "Common.Example")]
-    public int BadgeStyle { get; set; }
+    public string BadgeStyle { get; set; }
+
+    [LocalizedDisplay("*Icon")]
+    [UIHint("IconBrowser")]
+    public IconBrowserModel IconModel { get; set; } = new()
+    {
+        Area = "public",
+        VisibleOptions = IconOptionFields.Animation | IconOptionFields.Color | IconOptionFields.Flip | IconOptionFields.Rotate
+    };
 
     [LocalizedDisplay("*Alias")]
     public string Alias { get; set; }
@@ -71,8 +83,11 @@ public class CategoryModel : TabbableModel, ILocalizedModel<CategoryLocalizedMod
     [LocalizedDisplay("*AllowCustomersToSelectPageSize")]
     public bool? AllowCustomersToSelectPageSize { get; set; }
 
+    [UIHint("SelectList")]
+    [AdditionalMetadata("multiple", true)]
+    [AdditionalMetadata("data_tags", true)]
     [LocalizedDisplay("*PageSizeOptions")]
-    public string PageSizeOptions { get; set; }
+    public int[] PageSizeOptions { get; set; } = [];
 
     [LocalizedDisplay("*Published")]
     public bool Published { get; set; }
@@ -85,6 +100,9 @@ public class CategoryModel : TabbableModel, ILocalizedModel<CategoryLocalizedMod
 
     [LocalizedDisplay("*WithdrawalPeriodDays")]
     public int? WithdrawalPeriodDays { get; set; }
+
+    [LocalizedDisplay("*AllowWithdrawalBeforeShipping")]
+    public bool? AllowWithdrawalBeforeShipping { get; set; }
 
     [LocalizedDisplay("*Deleted")]
     public bool Deleted { get; set; }
@@ -181,9 +199,22 @@ public partial class CategoryModelValidator : SmartValidator<CategoryModel>
     {
         ApplyEntityRules<Category>(db);
 
+        RuleFor(x => x.IconModel.Icon.ToString())
+            .MaximumLength(512)
+            .OverridePropertyName("IconModel.Icon");
+
         RuleFor(x => x.WithdrawalPeriodDays)
             .GreaterThanOrEqualTo(0)
             .When(x => x.WithdrawalPeriodDays != null);
+
+        RuleFor(x => string.Join(',', x.PageSizeOptions ?? Array.Empty<int>()))
+            .MaximumLength(200)
+            .OverridePropertyName(nameof(CategoryModel.PageSizeOptions));
+
+        RuleForEach(x => x.PageSizeOptions)
+            // Associate item errors with the PageSizeOptions field.
+            .OverrideIndexer((_, _, _, _) => string.Empty)
+            .GreaterThan(0);
     }
 }
 
@@ -195,9 +226,11 @@ public class CategoryMapper :
     public async Task MapAsync(Category from, CategoryModel to, dynamic parameters = null)
     {
         MiniMapper.Map(from, to);
+        to.PageSizeOptions ??= [];
         to.ParentCategoryId = from.ParentId;
         to.SeName = await from.GetActiveSlugAsync(0, true, false);
         to.PictureId = from.MediaFileId;
+        to.IconModel.Icon = IconExpression.TryParse(from.Icon, out var expression) ? expression : null;
     }
 
     public Task MapAsync(CategoryModel from, Category to, dynamic parameters = null)
@@ -205,6 +238,7 @@ public class CategoryMapper :
         MiniMapper.Map(from, to);
         to.ParentId = from.ParentCategoryId;
         to.MediaFileId = from.PictureId.ZeroToNull();
+        to.Icon = from.IconModel.Icon?.ToString().NullEmpty();
 
         return Task.CompletedTask;
     }

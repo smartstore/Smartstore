@@ -7,6 +7,7 @@ using NUnit.Framework;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Content.Media.Storage;
 using Smartstore.Core.Messaging;
+using Smartstore.Events;
 using Smartstore.Net.Mail;
 using Smartstore.Utilities;
 
@@ -45,7 +46,7 @@ public class QueuedEmailServiceTests : ServiceTestBase
         var mailServiceMock = new Mock<IMailService>();
         _mailService = mailServiceMock.Object;
 
-        _queuedEmailService = new QueuedEmailService(DbContext, _mailService, _mediaService, _emailAccountSettings);
+        _queuedEmailService = new QueuedEmailService(DbContext, _mailService, _mediaService, _emailAccountSettings, Mock.Of<IEventPublisher>());
     }
 
     [Test]

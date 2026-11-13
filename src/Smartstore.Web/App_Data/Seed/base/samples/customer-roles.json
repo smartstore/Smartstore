@@ -1,0 +1,13 @@
+// Key field: systemName
+[
+  {
+    "name": "Inactive new customers",
+    "active": true,
+    "systemName": "InactiveNewCustomers"
+  },
+  {
+    "name": "Golf club members",
+    "active": true,
+    "systemName": "GolfClubMembers"
+  }
+]

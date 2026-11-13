@@ -1,6 +1,5 @@
 ﻿using System.Globalization;
 using Microsoft.AspNetCore.Http;
-using Smartstore.Core.Configuration;
 using Smartstore.Core.Stores;
 using Smartstore.Net;
 using Smartstore.Utilities;
@@ -11,6 +10,8 @@ public partial class MediaUrlGenerator : IMediaUrlGenerator
 {
     const string _fallbackImagesRootPath = "images/";
 
+    private static readonly char[] _fallbackImageTrimChars = [' ', '\t', '\r', '\n', '~', '/', '\\'];
+
     private readonly MediaSettings _mediaSettings;
     private readonly string _host;
     private readonly string _pathBase;
@@ -19,7 +20,6 @@ public partial class MediaUrlGenerator : IMediaUrlGenerator
 
     public MediaUrlGenerator(
         IMediaStorageConfiguration storageConfig,
-        ISettingService settingService,
         MediaSettings mediaSettings,
         IStoreContext storeContext,
         IHttpContextAccessor httpContextAccessor)
@@ -52,10 +52,80 @@ public partial class MediaUrlGenerator : IMediaUrlGenerator
 
         _host = _host.EmptyNull().EnsureEndsWith('/');
         _pathBase = pathBase.EnsureEndsWith('/');
-        _fallbackImageFileName = settingService.GetSettingByKey("Media.DefaultImageName", "default-image.png");
+
+        var defaultImageName = mediaSettings.DefaultImageName.EmptyNull();
+        var normalized = NormalizeFallbackImageFileName(defaultImageName);
+
+        _fallbackImageFileName = normalized.Length == defaultImageName.Length
+            ? defaultImageName
+            : normalized.ToString();
     }
 
     public static string FallbackImagesRootPath => _fallbackImagesRootPath;
+
+    /// <summary>
+    /// Trims whitespace, tildes and separator chars off both ends of the given fallback image file name,
+    /// e.g. <c>~/default-image.png</c> --> <c>default-image.png</c>.
+    /// </summary>
+    /// <remarks>
+    /// Trimming all of them in a single pass keeps this idempotent, which matters: <see cref="GenerateUrl"/>
+    /// emits the normalized name, and <see cref="IsFallbackImagePath"/> normalizes it again on the way back in.
+    /// </remarks>
+    public static ReadOnlySpan<char> NormalizeFallbackImageFileName(ReadOnlySpan<char> fileName)
+    {
+        return fileName.Trim(_fallbackImageTrimChars);
+    }
+
+    /// <summary>
+    /// Checks whether <paramref name="path"/> denotes the fallback (placeholder) image given by
+    /// <paramref name="fallbackImageFileName"/>. Separator chars and casing are not significant.
+    /// </summary>
+    /// <remarks>
+    /// The media route <c>{pub}/0/{path}</c> must serve the configured fallback image only. <paramref name="path"/>
+    /// usually comes straight from the request URL, and any other value has to be rejected: the fallback image is
+    /// resolved against the web root, so an arbitrary path would allow reading files outside of it.
+    /// </remarks>
+    /// <param name="path">The requested path, relative to <see cref="FallbackImagesRootPath"/>.</param>
+    /// <param name="fallbackImageFileName">The configured fallback image file name, see <see cref="MediaSettings.DefaultImageName"/>.</param>
+    /// <returns><c>true</c> if the path denotes the fallback image; otherwise <c>false</c>.</returns>
+    public static bool IsFallbackImagePath(ReadOnlySpan<char> path, ReadOnlySpan<char> fallbackImageFileName)
+    {
+        var fileName = NormalizeFallbackImageFileName(fallbackImageFileName);
+        if (fileName.IsEmpty)
+        {
+            return false;
+        }
+
+        var requestedFileName = NormalizeFallbackImageFileName(path);
+        if (requestedFileName.Length != fileName.Length)
+        {
+            return false;
+        }
+
+        for (var i = 0; i < fileName.Length; i++)
+        {
+            var c1 = requestedFileName[i];
+            var c2 = fileName[i];
+
+            if (c1 == '\\')
+            {
+                c1 = '/';
+            }
+
+            if (c2 == '\\')
+            {
+                c2 = '/';
+            }
+
+            // INFO: Compare like StringComparison.OrdinalIgnoreCase does, which also folds to upper case.
+            if (c1 != c2 && char.ToUpperInvariant(c1) != char.ToUpperInvariant(c2))
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
 
     public virtual string GenerateUrl(
         MediaFileInfo file,

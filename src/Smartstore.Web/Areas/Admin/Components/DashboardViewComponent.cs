@@ -16,11 +16,11 @@ public sealed class DashboardViewComponent : SmartViewComponent
         _dashboardService = dashboardService;
     }
 
-    public async Task<IViewComponentResult> InvokeAsync(string dashboardId, bool skipUserLayout = false)
+    public async Task<IViewComponentResult> InvokeAsync(string dashboardId, bool skipUserLayout = false, DashboardRenderModel? prepared = null)
     {
         Guard.NotEmpty(dashboardId);
 
-        var model = await _dashboardService.GetDashboardAsync(
+        var model = prepared ?? await _dashboardService.GetDashboardAsync(
             dashboardId,
             skipUserLayout ? null : Services.WorkContext.CurrentCustomer);
 

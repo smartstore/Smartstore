@@ -151,11 +151,15 @@ public abstract class NavigationItemBuilder<TItem, TBuilder> : IHideObjectMember
         return (this as TBuilder);
     }
 
-    public TBuilder Icon(string value, string libary = null)
+    public TBuilder Icon(string value)
     {
-        Item.IconLibrary = libary;
         Item.Icon = value;
         return (this as TBuilder);
+    }
+
+    public TBuilder Icon(string value, string libary)
+    {
+        return Icon(value.HasValue() && libary.HasValue() && !value.Contains(':') ? $"{libary}:{value}" : value);
     }
 
     public TBuilder IconClass(string value)
@@ -176,12 +180,12 @@ public abstract class NavigationItemBuilder<TItem, TBuilder> : IHideObjectMember
         return (this as TBuilder);
     }
 
-    public TBuilder Badge(string value, BadgeStyle style = BadgeStyle.Secondary, bool condition = true)
+    public TBuilder Badge(string value, string style = "secondary", bool condition = true)
     {
         if (condition)
         {
             Item.BadgeText = value;
-            Item.BadgeStyle = (int)style;
+            Item.BadgeStyle = style;
         }
         return (this as TBuilder);
     }

@@ -1,9 +1,5 @@
 /// <reference path="references.scss" />
 
-.alert > *:last-child {
-    margin-bottom: 0;
-}
-
 .alert a:not(.btn):not(.link-dnn) {
     @extend .link-duu;
     @extend .link-transition;
@@ -12,6 +8,15 @@
 .alert {
     border-left-width: 4px;
     border-left-color: rgba(var(--alert-base-rgb), 1);
+
+    &.fade {
+        transform-origin: top center;
+
+        &:not(.show) {
+            scale: $fade-scale;
+            translate: $fade-translate;
+        }
+    }
 }
 
 @if ($enable-alert-icons) {
@@ -29,7 +34,7 @@
 }
 
 .alert-info {
-    --alert-icon-content: "\f129"; // info
+    --alert-icon-mask: var(--icon-mask-alert-info);
 
     @if $alert-info-is-primary {
         // info should have primary color
@@ -46,17 +51,17 @@
 }
 
 .alert-danger {
-    --alert-icon-content: "\f071"; // exclamation-triangle
+    --alert-icon-mask: var(--icon-mask-alert-danger);
     @include bg-color-vars(danger-bg-subtle);
 }
 
 .alert-success {
-    --alert-icon-content: "\f00c"; // check
+    --alert-icon-mask: var(--icon-mask-alert-success);
     @include bg-color-vars(success-bg-subtle);
 }
 
 .alert-warning {
-    --alert-icon-content: "\f12a"; // exclamation
+    --alert-icon-mask: var(--icon-mask-alert-warning);
     @include bg-color-vars(warning-bg-subtle);
 }
 
@@ -69,6 +74,7 @@
 	margin-top: 0 !important;
 }
 
-.alert > *:last-child {
+.alert > *:last-child,
+.alert .text-expander-content > :last-child {
 	margin-bottom: 0 !important;
 }

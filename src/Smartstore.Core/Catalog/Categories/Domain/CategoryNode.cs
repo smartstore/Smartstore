@@ -14,6 +14,11 @@ public interface ICategoryNode : ILocalizedEntity, ISlugSupported, IAclRestricte
     new int Id { get; }
     int? ParentId { get; }
     string Name { get; }
+
+    /// <summary>
+    /// Gets the icon expression associated with the category.
+    /// </summary>
+    string Icon { get; }
     string ExternalLink { get; }
     string Alias { get; }
     int? MediaFileId { get; }
@@ -21,7 +26,7 @@ public interface ICategoryNode : ILocalizedEntity, ISlugSupported, IAclRestricte
     int DisplayOrder { get; }
     DateTime UpdatedOnUtc { get; }
     string BadgeText { get; }
-    int BadgeStyle { get; }
+    string BadgeStyle { get; }
 }
 
 public class CategoryNode : ICategoryNode, IKeyedNode
@@ -29,6 +34,7 @@ public class CategoryNode : ICategoryNode, IKeyedNode
     public int Id { get; set; }
     public int? ParentId { get; set; }
     public string Name { get; set; }
+    public string Icon { get; set; }
     public string ExternalLink { get; set; }
     public string Alias { get; set; }
     public int? MediaFileId { get; set; }
@@ -42,7 +48,7 @@ public class CategoryNode : ICategoryNode, IKeyedNode
     public int DisplayOrder { get; set; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    public int BadgeStyle { get; set; }
+    public string BadgeStyle { get; set; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public bool SubjectToAcl { get; set; }

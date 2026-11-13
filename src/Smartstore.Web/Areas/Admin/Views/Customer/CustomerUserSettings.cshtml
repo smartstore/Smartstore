@@ -11,12 +11,12 @@
 <form asp-action="CustomerUserSettings" id="cookie-infos-form">
     <div class="section-header">
         <div class="title">
-            <i class="fa fa-users"></i>
+            <icon name="user-group" />
             @T("Admin.Configuration.Settings.CustomerUser")
         </div>
         <div class="options">
-            <button type="submit" name="save" value="save" class="btn btn-warning">
-                <i class="fa fa-check"></i>
+            <button type="submit" name="save" value="save" class="btn btn-primary">
+                <icon name="check" />
                 <span>@T("Admin.Common.Save")</span>
             </button>
         </div>
@@ -74,6 +74,15 @@
                         <span asp-validation-for="CustomerSettings.CustomerLoginType"></span>
                     </div>
                 </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="CustomerSettings.CustomerNameFormat" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="CustomerSettings.CustomerNameFormat"></setting-editor>
+                        <span asp-validation-for="CustomerSettings.CustomerNameFormat"></span>
+                    </div>
+                </div>
                 <div id="pnlUsernamesEnabled">
                     <div class="adminRow">
                         <div class="adminTitle">
@@ -96,23 +105,18 @@
                 </div>
                 <div class="adminRow">
                     <div class="adminTitle">
-                        <smart-label asp-for="CustomerSettings.CustomerNameFormat" />
-                    </div>
-                    <div class="adminData">
-                        <setting-editor asp-for="CustomerSettings.CustomerNameFormat"></setting-editor>
-                        <span asp-validation-for="CustomerSettings.CustomerNameFormat"></span>
-                    </div>
-                </div>
-                <div class="adminRow">
-                    <div class="adminTitle">
                         <smart-label asp-for="CustomerSettings.CustomerNameAllowedCharacters" />
                     </div>
-                    <div class="adminData wide">
+                    <div class="adminData">
                         <setting-editor asp-for="CustomerSettings.CustomerNameAllowedCharacters"></setting-editor>
-                        <span class="d-inline-block text-muted pt-2">
-                            @T("Admin.Configuration.Settings.CustomerUser.CustomerNameAllowedCharacters.AdminHint")
-                            <code>a-z</code>, <code>A-Z</code>, <code>0-9</code>, <code>-</code>, <code>.</code>, <code>_</code>, <code>@@</code>, <code>+</code>
-                        </span>
+                        <div class="form-text text-muted" style="width: max-content;">
+                            <div id="username-all-characters-hint">
+                                @T("Admin.Configuration.Settings.CustomerUser.CustomerNameAllowedCharacters.AllCharactersHint")
+                            </div>
+                            <div id="username-restricted-characters-hint">
+                                @Html.Raw(T("Admin.Configuration.Settings.CustomerUser.CustomerNameAllowedCharacters.AdminHint"))
+                            </div>
+                        </div>
                         <span asp-validation-for="CustomerSettings.CustomerNameAllowedCharacters"></span>
                     </div>
                 </div>
@@ -269,7 +273,7 @@
             </div>
         </tab>
         <tab sm-title="@T("Admin.Configuration.Settings.CustomerUser.CustomerFormFields")">
-            <div class="alert alert-info alert-dismissible">
+            <div class="alert alert-info alert-dismissible fade show">
                 @Html.Raw(T("Admin.Configuration.Settings.CustomerUser.CustomerFormFields.Description"))
                 <button class="btn-close" data-dismiss="alert"></button>
             </div>
@@ -485,7 +489,7 @@
             </div>
         </tab>
         <tab sm-title="@T("Admin.Configuration.Settings.CustomerUser.AddressFormFields")">
-            <div class="alert alert-info alert-dismissible">
+            <div class="alert alert-info alert-dismissible fade show">
                 @Html.Raw(T("Admin.Configuration.Settings.CustomerUser.AddressFormFields.Description"))
                 <button class="btn-close" data-dismiss="alert"></button>
             </div>
@@ -802,7 +806,7 @@
                 <div class="adminRow">
                     <div class="adminTitle">&nbsp;</div>
                     <div class="adminData wide">
-                        <div class="alert alert-info alert-dismissible">
+                        <div class="alert alert-info alert-dismissible fade show">
                             <button type="button" class="btn-close" data-dismiss="alert"></button>
                             @Html.Raw(T("Admin.Configuration.Settings.CustomerUser.Privacy.SameSiteMode.AdminInstruction"))
                         </div>
@@ -895,12 +899,27 @@
 
 <script sm-target-zone="Scripts" data-origin="customer-user-settings">
     $(function () {
-        $('#@Html.IdFor(model => model.CustomerSettings.CustomerNumberMethod)').change(function () {
-        	$('#pnlCustomerNumberVisibility').toggle($(this).val() !== '@(CustomerNumberMethod.Disabled.ToString())');
+        $('#@Html.IdFor(x => x.CustomerSettings.CustomerNumberMethod)').on('change', (e) => {
+        	$('#pnlCustomerNumberVisibility').toggle($(e.currentTarget).val() !== '@((int)CustomerNumberMethod.Disabled)');
         }).trigger('change');
 
-        $('#@Html.IdFor(model => model.CustomerSettings.CustomerLoginType)').change(function () {
-            $('#pnlUsernamesEnabled').toggle($(this).val() !== '@((int)CustomerLoginType.Email)');
-        }).trigger('change');
+        const $elLoginType = $('#@Html.IdFor(x => x.CustomerSettings.CustomerLoginType)');
+        const $elNameFormat = $('#@Html.IdFor(x => x.CustomerSettings.CustomerNameFormat)');
+
+        const toggleUsernameSettings = () => {
+            $('#pnlUsernamesEnabled').toggle($elLoginType.val() !== '@((int)CustomerLoginType.Email)' || $elNameFormat.val() === '@((int)CustomerNameFormat.ShowUsernames)');
+        };
+
+        $elLoginType.add($elNameFormat).on('change', toggleUsernameSettings);
+        toggleUsernameSettings();
+
+        $('#@Html.IdFor(x => x.CustomerSettings.CustomerNameAllowedCharacters)').on('input', (e) => {
+            const additionalChars = [...new Set($(e.currentTarget).val().trim().split(''))].join('');
+            const restricted = additionalChars.length > 0;
+
+            $('#username-all-characters-hint').toggle(!restricted);
+            $('#username-restricted-characters-hint').toggle(restricted);
+            $('#username-additional-characters').text(additionalChars);
+        }).trigger('input');
     });
 </script>

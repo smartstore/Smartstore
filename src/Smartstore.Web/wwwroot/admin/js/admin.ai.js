@@ -59,6 +59,7 @@
             const location = el.closest('.ai-dropdown-menu').data("location");
             const isHtmlInlineEditing = location == "HtmlEditor";
             const isRichText = toBool(tool.data('is-richtext')) && cmd === "generate";
+            const wordLimit = tool.data('word-limit');
 
             let params = {
                 commandLocation: location,
@@ -76,6 +77,10 @@
                 displayTone: tool.data('display-tone'),
                 selectedElementType: tool.data('range-is-on')
             };
+
+            if (wordLimit !== undefined) {
+                params.wordLimit = wordLimit;
+            }
 
             if (isHtmlInlineEditing) {
                 params.origin = "summernote";

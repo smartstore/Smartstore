@@ -48,7 +48,6 @@ internal class PublicBundles : IBundleProvider
         /* Public Common CSS --> /bundle/css/site-common.css
         -----------------------------------------------------*/
         bundles.Add(new StyleBundle("/bundle/css/site-common.css").Include(
-            lib + "fontastic/fontastic.css",
             lib + "pnotify/css/pnotify.css",
             lib + "pnotify/css/pnotify.mobile.css",
             lib + "pnotify/css/pnotify.buttons.css"));
@@ -67,7 +66,6 @@ internal class PublicBundles : IBundleProvider
             lib + "jquery/jquery.validate.unobtrusive.js",
             lib + "jquery/jquery.ba-outside-events.js",
             lib + "moment/moment.js",
-            lib + "datetimepicker/js/tempusdominus-bootstrap-4.js",
             lib + "select2/js/select2.js",
             lib + "pnotify/js/pnotify.js",
             lib + "pnotify/js/pnotify.mobile.js",
@@ -89,6 +87,7 @@ internal class PublicBundles : IBundleProvider
             js + "smartstore.ajax.js",
             js + "smartstore.eventbroker.js",
             js + "smartstore.common.js",
+            js + "smartstore.datetimepicker.js",
             js + "smartstore.globalinit.js",
             js + "smartstore.tabs.js",
             js + "smartstore.dialogs.js",

@@ -6,6 +6,11 @@ namespace Smartstore.Admin.Components;
 
 public class DashboardBestsellersViewComponent : SmartViewComponent
 {
+    /// <summary>
+    /// Gets the widget permission required to display this report.
+    /// </summary>
+    public const string RequiredPermission = Permissions.Dashboard.Widgets.Sales.Bestsellers;
+
     private readonly SmartDbContext _db;
 
     public DashboardBestsellersViewComponent(SmartDbContext db)
@@ -13,9 +18,9 @@ public class DashboardBestsellersViewComponent : SmartViewComponent
         _db = db;
     }
 
-    public async Task<IViewComponentResult> InvokeAsync()
+    public async Task<IViewComponentResult> InvokeAsync(int count = 7)
     {
-        if (!await Services.Permissions.AuthorizeAsync(Permissions.Order.Read))
+        if (!await Services.Permissions.AuthorizeAsync(RequiredPermission))
         {
             return Empty();
         }
@@ -23,7 +28,7 @@ public class DashboardBestsellersViewComponent : SmartViewComponent
         var customer = Services.WorkContext.CurrentCustomer;
         var authorizedStoreIds = await Services.StoreMappingService.GetAuthorizedStoreIdsAsync("Customer", customer.Id);
 
-        const int pageSize = 7;
+        var pageSize = Math.Clamp(count, 1, 50);
 
         // INFO: join tables to ignore soft-deleted products and orders.
         var orderItemQuery =

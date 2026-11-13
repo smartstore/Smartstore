@@ -55,8 +55,9 @@ public class OrderController : PublicController
     public async Task<IActionResult> Details(int id)
     {
         // Include deleted products but do not load a deleted order.
+        // INFO: Must be tracked because OrderHelper loads additional navigations. Attaching the detached order graph can conflict
+        // with already tracked instances of related entities such as Customer and Country.
         var order = await _db.Orders
-            .AsNoTracking()
             .IncludeCustomer(false, true)
             .IgnoreQueryFilters()
             .IncludeBillingAddress()

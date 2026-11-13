@@ -1,32 +1,39 @@
-﻿using Smartstore.Collections;
+﻿#nullable enable
+
+using Smartstore.Collections;
 using Smartstore.Core.Content.Menus;
 
 namespace Smartstore.Web.Rendering.Menus;
 
 public class MenuModel
 {
-    private TreeNode<MenuItem> _selectedNode;
+    private TreeNode<MenuItem>? _selectedNode;
     private bool _seekedSelectedNode;
 
     /// <summary>
     /// System name used to get the <see cref="IMenu"/>.
     /// </summary>
-    public string Name { get; set; }
+    public string? Name { get; set; }
 
     /// <summary>
     /// Template view name.
     /// </summary>
-    public string Template { get; set; }
+    public string? Template { get; set; }
 
     /// <summary>
     /// Used to be displayed in frontend if needed.
     /// </summary>
-    public string PublicName { get; set; }
+    public string? PublicName { get; set; }
 
-    public TreeNode<MenuItem> Root { get; set; }
-    public IList<TreeNode<MenuItem>> Path { get; set; }
+    public TreeNode<MenuItem>? Root { get; set; }
+    public IList<TreeNode<MenuItem>>? Path { get; set; }
 
-    public TreeNode<MenuItem> SelectedNode
+    /// <summary>
+    /// Gets or sets the menu area's icon defaults. Null preserves the template's existing behavior.
+    /// </summary>
+    public MenuIconOptions? IconOptions { get; set; }
+
+    public TreeNode<MenuItem>? SelectedNode
     {
         get
         {

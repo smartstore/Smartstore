@@ -17,14 +17,16 @@ public static class PathUtility
 
     internal const string SeparatorString = "/";
 
-    private static readonly char[] _invalidPathChars;
+    private static readonly char[] _invalidPathCharsArray;
+    private static readonly SearchValues<char> _invalidPathChars;
     private static readonly SearchValues<char> _invalidFileNameChars;
     private static readonly SearchValues<char> _invalidFilterChars;
     private static readonly Regex _invalidCharsPattern;
 
     static PathUtility()
     {
-        _invalidPathChars = Path.GetInvalidPathChars();
+        _invalidPathCharsArray = Path.GetInvalidPathChars();
+        _invalidPathChars = SearchValues.Create(_invalidPathCharsArray);
         _invalidFileNameChars = SearchValues.Create(Path.GetInvalidFileNameChars());
         _invalidFilterChars = SearchValues.Create(Path.GetInvalidFileNameChars().Where(c => c != '*' && c != '|' && c != '?').ToArray());
 
@@ -481,7 +483,7 @@ public static class PathUtility
 
         return string.Join(
             replacement ?? "-",
-            path!.Tokenize(_invalidPathChars));
+            path!.Tokenize(_invalidPathCharsArray));
     }
 
     public static bool HasInvalidPathChars(string? path, bool checkWildcardChars = false)
@@ -514,6 +516,24 @@ public static class PathUtility
 
         return fileName.IndexOfAny(_invalidFileNameChars) >= 0
             || (checkWildcardChars && ContainsWildcardChars(fileName, 0));
+    }
+
+    /// <summary>
+    /// Gets a value indicating whether <paramref name="value"/> is a plain file name without directory or navigation segments.
+    /// </summary>
+    /// <param name="value">The value to validate.</param>
+    /// <returns><c>true</c> if the value is a plain file name; otherwise <c>false</c>.</returns>
+    public static bool IsFileName(string? value)
+    {
+        if (value.IsEmpty() || value is CurrentDirectoryToken or ParentDirectoryToken)
+        {
+            return false;
+        }
+
+        var fileName = value.AsSpan();
+
+        return fileName.IndexOfAny('/', '\\') < 0
+            && !HasInvalidFileNameChars(fileName);
     }
 
     public static bool HasInvalidFilterChars(string? path)

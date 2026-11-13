@@ -1,4 +1,5 @@
-﻿using Smartstore.Core.Catalog.Products;
+﻿using Smartstore.Core.Catalog.Attributes;
+using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Common;
 using Smartstore.Core.Configuration;
 using Smartstore.Core.Localization;
@@ -79,8 +80,8 @@ public class CatalogSettings : ISettings
     public bool ShowProductTags { get; set; } = true;
 
     /// <summary>
-		/// Gets or sets a value indicating how many menu items will be displayed
-		/// </summary>
+    /// Gets or sets a value indicating how many menu items will be displayed
+    /// </summary>
     public int? MaxItemsToDisplayInCatalogMenu { get; set; }
 
     /// <summary>
@@ -254,9 +255,9 @@ public class CatalogSettings : ISettings
     public bool ShowManufacturerPictures { get; set; } = true;
 
     /// <summary>
-		/// Gets or sets a value indicating whether to display manufacturer detail links in product detail pages
-		/// </summary>
-		public bool ShowManufacturerInProductDetail { get; set; } = true;
+    /// Gets or sets a value indicating whether to display manufacturer detail links in product detail pages
+    /// </summary>
+    public bool ShowManufacturerInProductDetail { get; set; } = true;
 
     /// <summary>
     /// Gets or sets a value indicating whether to display pictures or textual links to manufacturer pages in product detail pages
@@ -269,9 +270,9 @@ public class CatalogSettings : ISettings
     public bool HideManufacturerDefaultPictures { get; set; }
 
     /// <summary>
-		/// Gets or sets a value indicating whether to hide manufacturer default pictures
-		/// </summary>
-		public bool SortManufacturersAlphabetically { get; set; }
+    /// Gets or sets a value indicating whether to sort manufacturers alphabetically
+    /// </summary>
+    public bool SortManufacturersAlphabetically { get; set; }
 
     /// <summary>
     /// Gets or sets a value indicating whether to sort attributes naturally. Default is <c>true</c>.
@@ -357,6 +358,16 @@ public class CatalogSettings : ISettings
     public bool ShowPopularProductTagsOnHomepage { get; set; } = false;
 
     /// <summary>
+    /// Gets or sets a value indicating which parts of the legal information should be displayed in product detail.
+    /// </summary>
+    public ProductLegalInfo LegalInfoInProductDetail { get; set; } = ProductLegalInfo.All;
+
+    /// <summary>
+    /// Gets or sets a value indicating which parts of the legal information should be displayed in product lists.
+    /// </summary>
+    public ProductLegalInfo LegalInfoInLists { get; set; } = ProductLegalInfo.All;
+
+    /// <summary>
     /// Gets or sets the available customer selectable default page size options
     /// </summary>
     public string DefaultPageSizeOptions { get; set; } = "12,24,36,48,72,120";
@@ -404,8 +415,10 @@ public class CatalogSettings : ISettings
     /// <summary>
     /// Gets or sets a list of allowed file extensions for customer uploaded files
     /// </summary>
-    public List<string> FileUploadAllowedExtensions { get; set; } = new List<string>();
+    public List<string> FileUploadAllowedExtensions { get; set; } = [];
 
+    // TODO: Move these text collapsing settings to general presentation settings with a settings migration.
+    // They also apply to topics and admin content and do not belong in CatalogSettings.
     /// <summary>
     /// Gets or sets a value indicating if html long text should be collapsed
     /// </summary>
@@ -414,7 +427,7 @@ public class CatalogSettings : ISettings
     /// <summary>
     /// Gets or sets the height of collapsed text
     /// </summary>
-    public int HtmlTextCollapsedHeight { get; set; } = 260;
+    public int HtmlTextCollapsedHeight { get; set; } = 230;
 
     /// <summary>
     /// Gets or sets the identifier of a delivery time displayed when the stock is empty.
@@ -435,6 +448,18 @@ public class CatalogSettings : ISettings
     /// Gets or sets how many columns per row should be displayed at most in grid style lists on largest screen resolution.
     /// </summary>
     public GridColumnSpan GridStyleListColumnSpan { get; set; } = GridColumnSpan.Max4Cols;
+
+    /// <summary>
+    /// Gets or sets the default size of product attribute swatches.
+    /// The default value is <see cref="SwatchSize.Medium"/>.
+    /// </summary>
+    public SwatchSize DefaultSwatchSize { get; set; } = SwatchSize.Medium;
+
+    /// <summary>
+    /// Gets or sets the default shape of product attribute swatches.
+    /// The default value is <see cref="SwatchShape.Rounded"/>.
+    /// </summary>
+    public SwatchShape DefaultSwatchShape { get; set; } = SwatchShape.Rounded;
 
     #region Grouped product configuration
 

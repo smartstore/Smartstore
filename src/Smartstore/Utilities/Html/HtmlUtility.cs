@@ -125,63 +125,6 @@ public static partial class HtmlUtility
     }
 
     /// <summary>
-    /// Checks whether HTML code only contains whitespace stuff (<![CDATA[<p>&nbsp;</p>]]>)
-    /// </summary>
-    public static bool IsEmptyHtml(string? html)
-    {
-        if (string.IsNullOrWhiteSpace(html))
-        {
-            return true;
-        }
-
-        if (html.Length > 500)
-        {
-            // (perf) we simply assume content if length is larger
-            return false;
-        }
-
-        var context = BrowsingContext.New(Configuration.Default);
-        var parser = context.GetService<IHtmlParser>();
-        using var doc = parser!.ParseDocument(html);
-
-        foreach (var el in doc.All)
-        {
-            switch (el.TagName.ToLower())
-            {
-                case "html":
-                case "head":
-                case "br":
-                    continue;
-                case "body":
-                    if (el.ChildElementCount > 0)
-                    {
-                        continue;
-                    }
-                    else
-                    {
-                        return el.Text().Trim().IsEmpty();
-                    }
-                case "p":
-                case "div":
-                case "span":
-                    var text = el.Text().Trim();
-                    if (text.IsEmpty() || text == "&nbsp;")
-                    {
-                        continue;
-                    }
-                    else
-                    {
-                        return false;
-                    }
-                default:
-                    return false;
-            }
-        }
-
-        return true;
-    }
-
-    /// <summary>
     /// Replace anchor text (remove &lt;a&gt; tag from the following url <a href="http://example.com">Name</a> and output only the string "Name")
     /// </summary>
     /// <param name="text">Text</param>
@@ -428,30 +371,81 @@ public static partial class HtmlUtility
     public static bool IsHtml(string input)
     {
         if (string.IsNullOrEmpty(input))
-            return false;
-
-        int index = 0;
-        while ((index = input.IndexOf('<', index)) != -1)
         {
-            // Ensure there is a '>' after the '<'
-            int closeBracketIndex = input.IndexOf('>', index + 1);
-            if (closeBracketIndex == -1)
-            {
-                // No closing '>' found, invalid tag structure
-                break;
-            }
-
-            // Check if a closing tag '</' exists after the current '<'
-            int closingTagIndex = input.IndexOf("</", closeBracketIndex);
-            if (closingTagIndex != -1)
-            {
-                return true;
-            }
-
-            // Move past the current '>' to continue searching
-            index = closeBracketIndex + 1;
+            return false;
         }
 
-        return false;
+        int closingTagIndex = input.IndexOf("</", StringComparison.Ordinal);
+        if (closingTagIndex <= 0)
+        {
+            return false;
+        }
+
+        var precedingContent = input.AsSpan(0, closingTagIndex);
+        return precedingContent.IndexOf('<') != -1 && precedingContent.IndexOf('>') != -1;
+    }
+
+    /// <summary>
+    /// Checks whether HTML code only contains whitespace stuff (<![CDATA[<p>&nbsp;</p>]]>)
+    /// </summary>
+    public static bool IsEmptyHtml(string? html)
+    {
+        if (string.IsNullOrWhiteSpace(html))
+        {
+            return true;
+        }
+
+        if (html.Length > 500)
+        {
+            // (perf) we simply assume content if length is larger
+            return false;
+        }
+
+        if (html.AsSpan().IndexOfAny('<', '&') == -1)
+        {
+            // The string contains non-whitespace text and no markup or entity that could
+            // be interpreted as whitespace by the HTML parser.
+            return false;
+        }
+
+        var context = BrowsingContext.New(Configuration.Default);
+        var parser = context.GetService<IHtmlParser>();
+        using var doc = parser!.ParseDocument(html);
+
+        foreach (var el in doc.All)
+        {
+            switch (el.LocalName)
+            {
+                case "html":
+                case "head":
+                case "br":
+                    continue;
+                case "body":
+                    if (el.ChildElementCount > 0)
+                    {
+                        continue;
+                    }
+                    else
+                    {
+                        return el.Text().Trim().IsEmpty();
+                    }
+                case "p":
+                case "div":
+                case "span":
+                    var text = el.Text().Trim();
+                    if (text.IsEmpty() || text == "&nbsp;")
+                    {
+                        continue;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                default:
+                    return false;
+            }
+        }
+
+        return true;
     }
 }

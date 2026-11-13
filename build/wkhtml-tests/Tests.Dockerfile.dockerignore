@@ -1,0 +1,12 @@
+**/.git
+**/bin
+**/obj
+**/*-sym
+**/node_modules
+**/.vs
+build/artifacts
+build/packages
+.temp/*
+!.temp/wkhtml-tests/
+.temp/wkhtml-tests/*
+!.temp/wkhtml-tests/packages/

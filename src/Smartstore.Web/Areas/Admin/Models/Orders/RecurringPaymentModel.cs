@@ -33,6 +33,12 @@ public class RecurringPaymentModel : EntityModelBase
     public string NextPaymentDateFriendly
         => NextPaymentDate?.ToHumanizedString(false);
 
+    /// <summary>
+    /// Gets the icon concept for the next payment state.
+    /// </summary>
+    [LocalizedDisplay("*NextPaymentDate")]
+    public string NextPaymentIcon => NextPaymentDateUtc.HasValue ? "circle-fill" : "minus";
+
     public string NextPaymentLabelClass
     {
         get
@@ -56,10 +62,10 @@ public class RecurringPaymentModel : EntityModelBase
                     color = "warning";
                 }
 
-                return $"fa fa-fw fa-circle text-{color}";
+                return $"text-{color}";
             }
 
-            return "fa fa-fw icon-active-false";
+            return "icon-active-false";
         }
     }
 

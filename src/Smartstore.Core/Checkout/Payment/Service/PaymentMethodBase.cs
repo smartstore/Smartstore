@@ -38,6 +38,8 @@ public abstract class PaymentMethodBase : IPaymentMethod
 
     public virtual bool RequiresPaymentSelection => true;
 
+    public virtual bool DisplayInPaymentMethodList => true;
+
     public abstract Widget GetPaymentInfoWidget();
 
     public virtual Task<ProcessPaymentRequest> GetPaymentInfoAsync(IFormCollection form)

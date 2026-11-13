@@ -16,6 +16,10 @@
       "type": "string",
       "description": "Module system name (usually the assembly name without extension)."
     },
+    "Icon": {
+      "type": "string",
+      "description": "Optional icon address with rendering modifiers (e.g. hi:cart?color=#f90). Replaces icon.svg or icon.png; provider-specific image files take precedence."
+    },
     "Theme": {
       "type": "string",
       "description": "Theme name (if the module is a theme companion). On build a symbolic link will be created in /Themes/[Theme] to /Modules/[Module]."

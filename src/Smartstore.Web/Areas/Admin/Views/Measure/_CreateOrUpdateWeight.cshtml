@@ -2,6 +2,14 @@
 
 @model MeasureWeightModel
 
+@{
+    var baseUnit = ViewBag.BaseWeight as MeasureWeight;
+    string unspecified = T("Common.Unspecified").Value;
+    bool isBaseUnit = baseUnit != null && baseUnit.Id == Model.Id;
+    string baseUnitName = isBaseUnit ? Model.Name.NullEmpty() ?? unspecified : baseUnit?.Name;
+    string ratioPrefix = baseUnitName.HasValue() ? $"1 {baseUnitName} =" : null;
+}
+
 <div asp-validation-summary="All"></div>
 <input asp-for="Id" type="hidden" />
 
@@ -47,7 +55,7 @@
             <smart-label asp-for="Ratio" />
         </div>
         <div class="adminData">
-            <editor asp-for="Ratio" />
+            <editor asp-for="Ratio" sm-prefix="@ratioPrefix" sm-postfix="@Html.Encode(Model.Name.NullEmpty() ?? unspecified)" />
             <span asp-validation-for="Ratio"></span>
         </div>
     </div>
@@ -95,3 +103,17 @@
         </div>
     }
 </div>
+
+<script sm-target-zone="scripts" sm-minify="true" data-origin="measure-unit-edit">
+    $(function () {
+        $('#@Html.IdFor(x => x.Name)').on('input', function () {
+            const unitName = this.value.trim() || @Json.Serialize(unspecified);
+            const ratioGroup = $('#@Html.IdFor(x => x.Ratio)').closest('.numberinput-group');
+            ratioGroup.find('.numberinput-postfix').text(unitName);
+            @if (isBaseUnit)
+            {
+                <text>ratioGroup.prev('.input-addon-plain').find('.input-group-text').text('1 ' + unitName + ' =');</text>
+            }
+        });
+    });
+</script>

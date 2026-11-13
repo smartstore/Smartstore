@@ -1,0 +1,51 @@
+<div id="lightbox" class="lightbox" tabindex="-1" role="dialog" aria-modal="true"
+     aria-label="@T("Aria.Label.MediaGallery")" aria-hidden="true" hidden
+     data-error-message="@T("Common.NoImageAvail")">
+    <div class="lightbox-bg"></div>
+    <nav class="gal-nav lightbox-thumbs hstack" data-lightbox-thumbnails aria-label="@T("Aria.Label.MediaGallery")" hidden>
+        <button type="button" class="btn btn-secondary btn-no-border btn-icon rounded-circle btn-sm gal-arrow lightbox-thumb-scroll-btn" data-lightbox-action="thumbnails-previous" aria-label="@T("Pager.Previous")" aria-controls="lightbox-thumbnails" hidden>
+            <icon name="chevron-left" mirror-rtl="false" />
+        </button>
+        <div class="gal-list lightbox-thumb-list scroll-fade scroll-fade-x scroll-fade-observable" data-lightbox-thumbnail-list>
+            <div class="gal-track lightbox-thumb-track" id="lightbox-thumbnails" data-lightbox-thumbnail-track role="list"></div>
+        </div>
+        <button type="button" class="btn btn-secondary btn-no-border btn-icon rounded-circle btn-sm gal-arrow lightbox-thumb-scroll-btn" data-lightbox-action="thumbnails-next" aria-label="@T("Pager.Next")" aria-controls="lightbox-thumbnails" hidden>
+            <icon name="chevron-right" mirror-rtl="false" />
+        </button>
+    </nav>
+    <section class="lightbox-stage" aria-roledescription="carousel">
+        <div class="lightbox-track" id="lightbox-slides" aria-live="off">
+            <div class="lightbox-slide" role="group" aria-roledescription="slide" aria-hidden="true" inert></div>
+            <div class="lightbox-slide" role="group" aria-roledescription="slide" aria-hidden="true" inert></div>
+            <div class="lightbox-slide" role="group" aria-roledescription="slide" aria-hidden="true" inert></div>
+        </div>
+        <div class="lightbox-loader hstack justify-content-center" aria-hidden="true" hidden></div>
+        <div class="lightbox-ui">
+            <div class="lightbox-topbar hstack justify-content-end">
+                <div class="lightbox-tools hstack gap-1 rounded-pill p-1">
+                    <div class="lightbox-zoom-controls position-relative hstack gap-1">
+                        <button type="button" class="btn btn-plain btn-icon rounded-circle lightbox-btn lightbox-fullscreen-btn" data-lightbox-action="fullscreen" title="Toggle fullscreen" aria-label="Toggle fullscreen">
+                            <icon name="maximize" data-lightbox-icon="fullscreen-enter" />
+                            <icon name="minimize" data-lightbox-icon="fullscreen-exit" hidden />
+                        </button>
+                        <button type="button" class="btn btn-plain btn-icon rounded-circle lightbox-btn lightbox-zoom-btn" data-lightbox-action="zoom" title="Zoom in/out" aria-label="Zoom in/out">
+                            <icon name="zoom-in" data-lightbox-icon="zoom-in" />
+                            <icon name="zoom-out" data-lightbox-icon="zoom-out" hidden />
+                        </button>
+                    </div>
+                    <span class="vr lightbox-counter-separator my-2" aria-hidden="true"></span>
+                    <div class="lightbox-counter text-nowrap px-2 user-select-none"></div>
+                    <span class="vr lightbox-counter-separator my-2" aria-hidden="true"></span>
+                    <button type="button" class="btn btn-plain btn-icon rounded-circle lightbox-btn lightbox-close" data-lightbox-action="close" title="Close (ESC)" aria-label="Close"><icon name="close" /></button>
+                </div>
+            </div>
+            <button type="button" class="btn btn-secondary btn-flat btn-no-border btn-icon btn-lg rounded-circle lightbox-btn lightbox-arrow lightbox-previous mx-3" data-lightbox-action="previous" title="Previous" aria-label="Previous" aria-controls="lightbox-slides">
+                <icon name="chevron-left" mirror-rtl="false" />
+            </button>
+            <button type="button" class="btn btn-secondary btn-flat btn-no-border btn-icon btn-lg rounded-circle lightbox-btn lightbox-arrow lightbox-next mx-3" data-lightbox-action="next" title="Next" aria-label="Next" aria-controls="lightbox-slides">
+                <icon name="chevron-right" mirror-rtl="false" />
+            </button>
+            <div class="lightbox-caption" hidden><div class="lightbox-caption-text"></div></div>
+        </div>
+    </section>
+</div>

@@ -25,7 +25,7 @@ public static class ImagingHelper
     /// </summary>
     internal static SharpColor ConvertColor(Color input)
     {
-        return SharpColor.FromRgba(input.R, input.G, input.B, input.A);
+        return SharpColor.FromPixel(new Rgba32(input.R, input.G, input.B, input.A));
     }
 
     /// <summary>

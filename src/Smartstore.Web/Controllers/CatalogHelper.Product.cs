@@ -12,6 +12,7 @@ using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Tax;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Content.Menus;
+using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Rules;
 using Smartstore.Core.Security;
@@ -19,6 +20,7 @@ using Smartstore.Core.Seo;
 using Smartstore.Core.Stores;
 using Smartstore.Diagnostics;
 using Smartstore.Json;
+using Smartstore.Utilities;
 using Smartstore.Web.Infrastructure.Hooks;
 using Smartstore.Web.Models.Catalog;
 using Smartstore.Web.Models.Catalog.Mappers;
@@ -229,10 +231,11 @@ public partial class CatalogHelper
                         bundleItemModel.Name = bundleItemName;
                     }
 
-                    var bundleItemShortDescription = bundleItem.GetLocalized(x => x.ShortDescription);
-                    if (bundleItemShortDescription.Value.HasValue())
+                    var bundleItemShortDesc = bundleItem.GetLocalized(x => x.ShortDescription);
+                    // INFO: An empty value keeps the product short description as fallback, while whitespace explicitly suppresses it.
+                    if (!string.IsNullOrEmpty(bundleItemShortDesc.Value))
                     {
-                        bundleItemModel.ShortDescription = bundleItemShortDescription;
+                        bundleItemModel.ShortDescription = bundleItemShortDesc.Value.HasValue() ? bundleItemShortDesc : null;
                     }
 
                     model.BundledItems.Add(bundleItemModel);
@@ -256,7 +259,6 @@ public partial class CatalogHelper
 
             #region Brands
 
-            // Brands
             if (_catalogSettings.ShowManufacturerInProductDetail)
             {
                 var brands = _db.IsCollectionLoaded(product, x => x.ProductManufacturers)
@@ -332,10 +334,10 @@ public partial class CatalogHelper
                     Key = "sample",
                     Title = T("Products.DownloadSample"),
                     CssClass = "action-download-sample",
-                    IconCssClass = "fa fa-download",
+                    Icon = "download",
                     Href = _urlHelper.Action("Sample", "Download", new { productId = model.Id }),
                     IsPrimary = true,
-                    PrimaryActionColor = "danger"
+                    PrimaryActionColor = "light"
                 };
             }
 
@@ -347,7 +349,7 @@ public partial class CatalogHelper
                     Title = T("ShoppingCart.AddToWishlist.Short"),
                     Tooltip = T("ShoppingCart.AddToWishlist"),
                     CssClass = "ajax-cart-link action-add-to-wishlist",
-                    IconCssClass = "icm icm-heart",
+                    Icon = "heart",
                     Href = _urlHelper.Action("AddProduct", "ShoppingCart", new { productId = model.Id, shoppingCartTypeId = (int)ShoppingCartType.Wishlist })
                 };
             }
@@ -360,7 +362,7 @@ public partial class CatalogHelper
                     Title = T("Common.Shopbar.Compare"),
                     Tooltip = T("Products.Compare.AddToCompareList"),
                     CssClass = "action-compare ajax-cart-link",
-                    IconCssClass = "icm icm-repeat",
+                    Icon = "compare",
                     Href = _urlHelper.Action("AddProductToCompare", "Catalog", new { id = model.Id })
                 };
             }
@@ -373,7 +375,7 @@ public partial class CatalogHelper
                     Title = T("Products.AskQuestion.Short"),
                     Tooltip = T("Products.AskQuestion"),
                     CssClass = "action-ask-question",
-                    IconCssClass = "icm icm-envelope",
+                    Icon = "mail",
                     Href = _urlHelper.Action("AskQuestion", new { id = model.Id })
                 };
             }
@@ -385,7 +387,7 @@ public partial class CatalogHelper
                     Key = "tell",
                     Title = T("Products.EmailAFriend"),
                     CssClass = "action-bullhorn",
-                    IconCssClass = "icm icm-bullhorn",
+                    Icon = "megaphone",
                     Href = _urlHelper.Action("EmailAFriend", new { id = model.Id })
                 };
             }
@@ -450,7 +452,12 @@ public partial class CatalogHelper
         await PrepareProductAttributesModelAsync(model, ctx, selectedQuantity);
 
         // Weight requires merge with attribute combination.
-        model.WeightValue = product.Weight;
+        model.WeightValue = product.Weight + model.ProductVariantAttributes
+            .Where(x => x.IsActive)
+            .SelectMany(x => x.Values)
+            .OfType<ProductDetailsModel.ProductVariantAttributeValueModel>()
+            .Where(x => x.IsPreSelected)
+            .Sum(x => x.ProductAttributeValue.WeightAdjustment);
 
         // Price
         await PrepareProductPriceModelAsync(model, ctx, selectedQuantity);
@@ -523,7 +530,7 @@ public partial class CatalogHelper
         };
     }
 
-    #region PrepareProductDetailModelAsync helper methods
+    #region Helper methods
 
     protected internal async Task PrepareProductAttributesModelAsync(ProductDetailsModel model, ProductDetailsModelContext ctx, int selectedQuantity)
     {
@@ -537,20 +544,35 @@ public partial class CatalogHelper
 
         using var chronometer = _services.Chronometer.Step("PrepareProductAttributesModel");
 
-        var query = ctx.VariantQuery;
         var productBundleItem = ctx.ProductBundleItem;
-        var bundleItemId = productBundleItem?.Id ?? 0;
         var isBundlePricing = productBundleItem != null && !productBundleItem.BundleProduct.BundlePerItemPricing;
         var attributes = await ctx.BatchContext.Attributes.GetOrLoadAsync(product.Id);
-        var pricingOptions = _priceCalculationService.CreateDefaultOptions(false, ctx.Customer, null, ctx.BatchContext);
+
+        ctx.VariantEvaluation = await PrepareProductVariantEvaluationAsync(ctx, attributes, selectedQuantity);
+
         var linkedProducts = new Dictionary<int, Product>();
         var linkedMediaFiles = new Multimap<int, ProductMediaFile>();
-        var preselectedWeightAdjustment = 0m;
-
         // Key: ProductVariantAttributeValue.Id, value: attribute price adjustment.
-        var priceAdjustments = ctx.DisplayPrices && !isBundlePricing
-            ? await _priceCalculationService.CalculateAttributePriceAdjustmentsAsync(product, null, selectedQuantity, pricingOptions)
-            : new Dictionary<int, CalculatedPriceAdjustment>();
+        Dictionary<int, CalculatedPriceAdjustment> priceAdjustments = [];
+
+        if (ctx.DisplayPrices
+            && !isBundlePricing
+            && !product.CallForPrice
+            && _priceSettings.ShowVariantCombinationPriceAdjustment)
+        {
+            var pricingOptions = _priceCalculationService.CreateDefaultOptions(false, ctx.Customer, null, ctx.BatchContext);
+            pricingOptions.DeterminePriceAdjustments = true;
+            pricingOptions.TaxFormat = null;
+
+            var pricingContext = new PriceCalculationContext(product, selectedQuantity, pricingOptions)
+            {
+                AssociatedProducts = ctx.AssociatedProducts,
+                BundleItem = productBundleItem
+            };
+
+            var price = await _priceCalculationService.CalculatePriceAsync(pricingContext);
+            priceAdjustments = price.AttributePriceAdjustments.ToDictionarySafe(x => x.AttributeValue.Id);
+        }
 
         var linkedProductIds = attributes
             .SelectMany(x => x.ProductVariantAttributeValues)
@@ -579,219 +601,421 @@ public partial class CatalogHelper
             }
         }
 
-
         foreach (var attribute in attributes)
         {
-            var preSelectedValueId = 0;
-            var attributeModel = new ProductDetailsModel.ProductVariantAttributeModel
-            {
-                Id = attribute.Id,
-                ProductId = attribute.ProductId,
-                BundleItemId = bundleItemId,
-                ProductAttributeId = attribute.ProductAttributeId,
-                ProductAttribute = attribute,
-                Alias = attribute.ProductAttribute.Alias,
-                Name = attribute.ProductAttribute.GetLocalized(x => x.Name),
-                Description = attribute.ProductAttribute.GetLocalized(x => x.Description),
-                TextPrompt = attribute.TextPrompt,
-                CustomData = attribute.CustomData,
-                IsRequired = attribute.IsRequired,
-                AttributeControlType = attribute.AttributeControlType,
-                AllowedFileExtensions = _catalogSettings.FileUploadAllowedExtensions,
-
-                // Frontend prototype controls. Set these per attribute while testing the swatch presentation.
-                SwatchSize = SwatchSize.Medium,
-                SwatchShape = SwatchShape.Rounded,
-                SwatchAspectRatio = 1m,
-                ShowValueNameInSwatch = false,
-                SwatchPriceDisplay = SwatchPriceDisplayMode.None
-            };
-
-            // Copy queried variant data (entered by customer) to model.
-            if (query.Variants.Count > 0)
-            {
-                var selectedAttribute = query.Variants.FirstOrDefault(x =>
-                    x.ProductId == product.Id &&
-                    x.BundleItemId == bundleItemId &&
-                    x.AttributeId == attribute.ProductAttributeId &&
-                    x.VariantAttributeId == attribute.Id);
-
-                if (selectedAttribute != null)
-                {
-                    switch (attribute.AttributeControlType)
-                    {
-                        case AttributeControlType.Datepicker:
-                            if (selectedAttribute.Date.HasValue)
-                            {
-                                attributeModel.SelectedDate = selectedAttribute.Date;
-                            }
-                            break;
-                        case AttributeControlType.FileUpload:
-                            attributeModel.UploadedFileGuid = selectedAttribute.Value;
-
-                            if (selectedAttribute.Value.HasValue() && Guid.TryParse(selectedAttribute.Value, out var guid))
-                            {
-                                var mediaFile = await _db.Downloads
-                                    .AsNoTracking()
-                                    .Where(x => x.DownloadGuid == guid)
-                                    .Select(x => x.MediaFile)
-                                    .FirstOrDefaultAsync();
-
-                                attributeModel.UploadedFileName = mediaFile.Name;
-
-                                var mediaFileInfo = _mediaService.ConvertMediaFile(mediaFile);
-
-                                attributeModel.CustomProperties["UploadedFileInfo"] = JsonSerializer.Serialize(mediaFileInfo, SmartJsonOptions.Default);
-                            }
-                            break;
-                        case AttributeControlType.TextBox:
-                        case AttributeControlType.MultilineTextbox:
-                            attributeModel.TextValue = selectedAttribute.Value;
-                            break;
-                    }
-                }
-            }
-
-            if (attribute.IsListTypeAttribute())
-            {
-                var valuesModels = await attribute.ProductVariantAttributeValues
-                    .SelectAwait(async val =>
-                    {
-                        ProductBundleItemAttributeFilter attributeFilter = null;
-                        if (productBundleItem?.IsFilteredOut(val, out attributeFilter) ?? false)
-                        {
-                            return null;
-                        }
-                        if (preSelectedValueId == 0 && attributeFilter != null && attributeFilter.IsPreSelected)
-                        {
-                            preSelectedValueId = attributeFilter.AttributeValueId;
-                        }
-
-                        var m = new ProductDetailsModel.ProductVariantAttributeValueModel
-                        {
-                            Id = val.Id,
-                            ProductAttributeValue = val,
-                            Name = val.GetLocalized(x => x.Name),
-                            Alias = val.Alias,
-                            Color = val.Color, // Used with "Boxes" attribute type.
-                            IsPreSelected = val.IsPreSelected,
-                            DisplayOrder = val.DisplayOrder,
-                        };
-
-                        if (val.ValueType == ProductVariantAttributeValueType.ProductLinkage &&
-                            linkedProducts.TryGetValue(val.LinkedProductId, out var linkedProduct))
-                        {
-                            m.SeName = await linkedProduct.GetActiveSlugAsync();
-                        }
-
-                        if (ctx.DisplayPrices && !isBundlePricing)
-                        {
-                            if (priceAdjustments.TryGetValue(val.Id, out var priceAdjustment))
-                            {
-                                if (_priceSettings.ShowVariantCombinationPriceAdjustment && !product.CallForPrice)
-                                {
-                                    if (priceAdjustment.Price != 0)
-                                    {
-                                        m.PriceAdjustment = priceAdjustment.Price;
-                                    }
-                                }
-                            }
-
-                            if (m.IsPreSelected)
-                            {
-                                preselectedWeightAdjustment += val.WeightAdjustment;
-                            }
-
-                            if (_catalogSettings.ShowLinkedAttributeValueQuantity && val.ValueType == ProductVariantAttributeValueType.ProductLinkage)
-                            {
-                                m.QuantityInfo = val.Quantity;
-                            }
-                        }
-
-                        if (_catalogSettings.ShowLinkedAttributeValueImage && val.ValueType == ProductVariantAttributeValueType.ProductLinkage)
-                        {
-                            var file = linkedMediaFiles.ContainsKey(val.LinkedProductId)
-                                ? linkedMediaFiles[val.LinkedProductId].FirstOrDefault()?.MediaFile
-                                : null;
-                            if (file != null)
-                            {
-                                m.ImageUrl = _mediaService.GetUrl(file, _mediaSettings.VariantValueThumbPictureSize, null, false);
-                            }
-                        }
-                        else if (val.MediaFileId != 0)
-                        {
-                            m.ImageUrl = await _mediaService.GetUrlAsync(val.MediaFileId, _mediaSettings.VariantValueThumbPictureSize, null, false);
-                        }
-
-                        return m;
-                    })
-                    .Where(x => x != null)
-                    .ToListAsync();
-
-                attributeModel.Values = [.. valuesModels
-                    .Select(x => (ChoiceItemModel)x)
-                    .OrderBy(x => x.DisplayOrder)
-                    .ThenNaturalBy(_catalogSettings.SortAttributesNaturally ? x => x.Name : null)];
-            }
-
-            // Add selected attributes for initially displayed combination images and multiple selected checkbox values.
-            if (query.VariantCombinationId == 0)
-            {
-                ProductDetailsModel.ProductVariantAttributeValueModel defaultValue = null;
-
-                if (preSelectedValueId != 0)
-                {
-                    // Value preselected by a bundle item filter discards the default preselection.
-                    attributeModel.Values.Each(x => x.IsPreSelected = false);
-
-                    defaultValue = attributeModel.Values.OfType<ProductDetailsModel.ProductVariantAttributeValueModel>().FirstOrDefault(v => v.Id == preSelectedValueId);
-                    if (defaultValue != null)
-                    {
-                        defaultValue.IsPreSelected = true;
-                        query.AddVariant(new()
-                        {
-                            Value = defaultValue.Id.ToString(),
-                            ProductId = product.Id,
-                            BundleItemId = bundleItemId,
-                            AttributeId = attribute.ProductAttributeId,
-                            VariantAttributeId = attribute.Id,
-                            Alias = attribute.ProductAttribute.Alias,
-                            ValueAlias = defaultValue.Alias
-                        });
-                    }
-                }
-
-                if (defaultValue == null)
-                {
-                    // Apply attributes preselected by merchant.
-                    foreach (var value in attributeModel.Values.Where(x => x.IsPreSelected))
-                    {
-                        query.AddVariant(new()
-                        {
-                            Value = value.Id.ToString(),
-                            ProductId = product.Id,
-                            BundleItemId = bundleItemId,
-                            AttributeId = attribute.ProductAttributeId,
-                            VariantAttributeId = attribute.Id,
-                            Alias = attribute.ProductAttribute.Alias,
-                            ValueAlias = value.Alias
-                        });
-                    }
-                }
-            }
+            var attributeModel = await CreateProductVariantAttributeModel(
+                attribute,
+                linkedProducts,
+                priceAdjustments,
+                linkedMediaFiles,
+                ctx);
 
             model.ProductVariantAttributes.Add(attributeModel);
         }
 
-        if (query.Variants.Count > 0 || query.VariantCombinationId != 0)
+        if (ctx.VariantEvaluation.HasSelection)
         {
             // Apply attribute combination if any.
             await PrepareProductAttributeCombinationsModelAsync(model, ctx);
         }
+    }
+
+    private async Task<ProductDetailsModel.ProductVariantAttributeModel> CreateProductVariantAttributeModel(
+        ProductVariantAttribute attribute,
+        Dictionary<int, Product> linkedProducts,
+        Dictionary<int, CalculatedPriceAdjustment> priceAdjustments,
+        Multimap<int, ProductMediaFile> linkedMediaFiles,
+        ProductDetailsModelContext ctx)
+    {
+        var query = ctx.VariantQuery;
+        var product = ctx.Product;
+        var productBundleItem = ctx.ProductBundleItem;
+        var bundleItemId = productBundleItem?.Id ?? 0;
+        var isBundlePricing = productBundleItem != null && !productBundleItem.BundleProduct.BundlePerItemPricing;
+        var attributeModel = new ProductDetailsModel.ProductVariantAttributeModel
+        {
+            Id = attribute.Id,
+            ProductId = attribute.ProductId,
+            BundleItemId = bundleItemId,
+            ProductAttributeId = attribute.ProductAttributeId,
+            ProductAttribute = attribute,
+            Alias = attribute.ProductAttribute.Alias,
+            Name = attribute.ProductAttribute.GetLocalized(x => x.Name),
+            Description = attribute.ProductAttribute.GetLocalized(x => x.Description),
+            TextPrompt = attribute.TextPrompt,
+            CustomData = attribute.CustomData,
+            IsRequired = attribute.IsRequired,
+            AttributeControlType = attribute.AttributeControlType,
+            AllowedFileExtensions = _catalogSettings.FileUploadAllowedExtensions
+        };
+
+        if (attribute.AttributeControlType == AttributeControlType.Boxes)
+        {
+            attributeModel.SwatchSize = productBundleItem != null
+                ? SwatchSize.Small
+                : attribute.SwatchSize ?? attribute.ProductAttribute.SwatchSize ?? _catalogSettings.DefaultSwatchSize;
+            attributeModel.SwatchAspectRatio = Math.Max(attribute.SwatchAspectRatio ?? attribute.ProductAttribute.SwatchAspectRatio, 0);
+            attributeModel.SwatchShape = attribute.SwatchShape ?? attribute.ProductAttribute.SwatchShape ?? _catalogSettings.DefaultSwatchShape;
+            attributeModel.ShowValueNameInSwatch = attribute.ShowValueNameInSwatch ?? attribute.ProductAttribute.ShowValueNameInSwatch;
+            attributeModel.SwatchPriceDisplay = attribute.SwatchPriceDisplay ?? attribute.ProductAttribute.SwatchPriceDisplay;
+        }
+
+        // Copy queried variant data (entered by customer) to model.
+        if (query.Variants.Count > 0)
+        {
+            var selectedAttribute = query.Variants.FirstOrDefault(x =>
+                x.ProductId == product.Id &&
+                x.BundleItemId == bundleItemId &&
+                x.AttributeId == attribute.ProductAttributeId &&
+                x.VariantAttributeId == attribute.Id);
+
+            if (selectedAttribute != null)
+            {
+                switch (attribute.AttributeControlType)
+                {
+                    case AttributeControlType.Datepicker:
+                        if (selectedAttribute.Date.HasValue)
+                        {
+                            attributeModel.SelectedDate = selectedAttribute.Date;
+                        }
+                        break;
+                    case AttributeControlType.FileUpload:
+                        attributeModel.UploadedFileGuid = selectedAttribute.Value;
+
+                        if (selectedAttribute.Value.HasValue() && Guid.TryParse(selectedAttribute.Value, out var guid))
+                        {
+                            var mediaFile = await _db.Downloads
+                                .AsNoTracking()
+                                .Where(x => x.DownloadGuid == guid)
+                                .Select(x => x.MediaFile)
+                                .FirstOrDefaultAsync();
+
+                            attributeModel.UploadedFileName = mediaFile.Name;
+
+                            var mediaFileInfo = _mediaService.ConvertMediaFile(mediaFile);
+                            attributeModel.CustomProperties["UploadedFileInfo"] = JsonSerializer.Serialize(mediaFileInfo, SmartJsonOptions.Default);
+                        }
+                        break;
+                    case AttributeControlType.TextBox:
+                    case AttributeControlType.MultilineTextbox:
+                        attributeModel.TextValue = selectedAttribute.Value;
+                        break;
+                }
+            }
+        }
+
+        if (attribute.IsListTypeAttribute())
+        {
+            var valuesModels = await attribute.ProductVariantAttributeValues
+                .SelectAwait(async val =>
+                {
+                    if (productBundleItem?.IsFilteredOut(val, out _) ?? false)
+                    {
+                        return null;
+                    }
+
+                    var m = new ProductDetailsModel.ProductVariantAttributeValueModel
+                    {
+                        Id = val.Id,
+                        ProductAttributeValue = val,
+                        Name = val.GetLocalized(x => x.Name),
+                        Alias = val.Alias,
+                        Color = val.Color,
+                        IsPreSelected = val.IsPreSelected,
+                        DisplayOrder = val.DisplayOrder
+                    };
+
+                    if (!val.AdditionalColors.IsNullOrEmpty())
+                    {
+                        m.AdditionalColors.AddRange(val.AdditionalColors);
+                    }
+
+                    if (val.ValueType == ProductVariantAttributeValueType.ProductLinkage &&
+                        linkedProducts.TryGetValue(val.LinkedProductId, out var linkedProduct))
+                    {
+                        m.SeName = await linkedProduct.GetActiveSlugAsync();
+                    }
+
+                    if (ctx.DisplayPrices && !isBundlePricing)
+                    {
+                        if (priceAdjustments.TryGetValue(val.Id, out var priceAdjustment) && priceAdjustment.Price != 0)
+                        {
+                            m.PriceAdjustment = priceAdjustment.Price;
+                        }
+
+                        // Apply evaluated candidate price.
+                        if (attributeModel.SwatchPriceDisplay == SwatchPriceDisplayMode.FinalPrice
+                            && ctx.VariantEvaluation.Prices.TryGetValue(val.Id, out var price)
+                            && price.PricingType == PricingType.Calculated)
+                        {
+                            m.SwatchPrice = price.FinalPrice;
+
+                            if (price.Saving.HasSaving && price.RegularPrice != null)
+                            {
+                                m.SwatchComparePrice = price.RegularPrice.Value;
+                            }
+                            else if (price.RetailPrice != null && (price.RegularPrice == null || _priceSettings.AlwaysDisplayRetailPrice))
+                            {
+                                m.SwatchComparePrice = price.RetailPrice.Value;
+                            }
+
+                            if (product.BasePriceEnabled && m.SwatchPrice.Value != 0)
+                            {
+                                m.SwatchBasePriceInfo = _priceCalculationService.GetBasePriceInfo(
+                                    product,
+                                    m.SwatchPrice.Value,
+                                    m.SwatchPrice.Value.Currency,
+                                    null,
+                                    false,
+                                    false);
+                            }
+                        }
+
+                        if (_catalogSettings.ShowLinkedAttributeValueQuantity && val.ValueType == ProductVariantAttributeValueType.ProductLinkage)
+                        {
+                            m.QuantityInfo = val.Quantity;
+                        }
+                    }
+
+                    if (_catalogSettings.ShowLinkedAttributeValueImage && val.ValueType == ProductVariantAttributeValueType.ProductLinkage)
+                    {
+                        var file = linkedMediaFiles.ContainsKey(val.LinkedProductId)
+                            ? linkedMediaFiles[val.LinkedProductId].FirstOrDefault()?.MediaFile
+                            : null;
+                        if (file != null)
+                        {
+                            m.ImageUrl = _mediaService.GetUrl(file, _mediaSettings.VariantValueThumbPictureSize, null, false);
+                        }
+                    }
+                    else if (val.MediaFileId != 0)
+                    {
+                        m.ImageUrl = await _mediaService.GetUrlAsync(val.MediaFileId, _mediaSettings.VariantValueThumbPictureSize, null, false);
+                    }
+
+                    return m;
+                })
+                .Where(x => x != null)
+                .ToListAsync();
+
+            attributeModel.Values = [.. valuesModels
+                    .Select(x => (ChoiceItemModel)x)
+                    .OrderBy(x => x.DisplayOrder)
+                    .ThenNaturalBy(_catalogSettings.SortAttributesNaturally ? x => x.Name : null)];
+        }
+
+        return attributeModel;
+    }
+
+    protected virtual async Task<ProductVariantEvaluation> PrepareProductVariantEvaluationAsync(
+        ProductDetailsModelContext ctx,
+        ICollection<ProductVariantAttribute> attributes,
+        int selectedQuantity)
+    {
+        var product = ctx.Product;
+        var query = ctx.VariantQuery;
+        var bundleItemId = ctx.ProductBundleItem?.Id ?? 0;
+
+        if (query.VariantCombinationId == 0)
+        {
+            AddPreselectedAttributeValues(query, attributes, product.Id, bundleItemId, ctx.ProductBundleItem);
+        }
+
+        var hasSelection = query.VariantCombinationId != 0 || query.Variants.Count > 0;
+        ProductVariantAttributeSelection selection;
+
+        if (query.VariantCombinationId != 0)
+        {
+            var selectedCombination = await _db.ProductVariantAttributeCombinations.FindByIdAsync(query.VariantCombinationId, false);
+            selection = new ProductVariantAttributeSelection(selectedCombination?.RawAttributes);
+        }
+        else if (hasSelection)
+        {
+            (selection, _) = await _productAttributeMaterializer.CreateAttributeSelectionAsync(
+                query,
+                attributes,
+                product.Id,
+                bundleItemId);
+        }
         else
         {
-            // Apply weight adjustment of preselected attributes.
-            model.WeightValue += preselectedWeightAdjustment;
+            selection = new(null);
+        }
+
+        var unfilteredSelection = new ProductVariantAttributeSelection(selection.AsJson());
+        var ruleProvider = _ruleProviderFactory.GetProvider<IAttributeRuleProvider>(
+            RuleScope.ProductAttribute,
+            new AttributeRuleProviderContext(product.Id) { BatchContext = ctx.BatchContext });
+
+        ProductVariantAttributeCombination combination = null;
+        int[] inactiveAttributeIds = [];
+
+        if (hasSelection)
+        {
+            var inactiveAttributes = await ruleProvider.GetInactiveAttributesAsync(product, selection);
+            inactiveAttributeIds = inactiveAttributes.Select(x => x.Id).ToArray();
+
+            if (inactiveAttributeIds.Length > 0)
+            {
+                selection.RemoveAttributes(inactiveAttributeIds);
+            }
+
+            combination = await _productAttributeMaterializer.FindAttributeCombinationAsync(product.Id, selection);
+        }
+
+        var candidates = await PrepareProductVariantCandidatesAsync(ctx, attributes, unfilteredSelection, ruleProvider);
+        var prices = await CalculateProductVariantPricesAsync(ctx, candidates, selectedQuantity);
+
+        return new()
+        {
+            HasSelection = hasSelection,
+            Selection = selection,
+            UnfilteredSelection = unfilteredSelection,
+            SelectedValues = selection.MaterializeProductVariantAttributeValues(attributes).ToArray(),
+            InactiveAttributeIds = inactiveAttributeIds,
+            Combination = combination,
+            Candidates = candidates,
+            Prices = prices
+        };
+    }
+
+    protected virtual async Task<IReadOnlyCollection<ProductVariantCandidate>> PrepareProductVariantCandidatesAsync(
+        ProductDetailsModelContext ctx,
+        ICollection<ProductVariantAttribute> attributes,
+        ProductVariantAttributeSelection selection,
+        IAttributeRuleProvider ruleProvider)
+    {
+        var product = ctx.Product;
+        var productBundleItem = ctx.ProductBundleItem;
+        var isBundlePricing = productBundleItem != null && !productBundleItem.BundleProduct.BundlePerItemPricing;
+
+        if (!ctx.DisplayPrices || isBundlePricing || product.CallForPrice)
+        {
+            return [];
+        }
+
+        var priceAttributes = attributes
+            .Where(x => x.AttributeControlType == AttributeControlType.Boxes
+                && (x.SwatchPriceDisplay ?? x.ProductAttribute.SwatchPriceDisplay) == SwatchPriceDisplayMode.FinalPrice)
+            .ToArray();
+
+        if (priceAttributes.Length == 0)
+        {
+            return [];
+        }
+
+        var combinations = await ctx.BatchContext.AttributeCombinations.GetOrLoadAsync(product.Id);
+        var combinationsByHashCode = combinations.ToMultimap(x => x.HashCode, x => x);
+        var nonListAttributeIds = attributes.Where(x => !x.IsListTypeAttribute()).Select(x => x.Id).ToArray();
+        var requiredAttributes = attributes.Where(x => x.IsRequired).ToArray();
+        var candidates = new List<ProductVariantCandidate>();
+
+        foreach (var attribute in priceAttributes)
+        {
+            foreach (var value in attribute.ProductVariantAttributeValues)
+            {
+                if (productBundleItem?.IsFilteredOut(value, out _) ?? false)
+                {
+                    continue;
+                }
+
+                var candidate = new ProductVariantAttributeSelection(selection.AsJson());
+                candidate.RemoveAttribute(value.ProductVariantAttributeId);
+                candidate.AddAttributeValue(value.ProductVariantAttributeId, value.Id);
+
+                var inactiveAttributes = await ruleProvider.GetInactiveAttributesAsync(product, candidate);
+                var inactiveAttributeIds = inactiveAttributes.Select(x => x.Id).ToHashSet();
+
+                if (inactiveAttributeIds.Contains(attribute.Id))
+                {
+                    continue;
+                }
+
+                candidate.RemoveAttributes(inactiveAttributeIds);
+
+                var hasMissingRequiredAttribute = requiredAttributes.Any(x =>
+                    !inactiveAttributeIds.Contains(x.Id) && !(candidate.GetAttributeValues(x.Id)?.Any() ?? false));
+
+                if (hasMissingRequiredAttribute)
+                {
+                    continue;
+                }
+
+                // Keep every candidate for extensions, but avoid copying selections when there is nothing to match.
+                ProductVariantAttributeCombination combination = null;
+                if (combinationsByHashCode.Count > 0)
+                {
+                    // Hashing and equality only read the selection. Copy only when removing non-list attributes,
+                    // so the candidate retains those values for pricing and downstream consumers.
+                    var combinationSelection = candidate;
+                    if (nonListAttributeIds.Length > 0)
+                    {
+                        combinationSelection = new ProductVariantAttributeSelection(candidate.AsJson());
+                        combinationSelection.RemoveAttributes(nonListAttributeIds);
+                    }
+
+                    if (combinationsByHashCode.TryGetValues(combinationSelection.GetHashCode(), out var matchingCombinations))
+                    {
+                        combination = matchingCombinations.FirstOrDefault(x => x.AttributeSelection.Equals(combinationSelection));
+                    }
+                }
+
+                candidates.Add(new()
+                {
+                    AttributeValue = value,
+                    Selection = candidate,
+                    Combination = combination
+                });
+            }
+        }
+
+        return candidates;
+    }
+
+    protected virtual void AddPreselectedAttributeValues(
+        ProductVariantQuery query,
+        IEnumerable<ProductVariantAttribute> attributes,
+        int productId,
+        int bundleItemId,
+        ProductBundleItem bundleItem)
+    {
+        foreach (var attribute in attributes.Where(x => x.IsListTypeAttribute()))
+        {
+            ProductVariantAttributeValue bundleDefaultValue = null;
+            var availableValues = new List<ProductVariantAttributeValue>();
+
+            foreach (var value in attribute.ProductVariantAttributeValues)
+            {
+                ProductBundleItemAttributeFilter attributeFilter = null;
+                if (bundleItem?.IsFilteredOut(value, out attributeFilter) ?? false)
+                {
+                    continue;
+                }
+
+                availableValues.Add(value);
+
+                if (bundleDefaultValue == null && attributeFilter?.IsPreSelected == true)
+                {
+                    bundleDefaultValue = value;
+                }
+            }
+
+            IEnumerable<ProductVariantAttributeValue> selectedValues = bundleDefaultValue != null
+                ? [bundleDefaultValue]
+                : availableValues.Where(x => x.IsPreSelected);
+
+            foreach (var value in selectedValues)
+            {
+                query.AddVariant(new()
+                {
+                    Value = value.Id.ToString(),
+                    ProductId = productId,
+                    BundleItemId = bundleItemId,
+                    AttributeId = attribute.ProductAttributeId,
+                    VariantAttributeId = attribute.Id,
+                    Alias = attribute.ProductAttribute.Alias,
+                    ValueAlias = value.Alias
+                });
+            }
         }
     }
 
@@ -800,18 +1024,11 @@ public partial class CatalogHelper
         using var chronometer = _services.Chronometer.Step("PrepareProductAttributeCombinationsModel");
 
         var product = ctx.Product;
-        var query = ctx.VariantQuery;
         var productBundleItem = ctx.ProductBundleItem;
-        var bundleItemId = productBundleItem?.Id ?? 0;
-        var language = _workContext.WorkingLanguage;
         var isBundlePricing = productBundleItem != null && !productBundleItem.BundleProduct.BundlePerItemPricing;
         var checkAvailability = product.AttributeChoiceBehaviour == AttributeChoiceBehaviour.GrayOutUnavailable;
         var attributes = await ctx.BatchContext.Attributes.GetOrLoadAsync(product.Id);
-
-        var ruleProvider = _ruleProviderFactory.GetProvider<IAttributeRuleProvider>(RuleScope.ProductAttribute, new AttributeRuleProviderContext(product.Id)
-        {
-            BatchContext = ctx.BatchContext
-        });
+        var evaluation = ctx.VariantEvaluation;
 
         var res = new Dictionary<string, LocalizedString>(StringComparer.OrdinalIgnoreCase)
         {
@@ -820,45 +1037,28 @@ public partial class CatalogHelper
             { "Products.Availability.Backordering", T("Products.Availability.Backordering") }
         };
 
-        if (query.VariantCombinationId != 0)
+        if (evaluation.InactiveAttributeIds.Count > 0)
         {
-            var combination = await _db.ProductVariantAttributeCombinations.FindByIdAsync(query.VariantCombinationId, false);
-            ctx.SelectedAttributes = new ProductVariantAttributeSelection(combination?.RawAttributes);
-        }
-        else
-        {
-            var (selection, _) = await _productAttributeMaterializer.CreateAttributeSelectionAsync(query, attributes, product.Id, bundleItemId);
-            ctx.SelectedAttributes = selection;
-        }
-
-        var inactiveAttributes = await ruleProvider.GetInactiveAttributesAsync(product, ctx.SelectedAttributes);
-        if (inactiveAttributes.Length > 0)
-        {
-            var inactiveAttributesIds = inactiveAttributes.Select(x => x.Id).ToArray();
-
-            // Remove inactive attributes so that they are excluded from price calculation.
-            ctx.SelectedAttributes.RemoveAttributes(inactiveAttributesIds);
-
             // Hide inactive attributes on product page.
             model.ProductVariantAttributes
-                .Where(x => inactiveAttributesIds.Contains(x.Id))
+                .Where(x => evaluation.InactiveAttributeIds.Contains(x.Id))
                 .Each(x => x.IsActive = false);
         }
 
-        var selectedValues = ctx.SelectedAttributes.MaterializeProductVariantAttributeValues(attributes);
+        var selectedValues = evaluation.SelectedValues;
         var selectedValueIds = selectedValues.Select(x => x.Id).ToArray();
 
         if (isBundlePricing)
         {
             model.AttributeInfo = await _productAttributeFormatter.FormatAttributesAsync(
-                ctx.SelectedAttributes,
+                evaluation.Selection,
                 product,
                 ProductAttributeFormatOptions.PlainText,
                 ctx.Customer);
         }
 
-        model.SelectedCombination = await _productAttributeMaterializer.FindAttributeCombinationAsync(product.Id, ctx.SelectedAttributes);
-        model.ProductUrl = await _productUrlHelper.GetProductPathAsync(product.Id, model.SeName, ctx.SelectedAttributes);
+        model.SelectedCombination = evaluation.Combination;
+        model.ProductUrl = await _productUrlHelper.GetProductPathAsync(product.Id, model.SeName, evaluation.Selection);
 
         if ((model.SelectedCombination != null && !model.SelectedCombination.IsActive) ||
             (product.AttributeCombinationRequired && model.SelectedCombination == null))
@@ -883,11 +1083,6 @@ public partial class CatalogHelper
                 if (updatePreselection)
                 {
                     value.IsPreSelected = isSelected;
-                }
-
-                if (isSelected)
-                {
-                    model.WeightValue += value.ProductAttributeValue.WeightAdjustment;
                 }
 
                 if (!_priceSettings.ShowVariantCombinationPriceAdjustment)
@@ -934,7 +1129,7 @@ public partial class CatalogHelper
         var product = ctx.Product;
         var productBundleItem = ctx.ProductBundleItem;
         var isBundle = product.ProductType == ProductType.BundledProduct;
-        var hasSelectedAttributes = ctx.SelectedAttributes?.AttributesMap?.Any() ?? false;
+        var hasSelectedAttributes = ctx.VariantEvaluation?.Selection.AttributesMap.Any() ?? false;
 
         if ((productBundleItem != null && !productBundleItem.BundleProduct.BundlePerItemShoppingCart) ||
             (product.ManageInventoryMethod == ManageInventoryMethod.ManageStockByAttributes && !hasSelectedAttributes))
@@ -979,7 +1174,8 @@ public partial class CatalogHelper
         model.HasSampleDownload = product.IsDownload && product.HasSampleDownload;
         model.IsCurrentCustomerRegistered = customer.IsRegistered();
         model.IsBasePriceEnabled = product.BasePriceEnabled && !(isBundle && product.BundlePerItemPricing);
-        model.ShowLegalInfo = !model.IsBundlePart && _taxSettings.ShowLegalHintsInProductDetails;
+        model.LegalInfo = await GetLegalInfo(product, customer, store, model.Price.ShippingSurcharge);
+        model.ShowLegalInfo = !model.IsBundlePart && model.LegalInfo.HasValue();
         model.BundleTitleText = product.GetLocalized(x => x.BundleTitleText);
         model.BundlePerItemPricing = product.BundlePerItemPricing;
         model.BundlePerItemShipping = product.BundlePerItemShipping;
@@ -989,57 +1185,6 @@ public partial class CatalogHelper
         basePricePricingOptions.TaxFormat = null;
         model.BasePriceInfo = await _priceCalculationService.GetBasePriceInfoAsync(product, basePricePricingOptions);
 
-        var taxDisplayType = await _services.WorkContext.GetTaxDisplayTypeAsync(customer, store.Id);
-        string taxInfo = T(taxDisplayType == TaxDisplayType.IncludingTax ? "Tax.InclVAT" : "Tax.ExclVAT");
-
-        var defaultTaxRate = string.Empty;
-        if (_taxSettings.DisplayTaxRates)
-        {
-            var taxRate = await _taxService.GetTaxRateAsync(product, customer: customer);
-            if (taxRate.Rate != 0)
-            {
-                var formattedTaxRate = _taxService.FormatTaxRate(taxRate.Rate);
-                defaultTaxRate = $"({formattedTaxRate}%), ";
-            }
-        }
-
-        var additionalShippingCosts = string.Empty;
-        var shippingSurcharge = model.Price.ShippingSurcharge;
-
-        if (shippingSurcharge.GetValueOrDefault() > 0)
-        {
-            additionalShippingCosts = shippingSurcharge.Value.ToString(true) + ", ";
-        }
-
-        if (!product.IsShippingEnabled || product.IsFreeShipping)
-        {
-            model.LegalInfo += product.IsTaxExempt
-                ? T("Common.FreeShipping")
-                : "{0} {1}{2}".FormatInvariant(taxInfo, defaultTaxRate, T("Common.FreeShipping"));
-        }
-        else
-        {
-            var shippingInfoUrl = await _urlHelper.TopicAsync("ShippingInfo");
-
-            if (shippingInfoUrl.IsEmpty())
-            {
-                model.LegalInfo = T("Tax.LegalInfoProductDetail2",
-                    product.IsTaxExempt ? string.Empty : taxInfo,
-                    product.IsTaxExempt ? string.Empty : defaultTaxRate,
-                    additionalShippingCosts);
-            }
-            else
-            {
-                model.LegalInfo = T("Tax.LegalInfoProductDetail",
-                    product.IsTaxExempt ? string.Empty : taxInfo,
-                    product.IsTaxExempt ? string.Empty : defaultTaxRate,
-                    additionalShippingCosts,
-                    shippingInfoUrl);
-            }
-        }
-
-        model.LegalInfo = model.LegalInfo.TrimSafe();
-
         var dimension = await _db.MeasureDimensions.AsNoTracking().FirstOrDefaultAsync(x => x.Id == _measureSettings.BaseDimensionId);
         var weight = await _db.MeasureWeights.AsNoTracking().FirstOrDefaultAsync(x => x.Id == _measureSettings.BaseWeightId);
         var dimensionSystemKeyword = dimension?.SystemKeyword ?? string.Empty;
@@ -1047,8 +1192,8 @@ public partial class CatalogHelper
 
         model.Weight = new Measure(model.WeightValue, weightSystemKeyword);
         model.Height = new Measure(product.Height, dimensionSystemKeyword);
-        model.Length = new Measure(product.Length, dimensionSystemKeyword); // (product.Length > 0) ? $"{product.Length:G29} {dimensionSystemKeyword}" : string.Empty;
-        model.Width = new Measure(product.Width, dimensionSystemKeyword); // (product.Width > 0) ? $"{product.Width:G29} {dimensionSystemKeyword}" : string.Empty;
+        model.Length = new Measure(product.Length, dimensionSystemKeyword);
+        model.Width = new Measure(product.Width, dimensionSystemKeyword);
         model.DimensionSystemKeyword = dimensionSystemKeyword;
 
         if (productBundleItem != null)
@@ -1191,8 +1336,8 @@ public partial class CatalogHelper
         {
             if (product.ProductType == ProductType.SimpleProduct)
             {
-                var attributeInfo = ctx.SelectedAttributes != null
-                    ? await _productAttributeFormatter.FormatAttributesAsync(ctx.SelectedAttributes, product, ProductAttributeFormatOptions.PlainText, ctx.Customer)
+                var attributeInfo = ctx.VariantEvaluation?.HasSelection == true
+                    ? await _productAttributeFormatter.FormatAttributesAsync(ctx.VariantEvaluation.Selection, product, ProductAttributeFormatOptions.PlainText, ctx.Customer)
                     : string.Empty;
 
                 toCart.AddToCartSummary = T("Aria.Label.CartItemSummaryWithAttributes", model.Name, model.Price.FinalPrice.ToString(), selectedQuantity, attributeInfo);
@@ -1590,6 +1735,72 @@ public partial class CatalogHelper
         }
 
         return model;
+    }
+
+    private async Task<string> GetLegalInfo(
+        Product product,
+        Customer customer,
+        Store store,
+        Money? shippingSurcharge)
+    {
+        using var psb = StringBuilderPool.Instance.Get(out var sb);
+        var legalInfo = _catalogSettings.LegalInfoInProductDetail;
+
+        if (!product.IsTaxExempt && legalInfo.HasFlag(ProductLegalInfo.Tax))
+        {
+            var taxDisplayType = await _services.WorkContext.GetTaxDisplayTypeAsync(customer, store.Id);
+            sb.Append(T(taxDisplayType == TaxDisplayType.IncludingTax ? "Tax.InclVAT" : "Tax.ExclVAT"));
+
+            if (_taxSettings.DisplayTaxRates)
+            {
+                var taxRate = await _taxService.GetTaxRateAsync(product, customer: customer);
+                if (taxRate.Rate != 0)
+                {
+                    var formattedTaxRate = _taxService.FormatTaxRate(taxRate.Rate);
+                    sb.Grow($"({formattedTaxRate}%)");
+                }
+            }
+        }
+
+        var surcharge = shippingSurcharge.GetValueOrDefault() > 0
+            ? shippingSurcharge.Value.WithPostFormat("{0}").ToString(true)
+            : null;
+
+        if (!product.IsShippingEnabled || product.IsFreeShipping)
+        {
+            if (legalInfo.HasFlag(ProductLegalInfo.Shipping))
+            {
+                // Lowercase variant when appended to the tax info.
+                sb.Grow(T(sb.Length > 0 ? "Products.FreeShippingInfo" : "Common.FreeShipping"), ", ");
+            }
+        }
+        else if (legalInfo.HasFlag(ProductLegalInfo.Shipping))
+        {
+            var shippingInfoUrl = await _urlHelper.TopicAsync("ShippingInfo");
+            string shippingInfo;
+
+            if (surcharge != null)
+            {
+                shippingInfo = shippingInfoUrl.HasValue()
+                    ? T("Products.ShippingInfoUrlWithSurcharge", shippingInfoUrl, surcharge)
+                    : T("Products.ShippingInfoWithSurcharge", surcharge);
+            }
+            else
+            {
+                shippingInfo = shippingInfoUrl.HasValue()
+                    ? T("Products.ShippingInfoUrl", shippingInfoUrl)
+                    : T("Products.ShippingInfo");
+            }
+
+            sb.Grow(shippingInfo, ", ");
+        }
+        else if (surcharge != null)
+        {
+            // The shipping surcharge affects the price, so always display it, even if the shipping note is turned off.
+            sb.Grow(T(sb.Length > 0 ? "Products.ShippingSurchargeInfo" : "Common.AdditionalShippingSurcharge", surcharge), ", ");
+        }
+
+        return sb.ToString();
     }
 
     private MediaFileInfo PrepareMediaFileInfo(MediaFileInfo file, MediaGalleryModel model)

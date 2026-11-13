@@ -59,7 +59,7 @@ public class WebApiAdminController : AdminController
             await _settingHelper.DetectOverrideKeysAsync(settings, model);
         }
 
-        ViewBag.UsernamesEnabled = _customerSettings.CustomerLoginType != CustomerLoginType.Email;
+        ViewBag.UsernamesEnabled = _customerSettings.SupportsUsernames();
 
         return View(model);
     }

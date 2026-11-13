@@ -196,13 +196,14 @@
                 type = elem.data('type');
 
             var btn = cnt.find('.btn-linktype'),
-                icon = elem.find('> i').attr('class')?.replace('fa-fw ', ''), 
+                icon = elem.children('.icon, sm-icon').clone().removeClass('icon-fw'),
                 name = elem.find('span').text();
 
-            btn.find('i').attr('class', icon);
+            btn.children('.icon, sm-icon').remove();
+            btn.prepend(icon);
             btn.attr('title', name);
 
-            cnt.find('.btn-query-string').toggle(type !== 'url');
+            cnt.find('.link-query-string-container').toggleClass('hide', type === 'url');
         },
 
         _tryHideTypeContainer: function (hasQueryString) {
@@ -224,17 +225,13 @@
         },
 
         _updateQueryStringIcon: function (hasQueryString) {
-            $(this.element).find('.btn-query-string > i')
-                .removeClass('text-muted text-success')
-                .addClass(hasQueryString ? 'text-success' : 'text-muted');
+            $(this.element).find('.btn-query-string').toggleClass('btn-flagged', hasQueryString);
         },
 
         _updateLinkTargetCtrl: function (target) {
             var hasLinkTarget = !_.isEmpty(target);
 
-            $(this.element).find('.btn-link-target > i')
-                .removeClass('text-muted text-success')
-                .addClass(hasLinkTarget ? 'text-success' : 'text-muted');
+            $(this.element).find('.btn-link-target').toggleClass('btn-flagged', hasLinkTarget);
 
             $(this.element).find('.dropdown-item').removeClass('checked');
             $(this.element).find('.dropdown-item[data-value="' + target + '"]').addClass("checked");

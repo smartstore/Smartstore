@@ -3,7 +3,7 @@
 # the source within the container
 # -----------------------------------------------------------
 
-FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:10.0-noble AS build
 
 # Copy solution and source
 ARG SOLUTION=Smartstore.sln
@@ -26,7 +26,7 @@ RUN dotnet publish Smartstore.Web.csproj -c Release -o /app/release/publish \
 	--no-restore
 
 # Build Docker image
-FROM mcr.microsoft.com/dotnet/aspnet:10.0
+FROM mcr.microsoft.com/dotnet/aspnet:10.0-noble
 EXPOSE 80
 EXPOSE 443
 ENV ASPNETCORE_URLS="http://+:80;https://+:443"

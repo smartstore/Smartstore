@@ -16,8 +16,12 @@
         display: none !important;
     }
 
-    .more-less {
-        max-height: none !important;
-        .btn-text-expander { display: none !important; }
+    .text-expander {
+        > .text-expander-viewport {
+            max-height: none !important;
+            overflow: visible !important;
+            mask-image: none !important;
+        }
+        .text-expander-toggle { display: none !important; }
     }
 }

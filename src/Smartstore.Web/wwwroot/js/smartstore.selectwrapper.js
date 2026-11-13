@@ -36,6 +36,7 @@
                 select.empty();
                 _.each(data, function (item) {
                     var option = new Option(item.text, item.id, item.selected, item.selected);
+                    $(option).data('icon', item.icon);
                     select.append(option);
                 });
             }
@@ -75,13 +76,15 @@
                         });
 
                         if ($option.length === 0) {
-                            $option = this.option({ id: initId, text: initText, selected: true });
+                            $option = this.option({ id: initId, text: initText, icon: init.icon, selected: true });
                             this.addOptions($option);
                         }
 
                         callback([{
                             id: initId,
-                            text: initText || ''
+                            text: initText || '',
+                            element: $option[0],
+                            icon: init.icon
                         }]);
 
                         return;
@@ -205,6 +208,42 @@
         }
     );
 
+    // Keep a caller-owned toolbar inside a single selection across Select2 updates.
+    function ToolbarSelection(decorated, $element, options) {
+        const toolbar = $(options.get('selectionToolbar'))[0];
+        this.toolbarTemplate = toolbar instanceof HTMLTemplateElement;
+        // Instantiate templates once; preserve caller-owned elements for reuse.
+        this.$toolbar = this.toolbarTemplate
+            ? $(toolbar.content.cloneNode(true)).children()
+            : $(toolbar);
+        decorated.call(this, $element, options);
+    }
+
+    ToolbarSelection.prototype.bind = function (decorated, container, $container) {
+        decorated.call(this, container, $container);
+        this.$toolbar.on('mousedown.selectToolbar click.selectToolbar dblclick.selectToolbar keydown.selectToolbar', event => {
+            event.stopPropagation();
+        });
+    };
+
+    ToolbarSelection.prototype.update = function (decorated, data) {
+        this.$toolbar.detach();
+        decorated.call(this, data);
+        this.$selection.addClass('select2-selection-with-toolbar hstack');
+        this.$selection.find('.select2-selection__clear').addClass('flex-shrink-0 ml-2');
+        this.$selection.find('.select2-selection__rendered').addClass('w-100').append(this.$toolbar.removeClass('d-none'));
+    };
+
+    ToolbarSelection.prototype.destroy = function (decorated) {
+        this.$toolbar.off('.selectToolbar');
+        if (this.toolbarTemplate) {
+            this.$toolbar.remove();
+        } else {
+            this.$toolbar.addClass('d-none').insertAfter(this.$element);
+        }
+        decorated.call(this);
+    };
+
     $.fn.selectWrapper = function (options) {
         if (options && options.resetDataUrl?.hasValue() && lists[options.resetDataUrl]) {
             lists[options.resetDataUrl] = null;
@@ -259,10 +298,13 @@
                 firstOption.text("");
             }
 
-            if (window.touchable && !sel.hasClass("skin") && !sel.data("select-url") && !sel.data("remote-url")) {
-                if (sel.find('option[data-color], option[data-imageurl]').length === 0
+            // Select-level fallback also covers AJAX results and newly created tags.
+            const defaultIcon = sel.attr("data-icon");
+
+            if (!options.selectionToolbar && window.touchable && !sel.hasClass("skin") && !sel.data("select-url") && !sel.data("remote-url")) {
+                if (!defaultIcon && sel.find('option[data-color], option[data-imageurl], option[data-icon]').length === 0
                     || (sel.data("tags") && window.document.documentElement.classList.contains("mobile-device"))) {
-                    // Skip skinning if device is mobile and no rich content exists (color & image)
+                    // Skip skinning if device is mobile and no rich content exists (color, image & icon)
                     // or if device is mobile and no data tags exist.
                     return;
                 }
@@ -287,7 +329,9 @@
                         hint = item.hint || option.attr('data-hint'),
                         hintClass = item.hintClass || option.attr('data-hint-class') || 'text-muted',
                         description = item.description || option.attr('data-description'),
-                        icon = option.data('icon'),
+                        icon = item.icon ?? option.data('icon')
+                            ?? (!item.loading && !item.children && item.id != null && item.id !== '' && item.id !== '-1' ? defaultIcon : null),
+                        iconColor = item.iconColor ?? option.attr('data-icon-color'),
                         truncateText = options.maxTextLength > 0 && text.length > options.maxTextLength,
                         appendHint = !isResult && hint && hint.length > 0;
 
@@ -328,7 +372,7 @@
                             else {
                                 // Add small item button to open detail page.
                                 // From inner to outer.
-                                preResult = $('<i class="fa fa-ellipsis fa-fw prevent-selection"></i>')
+                                preResult = $('<sm-icon name="ellipsis" class="icon-fw prevent-selection"></sm-icon>')
                                     .wrap('<a/>')
                                     .parent()
                                     .attr('href', item.url.replace('__id__', item.id))
@@ -362,7 +406,7 @@
                             $('<img/>')
                                 .attr('src', imageUrl)
                                 .attr('alt', normalizeText(text))
-                                .addClass('choice-item-img')
+                                .addClass('choice-item-img icon')
                                 .appendTo(choice);
                         }
                         // ... or Color
@@ -378,15 +422,21 @@
                     }
                     else if (icon) {
                         // Icon
-                        preResult = null;
-                        let icons = _.isArray(icon) ? icon : [icon];
-                        let len = icons.length;
-                        for (i = 0; i < len; i++) {
-                            let iconClass = icons[i] + " fa-fw mr-2 fs-h6";
-                            $('<i/>')
-                                .addClass(iconClass)
-                                .css('font-size', '16px')
-                                .appendTo(result);
+                        // A default icon must not hide the item's existing action button.
+                        if (item.icon != null || option.data('icon') != null) {
+                            preResult = null;
+                        }
+                        const icons = _.isArray(icon) ? icon : [icon];
+                        for (const address of icons) {
+                            $('<sm-icon/>')
+                                .attr('name', address)
+                                .attr('color', iconColor || (defaultIcon && item.icon == null && option.data('icon') == null ? 'var(--gray-700)' : null))
+                                .css('--icon-size', defaultIcon ? '16px' : null)
+                                .attr('fw', '')
+                                .addClass('mr-1')
+                                .appendTo($('<span class="hstack-inline flex-shrink-0"/>')
+                                    .css('height', '1lh')
+                                    .appendTo(result));
                         }
 
                         // Text
@@ -509,15 +559,44 @@
                 }
 
                 opts.dataAdapter = $.fn.select2.amd.require('select2/data/remoteAdapter');
+
+                if (sel.data('tags')) {
+                    const utils = $.fn.select2.amd.require('select2/utils');
+                    const tags = $.fn.select2.amd.require('select2/data/tags');
+                    opts.dataAdapter = utils.Decorate(opts.dataAdapter, tags);
+                }
             }
             else if (opts.ajax && opts.init && opts.init.text && sel.find('option[value="' + opts.init.text + '"]').length === 0) {
                 // In AJAX mode: add initial option when missing
                 sel.append('<option value="' + opts.init.id + '" selected>' + opts.init.text + '</option>');
             }
 
+            // Resolve Select2's standard decorators before adding the optional toolbar.
+            if (opts.selectionToolbar && !sel.prop('multiple')) {
+                const utils = $.fn.select2.amd.require('select2/utils');
+                const adapter = $.fn.select2.defaults.apply(opts).selectionAdapter;
+                opts.selectionAdapter = utils.Decorate(adapter, ToolbarSelection);
+            }
+
             sel.select2(opts);
 
             const select2 = sel.data("select2");
+            // An explicit empty value disables the default hint for this instance.
+            const searchPlaceholder = sel.attr('data-search-placeholder') ?? window.Res?.['Common.Select.AddPlaceholder'];
+
+            if (sel.prop('multiple') && searchPlaceholder && select2.selection.$search) {
+                const selection = select2.selection;
+                const applySearchPlaceholder = () => {
+                    // Select2 clears the search placeholder whenever the selection changes.
+                    selection.$search.attr('placeholder', searchPlaceholder);
+                    selection.resizeSearch();
+                };
+
+                // Keep enough room beside chips for the hint, bounded by the control width.
+                selection.$searchContainer.css({ minWidth: `min(100%, ${searchPlaceholder.length + 1}ch)`, maxWidth: '100%' });
+                select2.on('selection:update', applySearchPlaceholder);
+                applySearchPlaceholder();
+            }
 
             if (sel.prop("multiple") && select2.options.get("tags")) {
                 sel.on("select2:select", (e) => {

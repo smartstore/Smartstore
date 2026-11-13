@@ -75,7 +75,12 @@ public class InstallController : Controller
 
         if (!appLanguages.Any(x => x.Selected))
         {
-            appLanguages.FirstOrDefault(x => x.Value.EqualsNoCase("en")).Selected = true;
+            // Value is the culture, e.g. "en-US".
+            var fallback = appLanguages.FirstOrDefault(x => x.Value.StartsWith("en", StringComparison.OrdinalIgnoreCase)) ?? appLanguages.FirstOrDefault();
+            if (fallback != null)
+            {
+                fallback.Selected = true;
+            }
         }
 
         var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);

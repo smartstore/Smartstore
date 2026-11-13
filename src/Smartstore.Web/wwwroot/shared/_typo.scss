@@ -83,7 +83,7 @@ h6, .h6 {
         height: 1px;
         top: 50%;
         z-index: 0;
-        background: radial-gradient(ellipse at left, $body-bg 25%, rgba(#000, 0.25) 100%);
+        background: radial-gradient(ellipse at left, $body-bg 25%, var(--heading-line-color, rgba(#000, 0.25)) 100%);
     }
 
     .heading-title {
@@ -98,7 +98,7 @@ h6, .h6 {
     text-align: center;
 
     &:before {
-        background: radial-gradient(ellipse at center, $body-bg 25%, rgba($black, 0.25) 100%) !important;
+        background: radial-gradient(ellipse at center, $body-bg 25%, var(--heading-line-color, rgba($black, 0.25)) 100%) !important;
     }
 
     .heading-title {
@@ -110,7 +110,7 @@ h6, .h6 {
     margin-bottom: 1.5rem;
 
     > :where(h1, .h1) {
-        font-size: cssmin($h1-font-size, 46px);
+        @include font-size($h1-font-size);
         line-height: 1.1;
         letter-spacing: -.02em;
     }
@@ -144,9 +144,12 @@ a.pretty-link {
     @extend .link-transition;
     @extend .link-dnn;
 
+    display: inline-flex;
+    flex-flow: row nowrap;
+    align-items: center;
     font-weight: $font-weight-medium;
 
-    > i { padding-inline-end: 1.2rem; }
+    > :is(.icon, .icon-stack) { margin-inline-end: 1.2rem; }
     > span {
         color: var(--gray-600);
         &:hover, &:active { color: inherit; }
@@ -352,6 +355,21 @@ pre {
     code {
         padding: 0;
         background: transparent;
+    }
+}
+
+kbd {
+    border: 1px solid rgba($black, 0.12);
+    border-bottom-width: 2px;
+
+    kbd {
+        border: none;
+        background-color: transparent;
+    }
+
+    .btn & {
+        padding-block: 0;
+        border-bottom-width: 1px;
     }
 }
 

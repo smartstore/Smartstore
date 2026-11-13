@@ -46,6 +46,11 @@
 										{% endif %}
 										<span>{{ bundleItem.Product.Name }}</span>
 									</div>
+									{% if bundleItem.EssentialSpecificationAttributesInfo %}
+										<div class="text-muted" style="line-height: 1.3">
+											{{ bundleItem.EssentialSpecificationAttributesInfo }}
+										</div>
+									{% endif %}
 									{% if bundleItem.AttributeDescription %}
 										<div class="text-muted" style="line-height: 1.3">
 											{{ bundleItem.AttributeDescription }}
@@ -58,6 +63,11 @@
 					{% if item.DisplayDeliveryTime && item.DeliveryTime %}
 						<div class="text-sm">
 							{{ 'Products.DeliveryTime' | T }} <span style="color: {{ item.DeliveryTime.Color }}">{{ item.DeliveryTime.Name }}</span>
+						</div>
+					{% endif %}
+					{% if item.EssentialSpecificationAttributesInfo %}
+						<div class="text-xs text-muted mt-2" style="line-height: 1.3">
+							{{ item.EssentialSpecificationAttributesInfo }}
 						</div>
 					{% endif %}
 					{% if item.AttributeDescription %}

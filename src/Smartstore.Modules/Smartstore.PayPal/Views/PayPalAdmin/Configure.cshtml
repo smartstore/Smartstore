@@ -1,4 +1,4 @@
-﻿@model ConfigurationModel
+@model ConfigurationModel
 
 @{
     Layout = "_ConfigureProvider";
@@ -24,19 +24,19 @@
         new SelectListItem { Text = T("Plugins.Smartstore.PayPal.ButtonColor.Black"), Value = "black", Selected = Model.ButtonColor == "black" }
     };
 
-    var successCssClasses = "fa-check text-success";
-    var errorCssClasses = "fa-exclamation-triangle text-danger";
+    var successCssClasses = "text-success";
+    var errorCssClasses = "text-danger";
 }
 
 @await Component.InvokeAsync("StoreScope")
 
 <widget target-zone="admin_button_toolbar_before">
     <button id="support-tools" type="button" name="save" class="btn btn-secondary">
-        <i class="fa fa-wrench"></i>
+        <icon name="wrench"  />
         <span>@T("Plugins.Smartstore.PayPal.SupportTools")</span>
     </button>
-    <button id="SaveConfigButton" type="submit" name="save" class="btn btn-warning" value="save">
-        <i class="fa fa-check"></i>
+    <button id="SaveConfigButton" type="submit" name="save" class="btn btn-primary" value="save">
+        <icon name="check"  />
         <span>@T("Admin.Common.Save")</span>
     </button>
 </widget>
@@ -51,17 +51,15 @@
     });
 </script>
 
-<div class="plugin-configuration">
-    <div>
-        <div class="alert alert-info alert-dismissible">
+<div class="alert alert-info alert-dismissible fade show">
+    <button type="button" class="btn-close" data-dismiss="alert"></button>
+    <a class="d-inline-block mb-3" href="https://www.paypal.com/" target="_blank">
+        <img class="img-fluid alert-branding" src="@Url.Content("~/Modules/Smartstore.PayPal/branding.png")" alt="PayPal" />
+    </a>
+    <div class="text-expander" data-max-height="130">
+        <div class="text-expander-content">
             @Html.Raw(T("Plugins.Smartstore.PayPal.AdminInstruction"))
-            <button class="btn-close" data-dismiss="alert"></button>
         </div>
-    </div>
-    <div class="mt-5">
-        <a href="https://www.paypal.com/" target="_blank">
-            <img src="@Url.Content("~/Modules/Smartstore.PayPal/branding.png")" alt="PayPal" />
-        </a>
     </div>
 </div>
 
@@ -119,7 +117,8 @@
                                 $("#@Html.NameFor(x => x.Secret)").val(response.clientSecret);
                                 $("#@Html.NameFor(x => x.PayerId)").val(response.payerId);
 
-                                $("#hint-credentials > i")
+                                $("#hint-credentials > sm-icon")
+                                    .attr("name", "check")
                                     .removeClass("@errorCssClasses")
                                     .addClass("@successCssClasses");
 
@@ -145,7 +144,8 @@
                         success: function (response) {
                             if (response.success) {
                                 if (response.primaryEmailConfirmed) {
-                                    $("#hint-email-confirmed > i")
+                                    $("#hint-email-confirmed > sm-icon")
+                                        .attr("name", "check")
                                         .removeClass("@errorCssClasses")
                                         .addClass("@successCssClasses");
 
@@ -153,7 +153,8 @@
                                 }
 
                                 if (response.paymentsReceivable) {
-                                    $("#hint-payments-receivable > i")
+                                    $("#hint-payments-receivable > sm-icon")
+                                        .attr("name", "check")
                                         .removeClass("@errorCssClasses")
                                         .addClass("@successCssClasses");
 
@@ -168,29 +169,31 @@
             </script>
 
             <div class="adminTitle">
-                <a href="@Html.Raw(url)" target="_blank"
-                   data-paypal-onboard-complete="onboardedCallback" 
-                   data-paypal-button="PPLtBlue" 
-                   class="btn btn-primary pb-0 pl-0">
-                    @T("Plugins.Smartstore.PayPal.Onboarding")
-                </a>
+                <div class="adminTitle-addon d-table ml-auto">
+                    <a href="@Html.Raw(url)" target="_blank"
+                       data-paypal-onboard-complete="onboardedCallback"
+                       data-paypal-button="PPLtBlue"
+                       class="btn btn-primary pb-0 pl-0" style="line-height: normal;">
+                        @T("Plugins.Smartstore.PayPal.Onboarding")
+                    </a>
+                </div>
             </div>
             <div class="adminData wide">
-                <ul class="fa-ul">
-                    <li id="hint-credentials" class="pb-2">
-                        <i class="fa-li fa @(Model.HasCredentials ? successCssClasses : errorCssClasses)"></i>
+                <ul class="list-unstyled">
+                    <li id="hint-credentials" class="hstack gap-2 pb-2">
+                        <sm-icon name="@(Model.HasCredentials ? "check" : "warning")" class="icon-fw @(Model.HasCredentials ? successCssClasses : errorCssClasses)"></sm-icon>
                         <span>@T("Plugins.Smartstore.PayPal.HasCredentials." + Model.HasCredentials.ToString())</span>
                     </li>
-                    <li id="hint-email-confirmed" class="pb-2">
-                        <i class="fa-li fa @(Model.PrimaryEmailConfirmed ? successCssClasses : errorCssClasses)"></i>
+                    <li id="hint-email-confirmed" class="hstack gap-2 pb-2">
+                        <sm-icon name="@(Model.PrimaryEmailConfirmed ? "check" : "warning")" class="icon-fw @(Model.PrimaryEmailConfirmed ? successCssClasses : errorCssClasses)"></sm-icon>
                         <span>@T("Plugins.Smartstore.PayPal.PrimaryEmailConfirmed." + Model.PrimaryEmailConfirmed.ToString())</span>
                     </li>
-                    <li id="hint-payments-receivable" class="pb-2">
-                        <i class="fa-li fa @(Model.PaymentsReceivable ? successCssClasses : errorCssClasses)"></i>
+                    <li id="hint-payments-receivable" class="hstack gap-2 pb-2">
+                        <sm-icon name="@(Model.PaymentsReceivable ? "check" : "warning")" class="icon-fw @(Model.PaymentsReceivable ? successCssClasses : errorCssClasses)"></sm-icon>
                         <span>@T("Plugins.Smartstore.PayPal.PaymentsReceivable." + Model.PaymentsReceivable.ToString())</span>
                     </li>
-                    <li id="hint-webhook-created" class="pb-2">
-                        <i class="fa-li fa @(Model.WebHookCreated ? successCssClasses : errorCssClasses)"></i>
+                    <li id="hint-webhook-created" class="hstack gap-2 pb-2">
+                        <sm-icon name="@(Model.WebHookCreated ? "check" : "warning")" class="icon-fw @(Model.WebHookCreated ? successCssClasses : errorCssClasses)"></sm-icon>
                         <span>@T("Plugins.Smartstore.PayPal.WebHookCreated." + Model.WebHookCreated.ToString())</span>
                     </li>
                 </ul>
@@ -256,7 +259,7 @@
                     <span class="input-group-append">
                         <button type="submit" id="createwebhook" name="createwebhook" value="createwebhook" class="btn btn-light"
                                 attr-disabled='(!Model.ClientId.HasValue() || !Model.Secret.HasValue(), "disabled")'>
-                            <i class="fa fa-cog"></i>
+                            <icon name="gear"  />
                             <span>@T("Plugins.Smartstore.PayPal.CreateWebhook")</span>
                         </button>
                     </span>
@@ -269,7 +272,14 @@
                 <smart-label asp-for="WebhookUrl" />
             </div>
             <div class="adminData">
-                <input asp-for="WebhookUrl" class="form-control-plaintext" readonly />
+                <div class="input-group">
+                    <input asp-for="WebhookUrl" readonly />
+                    <div class="input-group-append">
+                        <button type="button" class="btn btn-light btn-icon btn-clipboard" data-copy-from="#@(Html.IdFor(x => x.WebhookUrl))">
+                            <icon name="clipboard" />
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
 

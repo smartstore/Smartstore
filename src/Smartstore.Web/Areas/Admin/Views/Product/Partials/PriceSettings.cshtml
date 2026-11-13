@@ -105,28 +105,29 @@
     </div>
     <div class="adminRow pricing-discounts">
         <div class="adminTitle">
-            <smart-label asp-for="PriceSettings.ValidateDiscountLimitationsInLists" />
+            <div class="ctl-label"><label>@T("Admin.Configuration.Settings.Price.CheckListPrices")</label></div>
         </div>
         <div class="adminData">
-            <setting-editor asp-for="PriceSettings.ValidateDiscountLimitationsInLists"></setting-editor>
+            <setting-editor asp-for="PriceSettings.ValidateDiscountLimitationsInLists">
+                <div class="hstack gap-2 align-items-baseline">
+                    <input asp-for="PriceSettings.ValidateDiscountLimitationsInLists" />
+                    <smart-label asp-for="PriceSettings.ValidateDiscountLimitationsInLists" style="vertical-align:super" class="m-0" />
+                </div>
+            </setting-editor>
             <span asp-validation-for="PriceSettings.ValidateDiscountLimitationsInLists"></span>
-        </div>
-    </div>
-    <div class="adminRow pricing-discounts">
-        <div class="adminTitle">
-            <smart-label asp-for="PriceSettings.ValidateDiscountRulesInLists" />
-        </div>
-        <div class="adminData">
-            <setting-editor asp-for="PriceSettings.ValidateDiscountRulesInLists"></setting-editor>
+            <setting-editor asp-for="PriceSettings.ValidateDiscountRulesInLists">
+                <div class="hstack gap-2 align-items-baseline">
+                    <input asp-for="PriceSettings.ValidateDiscountRulesInLists" />
+                    <smart-label asp-for="PriceSettings.ValidateDiscountRulesInLists" style="vertical-align:super" class="m-0" />
+                </div>
+            </setting-editor>
             <span asp-validation-for="PriceSettings.ValidateDiscountRulesInLists"></span>
-        </div>
-    </div>
-    <div class="adminRow pricing-discounts">
-        <div class="adminTitle">
-            <smart-label asp-for="PriceSettings.ValidateDiscountGiftCardsInLists" />
-        </div>
-        <div class="adminData">
-            <setting-editor asp-for="PriceSettings.ValidateDiscountGiftCardsInLists"></setting-editor>
+            <setting-editor asp-for="PriceSettings.ValidateDiscountGiftCardsInLists">
+                <div class="hstack gap-2 align-items-baseline">
+                    <input asp-for="PriceSettings.ValidateDiscountGiftCardsInLists" />
+                    <smart-label asp-for="PriceSettings.ValidateDiscountGiftCardsInLists" style="vertical-align:super" class="m-0" />
+                </div>
+            </setting-editor>
             <span asp-validation-for="PriceSettings.ValidateDiscountGiftCardsInLists"></span>
         </div>
     </div>

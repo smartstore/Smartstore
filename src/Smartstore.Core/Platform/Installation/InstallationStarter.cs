@@ -14,29 +14,8 @@ internal sealed class InstallationStarter : StarterBase
 
     public override void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext)
     {
+        // App languages for installation are discovered from "App_Data/Seed/cultures/{culture}/culture.json".
         builder.RegisterType<InstallationService>().As<IInstallationService>().InstancePerLifetimeScope();
-
-        // Register app languages for installation
-        builder.RegisterType<EnUSSeedData>()
-            .As<InvariantSeedData>()
-            .WithMetadata<InstallationAppLanguageMetadata>(m =>
-            {
-                m.For(em => em.Culture, "en-US");
-                m.For(em => em.Name, "English");
-                m.For(em => em.UniqueSeoCode, "en");
-                m.For(em => em.FlagImageFileName, "us.png");
-            })
-            .InstancePerLifetimeScope();
-        builder.RegisterType<DeDESeedData>()
-            .As<InvariantSeedData>()
-            .WithMetadata<InstallationAppLanguageMetadata>(m =>
-            {
-                m.For(em => em.Culture, "de-DE");
-                m.For(em => em.Name, "Deutsch");
-                m.For(em => em.UniqueSeoCode, "de");
-                m.For(em => em.FlagImageFileName, "de.png");
-            })
-            .InstancePerLifetimeScope();
     }
 
     public override void BuildPipeline(RequestPipelineBuilder builder)

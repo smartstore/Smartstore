@@ -51,12 +51,12 @@
 
                 <div class="card-footer d-flex p-2">
                     <a asp-action="Details" asp-controller="Order" asp-route-id="@order.Id" class="btn btn-light btn-sm btn-flat" rel="nofollow">
-                        <i class="far fa-rectangle-list" aria-hidden="true"></i>
+                        <icon name="list-square"  aria-hidden="true" />
                         <span>@T("Order.OrderDetails")</span>
                         <span class="sr-only"> @order.OrderNumber</span>
                     </a>
                     <a sm-if="OrderSettings.IsReOrderAllowed" asp-action="ReOrder" asp-controller="Order" asp-route-id="@order.Id" class="btn btn-light btn-sm btn-flat" rel="nofollow">
-                        <i class="fal fa-shopping-cart" aria-hidden="true"></i>
+                        <icon name="cart"  aria-hidden="true" />
                         <span>@T("Order.Reorder")</span>
                         <span class="sr-only"> @order.OrderNumber</span>
                     </a>

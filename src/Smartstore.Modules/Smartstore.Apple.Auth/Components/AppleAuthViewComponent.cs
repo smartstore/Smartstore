@@ -1,21 +1,25 @@
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc;
+using Smartstore.IconKit;
 using Smartstore.Web.Components;
 
 namespace Smartstore.Apple.Auth.Components;
 
 public class AppleAuthViewComponent : SmartViewComponent
 {
+    private readonly IIconRenderer _iconRenderer;
     private readonly AppleAuthenticationOptions _appleOptions;
     private readonly AppleExternalAuthSettings _settings;
 
 
-    public AppleAuthViewComponent(IOptionsMonitor<AppleAuthenticationOptions> appleOptions, AppleExternalAuthSettings settings)
+    public AppleAuthViewComponent(IOptionsMonitor<AppleAuthenticationOptions> appleOptions, AppleExternalAuthSettings settings, IIconRenderer iconRenderer)
     {
+        _iconRenderer = iconRenderer;
         _appleOptions = appleOptions.CurrentValue;
         _settings = settings;
     }
 
-    public IViewComponentResult Invoke()
+    public async Task<IViewComponentResult> InvokeAsync()
     {
         if (!_appleOptions.ClientId.HasValue()
             || !_appleOptions.TeamId.HasValue()
@@ -29,9 +33,15 @@ public class AppleAuthViewComponent : SmartViewComponent
         var returnUrl = HttpContext.Request.Query["returnUrl"].ToString();
         var href = Url.Action("ExternalLogin", "Identity", new { provider = "Apple", returnUrl });
         var title = T("Plugins.Smartstore.Apple.Auth.Login").Value;
-        var html = $"<a class='btn btn-secondary btn-block btn-lg btn-extauth' href='{href}' rel='nofollow'>" +
-                   $"<i class='fab fa-fw fa-lg fa-apple' aria-hidden='true'></i><span>{title}</span></a>";
+        var link = new TagBuilder("a");
+        link.Attributes["class"] = "btn btn-secondary btn-block btn-lg btn-extauth";
+        link.Attributes["href"] = href;
+        link.Attributes["rel"] = "nofollow";
+        link.InnerHtml.AppendHtml(await _iconRenderer.RenderAsync(IconExpression.Parse("apple?fw&size=lg")));
+        var label = new TagBuilder("span");
+        label.InnerHtml.Append(title);
+        link.InnerHtml.AppendHtml(label);
 
-        return HtmlContent(html);
+        return HtmlContent(link);
     }
 }

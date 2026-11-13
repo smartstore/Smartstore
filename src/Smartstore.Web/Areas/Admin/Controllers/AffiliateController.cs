@@ -48,7 +48,7 @@ public class AffiliateController : AdminController
         model.Address.PhoneRequired = true;
         model.Address.FaxEnabled = true;
         model.Address.EmailEnabled = true;
-        model.UsernamesEnabled = _customerSettings.CustomerLoginType != CustomerLoginType.Email;
+        model.UsernamesEnabled = _customerSettings.SupportsUsernames();
     }
 
     public IActionResult Index()

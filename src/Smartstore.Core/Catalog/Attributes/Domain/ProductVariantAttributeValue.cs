@@ -14,6 +14,9 @@ internal class ProductVariantAttributeValueMap : IEntityTypeConfiguration<Produc
         builder.HasOne(c => c.ProductVariantAttribute)
             .WithMany(c => c.ProductVariantAttributeValues)
             .HasForeignKey(c => c.ProductVariantAttributeId);
+
+        builder.Property(x => x.AdditionalColors)
+            .HasJsonConversion();
     }
 }
 
@@ -60,11 +63,17 @@ public partial class ProductVariantAttributeValue : BaseEntity, ILocalizedEntity
     public int MediaFileId { get; set; }
 
     /// <summary>
-    /// Gets or sets the color RGB value (used with "Boxes" attribute type).
+    /// Gets or sets the color RGB value for swatches.
     /// </summary>
     /// <example>#00ff00</example>
     [StringLength(100)]
     public string Color { get; set; }
+
+    /// <summary>
+    /// Gets or sets a list of additional color RGB values for multicolor swatches.
+    /// </summary>
+    [StringLength(100)]
+    public string[] AdditionalColors { get; set; }
 
     /// <summary>
     /// Gets or sets the price adjustment\surcharge.
@@ -120,6 +129,7 @@ public partial class ProductVariantAttributeValue : BaseEntity, ILocalizedEntity
             Alias = Alias,
             MediaFileId = MediaFileId,
             Color = Color,
+            AdditionalColors = AdditionalColors,
             PriceAdjustment = PriceAdjustment,
             WeightAdjustment = WeightAdjustment,
             IsPreSelected = IsPreSelected,

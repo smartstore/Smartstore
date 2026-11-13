@@ -114,7 +114,7 @@
         zoomWindowContainer: null,
         currentIndex: 0,
         currentImage: null,
-        pswp: null,
+        lightbox: null,
 
         initGallery: function () {
             var self = this;
@@ -130,8 +130,8 @@
                 lazyLoad: "ondemand",
                 dots: true,
                 arrows: false,
-                //prevArrow: '<button type="button" class="btn btn-secondary btn-flat btn-icon rounded-circle slick-prev"><i class="fa fa-angle-left"></i></button>',
-                //nextArrow: '<button type="button" class="btn btn-secondary btn-flat btn-icon rounded-circle slick-next"><i class="fa fa-angle-right"></i></button>',
+                //prevArrow: '<button type="button" class="btn btn-secondary btn-flat btn-icon rounded-circle slick-prev"><sm-icon name="chevron-left" ></sm-icon></button>',
+                //nextArrow: '<button type="button" class="btn btn-secondary btn-flat btn-icon rounded-circle slick-next"><sm-icon name="chevron-right" ></sm-icon></button>',
                 cssEase: 'ease-in-out',
                 speed: isTouch ? 250 : 0,
                 useCSS: true,
@@ -147,14 +147,26 @@
 
             gal.slick(options);
 
-            // INFO: Not setting height anymore since the browser seems to handle it correctly and
-            // the slick dots were not aligned correctly before. If there is a layout problem, 
-            // maybe uncomment again.
-            //gal.height(gal.width());
-            EventBroker.subscribe("page.resized", (msg, viewport) => {
-                //gal.height(gal.width());
-                self.initNav();
+            // Recalculate sizes when the gallery changes width, including container-only changes.
+            let galleryWidth;
+            const resizeObserver = new ResizeObserver(([entry]) => {
+                if (!gal[0].isConnected) {
+                    resizeObserver.disconnect();
+                    return;
+                }
+
+                const width = entry.contentRect.width;
+                if (!width || width === galleryWidth) return;
+                galleryWidth = width;
+
+                requestAnimationFrame(() => {
+                    if (!gal[0].isConnected) return;
+                    gal.slick('setPosition');
+                    self.initNav();
+                });
             });
+            resizeObserver.observe(gal[0]);
+            gal.one('destroy.gal', () => resizeObserver.disconnect());
 
             gal.on('beforeChange', (e, slick, curIdx, nextIdx) => {
                 if (!self.nav.data('glimpse')) {
@@ -177,7 +189,7 @@
 
         initNav: function () {
             var self = this;
-            self.nav = (nav = (self.nav || self.el.find('.gal-nav')));
+            var nav = self.nav = self.nav || self.el.find('.gal-nav');
             if (nav.length === 0)
                 return;
 
@@ -185,8 +197,17 @@
 
             var list = self.navList = nav.find('.gal-list').first(),
                 track = self.navTrack = list.find('.gal-track').first(),
-                items = list.find('.gal-item'),
-                itemHeight = items.first().outerHeight(true);
+                items = list.find('.gal-item');
+
+            if (items.length > self.options.thumbsToShow && nav.is(':visible')) {
+                list.height(items.first().outerHeight(true) * self.options.thumbsToShow);
+            }
+
+            // Subsequent calls only refresh geometry; keep selection and handlers intact.
+            if (isInitialized) {
+                list.scrollTop(list.height() * (nav.data('current-page') || 0));
+                return;
+            }
 
             self.navItemsCount = items.length;
 
@@ -201,11 +222,9 @@
             if (items.length > self.options.thumbsToShow) {
                 if (!isInitialized) {
                     const cssClass = 'btn btn-secondary btn-no-border btn-icon rounded-circle btn-sm gal-arrow gal-disabled';
-                    self.navPrevArrow = $(`<button type="button" class="${cssClass} gal-prev" aria-label="${Res['Common.MoveUp']}" aria-disabled="true"><i class="fa fa-chevron-up" style="vertical-align: top" aria-hidden="true"></i></button>`).prependTo(nav);
-                    self.navNextArrow = $(`<button type="button" class="${cssClass} gal-next" aria-label="${Res['Common.MoveDown']}" aria-disabled="true"><i class="fa fa-chevron-down" aria-hidden="true"></i></button>`).appendTo(nav);
+                    self.navPrevArrow = $(`<button type="button" class="${cssClass} gal-prev" aria-label="${Res['Common.MoveUp']}" aria-disabled="true"><sm-icon name="chevron-up"  style="vertical-align: top" aria-hidden="true"></sm-icon></button>`).prependTo(nav);
+                    self.navNextArrow = $(`<button type="button" class="${cssClass} gal-next" aria-label="${Res['Common.MoveDown']}" aria-disabled="true"><sm-icon name="chevron-down"  aria-hidden="true"></sm-icon></button>`).appendTo(nav);
                 }
-
-                list.height(itemHeight * self.options.thumbsToShow);
 
                 list.on('scroll', function (e) {
                     // We only handle native tab key scrolling here
@@ -246,7 +265,7 @@
                 });
             }
 
-            self._selectNavItem(self.options.startIndex, isInitialized);
+            self._selectNavItem(self.options.startIndex, false);
 
             nav.on('mouseenter.gal click.gal', '.gal-item-viewport', function (e) {
                 e.preventDefault();
@@ -414,6 +433,7 @@
         },
 
         reset: function () {
+            this.lightbox?.destroy();
             this.nav.removeClass('gal-initialized');
 
             if (this.gallery) {
@@ -428,7 +448,6 @@
                 this.nav.find('.gal-item').removeClass('gal-current').removeAttr('data-gal-index').removeAttr('aria-selected');
             }
 
-            if (this.pswp) this.pswp.off('.gal');
             if (this.navPrevArrow) this.navPrevArrow.remove();
             if (this.navNextArrow) this.navNextArrow.remove();
 
@@ -442,161 +461,60 @@
             this.zoomWindowContainer = null;
             this.currentIndex = 0;
             this.currentImage = null;
-            this.pswp = null;
+            this.lightbox = null;
         },
 
         initBox: function () {
-            var pswpEl = document.getElementById('pswp');
-            if (!pswpEl)
-                return;
-
-            this.pswp = $(pswpEl);
-
-            var pswpContainer = $('.pswp__container', pswpEl);
             var self = this;
+            if (!self.gallery || !self.nav) return;
 
-            function setTransition(e) {
-                // Photoswipe has no support for transitions on Mouse/Keyboard-Nav out of the box.
-                // We have to handle this ourselves.
-                var pswp = $(pswpEl).data('pswp');
-                if (!pswp) {
-                    return;
-                }
-
-                var len = pswp.items.length;
-                var idx = pswp.getCurrentIndex();
-                var noTransition = false;
-
-                if (e.type === 'keydown' && ((e.which === 37 && idx === 0) || (e.which === 39 && idx === len - 1))) {
-                    noTransition = true;
-                }
-
-                if (e.type === 'mousedown') {
-                    var btn = $(e.srcElement || e.currentTarget);
-                    if ((idx === 0 && btn.hasClass('pswp__button--arrow--left')) || (idx === len - 1 && btn.hasClass('pswp__button--arrow--right'))) {
-                        noTransition = true;
-                    }
-                }
-
-                if (noTransition) {
-                    pswpContainer.removeClass('sliding');
-                }
-                else {
-                    pswpContainer.addClass('sliding');
-                }
-            }
-
-            function pauseVideos() {
-                pswpContainer.find('.video-item').each((_, el) => {
-                    el.pause();
-                });
-            }
-
-            $(pswpEl).on('keydown.gal', (e) => {
-                // Handle arrow left/right press
-                setTransition(e);
-            });
-
-            $(pswpEl).on('mousedown.gal', '.pswp__arrow', (e) => {
-                // Handle arrow left/right click
-                e.stopPropagation();
-                setTransition(e);
-            });
-
-            $(pswpEl).on('mousedown.gal', '.pswp__scroll-wrap', (e) => {
-                pswpContainer.removeClass('sliding');
-            });
-
-            $(pswpEl).on('dblclick.gal', '.pswp__arrow', function (e) {
-                // Suppress annoying script exceptions in console 
-                e.stopPropagation();
+            self.gallery.on('click.gal', '.gal-item > a', function (e) {
                 e.preventDefault();
-                return false;
-            });
+                if (document.body.classList.contains('search-focused')) return;
 
-            if (self.gallery && self.nav) {
-                self.gallery.on('click.gal', '.gal-item > a', function (e) {
-                    e.preventDefault();
-
-                    if ($('body').hasClass('search-focused')) {
-                        // Don't open gallery when search box has focus
-                        return;
-                    }
-
-                    var $this = this;
-                    var links = self.nav.find('.gal-item > a');
-                    var items = [];
-
-                    links.each(function (i, el) {
-                        var a = $(el);
-                        if (a.data('type') === 'image') {
-                            var width = a.data("width");
-                            var height = a.data("height");
-                            if (width && height) {
-                                items.push({
-                                    src: a.attr('href'),
-                                    msrc: a.data('medium-image'),
-                                    w: width,
-                                    h: height,
-                                    el: $this
-                                });
-                            }
-                        }
-                        else {
-                            var src = a.attr('href');
-                            var html = `<div class="video-container d-flex align-items-center justify-content-center"><video class="video-item" src="${src}" controls preload="metadata" /></div>`;
-                            items.push({ html: html, el: $this });
-                        }
+                const root = document.getElementById('lightbox');
+                if (!root || !window.Smartstore?.Lightbox) return;
+                const items = [];
+                const galleryIndices = [];
+                self.nav.find('.gal-item > a').each((index, link) => {
+                    const a = $(link);
+                    const image = a.data('type') === 'image';
+                    const width = a.data('width');
+                    const height = a.data('height');
+                    if (image && (!width || !height)) return;
+                    galleryIndices.push(index);
+                    items.push({
+                        type: image ? 'image' : 'video',
+                        src: link.href,
+                        msrc: a.data('medium-image'),
+                        thumbnail: link.querySelector('.gal-item-content'),
+                        thumbnailLabel: link.getAttribute('aria-label'),
+                        w: width,
+                        h: height,
+                        alt: link.querySelector('img')?.alt || ''
                     });
-
-                    if (items.length > 0) {
-                        var options = $.extend({}, self.options.zoom, {
-                            index: self.currentIndex,
-                            showHideOpacity: true,
-                            //captionEl: false,
-                            shareEl: false,
-                            barsSize: { top: 0, bottom: 'auto' },
-                            getThumbBoundsFn: (index) => {
-                                var img = self.currentImage[0],
-                                    pageYScroll = window.scrollY || document.documentElement.scrollTop,
-                                    rect = img.getBoundingClientRect();
-
-                                return { x: rect.left, y: rect.top + pageYScroll, w: rect.width };
-                            }
-                        });
-
-                        const pswp = new PhotoSwipe(pswpEl, PhotoSwipeUI_Default, items, options);
-
-                        pswp.listen('destroy', () => {
-                            AccessKitFocusTrap.deactivate();
-                            pauseVideos();
-                        });
-                        pswp.listen('beforeChange', pauseVideos);
-                        pswp.listen('afterChange', () => {
-                            pswpContainer.one('transitionend', () => {
-                                pswpContainer.removeClass('sliding');
-                            });
-
-                            const idx = pswp.getCurrentIndex();
-                            if (idx !== self.currentIndex) {
-                                self.goTo(idx);
-                            }
-
-                            // WCAG
-                            $(pswp.container).children().aria('hidden', true);
-                            $(pswp.currItem.container).closest('.pswp__item').aria('hidden', false);
-                        });
-
-                        $(pswpEl).data('pswp', pswp);
-
-                        pswp.init();
-
-                        AccessKitFocusTrap.activate(pswpEl);
-                    }
-
-                    return false;
                 });
-            }
+                if (!items.length) return;
+
+                const options = {
+                    index: Math.max(0, galleryIndices.indexOf(self.currentIndex)),
+                    ..._.pick(self.options.box, 'loop', 'history', 'closeOnScroll', 'thumbnails'),
+                    getThumbnailRect: (index) => {
+                        const item = self.gallery?.find('.gal-item').eq(galleryIndices[index])[0];
+                        if (!item?.isConnected) return null;
+                        const rect = item.getBoundingClientRect();
+                        return { x: rect.left, y: rect.top + window.scrollY, w: rect.width };
+                    },
+                    onChange: (index) => {
+                        const galleryIndex = galleryIndices[index];
+                        if (self.gallery && galleryIndex !== self.currentIndex) self.goTo(galleryIndex);
+                    },
+                    onClose: () => { if (self.lightbox === lightbox) self.lightbox = null; }
+                };
+                const lightbox = new Smartstore.Lightbox(root, items, options);
+                self.lightbox = lightbox;
+                lightbox.open();
+            });
         },
 
         goTo: function (index) {
@@ -634,7 +552,7 @@
         // full size image box options
         box: {
             enabled: true,
-            /* {...} PhotoSwipe options are passed through */
+            thumbnails: true
         },
         callbacks: {
             imageClick: null,

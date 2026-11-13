@@ -1,0 +1,331 @@
+// Key field: key
+[
+  {
+    "key": "color",
+    "name": "Color",
+    "displayOrder": 2,
+    "options":  [
+      {
+        "key": "white",
+        "name": "white",
+        "displayOrder": 1
+      },
+      {
+        "key": "black",
+        "name": "black",
+        "displayOrder": 2
+      }
+    ]
+  },
+  {
+    "key": "material",
+    "name": "Material",
+    "essential": true,
+    "displayOrder": 8,
+    "options":  [
+      {
+        "key": "aluminium",
+        "name": "aluminium",
+        "displayOrder": 4
+      },
+      {
+        "key": "leather",
+        "name": "leather",
+        "displayOrder": 5
+      },
+      {
+        "key": "100-organic-cotton",
+        "name": "100% organic cotton",
+        "displayOrder": 10
+      },
+      {
+        "key": "polyamide",
+        "name": "polyamide",
+        "displayOrder": 11
+      },
+      {
+        "key": "wood",
+        "name": "wood",
+        "displayOrder": 13
+      },
+      {
+        "key": "wool",
+        "name": "wool",
+        "displayOrder": 17
+      },
+      {
+        "key": "merino-wool",
+        "name": "merino wool",
+        "displayOrder": 18
+      }
+    ]
+  },
+  {
+    "key": "language",
+    "name": "Language",
+    "essential": true,
+    "displayOrder": 12,
+    "options":  [
+      {
+        "key": "english",
+        "name": "english",
+        "displayOrder": 2
+      }
+    ]
+  },
+  {
+    "key": "category",
+    "name": "Category",
+    "displayOrder": 14,
+    "options":  [
+      {
+        "key": "novel",
+        "name": "novel",
+        "displayOrder": 7
+      }
+    ]
+  },
+  {
+    "key": "origin",
+    "name": "Origin",
+    "essential": true,
+    "displayOrder": 10,
+    "options":  [
+      { "key": "italy", "name": "Italy", "displayOrder": 1 },
+      { "key": "spain", "name": "Spain", "displayOrder": 3 },
+      { "key": "colombia", "name": "Colombia", "displayOrder": 4 },
+      { "key": "ethiopia", "name": "Ethiopia", "displayOrder": 5 }
+    ]
+  },
+  {
+    "key": "roast",
+    "name": "Roast",
+    "displayOrder": 11,
+    "options":  [
+      { "key": "light", "name": "Light", "displayOrder": 1 },
+      { "key": "medium", "name": "Medium", "displayOrder": 2 }
+    ]
+  },
+  {
+    "key": "dietary",
+    "name": "Dietary",
+    "displayOrder": 12,
+    "options":  [
+      { "key": "vegan", "name": "Vegan", "displayOrder": 1 },
+      { "key": "gluten-free", "name": "Gluten-free", "displayOrder": 2 },
+      { "key": "organic", "name": "Organic", "displayOrder": 3 }
+    ]
+  },
+  {
+    "key": "bean",
+    "name": "Bean",
+    "displayOrder": 13,
+    "options":  [
+      { "key": "arabica", "name": "100% Arabica", "displayOrder": 1 }
+    ]
+  },
+  {
+    "key": "intensity",
+    "name": "Intensity",
+    "displayOrder": 14,
+    "options":  [
+      { "key": "mild", "name": "Mild", "displayOrder": 1 },
+      { "key": "strong", "name": "Strong", "displayOrder": 3 }
+    ]
+  },
+  {
+    "key": "coffee-type",
+    "name": "Coffee type",
+    "displayOrder": 15,
+    "options":  [
+      { "key": "filter", "name": "Filter coffee", "displayOrder": 1 },
+      { "key": "rarity", "name": "Rarity", "displayOrder": 4 }
+    ]
+  },
+  {
+    "key": "decaffeinated",
+    "name": "Decaffeinated",
+    "essential": true,
+    "displayOrder": 16,
+    "options":  [
+      { "key": "no", "name": "No", "displayOrder": 2 }
+    ]
+  },
+  {
+    "key": "olive-variety",
+    "name": "Olive variety",
+    "displayOrder": 17,
+    "options":  [
+      { "key": "coratina", "name": "Coratina", "displayOrder": 1 }
+    ]
+  },
+  {
+    "key": "flavour",
+    "name": "Flavour",
+    "displayOrder": 18,
+    "options":  [
+      { "key": "fruity", "name": "Fruity", "displayOrder": 2 },
+      { "key": "savoury", "name": "Savoury", "displayOrder": 3 },
+      { "key": "sweet", "name": "Sweet", "displayOrder": 4 },
+      { "key": "spicy", "name": "Spicy", "displayOrder": 5 }
+    ]
+  },
+  {
+    "key": "occasion",
+    "name": "Occasion",
+    "displayOrder": 19,
+    "options":  [
+      { "key": "gift", "name": "Gift", "displayOrder": 2 },
+      { "key": "christmas", "name": "Christmas", "displayOrder": 3 }
+    ]
+  },
+  {
+    "key": "hardness",
+    "name": "Hardness",
+    "essential": true,
+    "displayOrder": 20,
+    "options":  [
+      { "key": "medium", "name": "Medium", "displayOrder": 2 }
+    ]
+  },
+  {
+    "key": "layers",
+    "name": "Layers",
+    "displayOrder": 21,
+    "options":  [
+      { "key": "3-piece", "name": "3-piece", "displayOrder": 2 }
+    ]
+  },
+  {
+    "key": "level",
+    "name": "Skill level",
+    "displayOrder": 22,
+    "options":  [
+      { "key": "beginner", "name": "Beginner", "displayOrder": 1 },
+      { "key": "advanced", "name": "Advanced", "displayOrder": 2 }
+    ]
+  },
+  {
+    "key": "target-group",
+    "name": "Target group",
+    "displayOrder": 23,
+    "options":  [
+      { "key": "men", "name": "Men", "displayOrder": 1 },
+      { "key": "women", "name": "Women", "displayOrder": 2 },
+      { "key": "unisex", "name": "Unisex", "displayOrder": 4 }
+    ]
+  },
+  {
+    "key": "tee-length",
+    "name": "Tee length",
+    "displayOrder": 24,
+    "options":  [
+      { "key": "70mm", "name": "70 mm", "displayOrder": 2 }
+    ]
+  },
+  {
+    "key": "measuring-range",
+    "name": "Measuring range",
+    "displayOrder": 25,
+    "options":  [
+      { "key": "600m", "name": "up to 600 m", "displayOrder": 2 }
+    ]
+  },
+  {
+    "key": "slope-function",
+    "name": "Slope function",
+    "displayOrder": 26,
+    "options":  [
+      { "key": "yes", "name": "Yes", "displayOrder": 1 }
+    ]
+  },
+  {
+    "key": "bag-type",
+    "name": "Bag type",
+    "displayOrder": 27,
+    "options":  [
+      { "key": "stand-bag", "name": "Stand bag", "displayOrder": 1 }
+    ]
+  },
+  {
+    "key": "fit",
+    "name": "Fit",
+    "displayOrder": 30,
+    "options":  [
+      { "key": "regular", "name": "Regular", "displayOrder": 2 },
+      { "key": "oversized", "name": "Oversized", "displayOrder": 3 }
+    ]
+  },
+  {
+    "key": "season",
+    "name": "Season",
+    "displayOrder": 31,
+    "options":  [
+      { "key": "autumn-winter", "name": "Autumn/Winter", "displayOrder": 2 },
+      { "key": "all-year", "name": "All year", "displayOrder": 3 }
+    ]
+  },
+  {
+    "key": "care",
+    "name": "Care",
+    "displayOrder": 32,
+    "options":  [
+      { "key": "machine-30", "name": "Machine wash 30 °C", "displayOrder": 1 },
+      { "key": "machine-40", "name": "Machine wash 40 °C", "displayOrder": 2 },
+      { "key": "hand-wash", "name": "Hand wash", "displayOrder": 3 }
+    ]
+  },
+  {
+    "key": "water-resistance",
+    "name": "Water resistance",
+    "displayOrder": 33,
+    "options":  [
+      { "key": "waterproof", "name": "Waterproof", "displayOrder": 2 }
+    ]
+  },
+  {
+    "key": "style",
+    "name": "Style",
+    "displayOrder": 40,
+    "options":  [
+      { "key": "scandinavian", "name": "Scandinavian", "displayOrder": 1 },
+      { "key": "modern", "name": "Modern", "displayOrder": 2 }
+    ]
+  },
+  {
+    "key": "assembly",
+    "name": "Assembly",
+    "displayOrder": 41,
+    "options":  [
+      { "key": "assembled", "name": "Delivered assembled", "displayOrder": 1 },
+      { "key": "easy", "name": "Easy self-assembly", "displayOrder": 2 }
+    ]
+  },
+  {
+    "key": "dimmable",
+    "name": "Dimmable",
+    "displayOrder": 42,
+    "options":  [
+      { "key": "yes", "name": "Yes", "displayOrder": 1 }
+    ]
+  },
+  {
+    "key": "file-format",
+    "name": "File format",
+    "displayOrder": 50,
+    "options":  [
+      { "key": "pdf", "name": "PDF", "displayOrder": 1 },
+      { "key": "zip", "name": "ZIP", "displayOrder": 4 }
+    ]
+  },
+  {
+    "key": "platform",
+    "name": "Platform",
+    "displayOrder": 51,
+    "options":  [
+      { "key": "windows", "name": "Windows", "displayOrder": 1 },
+      { "key": "macos", "name": "macOS", "displayOrder": 2 },
+      { "key": "linux", "name": "Linux", "displayOrder": 3 }
+    ]
+  }
+]

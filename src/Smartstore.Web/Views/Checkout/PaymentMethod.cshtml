@@ -100,9 +100,7 @@
             function disableNextStepButton(disable) {
                 let btn = $('button.payment-method-next-step-button');
                 btn.prop('disabled', disable);
-                btn.find('.fa')
-                    .removeClass('fa-angle-right fa-spinner fa-spin')
-                    .addClass(disable ? 'fa-spinner fa-spin' : 'fa-angle-right');
+                btn.find('sm-icon').attr({ name: disable ? 'spinner' : 'chevron-right', animation: disable ? 'spin' : null });
             };
 
             $('.checkout-data .opt-list-item').removeClass('active');

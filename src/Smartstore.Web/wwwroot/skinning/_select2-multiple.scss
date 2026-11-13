@@ -5,12 +5,6 @@
     display: flex;
     padding: var(--select2-multiple-padding);
 
-    select[data-placeholder] + &,
-    select[placeholder] + & {
-        // Make room for clear button only when nullable multiselect.
-        padding-inline-end: var(--select2-height);
-    }
-
     .select2-selection__rendered {
         box-sizing: border-box;
         display: flex;
@@ -25,6 +19,10 @@
         align-items: center;
         justify-content: flex-start;
         overflow: initial;
+
+        &:has(> .select2-selection__clear) {
+            padding-inline-end: var(--select2-height);
+        }
     }
 
     .select2-selection__clear {
@@ -34,10 +32,8 @@
         top: calc(var(--input-clear-offset) - var(--select2-multiple-padding));
 
         // Move to start of chevron area
-        inset-inline-end: calc((var(--trailing-action-size) * -1));
-
-        // Offset to center of chevron area
-        margin-inline-end: calc(var(--input-clear-offset) * -1.2);
+        inset-inline-end: calc(var(--input-clear-offset) - var(--select2-multiple-padding));
+        margin-inline-end: 0;
     }
 
     .select2-selection__placeholder {
@@ -46,17 +42,17 @@
         margin-block-start: 5px;
     }
 
-    // Make Multi Select2's choices match Bootstrap's default button styles.
+    // Display multiple selections as pill-shaped chips.
     .select2-selection__choice {
         position: relative;
         font-size: var(--select2-font-size);
         color: inherit;
         background: var(--gray-200);
         border: 1px solid rgba(#000, .1);
-        --border-radius: var(--border-radius-md);
-        border-radius: calc(var(--border-radius) - 1px);
+        border-radius: var(--border-radius-pill);
         cursor: default;
         padding: var(--select2-choice-padding-y) var(--select2-choice-padding-x);
+        padding-inline-start: 10px;
         display: flex;
         align-items: center;
         margin: 0.2em;
@@ -65,11 +61,28 @@
         white-space: nowrap;
         overflow: hidden;
 
+        &:has(.select2-option :is(.icon, .icon-stack)) {
+            padding-inline-start: var(--select2-choice-padding-x);
+        }
+
+        &:has(img.choice-item-img) {
+            padding-inline-start: calc(var(--select2-choice-padding-x) - 2px);
+        }
+
+        img.choice-item-img {
+            width: var(--choice-item-size);
+            border-radius: 50%;
+            object-fit: cover;
+            flex-shrink: 0;
+            align-self: center;
+            margin-top: 0;
+        }
+
         > .select2-option {
             overflow: hidden;
             text-overflow: ellipsis;
 
-            > :is(i, img) {
+            > :is(.icon, .icon-stack) {
                 // Quick fix for icon
                 position: relative;
                 top: 1px;
@@ -95,10 +108,13 @@
     .select2-selection__choice__remove {
         @include trailing-action(1rem);
 
-        font-weight: 400;
+        font-size: 0;
         margin-inline: 3px -2px;
-        border-radius: var(--border-radius-sm);
         order: 2;
+
+        &::before {
+            @include icon-mask("close", 12px);
+        }
     }
     // Clear the selection.
     .select2-selection__clear {

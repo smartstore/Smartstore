@@ -143,17 +143,8 @@ public class ShoppingCartModelMapper : CartMapperBase<ShoppingCartModel>
         var validateRequiredProducts = parameters?.ValidateRequiredProducts == true;
         var prepareEstimateShippingIfEnabled = parameters?.PrepareEstimateShippingIfEnabled == true;
         var setEstimateShippingDefaultAddress = parameters?.SetEstimateShippingDefaultAddress == true;
-
-        // INFO: At the moment there is no fixed association between products and required products (see issue #1529).
-        // Consequently, the cart is unable to determine which required product belongs to which main product.
-
-        // Key: Required product ID. Value: Parent cart item.
-        var requiredProducts = new Dictionary<int, OrganizedShoppingCartItem>();
-        foreach (var item in from.Items.Where(x => x.Item.Product.RequireOtherProducts))
-        {
-            var requiredProductIds = item.Item.Product.RequiredProductIdList;
-            requiredProductIds.Each(id => requiredProducts[id] = item);
-        }
+        var sorter = new CartItemSorter(from.Items);
+        var orderedItems = sorter.Sort();
 
         #region Simple properties
 
@@ -166,9 +157,6 @@ public class ShoppingCartModelMapper : CartMapperBase<ShoppingCartModel>
         to.ShowProductImages = _shoppingCartSettings.ShowProductImagesOnShoppingCart;
         to.ShowProductBundleImages = _shoppingCartSettings.ShowProductBundleImagesOnShoppingCart;
         to.HasItemsWithRecurringPayment = from.ContainsRecurringItem();
-
-        to.CheckoutAttributeInfo = HtmlUtility.ConvertPlainTextToTable(HtmlUtility.ConvertHtmlToPlainText(
-            await _checkoutAttributeFormatter.FormatAttributesAsync(customer.GenericAttributes.CheckoutAttributes, customer)));
 
         // Gift card and gift card boxes.
         to.DiscountBox.Display = _shoppingCartSettings.ShowDiscountBox;
@@ -212,9 +200,14 @@ public class ShoppingCartModelMapper : CartMapperBase<ShoppingCartModel>
 
         #region Checkout attributes
 
-        var checkoutAttributes = await _checkoutAttributeMaterializer.GetCheckoutAttributesAsync(from, store.Id);
+        var checkoutAttributes = await _checkoutAttributeMaterializer.MaterializeCheckoutAttributesAsync(from);
+        var selectedAttributes = checkoutAttributes.Selection;
+        var selectedAttrValues = checkoutAttributes.SelectedValues;
 
-        foreach (var attribute in checkoutAttributes)
+        to.CheckoutAttributeInfo = HtmlUtility.ConvertPlainTextToTable(HtmlUtility.ConvertHtmlToPlainText(
+            await _checkoutAttributeFormatter.FormatAttributesAsync(checkoutAttributes)));
+
+        foreach (var attribute in checkoutAttributes.Attributes)
         {
             var caModel = new ShoppingCartModel.CheckoutAttributeModel
             {
@@ -225,8 +218,18 @@ public class ShoppingCartModelMapper : CartMapperBase<ShoppingCartModel>
                 AttributeControlType = attribute.AttributeControlType
             };
 
+            if (attribute.AttributeControlType == AttributeControlType.Boxes)
+            {
+                caModel.SwatchSize = attribute.SwatchSize ?? _catalogSettings.DefaultSwatchSize;
+                caModel.SwatchAspectRatio = Math.Max(attribute.SwatchAspectRatio, 0);
+                caModel.SwatchShape = attribute.SwatchShape ?? _catalogSettings.DefaultSwatchShape;
+                caModel.ShowValueNameInSwatch = attribute.ShowValueNameInSwatch;
+                caModel.SwatchPriceDisplay = attribute.SwatchPriceDisplay;
+            }
+
             if (attribute.IsListTypeAttribute)
             {
+                var showPrices = await _services.Permissions.AuthorizeAsync(Permissions.Catalog.DisplayPrice);
                 var taxFormat = _taxService.GetTaxFormat(null, null, PricingTarget.Product);
                 var caValues = await _db.CheckoutAttributeValues
                     .Include(x => x.MediaFile)
@@ -248,22 +251,22 @@ public class ShoppingCartModelMapper : CartMapperBase<ShoppingCartModel>
                             DisplayOrder = x.DisplayOrder
                         };
 
+                        if (!x.AdditionalColors.IsNullOrEmpty())
+                        {
+                            m.AdditionalColors.AddRange(x.AdditionalColors);
+                        }
+
                         if (x.MediaFileId.HasValue && x.MediaFile != null)
                         {
                             m.ImageUrl = _services.MediaService.GetUrl(x.MediaFile, _mediaSettings.VariantValueThumbPictureSize, null, false);
                         }
 
-                        // Display price if allowed.
-                        if (await _services.Permissions.AuthorizeAsync(Permissions.Catalog.DisplayPrice))
+                        if (showPrices)
                         {
                             var priceAdjustmentBase = await _taxCalculator.CalculateCheckoutAttributeTaxAsync(x);
                             var priceAdjustment = _currencyService.ConvertFromPrimaryCurrency(priceAdjustmentBase.Price, currency);
 
-                            if (priceAdjustment > 0)
-                            {
-                                m.PriceAdjustment = priceAdjustment.WithPostFormat(taxFormat);
-                            }
-                            else if (priceAdjustment < 0)
+                            if (priceAdjustment != 0)
                             {
                                 m.PriceAdjustment = priceAdjustment.WithPostFormat(taxFormat);
                             }
@@ -280,14 +283,13 @@ public class ShoppingCartModelMapper : CartMapperBase<ShoppingCartModel>
             }
 
             // Set already selected attributes.
-            var selectedCheckoutAttributes = customer.GenericAttributes.CheckoutAttributes;
             switch (attribute.AttributeControlType)
             {
                 case AttributeControlType.DropdownList:
                 case AttributeControlType.RadioList:
                 case AttributeControlType.Boxes:
                 case AttributeControlType.Checkboxes:
-                    if (selectedCheckoutAttributes.AttributesMap.Any())
+                    if (selectedAttributes.AttributesMap.Any())
                     {
                         // Clear default selection.
                         foreach (var item in caModel.Values)
@@ -296,8 +298,7 @@ public class ShoppingCartModelMapper : CartMapperBase<ShoppingCartModel>
                         }
 
                         // Select new values.
-                        var selectedCaValues = await _checkoutAttributeMaterializer.MaterializeCheckoutAttributeValuesAsync(selectedCheckoutAttributes);
-                        foreach (var caValue in selectedCaValues)
+                        foreach (var caValue in selectedAttrValues)
                         {
                             foreach (var item in caModel.Values)
                             {
@@ -312,9 +313,9 @@ public class ShoppingCartModelMapper : CartMapperBase<ShoppingCartModel>
 
                 case AttributeControlType.TextBox:
                 case AttributeControlType.MultilineTextbox:
-                    if (selectedCheckoutAttributes.AttributesMap.Any())
+                    if (selectedAttributes.AttributesMap.Any())
                     {
-                        var enteredText = selectedCheckoutAttributes.GetAttributeValues(attribute.Id)?
+                        var enteredText = selectedAttributes.GetAttributeValues(attribute.Id)?
                             .Select(x => x.ToString())
                             .FirstOrDefault();
 
@@ -327,7 +328,7 @@ public class ShoppingCartModelMapper : CartMapperBase<ShoppingCartModel>
 
                 case AttributeControlType.Datepicker:
                 {
-                    var enteredDate = selectedCheckoutAttributes.AttributesMap
+                    var enteredDate = selectedAttributes.AttributesMap
                         .Where(x => x.Key == attribute.Id)
                         .SelectMany(x => x.Value)
                         .FirstOrDefault()?
@@ -338,9 +339,9 @@ public class ShoppingCartModelMapper : CartMapperBase<ShoppingCartModel>
                 break;
 
                 case AttributeControlType.FileUpload:
-                    if (selectedCheckoutAttributes.AttributesMap.Any())
+                    if (selectedAttributes.AttributesMap.Any())
                     {
-                        var fileValue = selectedCheckoutAttributes.AttributesMap
+                        var fileValue = selectedAttributes.AttributesMap
                             .Where(x => x.Key == attribute.Id)
                             .Select(x => x.Value.ToString())
                             .FirstOrDefault();
@@ -421,9 +422,9 @@ public class ShoppingCartModelMapper : CartMapperBase<ShoppingCartModel>
         itemParameters.CartSubtotal = subtotal;
         itemParameters.Cart = from;
         itemParameters.CachedBrands = new Dictionary<int, BrandOverviewModel>();
-        itemParameters.RequiredProducts = requiredProducts;
+        itemParameters.RequiredProducts = sorter.RequiredProductParents;
 
-        foreach (var cartItem in from.Items)
+        foreach (var cartItem in orderedItems)
         {
             var model = new ShoppingCartModel.ShoppingCartItemModel();
             await cartItem.MapAsync(model, (object)itemParameters);

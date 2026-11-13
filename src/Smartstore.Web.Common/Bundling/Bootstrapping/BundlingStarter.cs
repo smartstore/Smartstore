@@ -6,6 +6,7 @@ using Smartstore.Engine.Modularity;
 using Smartstore.IO;
 using Smartstore.Web.Bundling;
 using Smartstore.Web.Bundling.Processors;
+using Smartstore.Web.Sass;
 
 namespace Smartstore.Web.Bootstrapping;
 
@@ -26,6 +27,9 @@ internal class BundlingStarter : StarterBase
         builder.RegisterType<BundleCache>().As<IBundleCache>().SingleInstance();
         builder.RegisterType<BundleDiskCache>().As<IBundleDiskCache>().SingleInstance();
         builder.RegisterType<BundleTagGenerator>().As<IAssetTagGenerator>().InstancePerLifetimeScope();
+
+        // The factory owns the shared native compiler and releases it when idle.
+        builder.RegisterType<DartSassCompilerFactory>().As<ISassCompilerFactory>().SingleInstance();
     }
 
     public override void BuildPipeline(RequestPipelineBuilder builder)

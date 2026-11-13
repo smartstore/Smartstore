@@ -1,0 +1,13 @@
+{
+  "sale": {
+    "description": "Produkte mit angewendeten Rabatten."
+  },
+  "inactive-new-customers": {
+    "name": "Inaktive Neukunden",
+    "description": "Eine abgeschlossene, mindestens 90 Tage zurückliegende Bestellung."
+  },
+  "cart-subtotal-50": {
+    "name": "Warenkorb-Zwischensumme ab 50",
+    "description": "Die Zwischensumme des Warenkorbs beträgt mindestens 50."
+  }
+}

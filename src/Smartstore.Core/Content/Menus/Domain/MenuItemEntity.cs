@@ -110,21 +110,23 @@ public class MenuItemEntity : EntityWithAttributes, ILocalizedEntity, IStoreRest
     public bool NewWindow { get; set; }
 
     /// <summary>
-    /// Gets or sets fontawesome icon class.
+    /// Gets or sets the serialized icon expression, including its address and presentation modifiers.
     /// </summary>
-    [StringLength(100)]
+    [StringLength(512)]
     public string Icon { get; set; }
 
     /// <summary>
     /// Gets or sets fontawesome icon style.
     /// </summary>
     [StringLength(10)]
+    [Obsolete("Icon style is stored in the Icon expression. Retained only to migrate legacy menu data.")]
     public string Style { get; set; }
 
     /// <summary>
     /// Gets or sets fontawesome icon color.
     /// </summary>
     [StringLength(100)]
+    [Obsolete("Icon color is stored in the Icon expression. Retained only to migrate legacy menu data.")]
     public string IconColor { get; set; }
 
     /// <summary>

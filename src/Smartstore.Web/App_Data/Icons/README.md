@@ -1,0 +1,1689 @@
+# Customizing icon libraries
+
+Smartstore's icon configuration separates application concepts, such as `cart`
+or `search`, from the SVG files used to display them. You can replace individual
+icons, select another style, or provide your own library while keeping the same
+conceptual names in your integration.
+
+All paths below are relative to `App_Data/Icons`. These source assets live outside
+`wwwroot` and are not normal publicly served static files.
+
+> Integration status: local discovery, icon resolution, search and SVG caching
+> are available through `IIconService`. The existing FontAwesome explorer remains
+> available alongside it. The `icon` TagHelper and `Html.IconAsync()` share the Core
+> renderer for inline SVG and kit output; browser components are also available.
+
+<!-- Update this guide and its examples whenever the concept, configuration format,
+     or resolution rules change. Keep variant-specific documentation consistent.
+     Update MIGRATION.md whenever migration mappings, rules or exceptions change. -->
+
+For legacy FA/BI replacements and plugin migration, use [MIGRATION.md](MIGRATION.md).
+Keep that reference current throughout the migration.
+
+## File structure
+
+```text
+Icons/
+    MIGRATION.md
+    config.json
+    kits.json
+    hugeicons/
+        library.json
+        mapping.json
+        metadata.json
+        stroke-rounded/
+            icons.zip
+            icons/
+                shopping-cart-02.svg
+            user/
+                shopping-cart-02.svg
+```
+
+The example shows a system replacement in `icons` and a user customization
+with the same name. Resolution uses **user > icons > icons.zip**, per icon.
+
+| File | Purpose |
+| --- | --- |
+| `MIGRATION.md` | Maintained FA/BI-to-HI migration reference for developers and plugin vendors |
+| `config.json` | Application-wide defaults |
+| `kits.json` | Optional kit definitions, memberships and per-kit defaults |
+| `<library>/library.json` | Library identity and variant settings |
+| `<library>/mapping.json` | Conceptual names mapped to concrete icon IDs |
+| `<library>/metadata.json` | Icon inventory and additional English search terms |
+| `<library>/<variant>/icons.zip` | Optional archive of original SVG files for one variant |
+| `<library>/<variant>/icons/*.svg` | Smartstore-supplied replacements or additional icons |
+| `<library>/<variant>/user/*.svg` | Integrator replacements or additional icons; highest priority |
+
+## Select a library and variant
+
+Configure the defaults in `config.json`:
+
+```json
+{
+  "defaultLibrary": "hugeicons",
+  "defaultVariant": "stroke-rounded",
+  "fallbackToDefaultLibrary": true
+}
+```
+
+`defaultLibrary` identifies a library by its **system name: its directory name**.
+Here, `hugeicons` refers to the `hugeicons/` directory. Use the directory name,
+not the display name or short name. The system name is derived from the
+folder; there is no separate `systemName` field to maintain.
+
+`defaultVariant` is an optional override for that default library. If omitted,
+the library's own `defaultVariant` applies. The global override does not apply
+to other libraries. An unavailable configured variant is a configuration error;
+it does not silently select a different style.
+
+## Resolve missing icons
+
+Variants can have unequal inventories. Configure ordered `fallbacks` in `library.json`:
+
+```json
+"variants": {
+  "regular": { "fallbacks": ["solid"] },
+  "solid": { "fallbacks": ["regular"] },
+  "brands": {}
+}
+```
+
+Entries accept variant names or short names within the same library. The requested
+variant is checked first, followed by each fallback and its own fallbacks in
+listed order (depth-first). Each variant is visited at most once, so mutual
+fallbacks are safe. Omission means no variant fallback; unknown fallback selectors
+are configuration errors. No implicit fallback to the library's default variant
+is added. The supplied Font Awesome configuration links regular and solid only.
+
+Resolution follows these rules:
+
+1. Apply the selected library's mapping once. If no mapping exists, try the
+   original concept as a concrete name. Mapping targets are not mapped again.
+2. Find that name in the requested variant and its fallback chain. A mapping
+   whose target is absent does not retry the concept as a different local name.
+3. If `fallbackToDefaultLibrary` is true and the initial library differs from the
+   system default, retry the **original concept** there, using that library's
+   mapping, effective default variant and fallback chain. Kit defaults and the
+   first library's mapped name or modifiers do not carry across.
+4. Return null if no candidate exists. Unknown requested libraries or variants
+   still return null rather than hiding a misspelled selector.
+
+`fallbackToDefaultLibrary` is false when omitted and enabled in the supplied
+`config.json`. A new non-default library can therefore be tested with an empty
+or missing `mapping.json`: same-name icons work directly and missing concepts use
+the system default. This is not a second baseline library: if you change
+`defaultLibrary` itself, it becomes the fallback destination too.
+
+A `!` address skips mapping and library fallback, but still follows configured
+variant fallbacks. Concrete kit `sources` follow the same direct-name rule; their
+library remains fixed. A broken SVG raises its normal preparation error and is
+not treated as a missing icon.
+
+`IconInfo.Address`, cache keys and CSS classes always identify the actual
+source. Kits use the same resolution pipeline and can mix fallback variants and
+libraries in one sprite. The client manifest contains the resulting identity
+patches, not a client-side fallback algorithm. The requested kit context is kept
+separately so server output references the same mixed sprite. Configuration and
+source changes rebuild the resolution state through the existing watcher.
+
+Library browsing, counts and full-variant sprites still contain only the native
+inventory. They never include fallback icons. Kit browsing shows the resolved
+concepts. Resolving fallbacks does not populate the individual SVG cache; kit
+membership uses name indexes without reading artwork.
+
+## Configure a library
+
+Each library contains a `library.json`:
+
+```json
+{
+  "displayName": "HugeIcons",
+  "version": "4.3.5",
+  "shortName": "hi",
+  "defaultVariant": "stroke-rounded",
+  "variants": {
+    "stroke-rounded": {
+      "displayName": "Stroke Rounded",
+      "shortName": "sr",
+      "defaultViewBox": "0 0 24 24",
+      "stroke": "currentColor",
+      "supportsStrokeScaling": true,
+      "strokeWidthScale": 1.0666667
+    }
+  }
+}
+```
+
+- `displayName` is the human-readable library name.
+- `icon` optionally supplies an icon address for the library's picker entry. Each
+  variant can override it with its own `icon`. Omission or null inherits the library
+  icon; without either setting, the picker uses `layers`.
+- `version` identifies the installed library version.
+- `shortName` is optional, for example `hi`, `bi`, or `fa`. It must be unique
+  across libraries and must not shadow another library's system name.
+- `defaultVariant` selects the library's default style, unless overridden by
+  the global configuration for the default library.
+- `variants` holds technical settings keyed by variant directory name. The IconBrowser
+  displays variants in their definition order in `library.json`, without alphabetic sorting.
+- Each variant may have an optional English `displayName` for picker labels, such as
+  `Stroke Rounded`. It does not affect icon addressing and defaults to null.
+- Each variant may also have an optional `shortName`, such as `sr`. It must be
+  unique within that library and must not shadow another variant's name.
+- `defaultViewBox` supplies an optional fallback when the SVG has no `viewBox`
+  attribute. An existing attribute is preserved verbatim without coordinate validation.
+  If both are absent, the icon is skipped without an error, including in kits.
+- `fill` is reserved for future paint configuration.
+  Stroke width is measured in SVG coordinates; caps accept `butt`, `round` or `square`.
+  These settings are currently not applied.
+- `stroke` optionally replaces explicit source stroke colors (for example, `currentColor`).
+  Omission preserves original colors. Explicit `none` remains unpainted.
+- `supportsStrokeScaling` defaults to `false`. Enable it for variants whose artwork
+  supports per-icon stroke adjustments. The resolved source variant controls this
+  capability, including fallback and mixed-kit selections. Unsupported variants ignore
+  mapping, query and rendering-option stroke multipliers. The IconBrowser hides the
+  stroke tool for them. The manifest lists supported concepts per kit in
+  `supportsStrokeScaling`; browser results expose the corresponding boolean.
+- `strokeWidthScale` multiplies original stroke widths once, including inherited widths.
+  It defaults to 1 and must be finite and non-negative. For example, 1.0666667 turns
+  1.5 into approximately 1.6 while preserving relative differences between widths.
+  Numeric SVG lengths retain their units; unsupported expressions fail explicitly when scaling.
+
+`icons.zip` is optional. A variant can consist entirely of loose SVGs in `icons`
+or `user`; a variant without any sources is empty. A missing archive does not cause
+an error, and unavailable icons return null. An existing invalid archive still
+raises an error when accessed.
+Only declared variants are loaded. Configuration describes variants; their
+archives and loose SVG files establish the available icons.
+Keep variant settings in `library.json`, not in `metadata.json`.
+
+## Map application concepts to icons
+
+Edit `mapping.json` to choose which icon represents each concept:
+
+```json
+{
+  "cart": "shopping-cart-02",
+  "search": "search-01"
+}
+```
+
+An icon ID is the exact SVG filename without `.svg`. For example,
+`shopping-cart-02` refers to `shopping-cart-02.svg`.
+
+When switching libraries, keep the conceptual keys and change their values to
+IDs provided by the new library. Mappings are shared across all variants of a
+library. Mapped IDs can be supplied by the selected variant or its configured
+fallbacks; there is no additional per-icon alias layer.
+
+Mapping values may append `flip` and `rotate` modifiers:
+
+```json
+{
+  "chevron-left": "chevron-right?flip=x",
+  "chevron-up": "chevron-right?rotate=-90",
+  "example": "some-icon?flip=xy&rotate=22.5"
+}
+```
+
+`flip` accepts `x`, `y`, or `xy`. `rotate` accepts finite decimal degrees using a
+period as the decimal separator; positive angles rotate clockwise. Transformations
+always flip first, then rotate around the source viewBox center, regardless of
+parameter order. Unknown, repeated or malformed parameters are configuration errors.
+These modifiers belong to mapping values, not the public icon-address syntax.
+
+The renderer applies transformations inside the icon, independently of outer CSS
+sizing, animation and transforms. Kit symbols apply the same transformation once,
+sharing original artwork between concepts. Source SVG cache entries remain unchanged.
+A direct `!` address skips mapping and therefore its modifiers. Kit selection matches
+both the source icon and its transformation; a direct icon cannot select a transformed
+symbol accidentally. Modifier changes also change the affected kit revision.
+
+An empty mapping file (`{}`) contains no assignments. Populate mappings for all
+concepts used by your kits before relying on icon resolution.
+
+## Use the .NET API
+
+Inject `IIconService` from `Smartstore.IconKit`. Resolution accepts an `IconAddress`;
+only the area and cancellation token remain separate. Rendering consumes an
+`IconExpression` directly. It combines an address with immutable `IconPresentation`
+values. `IconOptions` contains only rendering context and HTML attributes.
+
+```csharp
+IconLibrary library = icons.DefaultLibrary;
+IconLibrary hugeicons = icons.GetLibrary("hi"); // Also accepts "hugeicons".
+IconInfo icon = await icons.GetIconAsync(new IconAddress("cart", "hi", "sr"));
+// Simple names also work through the implicit string conversion:
+IconInfo concept = await icons.GetIconAsync("cart", area: "admin");
+IconSvg svg = await icons.GetSvgAsync("hi:cart/stroke-rounded");
+IconSearchResult results = await icons.SearchAsync(new IconSearchQuery
+{
+    Term = "basket",
+    Library = "hugeicons",
+    Take = 50
+});
+```
+
+`mapping.json` must contain the example `cart` assignment for those calls to find
+the cart icon. Each address lookup applies exactly one mapping first, then finds the
+actual icon. Without a mapping, the supplied name is used directly. A mapping
+whose target is missing returns null; it does not fall back to the conceptual name.
+Unknown requested libraries, variants and icons also return null. Invalid address
+syntax and invalid configuration raise exceptions.
+
+`IIconService.GetSvgAsync(IconInfo)` consumes an already resolved icon from
+`GetIconAsync` or search, without mapping its name again. The string overload is
+an extension method that accepts name, library and variant, resolves an `IconAddress`
+and forwards the resulting `IconInfo`. Neither lookup accepts presentation queries.
+Preparation uses the current library, variant and actual name; it derives the
+canonical address again rather than trusting a caller-modified `Address` property.
+
+For a persistent expression with presentation, parse once and pass only its address
+into resolution. The returned `IconInfo` carries source metadata and mapping defaults,
+not the caller's modifiers. Rendering does not mutate it:
+
+```csharp
+var expression = IconExpression.Parse("cart?size=lg&color=#1459ad&rotate=90");
+var icon = await icons.GetIconAsync(expression.Address, area: "admin");
+var markup = await renderer.RenderAsync(icon, expression.Presentation, new IconOptions { Area = "admin" });
+// Or resolve and render directly:
+var direct = await renderer.RenderAsync(expression, new IconOptions { Area = "admin" });
+string persisted = expression.ToString();
+```
+
+The Razor tag helper accepts a typed expression directly:
+
+```razor
+<icon expression="Model.Icon" />
+<icon expression="Model.Icon" size="lg" rotate="0" />
+```
+
+Populate `Model.Icon` with `IconExpression.Parse(persistedValue)` or an explicit cast
+from the stored string. Explicit presentation attributes override individual expression
+values, including `false` and zero. Do not combine `expression` with `name`, `lib` or
+`variant`; conflicting identity inputs and expressions with empty addresses are rejected.
+
+Construct expressions with `new IconExpression(address, presentation)`; an empty address
+is rejected. The default value represents an absent expression. Stack hosts use
+`RenderStack(content, presentation, options)` without an icon address. Presentation
+fields are declared only on `IconPresentation`, never duplicated in render options.
+`IconPresentation.Parse` and `TryParse` accept modifiers with or without a leading `?`.
+Its `ToString()` returns a query beginning with `?`, or an empty string when no values are set.
+Canonical short tokens are `fw`, `anim`, `anim-dur`, and `anim-rev`; their previous
+long forms remain accepted on input. Other names retain their descriptive spelling.
+Boolean modifiers (`fw`, `inverse`, `anim-rev`, `flip-h`, `flip-v`, `mirror-rtl`)
+accept a bare flag for true, or explicit `true`/`false` and `1`/`0` values.
+Formatting emits true as a bare flag and false as `=false`. An absent modifier
+remains unspecified so mapping defaults can apply; false explicitly overrides them.
+For example: `cart?size=lg&fw&anim=spin&flip-h&mirror-rtl=0`.
+`IconExpression` splits at the first `?` when parsing and concatenates the address
+and presentation strings when formatting; it has no modifier parser of its own.
+
+Persist strings as `[library:]name[!][/variant]`: `cart`, `hi:cart`,
+`cart/stroke-rounded` or `hi:cart/stroke-rounded`. `IconAddress.Parse` parses this
+syntax without accessing configuration. Library and variant selectors accept
+their full names or optional short names, case-insensitively. Icon names and
+mapping keys are exact and case-sensitive; even spaces in source names are retained.
+Names of libraries, variants and their short names use letters, digits, `-` and `_`.
+
+Append `!` to the name to skip mapping: `cart!` or `hi:cart!/sr` addresses the
+actual icon directly. A missing direct icon returns null without a mapping fallback.
+`IconAddress.SkipMapping` retains this flag, and `ToString()` preserves it for
+persistence. Component-based construction uses `new IconAddress("cart", "hi", "sr",
+skipMapping: true)`. The marker is reserved syntax and cannot occur within an icon
+name. Resolved addresses, `data-icon` and cache keys omit the marker because they
+already identify the actual icon.
+
+`IconAddress` is an immutable `readonly record struct` with value equality and
+implicit conversions in both directions: `IconAddress address = "hi:cart";`
+and `string persisted = address;`. String conversion into an address parses the
+syntax and throws `FormatException` for invalid input; use `TryParse` for unchecked
+input. `default(IconAddress)` is empty (`IsEmpty`) and cannot resolve an icon.
+
+The service fills missing address selectors from kit and library defaults.
+Supply explicit selectors in `IconAddress`. A convenience `GetIconAsync` extension
+also accepts name, library and variant; address qualifiers take precedence over these defaults.
+Canonical result addresses contain the actual mapped icon name
+and both selectors, preferring each short name when present. For example, with
+the manifest above: `hi:shopping-cart-02/sr`. Without short names:
+`hugeicons:shopping-cart-02/stroke-rounded`. Changing short names requires updating
+persisted strings that use them; persist full names when that stability is needed.
+
+`IconLibrary.SystemName` and `IconVariant.Name` come from directory names and
+manifest keys. Library and variant manifests are immutable and shared; their variants dictionary
+is frozen. SVG payloads are also immutable, with frozen root attributes, and are shared without cache-boundary copies. Search
+matches every query word against icon names, supplemental tags or conceptual
+mapping names, and returns a page plus the total count.
+
+`IconSvg` is an immutable serializable payload: canonical `Address`, source `Revision`,
+`Library`, `Variant`, `Name`, the original `ViewBox`, `RootAttributes` and child
+`Content`. Root width and height attributes are removed; CSS controls the rendered size. It contains no
+HTML helper, XML DOM or presentation state such as size, transforms or animation.
+Consumers must encode root attribute values when rendering them. Source IDs and
+local references are preserved; a renderer that repeats icons with IDs must
+scope those IDs per rendered instance.
+
+SVG sources support static geometry, groups, local references, gradients, clips
+and masks. Scripts, event handlers, external references, embedded HTML and source
+style declarations are rejected. Each SVG is limited to 1 MiB, and each archive
+to 256 MiB both before and after decompression. Use presentation attributes in
+custom SVGs. The parser removes source root `class` attributes for all libraries; descendant classes remain intact, and renderer/caller classes are applied afterwards. The parser removes root width/height attributes and moves root stroke attributes to children, preserving inheritance and leaving the root free of stroke attributes. The optional stroke setting supplies the stroke color fallback. Stroke widths are multiplied by the variant strokeWidthScale; inherited values are not multiplied again. Changes to library.json invalidate the SVG cache revision. Geometry, descendant line caps and all source fill attributes remain unchanged. Generated inline styles expose `--icon-stroke` and `--icon-stroke-width`. Corresponding presentation attributes are removed only after their fallback is stored in the generated style; `none` and inherited declarations that are not converted remain intact. A CSS variable overrides the configured/source fallback; `--icon-stroke-width` is an absolute width, not an additional multiplier. Explicit `none` strokes remain untouched. For example, `<icon name="hi:search-01" style="--icon-stroke: red; --icon-stroke-width: 2" />` overrides both for one render without changing the cached payload.
+
+The first catalog access reads only root configuration and library manifests. All
+manifests are needed to resolve short names and reject ambiguous selectors. Mappings
+load on the first lookup in a library; metadata loads only when `IconInfo.Tags` is accessed or during
+search, never for SVG rendering. Each variant's ZIP central directory loads on
+its first archive lookup or search. Unused libraries and variants incur no archive
+or metadata reads. Invalid deferred files are reported when first used.
+
+User files are resolved directly by name, then system icons, then the archive.
+Only the winning layer is read and hashed. On the first search or full-name lookup,
+each variant combines filenames from `user`, `icons` and the ZIP directory into a
+`FrozenSet<string>`. This name index is reused for the catalog generation and rebuilt
+lazily after watcher invalidation; SVG contents are not read to build it. Individual
+icon resolution does not require building the full index. Search iterates the available names and checks their tags and mapping aliases
+using case-insensitive substring matching. Every search word must match at least
+one of these fields. Only the requested page is materialized as icon metadata.
+Only requested sources
+retain a small descriptor (path and fingerprint); no file objects, SVG contents or
+open handles are retained. Loose-file revisions include the layer and a SHA-256 fingerprint; archived icons use
+the ZIP entry CRC. Archive bodies are not scanned for hashing. Each miss reopens
+and checks the requested source, then streams it into the XML parser. Warm cache
+hits need no file access. Local providers must supply seekable file streams.
+
+File changes under `Icons` invalidate the generation when the provider reports the
+change. Deferred indexes and requested-source descriptors are then rebuilt on demand.
+Source replacement detected during preparation fails the lookup rather than caching
+under an outdated revision; retry after the watcher invalidates the generation.
+`IIconCache` uses Smartstore's configured cache manager, including Redis when
+enabled. Its key is the canonical address plus an internal content revision,
+such as `hi:shopping-cart-02/sr:<revision>`. The revision covers the library
+manifest, the requested source fingerprint and SVG preparation version. It is never
+part of persisted icon addresses. Unused revisions expire after seven days.
+`InvalidateLibraryAsync` accepts the canonical library selector (short name if
+configured, otherwise system name). Every application node needs the same source
+files; a distributed cache does not distribute library packages.
+
+## Render an icon in Razor
+
+The shared `IconTagHelper` renders an inline SVG with the `icon`, `icon-[library]`
+and `icon-[library]-[variant]` CSS classes. Each selector uses its short name when configured,
+otherwise its library system name or variant name. For HugeIcons stroke-rounded,
+the configured short names produce `icon icon-hi icon-hi-sr`; without short names,
+the classes are `icon icon-hugeicons icon-hugeicons-stroke-rounded`. The helper uses
+`IconInfo.LibraryKey` and `IconInfo.VariantKey`, computed from the short
+names with `LibraryName` and `VariantName` as fallbacks, without parsing the address again:
+
+```cshtml
+<icon name="hi:search-01" />
+<icon name="shopping-cart-02" library="hugeicons" variant="stroke-rounded"
+      class="icon-2x" aria-label="Cart" />
+```
+
+`name` accepts the same addresses and conceptual mappings as `IIconService`.
+`library` and `variant` fill missing address selectors. An unavailable icon emits
+the system placeholder. Ordinary HTML attributes pass through to the SVG.
+The `data-icon` attribute exposes the concept and resolved source address. Size, animation and transforms use
+existing CSS utilities and variables. Icons are decorative by default; supply
+`aria-label` or `aria-labelledby` for an accessible standalone icon.
+
+The Razor tag is replaced on the server, so the browser receives no `icon` host.
+A future native custom element needs a hyphenated name, such as `sm-icon`, because
+`icon` is not a valid name for registration with `customElements.define`.
+
+## Planned admin icon picker
+
+This design is agreed for later implementation; the current picker has not yet
+been migrated. It should support all registered libraries and variants through
+library/variant selection and paginated Select2 AJAX search and scrolling.
+
+- Retain only names and search data in the demand-loaded variant index, not SVG
+  contents. Filter and paginate before creating result objects; the current
+  `SearchAsync` still creates objects for all matches before pagination.
+- Return a small page (for example, 40 icons) with prepared SVG previews and a
+  `hasMore` indicator. Use the same validation and preparation rules as normal
+  rendering, but do not populate `IIconCache` for picker previews.
+- Open a variant ZIP once per preview batch and process one SVG at a time.
+  Preserve `user > icons > icons.zip` resolution, including ZIP-free libraries.
+- Return previews in the page response rather than issuing one request per icon.
+  Debounce search and cancel or discard obsolete requests when selections change.
+  Bound retained browser results; infinite scrolling must not accumulate the
+  entire library as inline SVGs indefinitely.
+- Start without a preview cache. If measurements justify one, add a separate,
+  size-bounded, short-lived page cache keyed by the relevant source revision and
+  query. Do not create an unbounded cache of search combinations or eagerly
+  generate a complete library sprite.
+- Persist concrete picker selections with the mapping bypass, for example
+  `hi:cart-01!/sr`, so conceptual mappings cannot redirect the selected icon.
+
+The initial approach is paginated search with batched, uncached previews. Only
+requested icons are prepared; opening the picker must not process all icons.
+
+## Define kits
+
+The supplied `brands` kit contains selected brand logos and explicitly selects
+`fontawesome-free` / `brands`. This kit overrides the global HI default for its
+concepts. Its members include payment, commerce, shipping, social and platform logos.
+Competing shop/CMS platforms are excluded from this curated kit. Square logo
+concepts use a `-square` suffix and map to the corresponding FA source names.
+Browser logo concepts use `browser-`, such as `browser-chrome` and `browser-firefox`.
+See [MIGRATION.md](MIGRATION.md) for the `twitter-x` and `windows-logo` conventions.
+
+### Collections, kits and areas
+
+`collections.json` defines reusable concept lists and optional concrete `sources`.
+Collections never produce sprites and have no library or variant defaults:
+
+```json
+{
+  "shared": {
+    "icons": ["cart", "search", "not-found"],
+    "sources": { "not-found": "sys:not-found!/outline" }
+  }
+}
+```
+
+Kits in `kits.json` include collections with `use`. They resolve those concepts
+using their own `defaultLibrary` and `defaultVariant`, then global defaults:
+
+```json
+{
+  "public": {
+    "areas": ["public"],
+    "use": ["shared"],
+    "icons": ["phone"]
+  },
+  "admin": {
+    "areas": ["admin"],
+    "use": ["shared"],
+    "showInPicker": false,
+    "icons": ["catalog"]
+  },
+  "brands": {
+    "areas": ["public", "admin"],
+    "defaultLibrary": "fontawesome-free",
+    "defaultVariant": "brands",
+    "icons": ["apple"]
+  }
+}
+```
+
+The first declared kit containing a concept in the selected area wins. Do not
+alphabetically reorder kit definitions: their order is significant. An omitted
+`areas` defaults to `["public", "admin"]`; an empty list opts out of automatic
+area selection while retaining explicit kit access for pickers.
+
+Within `use`, the first collection defining a concept wins. Local `icons` entries
+replace inherited source assignments with normal kit mapping; local `sources`
+override inherited source assignments directly. Sources can target any concept
+in the expanded membership. Collections can include other collections; unknown
+references and cycles are configuration errors. Both JSON files are watched.
+
+`displayName` optionally supplies a kit label for the Icon Browser and DevTools.
+Without it, the unchanged kit name is displayed. Labels are not titleized and do
+not change kit identity, area resolution or sprite filenames. Providers can pass
+`displayName` to `new Smartstore.IconKit.IconKit(...)`; local JSON kit settings retain precedence.
+
+`showInPicker: false` only hides a kit from the default picker list. It does not
+restrict area membership or rendering. `IconBrowserModel.ShowHiddenKits` reveals it.
+
+`IIconAreaResolver.ResolveArea(HttpContext? context)` lives in Core and is registered
+as a stateless singleton. It uses `Request.IsAdminArea()` and otherwise returns `public`.
+`IconService` resolves an omitted area on each call using `IHttpContextAccessor`;
+an explicit area wins. The icon TagHelper passes its optional area through the HTML helper to the
+renderer. `Html.IconAsync` uses the current request area unless overridden in its options. No request area is retained in the singleton.
+`<icon area="public" ... />` and `IconOptions.Area` override that default. Core
+calls accept an explicit `area`, otherwise use the current request and default to
+`public` when no HTTP context exists.
+Both layouts set `data-area` on the `sm:icons` manifest meta element. `sm-icon`
+inherits it, or uses its own `area` attribute. There is no kit attribute.
+The manifest publishes the server's area/concept priorities, and render-endpoint
+requests include the area in both their URL and client cache key.
+
+Sass asset requests have no page area. `StyleBundle` and `DynamicStyleBundle` specify `IconArea` (default `public`);
+the main Admin theme bundles use `admin`, including their `icon-url` masks.
+Dynamic matches retain the original definition and use its `IconArea` during Sass compilation.
+
+The public kit uses Bootstrap sources for `phone` (`bi:telephone`) and
+`plus-circle`; the admin kit uses them for `box`, `braces-asterisk`, `exclamation`
+and `nodes`.
+Callers continue to use the public concept names. HI mappings remain available
+for explicit HI requests.
+
+Every source key must occur in the expanded `icons`; it never adds a member. Unknown keys,
+duplicate concepts, qualified names in `icons`, and invalid source addresses are
+configuration errors. Library and variant selectors accept system or short names.
+Missing source qualifiers are completed from the kit context; a foreign library
+uses its own default variant unless the source names one explicitly.
+
+Source values identify concrete artwork and are never run through library mapping
+again. The concept and actual source name can differ, for example
+`"assistant": "bi:alexa/default"`; the public symbol remains `#assistant`. A trailing
+`!` on a source name is accepted but unnecessary. Query modifiers belong in library
+mappings, not source addresses. Members without a source override retain ordinary
+library mapping, including its modifiers.
+
+The resulting sprite may combine libraries and variants. Source overrides keep their library and initial variant
+when the kit is requested with alternate defaults; their variant fallback chain still applies. An explicit library or variant
+on an individual icon request still wins: when it selects a different source
+selection, that request uses the chosen library's mapping of the original concept.
+Caller addresses ending in `!` bypass both kit routing and library mapping.
+
+There is no enclosing `kits` property. If `kits.json` is absent, only provider-defined
+kits are registered; other icons render inline. Changes, creation and deletion of this file
+invalidate the catalog through the file watcher. Keeping kit definitions separate
+lets integrators maintain their memberships independently of global configuration
+updates; update conflicts in `kits.json` still require merging.
+
+For conceptual lookups, the preferred kit is selected before library mapping:
+the first declared kit applicable to the area wins. Explicit address components or
+method arguments take precedence over source qualifiers, then kit defaults and global defaults.
+A kit's variant applies only to its effective default library; selecting another
+library never carries that variant across. A kit that changes the library without
+specifying a variant uses that library's default (or the global variant override
+when it selects the global default library).
+
+Direct `!` addresses skip conceptual kit defaults as well as mapping. Search also
+uses its explicitly selected library or the system default, independently of kits.
+`IIconKitService.GetUrl` follows the named kit's defaults unless overridden.
+Changes to kit defaults are picked up by the configuration watcher.
+
+### Provider indicators in the icon picker
+
+`IconBrowserModel.ShowProviderIndicators` defaults to `false`. Enable it for developer
+pickers to show a small yellow dot and explanatory tooltip on provider-dependent kit
+concepts. It is editor configuration, not a persisted icon option. The cheatsheet enables it.
+
+Each manifest kit may contain `"external":[0,3,12]`: zero-based indices into that kit's
+sorted `icons` array. The field is omitted when empty; names and per-icon boolean objects
+are not repeated. It is additive to manifest schema 11. Search responses use the same
+index representation relative to their current result page. Literal library results
+are never marked, even when a kit uses the same drawing.
+
+Provenance follows nested collection contributions per kit. A local JSON `icons`
+declaration removes the marker, including an inherited local collection declaration.
+A `sources` override alone does not guarantee membership without the provider and
+therefore retains the marker. Provenance changes invalidate the manifest revision;
+unchanged drawings retain their sprite revision.
+
+### Module contributions with IIconProvider
+
+Modules can contribute concepts to existing kits and collections or define their own
+kits without modifying the platform JSON files. Implement `IIconProvider` in the module;
+the type scanner discovers it automatically in installed modules when the catalog loads.
+`ResolveUnregistered` creates each provider in a temporary DI scope. Providers and their
+scope are released after configuration; no manual registration or `IProvider` metadata
+is required. Only the contributed definitions remain in the catalog.
+
+For example, an AddToAny provider could contribute additional services to the existing
+admin kit, keeping service-picker icons out of storefront sprites:
+
+```csharp
+using Smartstore.IconKit;
+
+internal sealed class Icons : IIconProvider
+{
+    public void Configure(IconKitBuilder builder)
+    {
+        builder.Kit("admin")
+            .Add("blogger", "fa:blogger/b")
+            .Add("buffer-logo", "fa:buffer/b")
+            .Add("pocket", "fa:get-pocket/b")
+            .Add("sms", "fa:comment-sms/s");
+    }
+}
+```
+
+The caller then uses `blogger`, `buffer-logo`, `pocket` or `sms` as its icon address,
+including in Select2 `data-icon` attributes and `sm-icon`. The usual area rules
+apply, so these concepts belong only to admin. This is a usage
+excerpt of the provider implemented in the AddToAny module.
+
+- `Kit(kit).Add(concept, source)` extends a kit declared in JSON or by `AddKit`.
+  Unknown kit names fail with a configuration error rather than creating typo kits.
+- `Collection(collection).Add(concept, source)` creates or extends a collection.
+  For example, `builder.Collection("shared").Add("plugin-action", "action-motif")`
+  contributes to both public and admin through their existing `use` declarations.
+- `AddKit(new Smartstore.IconKit.IconKit("my-plugin", ["cart"], showInPicker: false, areas: ["admin"]))`
+  declares an independent kit using the existing immutable kit contract.
+- A missing source uses normal library mapping. A supplied source identifies concrete
+  artwork, just like JSON `sources`; it does not introduce a global library mapping.
+  Providers cannot add public libraries or variants. Private drawings can be supplied
+  with `AddSvg` and `AddSvgFile` on a kit or collection.
+
+
+### Provider-owned SVG drawings
+
+Use `AddSvg` for a complete SVG string or `AddSvgFile` for a file shipped with the
+module. Both methods add a normal concept directly to the selected kit or collection:
+
+```csharp
+builder.Kit("admin")
+    .AddSvg("myplugin-action", """
+        <svg viewBox="0 0 24 24" fill="none">
+            <path d="M4 12h16" stroke="currentColor" stroke-width="1.5" />
+        </svg>
+        """)
+    .AddSvgFile("myplugin-logo", "~/Modules/MyCompany.MyPlugin/wwwroot/icons/logo.svg");
+```
+
+Callers use `myplugin-action` or `myplugin-logo` like any other concept. The existing
+SVG parser, cache and sprite pipeline handle these drawings; they do not create an
+additional selectable library or require a separate request when used from a kit.
+Provider indicators remain available in the developer picker. Per-icon stroke scaling
+is not supported for these sources.
+
+File paths must start with `~/` and refer to SVG files beneath the application's
+content root, not the module's source project. URLs, physical paths and traversal
+segments are not accepted. Ensure the file is included in the deployed module.
+Files are opened on demand and are **not watched**. A catalog rebuild, for example
+after an application restart, picks up changed file content and produces a new sprite
+revision. Changes during an in-progress read use the same consistency checks as other
+SVG sources.
+
+Identical contributions are idempotent. Conflicting provider sources for the same
+concept and target are rejected. Local JSON declarations retain their existing
+precedence over provider defaults. Include a `viewBox` in each SVG; there are no
+variant metadata defaults for private drawings.
+
+Contributions are collected lazily once per catalog generation. Provider classes are
+processed in ordinal full-type-name order; definitions within a provider keep their
+insertion order. JSON kit order remains authoritative, with provider-only kits appended.
+A JSON kit of the same name supplies all kit settings, while provider members are additive.
+Inherited collection entries take precedence over provider additions to the including set.
+Local JSON `icons` reset provider sources to normal mapping; local `sources` override them.
+Identical provider contributions are idempotent. Conflicting sources for the same target
+and concept, or multiple provider definitions of the same kit, are configuration errors.
+
+Providers must be deterministic and must not use request/scoped dependencies or resolve
+`IIconService` from `Configure`. They must not retain the builder. File invalidation reruns
+them for the next generation; provider code or module installation changes require an
+application restart. Published definitions are copied into immutable kits and participate
+in the existing sprite revisions, manifest, picker and area resolution. There is no
+separate provider cache or publication path.
+
+The supplied kit memberships and HugeIcons mappings are a work in progress.
+Edit `kits.json` to move concepts between kits and `hugeicons/mapping.json` to
+change their icons. Keep concept arrays ordered for readability, but preserve kit declaration order. [MIGRATION.md](MIGRATION.md) records the reviewed legacy FA/BI replacements.
+Keep its HI targets synchronized with mapping changes and preserve manual edits to
+these JSON files during future imports.
+
+`shared` is a collection included independently by `public` and `admin`. It has no sprite.
+
+`IconRenderer` automatically selects an external symbol for resolved icons that
+belong to a kit. Callers still provide only an icon name; the TagHelper delegates
+rendering to the IconKit renderer. Icons outside kits retain inline SVG output.
+
+In the admin area, kit membership is optional. Direct library addresses and inline SVG
+are appropriate for occasionally used icons, for example a plugin icon displayed once
+or twice in a modal dialog. Add icons to kits selectively when reuse warrants it;
+plugins do not need to register every icon in a kit.
+Membership uses the actual mapped icon identity. When several kits contain the
+same icon, declaration order within the selected area determines priority.
+
+Sprites are served by `/icons/{kit}-{revision}.svg`.
+The revision covers kit membership, mapping targets, source fingerprints and SVG
+preparation rules. Request path bases are preserved. The browser caches each
+revision independently. The endpoint returns a physical file; ASP.NET Core handles
+ETag revalidation and HEAD without transferring a response body. A first request,
+including HEAD, generates a missing current revision before serving it.
+
+Generated sprites are global, tenant-independent files in `App_Data/.cache/icons/kits`, with flat
+names such as `public-<revision>.svg`. Library and variant selectors are not exposed
+in URLs or filenames; the revision includes library, variant and kit identity. It uses the
+first 96 bits of SHA-256, represented as 24 lowercase hexadecimal characters. Existing files
+are served without loading their contents into the multilevel or Redis cache.
+
+The icon file cache is organized below `App_Data/.cache/icons`:
+
+- `kits/` contains generated kit sprites and revisioned browser manifests.
+- `browser/` contains complete variant sprites generated on demand by IconBrowser.
+
+A cache miss opens each participating variant ZIP once, one variant at a time,
+and processes SVGs individually; no
+archive handle or drawing collection survives generation. It streams symbols into
+a temporary file beside the destination and
+publishes the complete file atomically. Failed writes remove the temporary file.
+Request cancellation can stop waiting for the publication lock, but does not interrupt
+a write already in progress: the completed artifact remains available to other requests.
+Concurrent requests share generation; multiple processes may safely publish the
+same revision. Generation does not populate the individual SVG cache. Source IDs and their
+references are namespaced per drawing. A source used by one concept is embedded
+directly in its public symbol, preserving source root attributes on an inner group.
+Sources used by multiple concepts are written once as groups in `defs`; each public
+symbol references its group through `use`. Mapping transforms wrap either the direct
+drawing or the reference, while only the public symbol establishes the viewport.
+Complete variant sprites use the same writer and embed their unique sources directly.
+Configuration and source changes invalidate the catalog and produce new URLs.
+The source watcher explicitly excludes generated cache files. Historical files
+remain available for existing pages, even after their source definitions are removed; unavailable historical revisions return 404, never current bytes.
+There is no automatic cleanup yet. The directory can be inspected or cleared;
+URL resolution registers the generation plan internally. After a restart, existing
+files are addressed directly without a directory scan. For a missing file whose
+plan is not registered, current configurations are inspected once per kit and
+catalog generation to recover revision lookups. Incomplete variants are skipped.
+Current revisions regenerate on demand, but deleted historical revisions cannot
+be reconstructed from changed sources.
+Missing mapped sources are reported with their kit and concept names.
+
+Use classes and CSS variables on the outer `.icon` element for presentation.
+Descendant selectors cannot style paths inside an external sprite. Presentation
+attributes belonging to source SVG roots remain inside the sprite.
+
+Members without source overrides resolve through the selected library's mapping when
+changing libraries. Source overrides keep their configured library and variant. Overlap is allowed; resolved icons are
+deduplicated when kits are combined.
+
+## Replace or add an SVG
+
+To replace the HugeIcons cart icon, place your SVG at:
+
+```text
+hugeicons/stroke-rounded/user/shopping-cart-02.svg
+```
+
+A matching filename in `user` replaces both a system override and the archived
+icon for this variant. Smartstore supplies corrections and additions in `icons`.
+Both directories can add new icons. Search lists each name only once across all
+three layers. Place SVGs directly in these directories, without subdirectories.
+Non-SVG files, including README files, are not icon assets.
+
+Keep customizations in `user`; `icons` and `icons.zip` are maintained by
+Smartstore and may be replaced during updates. Removing a user file reveals the
+system override, or the archived icon if no system override exists. An invalid
+higher-priority SVG raises an error rather than silently using a lower layer.
+All loose SVGs are variant-specific;
+provide a separate SVG for each style you want to customize.
+
+## Add search terms
+
+`metadata.json` is shared across a library's variants:
+
+```json
+{
+  "icons": {
+    "cabinet-01": {},
+    "cactus": {},
+    "search-01": {
+      "tags": ["find", "lookup", "magnifier"]
+    }
+  }
+}
+```
+
+Keep an entry for every icon, including custom additions. Use an empty object
+when no extra terms are needed. Names are already searchable, so tags add terms
+that the name does not cover. For example, `cabinet` is redundant for `cabinet-01`.
+
+Omit `tags` when empty. Do not add `label` or `aliases` fields. Search terms are
+English and are not localized at this layer. Preserve exact icon IDs, including
+unusual spelling in source filenames.
+
+Metadata enriches search; it does not determine availability. Icons missing from
+metadata can still be discovered from archives or loose SVG files and found by name.
+You can generate metadata locally and maintain additional terms manually. This
+workflow does not require a HugeIcons API connection.
+
+## Install another library
+
+1. Create a library directory. Its name becomes the library's system name.
+2. Add `library.json` with a default variant, variant settings and optional short names.
+3. Optionally package each variant's SVGs at the root of its `icons.zip`, inside
+   the matching variant directory. For small custom libraries, omit the archive
+   and place Smartstore-supplied SVGs directly in the variant's `icons` folder.
+4. Populate `mapping.json` for your concepts and `metadata.json` for the icon
+   inventory and additional search terms.
+5. Place custom SVGs in the relevant variant's `user` directory.
+6. To select this library by default, set `config.json`'s `defaultLibrary` to its
+   directory name. Update or remove the global `defaultVariant` override to match.
+
+## Update and deploy customizations
+
+For a library update, replace the upstream archives and update the version in
+`library.json`. Preserve `user`, mappings, and custom search terms. Reconcile
+metadata with the updated inventory and check that mapped IDs still exist.
+
+Include the entire `App_Data/Icons` directory in your deployment. Smartstore's
+web project includes it recursively in publish output.
+
+Use two spaces per JSON indentation level and CRLF line endings, as specified in
+`.editorconfig`. Keep tag arrays
+on one line.
+
+## Shared icon CSS
+
+`wwwroot/shared/_icons.scss` provides library-independent SVG layout and utility
+classes. It is included in the Admin and Flex themes after `shared/_utils.scss`,
+whose animation keyframes it reuses. Custom themes should import both in that
+order. This CSS is also available for manually authored SVGs.
+
+### Markup and color
+
+Apply `.icon` either to the SVG itself or to a host containing one direct child
+SVG. The `sm-icon` component uses the same host-and-drawing structure:
+
+```html
+<svg class="icon icon-fw" viewBox="0 0 24 24"
+     fill="none" stroke="currentColor" aria-hidden="true" focusable="false">
+    <path d="M4 12h16M12 4v16" />
+</svg>
+
+<span class="icon icon-2x" aria-hidden="true">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" focusable="false">
+        <path d="M4 12h16M12 4v16" />
+    </svg>
+</span>
+```
+
+Place utility classes on the host; do not also add `.icon` to its child SVG.
+Each SVG must retain its own `viewBox` and appropriate fill/stroke attributes.
+Use `currentColor` for paint that should follow text or button color. The CSS
+does not force a fill or stroke, rewrite hardcoded source colors, or assume a
+16-unit grid. A shadow-DOM component would need these styles inside its shadow
+root; global styles do not cross that boundary.
+
+Decorative icons should be hidden from assistive technology. For an icon-only
+button, label the button itself. Meaningful standalone icons need an accessible
+name, for example `role="img"` and `aria-label` on their host. CSS cannot infer
+these semantics. Existing `.sr-only` utilities remain available.
+
+### Utility classes
+
+| Purpose | Classes |
+| --- | --- |
+| Relative size | `icon-1x` through `icon-10x` |
+| Text-aligned sizes | `icon-2xs`, `icon-xs`, `icon-sm`, `icon-lg`, `icon-xl`, `icon-2xl` |
+| Width | `icon-fw` (1.25em) |
+| Lists | `icon-ul`, `icon-li` |
+| Stacks | `icon-stack`, `icon-stack-1x`, `icon-stack-2x` |
+| Appearance | `icon-inverse` |
+| Rotation | `icon-rotate-90`, `icon-rotate-180`, `icon-rotate-270`, `icon-rotate-by` |
+| Mirroring | `icon-flip-h`, `icon-flip-v`, `icon-flip-hv` |
+| Animation | `icon-spin`, `icon-pulse`, `icon-beat`, `icon-fade`, `icon-bounce`, `icon-throb`, `icon-flip`, `icon-shake`, `icon-spin-snap`, `icon-swing`, `icon-wag` |
+
+The base size follows the surrounding font size, with a minimum of 16px. Size
+utilities scale this base after the minimum is applied: at 14px or 15px text,
+the normal icon is 16px, `icon-sm` is 14px, `icon-xs` is 12px, and `icon-2xs` is
+10px. `icon-2x` is 32px. Set `--icon-min-size: 0px` to disable the base minimum.
+Stack layers scale the already-sized stack without applying the minimum again.
+Fixed width is explicit; add
+`icon-fw` when replacing layouts that relied on FA7's default fixed width.
+The base icon occupies a square (1em by 1em); the SVG viewBox preserves the artwork's proportions within it.
+
+For migration, use the corresponding icon utilities listed above and provide SVG markup
+with the base `.icon` class. Glyph classes such as `fa-cart-shopping` still need
+to be resolved through the icon integration; CSS alone does not replace them.
+Existing FA and BI markup and helpers continue to use their existing styles.
+
+### Lists and stacks
+
+Keep the list marker separate from the icon so sizing does not change its indent:
+
+```html
+<ul class="icon-ul">
+    <li>
+        <span class="icon-li" aria-hidden="true">
+            <svg class="icon" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" focusable="false">
+                <path d="m5 12 4 4 10-10" />
+            </svg>
+        </span>
+        Item text
+    </li>
+</ul>
+```
+
+List indents adapt to RTL. Stack independent SVGs inside an
+HTML host; each layer keeps its own coordinate system:
+
+```html
+<span class="icon-stack icon-2x" aria-hidden="true">
+    <svg class="icon icon-stack-2x" viewBox="0 0 24 24"
+         fill="currentColor" focusable="false">
+        <circle cx="12" cy="12" r="11" />
+    </svg>
+    <svg class="icon icon-stack-1x icon-inverse" viewBox="0 0 24 24"
+         fill="none" stroke="currentColor" focusable="false">
+        <path d="M4 12h16M12 4v16" />
+    </svg>
+</span>
+```
+
+Place a position class on the overlay layer to align it with the stack edges.
+Alternatively, set `position="end-end"` on `<icon>` or `<sm-icon>` to generate
+`icon-pos-end-end`. The string attribute is appended to `icon-pos-` without value validation;
+omission adds no class, and unknown positions have no matching positioning rule. Changing or removing the
+Web Component attribute updates the generated class without reloading the SVG.
+Without a position class, the layer remains centered. Start and end follow the
+text direction. Class names specify the block axis first, then the inline axis.
+Existing CSS variables for sizing and offsets remain available.
+
+| Block start | Block center | Block end |
+| --- | --- | --- |
+| `icon-pos-start-start` | `icon-pos-center-start` | `icon-pos-end-start` |
+| `icon-pos-start-center` | No class | `icon-pos-end-center` |
+| `icon-pos-start-end` | `icon-pos-center-end` | `icon-pos-end-end` |
+
+The stack defaults to 2em by 2em. Use `icon-stack-sm` on the stack host for
+a 1em by 1em area; layer sizes are unchanged. Layers are centered and paint in DOM order
+unless given `--icon-stack-z-index`. Scale or animate the host for the entire
+stack, or individual layers for independent effects. The existing BI helper's
+single-SVG stack output is not automatically converted to this HTML structure.
+
+### CSS variables and composition
+
+| Variable | Meaning / default |
+| --- | --- |
+| `--icon-size` | Base size as a CSS length, `1em` (surrounding font size) |
+| `--icon-min-size` | Minimum base size before scaling, `16px`; set to `0px` to disable |
+| `--icon-size-factor` | Multiplier applied after the base minimum, `1`; set by size utilities |
+| `--icon-align` | Inline vertical alignment, `-0.125em` |
+| `--icon-color` | Text color; inherits by default |
+| `--icon-rotate` | Static angle, `0deg` |
+| `--icon-rotate-angle` | Angle used by `icon-rotate-by` |
+| `--icon-scale` | Visual scale without changing layout, `1` |
+| `--icon-flip-x`, `--icon-flip-y` | Axis multipliers, `1`; use `-1` to mirror |
+| `--icon-shift-x`, `--icon-shift-y` | Visual displacement as CSS lengths, `0` |
+| `--icon-li-margin`, `--icon-li-width` | List indent and marker width, `2.5em` and `2em` |
+| `--icon-stack-width`, `--icon-stack-height` | Stack dimensions, `2em` and `2em` |
+| `--icon-stack-align`, `--icon-stack-z-index` | Stack alignment and layer order, `middle` and `auto` |
+| `--icon-inverse` | Inverse color, defaults to the theme's `$yiq-text-light` |
+
+For example, `style="--icon-size: calc(1rem + 4px); --icon-rotate: 30deg"`
+sets a custom size and angle. Use existing Bootstrap border, spacing, and float
+utilities for decoration and surrounding layout; there are no icon-specific
+border or pull classes.
+
+Static transforms use the individual CSS `translate`, `rotate`, and `scale`
+properties. Animations use `transform`, so spinning an icon does not discard
+its static rotation or flip. Existing `rotate-90/180/270`, `flip-h/v/hv`, and
+`animate-*` classes also work on `.icon` and `.icon-stack` hosts. Existing offset
+variables `--offset-x/y` remain supported with those generic transform classes.
+
+Icon animation utilities accept `--icon-animation-duration`, `--icon-animation-delay`,
+`--icon-animation-direction`, `--icon-animation-timing`,
+`--icon-animation-iteration-count`, and `--icon-animation-play-state`.
+Duration also falls back to the existing `--animation-duration` variable.
+Use `icon-spin icon-spin-reverse` for reverse spin; `icon-spin-reverse` is a
+modifier, not an animation by itself. `icon-pulse` means stepped rotation, as in FA.
+
+Existing spin, beat, and fade keyframes are reused. Throb combines scaling and
+opacity in a single effect. Bounce, throb, animated flip, and shake have icon-specific keyframes. These effects
+provide equivalent purposes, not frame-for-frame copies of every FA animation.
+Their adjustable parameters include `--icon-beat-scale`, `--icon-bounce-height`,
+`--icon-bounce-rebound`, `--icon-throb-opacity`, `--icon-throb-scale`,
+`--icon-flip-axis-x/y/z`, `--icon-flip-angle`, and `--icon-shake-angle`.
+Use one animation effect per host; separate stack layers can animate independently.
+
+With `prefers-reduced-motion: reduce`, animations and transitions on icon and
+stack hosts are disabled, including existing `animate-*` effects on those hosts.
+Static rotation, mirroring, and positioning remain in place.
+
+### Icon TagHelper presentation and modifiers
+
+Use `lib` to select a library by system name or short name. `variant` selects its
+variant. `name` accepts an address with optional `flip`, `rotate`, `stroke-scale`, `color`, `size`, and `animation`
+query modifiers. Append `!` to the icon name to bypass conceptual mapping.
+
+```html
+<icon name="hi:cart/sr?rotate=90&amp;stroke-scale=1.1" rotate="0" size="lg" />
+<icon name="refresh" animation="spin" animation-duration="2s" />
+<icon name="arrow-right!" flip-h="true" class="text-muted" />
+```
+
+Explicit helper properties override address modifiers, which override mapping
+modifiers, individually. `rotate="0"`, `flip-h="false"` and `flip-v="false"`
+explicitly reset inherited values; omission retains them. The `flip` query accepts
+`x`, `y`, `xy`, or `none`. Mapping and query rotations retain decimal support;
+the helper's `rotate` property accepts integer degrees.
+
+`stroke-scale` is a finite positive multiplier, applied after the library's
+`strokeWidthScale`. A value of `1` preserves the library appearance. It can also
+be supplied in mapping.json, for example `"arrow": "arrow-right?stroke-scale=1.1"`.
+Different source widths retain their proportions.
+
+Mapping transformations and stroke multiplier defaults are included in kit symbols and
+participate in sprite revisioning. Equal source/width combinations share artwork;
+different widths keep separate prepared drawings. Replacing a baked-in transformation
+or stroke multiplier at a call site renders the cached original source inline.
+No modifier-specific source cache entries or request-specific kit variants are created.
+
+Presentation attributes include `size`, `font-scale`, `fw`, `color`, `inverse`,
+`animation`, `animation-duration`, `animation-reverse`, `scale`, `shift-x`, and
+`shift-y`. Shifts use sixteenths of an em. `scale` changes drawing size only;
+`font-scale` changes layout size. Size presets are `2xs`, `xs`, `sm`, `lg`, `xl`,
+`2xl`, and `1x` through `10x`. Animations are `spin`, `pulse`, `beat`, `fade`,
+`throb`, `bounce`, `flip`, `shake`, `spin-snap`, `swing`, and `wag`.
+
+`spin-snap` completes one full rotation with six snapping steps in 3s.
+`swing` pivots from the top in 1.2s; `wag` pivots from the bottom in 0.9s.
+Their amplitudes can be adjusted with `--icon-swing-angle` (22deg) and
+`--icon-wag-angle` (12deg).
+These presentation options do not themselves require inline rendering.
+
+`class`, `style`, `aria-*` and `data-*` are preserved. Explicit CSS declarations
+in `style` follow generated declarations and take precedence. Use `aria-label`
+or `aria-labelledby` for a meaningful standalone icon; unlabeled icons are
+decorative by default. Lists and stacks continue to use the existing CSS hosts.
+
+### Stack TagHelper
+
+`icon-stack` renders a `span.icon-stack` containing direct `icon` children only.
+Razor rejects other child elements, including nested stacks. Layers remain
+independent SVGs; their viewBoxes are never merged. Shared presentation attributes
+(size, animation, color, scale, shift, rotation and mirroring) apply to the host.
+The stroke multiplier belongs to individual icons.
+
+```html
+<icon-stack size="2x" aria-label="Confirmed">
+    <icon name="circle!" class="icon-stack-2x" />
+    <icon name="check" class="icon-stack-1x" />
+</icon-stack>
+```
+
+Use `icon-stack-1x` and `icon-stack-2x` for layer sizes. DOM order determines
+painting order unless `--icon-stack-z-index` is set. Supply the accessible label
+on the host when the layers represent one combined symbol.
+
+### Browser components
+
+`sm-icon` renders its SVG as a normal child element. Both components use the same
+generated `icon-*` classes as server-rendered icons; no Shadow DOM or CSS custom
+states are involved. Inspect the drawing with `element.querySelector('svg')`.
+Colors and public icon CSS variables inherit into the drawing. Internal
+`--_icon-*` variables are reserved for attribute-based presentation. Accessibility
+defaults use `ElementInternals`; explicit ARIA attributes take precedence.
+
+Each component retains an inert source node containing its authored attributes.
+`element.getSourceNode()` returns a fresh, inert copy without generated SVGs,
+classes or styles. Normal attribute changes, including external class/style edits,
+update this source automatically. Pending changes are flushed when obtaining the
+copy, so same-turn edits are included. Stacks also serialize their current layers.
+Use this API instead of the live element's `outerHTML` when storing authored content.
+
+Summernote's generic `serializableElements` option lists `sm-icon` and
+`sm-icon-stack`; its `onSerializeElement` callback calls `getSourceNode()`.
+Code view, HTML output, saving and undo snapshots use the same serializer, which
+copies into an inert document without changing the live editor. Other integrations
+can use the same component API; the Summernote fork has no Smartstore dependency.
+
+Both native custom elements use the same presentation attributes as the Razor
+helpers, including `lib`, `variant`, nullable `rotate` / `flip-h` / `flip-v`, and
+`stroke-scale`. Use explicit closing tags in browser HTML; `<sm-icon ... />` is
+not a self-closing HTML element.
+
+```html
+<sm-icon name="cart" size="lg" aria-label="Cart"></sm-icon>
+<sm-icon-stack size="2x" aria-label="Confirmed">
+    <sm-icon name="circle!" class="icon-stack-2x"></sm-icon>
+    <sm-icon name="check" class="icon-stack-1x"></sm-icon>
+</sm-icon-stack>
+```
+
+The storefront and admin layouts expose the immutable manifest URL through
+`meta[property="sm:icons"]`. Relative URLs are resolved against
+`meta[property="sm:root"]`, including the application's PathBase. Both layouts preload the manifest as a same-origin fetch.
+`smartstore.icons.js` is included in the shared `/bundle/js/jquery.js` bundle,
+loaded in the head, so it uses the existing bundle minification and versioning.
+Other layouts must provide these two meta elements and include the jQuery bundle;
+no separate icon script is needed.
+
+`IconKitService` creates the concept manifest once per catalog generation. The
+server resolves kit priority, defaults, source overrides and library mappings. The
+manifest contains kit URLs, directly renderable concepts and compact DOM identity metadata:
+
+```json
+{
+  "schemaVersion": 12,
+  "mirrorInRtl": ["arrow-left", "arrow-right", "chevron-left", "chevron-right", "chevrons-left", "chevrons-right"],
+  "kits": {
+    "brands": {
+      "url": "icons/brands-<revision>.svg",
+      "defaultLibrary": "fa",
+      "defaultVariant": "b",
+      "icons": ["alexa", "apple", "browser-chrome"],
+      "supportsStrokeScaling": [],
+      "duotone": [],
+      "sources": {
+        "alexa": "bi:alexa/default",
+        "browser-chrome": "chrome"
+      }
+    }
+  }
+}
+```
+
+The component builds a single concept-to-URL lookup and renders a matching concept
+as `<use href="kit-url#concept">`. Per-kit `defaultLibrary` and `defaultVariant` are
+resolved CSS keys (short names when available, otherwise system names). `sources`
+contains only identities differing from `defaultLibrary:concept/defaultVariant`.
+These are final metadata patches, not mappings to apply: omitted qualifiers inherit
+the kit's metadata defaults, even when the library differs. Source names are exact;
+qualifiers in `data-icon` are lowercased to match the server's canonical address.
+For example, `alexa` renders the `#alexa` symbol but carries `bi:alexa/default` and the
+classes `icon-bi icon-bi-default`. Library catalogs, resolution rules, SVG drawings and
+search tags remain server-side. Each concept appears only in its preferred kit. Unavailable kits are omitted; mapping stroke multipliers are included in the sprites.
+Mapping rotations and flips are already baked into the symbols.
+
+Unknown concepts, explicit library/variant selections and direct names (`!`) use
+`/icons/render`. The endpoint owns resolution and may return either inline SVG or a
+kit reference. Browser-tool modifiers stay local and do not change the drawing key.
+Changing presentation attributes updates CSS without replacing the SVG or restarting
+pending requests. The manifest's sparse `transforms` map carries baked mapping defaults;
+CSS compensates for them when rotation or flip overrides are explicitly supplied.
+Stroke scaling overrides the mapping multiplier through an inherited CSS variable
+while preserving the relative widths of individual strokes.
+Old or unavailable manifests also fall back to the endpoint while cached pages and
+script bundles roll over during an update.
+Generated manifests live in `App_Data/.cache/icons/kits/manifest-{revision}.json` and are
+served by `MapIconKit()` endpoints at `/icons/manifest/{revision}.json` with immutable caching.
+Historical files remain available; a missing old revision returns 404, never newer data.
+The manifest revision is path-base independent; source/configuration watchers invalidate
+its owning catalog. Already open pages retain their current manifest until reloaded.
+
+Kit hits create `use` elements without an individual resolution request. Inline
+fallbacks use the Core renderer through `/icons/render`, preserving mapping modifier
+precedence and the existing source cache. Matching in-flight requests share one promise.
+Up to six fetches run concurrently; up to 256 settled SVG templates are retained per page.
+Each instance clones its template and rewrites local SVG IDs to avoid gradient/mask
+collisions. Presentation-only changes require no request. Failed requests are evicted;
+a later attribute change or reconnection can retry. An older response never replaces a
+newer icon selection. Components emit bubbling `icon-load` and `icon-error` events;
+the latter exposes the error in `event.detail.error`.
+
+Manifest hits and endpoint responses both provide the same diagnostic `data-icon`
+and `icon-[lib]` / `icon-[lib]-[variant]` classes as the server renderer. The component
+places these classes on the host and retains `data-icon` on both host and child SVG.
+For concept lookups, `data-icon` contains `concept -> library:source/variant`.
+Explicit sources selected with `!` contain only the resolved address. Treat this
+attribute as diagnostic text, not as an icon address to parse.
+Identity metadata never changes the concept-based kit URL or symbol selection.
+
+The custom element owns sizing, animation and accessibility; its child SVG is
+decorative. Author classes and styles remain on the host and explicit styles follow
+generated styles. Set nullable booleans to the strings `true` or `false`; removing the
+attribute restores mapping defaults. `sm-icon-stack` accepts direct `sm-icon` children
+and reports invalid children through `icon-error`.
+
+Vue applications can call `app.use(Smartstore.Icons)` before mounting. The plugin
+recognizes only these two custom-element names and preserves existing compiler rules.
+The DataGrid already installs it. No Vue dependency is required by the components.
+
+## IconBrowser editor
+
+The admin `IconBrowser` editor template binds an icon address and presentation overrides
+in edit forms. The cheatsheet demonstrates it; existing Font Awesome pickers are not
+migrated automatically. Add an `IconBrowserModel` property to your view model and render it:
+
+```csharp
+// Configure on GET and again when redisplaying a failed POST.
+model.Icon = new IconBrowserModel
+{
+    Expression = IconExpression.Parse("cart?rotate=90"),
+    VisibleOptions = IconOptionFields.Size | IconOptionFields.Rotate
+};
+```
+
+```cshtml
+@Html.EditorFor(x => x.Icon, "IconBrowser")
+```
+
+`IconBrowserModel` and `IconOptionFields` belong to `Smartstore.Web.Models.Media`.
+The nullable `Expression` property contains the address and its complete presentation.
+The form posts one expression string; MVC uses `IconExpression.TryParse` to bind it.
+An empty selection binds to null. Persist `model.Icon.Expression?.ToString()` and parse
+the stored string when preparing the model. Explicit `false`, `0` and `1` remain
+meaningful overrides; modifiers without toolbar controls survive edits.
+ModelState attempted values take precedence when redisplaying an invalid form.
+Restore editor configuration on failed POSTs without replacing the posted expression.
+The editor does not add database fields.
+
+`VisibleOptions` is trusted editor configuration, excluded from form binding and JSON
+serialization. Its default `None` hides the options toolbar; flags or `All` select
+which buttons appear inside the Select2 selection, before the clear action. The
+transparent toolbar provides color, flip, rotation, size, animation and stroke-width
+controls with localized labels. At narrow
+widths, size, animation and stroke width collapse behind a More button.
+Existing overrides highlight their corresponding buttons; enabled flips appear
+pressed. All option values remain in hidden inputs, including options not offered
+by the toolbar. Selecting a different icon or clearing the selection resets every
+option. Changing only the source retains both selection and options and opens the
+results automatically only when no icon is selected. A decorated Select2 selection
+adapter preserves the toolbar across selection updates and isolates button events
+from the icon dropdown.
+
+TODO: Add styling tools for duotone icons: separate color controls for the primary
+and secondary layers, plus an opacity control for one layer. Offer these controls
+only when the resolved variant is duotone; the layer receiving the opacity control
+is still to be decided.
+
+`IIconBrowser.GetSource` selects the initial source from the catalog without generating
+artwork: an explicit library/variant wins, otherwise a concept selects its preferred
+kit using the same priority as the manifest. Direct addresses (`!`) and non-kit names
+use the selected/default library. Empty editors prefer Shared when available.
+Unknown selectors keep the saved address without silently selecting another source.
+The selection preview resolves the original address separately from its browsing source,
+so fallback artwork cannot overwrite the requested address or source.
+Size and animation values never affect the picker previews. They remain bound and
+contribute to toolbar state, but preview rendering omits them to keep
+the control stable. A separate preview in the option popovers is deferred.
+
+The source dropdown has two groups: Kits and Libraries. Library variants are flat entries
+such as "HugeIcons Stroke Rounded", with the default library first. A variant named
+`default` adds no variant label; BI therefore appears as "Bootstrap Icons" in both the dropdown and button. Without a variant display name, the button retains the full library name. Each entry shows its icon count as small, semibold text using `text-success`.
+Option icons come from `variants.<name>.icon`, then the library-level `icon`, then
+the generic `layers` concept. Kit objects in `kits.json` accept the same optional
+`icon` property and fall back to `box`. These presentation icons do not add members
+to a kit. Addresses use normal icon resolution, including mappings and modifiers;
+omitted qualifiers use system defaults, not the represented kit or library's defaults.
+Prefer fully qualified addresses such as `hi:settings-01!/sr` for stable shipped
+defaults. The optional `!` bypasses mapping. Configuration changes are picked up
+by the catalog watcher; reopen the page to refresh the server-rendered dropdown.
+The `system` library is excluded. Library and variant display names are used when
+available, with name fallbacks; the compact source button carries the full selection
+in its `title`. The adjacent Select2 displays a responsive icon grid with 24px previews
+by default. A 16/24/32 size switch beside the search field updates previews without requests
+and retains its selection for the lifetime of the picker instance. The grid shows icons
+and small, truncated names below them. Tooltips show the full names. Search feedback
+and pagination messages span the grid; the closed selection keeps icon and name in one row.
+
+`IIconBrowser.SearchAsync` prepares the selected source and returns metadata for one
+page. `/icons/browser/search` adapts it to Select2's 50-item AJAX pages, with search
+and infinite scrolling. Choosing a source prepares its sprite immediately; it does
+not wait for the results dropdown to open. Source changes discard previous searches
+and results. A loading state covers first-time generation; failures can be retried
+by selecting the source again.
+
+Kit options display and return concept names. Library options display literal icon
+names and return qualified direct addresses such as `hi:shopping-cart-01!/sr`, so a
+later mapping cannot silently replace the selected artwork. Kits search concept
+names, actual source names and tags within the selected kit. Library search uses the
+existing name, conceptual alias and tag search. Only the requested page is returned.
+
+Kits use their normal sprites in `.cache/icons/kits`. Library browsing generates a
+complete sprite for the selected variant in `App_Data/.cache/icons/browser`, using
+all discovered names from `user`, `icons` and `icons.zip` with normal override priority.
+The same SVG preparation and sprite writer serve kits and browser variants. Prepared
+XML trees go directly into sprite composition without serialization and reparsing.
+Only the individual SVG cache path serializes prepared drawings into `IconSvg`. Each
+archive is opened once for the sequential write, and individual SVG payloads never
+enter `IIconCache`. Only source descriptors and name indexes survive generation.
+
+`IconBrowser` only selects a source and adapts results for the picker. Library search
+and complete variant preparation belong to `IconService`; kit search and preparation
+belong to `IconKitService`. Both searches share word matching and pagination. The
+shared sprite writer and atomic file publisher also keep file handling out of the
+browser adapter. A browsing request retains one catalog generation throughout.
+
+Variant sprites are served at `/icons/browser/{library}/{variant}/{revision}.svg`.
+They are published atomically, shared by concurrent requests and cached by the browser
+using immutable revision URLs. Source changes create a new revision; historical files
+remain available while the source selection is registered. Automatic cleanup is deferred.
+Search responses use `no-store`; each result page shares one sprite URL, including
+kit rows with baked mapping stroke multipliers.
+
+## Inspect cached inline icons
+
+`IIconCache.GetEntriesAsync()` enumerates existing SVG cache entries without reading
+their payloads or generating icons. Each entry exposes `Address` (an `IconAddress`
+with `Name`, `Library` and `Variant`), `Revision` and an opaque `Key` accepted by
+`GetAsync` and `RemoveAsync`. Callers never need to parse cache keys. Enumeration uses the cache
+manager's last backing store: the distributed store when configured, otherwise
+memory. It is intended for maintenance, not the normal rendering path.
+
+Entries may expire between enumeration and retrieval; ignore cache misses. Group
+historical revisions by canonical address when displaying unique icons. Cache entries
+are not a complete usage history: unused or expired icons are absent, and direct SVG
+requests can populate the cache without rendering. Entries do not record which plugin
+or page requested them.
+
+## Planned backend icon maintenance UI
+
+A future developer-facing backend page will help organize kits by showing already
+generated kits alongside cached inline icons, including those requested by plugins.
+This UI is planned, not implemented.
+
+- List only existing kit SVG files in `App_Data/.cache/icons/kits`. Do not enumerate
+  configured kits to generate missing sprites. Exclude browser manifest JSON files
+  and temporary files. Historical kit revisions may initially appear separately.
+- Read each existing sprite's `symbol` IDs and `viewBox` attributes to list its icons.
+  Preview them through the existing kit URL and symbol fragment. Do not generate
+  kits or populate the individual SVG cache merely to display the maintenance page.
+- List cached inline icons through `IIconCache.GetEntriesAsync()` and retrieve
+  existing payloads with `GetAsync()` for previews, tolerating expired entries.
+- Help developers identify cached icons not covered by kits and refine kit membership.
+  Cached does not automatically mean kitless: presentation overrides can also force
+  a kit icon to render inline. Cache entries do not identify the requesting plugin.
+
+The generated-kit file listing still needs to be added to `IconKitService` when
+implementing this UI. `IIconKitService.Kits` describes configuration and is not an
+inventory of already generated files.
+
+## Open follow-up: coordinated cache invalidation
+
+Revisit library invalidation when implementing backend maintenance. A single
+operation should be able to invalidate both cached SVG payloads and generated
+file artifacts, including kit sprites and affected browser manifests.
+
+`IconCache.InvalidateLibraryAsync` currently removes only SVG cache entries.
+Keep file-artifact cleanup in `IconKitService` and coordinate the two operations
+rather than making `IconCache` responsible for kit storage.
+
+Before implementing targeted cleanup, establish a reliable association between
+artifacts and libraries, including historical revisions. The opaque kit filenames
+do not reveal the library, and the current catalog alone does not identify every
+historical artifact. Clearing the entire directory would also affect unrelated
+libraries. Define retention and deletion behavior with already-open pages in mind:
+current artifacts can be regenerated, but deleted historical URLs may return 404.
+
+This is an open design item to revisit later; coordinated invalidation and automatic
+artifact cleanup are not implemented yet.
+
+## Render icons with the HTML helper
+
+`Html.IconAsync()` accepts a complete `IconExpression` or its string representation:
+
+```cshtml
+@await Html.IconAsync("trash")
+@await Html.IconAsync("hi:cart/sr?size=2x&stroke-scale=1.1")
+@await Html.IconAsync(Model.IconExpression)
+```
+
+The helper delegates to the renderer using the current request context. Both overloads
+accept optional `IconOptions` for an explicit area, inline output or HTML attributes.
+Presentation remains part of the expression; no separate presentation argument is needed.
+Views and HTML generators can use the helper without resolving `IIconRenderer` themselves.
+
+```cshtml
+@await Html.IconAsync("cart?size=lg", new IconOptions
+{
+    ForceInline = true,
+    CssClass = "mr-2",
+    Attributes = { ["aria-label"] = "Cart" }
+})
+```
+
+Kit selection, inline fallback, CSS classes and accessibility remain the renderer's
+responsibility. If neither the requested icon nor its fallback can be rendered,
+the helper returns empty HTML.
+
+The legacy synchronous `Html.Icon()` and `Html.BootstrapIcon()` helpers have been
+removed. Use `await Html.IconAsync(...)` for server-side rendering.
+
+
+## Direction-sensitive concepts
+
+The optional `mirrorInRtl` array in `config.json` lists exact, case-sensitive concept
+names that mirror horizontally in RTL layouts, independently of kit or mapped library.
+The initial list contains `arrow-left`, `arrow-right`, `chevron-left`, `chevron-right`,
+`chevrons-left` and `chevrons-right`. Add concepts deliberately: a horizontal motif
+such as a logo, chart or play button does not necessarily follow reading direction.
+
+Resolution exposes this policy as `IconInfo.MirrorInRtl`. The server renderer and
+manifest-backed `sm-icon` both add `icon-mirror-rtl` automatically. CSS evaluates
+`:dir(rtl)` at the element, including local direction overrides. The additional
+horizontal factor composes with existing flips, scale and animations. Source SVGs
+and kit symbols remain direction-independent; no RTL sprite copy is generated.
+
+The policy applies to unqualified concepts, including their query modifiers.
+Explicit library/variant selectors (in addresses or service arguments) and `!`
+bypasses are excluded. Native library browsing therefore keeps the original artwork.
+
+Use nullable `mirror-rtl` on `<icon>` or `<sm-icon>` (or `IconPresentation.MirrorRtl`)
+to override this policy: omission preserves the concept default, `true` enables
+RTL mirroring even for explicit addresses, and `false` suppresses automatic
+mirroring. It composes with `flip-h`, which applies in both directions.
+Changing `mirror-rtl` on `sm-icon` does not fetch a new drawing or alter its host
+attributes. No library-level mirroring list is required.
+
+```html
+<icon name="hi:arrow-left-01" mirror-rtl="true" />
+<sm-icon name="back" mirror-rtl="false"></sm-icon>
+```
+
+Manifest schema 8 publishes the sorted `mirrorInRtl` list; changing the list revises
+the manifest without changing sprite artwork. Older manifests fall back to the render
+endpoint when used with the updated client.
+
+
+Prefer unqualified kit concepts in `sm-icon`, including brand names such as
+`facebook-f`, `apple` and `microsoft`. Explicit library or variant selectors bypass
+the client manifest fast path and require the render endpoint, even when the same
+artwork is already included in a kit. Use explicit addresses only when no suitable
+concept exists or a specific source selection is intentional.
+
+Missing icons render the `system:not-found!/outline` placeholder from the area's kit with
+`icon-not-found` and the danger color, shared by Razor, HTML helpers and `sm-icon`. System artwork lives
+in `system/outline/icons`. Lookup and search still report missing sources as absent.
+The fallback SVG retains the requested identity in `data-icon`, for example
+`missing-name -> sys:not-found/outline`. The `sm-icon` host name remains unchanged.
+Direct renderer callers can supply `IconOptions.RequestedName` when lookup returns null.
+If the placeholder itself is unavailable, rendering returns no output without recursion.
+
+### Replacing a library
+
+A separately installed edition can replace another library by its directory name:
+
+```json
+{
+  "displayName": "Font Awesome Pro",
+  "shortName": "fa",
+  "replaces": "fontawesome-free",
+  "defaultVariant": "solid",
+  "variants": {
+    "regular": { "shortName": "r" },
+    "solid": { "shortName": "s" },
+    "brands": { "shortName": "b" }
+  }
+}
+```
+
+Place this manifest and the licensed sources in a separate library directory, such
+as `fontawesome-pro`. Extend its variant definitions with the additional styles.
+The replaced directory may remain installed. Existing system-name and short-name
+selectors, including root and kit defaults, resolve to the active replacement.
+Only active libraries are listed. Sources, mappings and metadata are not merged;
+the replacement must provide its own complete files. All installed predecessor
+variant names and short names must remain available; additional variants are allowed.
+The replaced directory is optional, and its system name remains an alias even when absent.
+Replacement chains are supported; cycles and competing replacements are configuration
+errors. Removing the replacement restores the original library on catalog reload.
+
+### Duotone variants
+
+Variants opt in using `isDuotone: true`, `primaryPathSelector` and
+`secondaryPathSelector`. Selectors are XPath expressions relative to the SVG root
+and evaluated after namespace normalization; positional predicates are one-based.
+For Font Awesome Pro 7.3.1 use `path[2]` for primary and `path[1]` for secondary.
+Both selectors must match non-overlapping drawing elements. Missing or invalid
+selections produce an error instead of guessing the layer assignment.
+
+Preparation adds `icon-primary` / `icon-secondary` classes and generated inline
+styles for `--icon-primary-color`, `--icon-secondary-color`,
+`--icon-primary-opacity` and `--icon-secondary-opacity`. Original fill (including
+inherited fill) and opacity remain the fallbacks. Source files are not modified.
+The styles are stored in prepared payloads and sprites, so inherited variables
+also work through external `use` references. Renderers and client manifest hits
+add `icon-duotone` based on the actual resolved variant, including fallbacks.
+The manifest lists duotone concepts per kit in `duotone`.
+
+### Sass masks
+
+Style bundles provide `icon-url($address)`, which resolves concepts through the same
+kit defaults, source overrides, mappings and fallbacks as `IIconService`. It embeds
+a complete SVG as a data URL; no icon request or kit sprite is required. Mapping
+transforms and stroke scaling are included. For background images, an explicit
+`color` modifier sets the SVG color, for example `icon-url("check?color=#fff")`.
+Missing icons use the system
+`not-found` drawing; if that is also unavailable, the mask is transparent.
+
+```scss
+.toggle::after {
+    @include icon-mask("chevron-down", .75rem);
+}
+
+.toggle.open::after {
+    mask-image: icon-url("chevron-up");
+}
+```
+
+Masks use `currentColor` on the host and preserve source alpha, but do not offer
+independent layer colors or inherit page CSS variables inside the SVG. RTL mirroring
+must be applied by the consuming stylesheet. Icon changes do not invalidate CSS
+bundles automatically: regenerate the bundle to update embedded SVGs. Existing
+Font Awesome mixins and their consumers remain unchanged during migration.
+
+## Summernote icon adapter
+
+The picker plugin is included in the Summernote script bundle. Razor supplies its
+localized labels, endpoint and sources through the `summernote-iconpicker-settings`
+template element, once per page. Each editor instance reads these settings when
+its plugin is created; no translations are duplicated in Summernote language files.
+
+The Smartstore-owned `plugins/smartstore.iconpicker.js` plugin adds an Icon tab to the
+emoji picker through the fork's generic `emoji.addTab` API. It lists visible kits
+for the public area and the available library variants, using the existing icon
+browser endpoint for search, paging and sprite previews. Source selection, search
+and preview sizes (16, 24 and 32 pixels) share one toolbar row. Tiles have tooltips
+but no visible labels. Choosing a kit icon inserts its concept; choosing a library
+icon inserts its explicit address. Preview size is never written into the content.
+The editor restores the insertion range and inserts clean `sm-icon` markup.
+
+
+The CodeMirror source editor supports HTML completion for `sm-icon` and
+`sm-icon-stack`, their attributes and common attribute values (Ctrl+Space).
+Name suggestions display an icon preview beside the name and insert only the
+attribute value. Icon names come from the manifest for the `public` area because edited content
+is displayed in the storefront, even when the editor runs in admin. An explicit
+`area` attribute on the edited tag overrides this default.
+
+Smartstore overrides Summernote's existing `icons` option in
+`wwwroot/lib/editors/summernote/globalinit.js`. The local `iconConcepts` map translates
+The editor icon slots plus the AI extension into `sm-icon` markup. The save slot keeps
+its original disk SVG as an explicit override in the same configuration. The existing
+Summernote HTML icon renderer accepts this markup unchanged; no callback or
+Smartstore dependency in the editor fork is required. Per-instance `icons` overrides
+remain supported through the usual options merge.
+
+Generic formatting concepts live in the shared collection. The separate `htmledit`
+kit is hidden in the picker by default and applies only to admin. It contains the
+editor-specific concepts, without including the shared collection again. Other
+existing concepts are resolved from the area's normal kits.
+
+The Summernote fork and distributed editor bundle use the original note-icon font defaults. Additional fork slots retain font-based fallbacks; all are overridden by the adapter. Embedded SVG defaults have been removed. The fork routes color reset/picker buttons, CSS-class buttons and table-style
+checkmarks through `options.icons` as well. `colorReset` and `colorPicker` are new
+slots; `css` and `menuCheck` reuse existing slots. Their Smartstore overrides apply
+after rebuilding and copying the editor bundle from the fork.
+
+Smartstore icon styles live in `wwwroot/skinning/_summernote.scss`, imported directly
+after the vendor stylesheet in the admin theme. Keep integration overrides there so
+updates from the fork do not overwrite them.
+
+## Module manifest icons
+
+Modules may set `Icon` (for example `"hi:cart?color=#f90"`) in `module.json` instead of shipping
+an image. `ModuleManager.GetIcon()` returns a `ModuleIcon` value for
+`<module-icon model="..." />`, which renders addresses server-side.
+Provider-specific SVG/PNG files take precedence over the manifest address. Without
+an address, `icon.svg`, `icon.png` and the default icon `hi:plug-02` are tried
+in that order. SVG files are rendered as images and carry their own colors;
+The `color` modifier only applies to icon addresses. Select2 module/provider choices use
+`data-icon` with the complete address, or `data-imageurl` for images.
+
+### Select2 option icons
+
+Set `data-icon="tag"` on a `select` to supply a default icon for its choices,
+including AJAX results and newly entered tags. Defaults render at 16px in `var(--gray-700)`,
+in both the dropdown and selection chips. Option-level `data-icon` or an
+AJAX item's `icon` takes precedence; an empty icon suppresses the default. Images
+and color swatches keep precedence over icons. Placeholders, group headings,
+loading messages and add-entity actions do not receive the default icon.
+
+### Address presentation
+
+`cart?size=lg&animation=throb&color=#f90` sets size and animation classes and the outer SVG color without changing artwork, cache identity
+or kit selection. Explicit `IconPresentation` values and component attributes take precedence individually.
+Size and animation accept the same presets as their corresponding attributes.
+These rendering-only modifiers are not permitted in library mappings.
+`sm-icon` handles these modifiers locally, retaining manifest lookup and sharing drawing
+requests across sizes, animations and colors. Other modifiers can be combined using `&` (`&amp;` in HTML).
+Colors may be literal CSS values or percent-encoded values. When sending an address
+as a URL query parameter, encode the entire parameter (including `#`). Colors belong
+to rendering addresses, not library mappings or kit sources.
+
+
+## Hosting and registration
+
+The foundation lives in `Smartstore/IconKit` under the `Smartstore.IconKit` namespace.
+The legacy font explorer remains in Core. Icon sources are data and do not move with
+this assembly change.
+
+```csharp
+using Smartstore.Bootstrapping;
+
+services.AddIconKit(options =>
+{
+    options.SourcePath = "App_Data/Icons";
+    options.CachePath = "App_Data/.cache/icons";
+    options.RoutePrefix = "/icons";
+});
+
+app.MapIconKit();
+```
+
+Relative source and cache paths resolve against `IHostEnvironment.ContentRootPath`;
+absolute paths are also supported. `SourcePath` points directly to the directory
+containing `config.json`, `kits.json`, `collections.json` and library directories.
+`CachePath` holds the generated `kits` and `browser` subdirectories.
+
+App-start components live in `IconKit/Bootstrapping`, with the shared
+`Smartstore.Bootstrapping` namespace used by the other foundation modules.
+Smartstore's `IconKitStarter` registers the services using the application's existing
+App_Data directories and maps the endpoints automatically. A later call to
+`AddIconKit` can override these options without registering duplicate services.
+Applications using this starter must not map the endpoints a second time.
+The foundation still uses Smartstore's cache and provider discovery infrastructure.
+
+`MapIconKit` replaces the MVC icon controller and preserves its default URLs,
+GET/HEAD support for revisioned files, ETags and cache headers. The `IconKit.Browse`
+endpoint name supplies the picker's search URL. Client-side rendering derives its
+endpoint from the manifest URL, so a custom prefix also applies to `sm-icon`.
+
+Use `<icon name="hi:database!/sr" force-inline="true" />` (or `IconOptions.ForceInline`)
+to embed a drawing even when a matching kit symbol exists. This is useful during
+installation, where external sprite endpoints are redirected to the setup page.
+The `!` address suffix only bypasses mapping; it does not force inline rendering.
+Provider discovery is skipped while `IApplicationContext.IsInstalled` is false;
+local library and kit definitions remain available during installation.
+
+### Shared icon option editors
+
+`smartstore.icontools.js` exposes `Smartstore.IconTools.bindAnimation(toggle, { getState, onChange, noneLabel })`.
+The host supplies `{ name, area, options, value }` from `getState` and persists the selected animation through `onChange`.
+The shared menu renders the selected artwork in a three-column grid with live 32px animation previews.
+An empty value removes animation. The returned `close()` and `dispose()` methods support editor/popover lifecycles.
+Toolbar layout and editor selection management remain the responsibility of each host.
+The Icon Browser uses this editor; Summernote can use the same API without loading the Icon Browser or Select2.
+
+The shared `Smartstore.IconTools.bindColor(toggle, { getState, onChange })` editor uses
+the existing application colorpicker with its palette and alpha support. The host supplies
+`{ name, value }` and receives a CSS color or an empty string to restore inheritance.
+The browser stores this override in its expression's presentation and includes it
+in the posted expression and developer code output.
+
+The Smartstore Summernote `iconPopover` plugin edits selected `sm-icon` elements through
+the shared color, flip and animation tools. Its toolbar belongs to Smartstore; the fork
+only exposes component selection. Changes use Summernote history and authored attributes,
+so undo/redo and source serialization do not persist editor UI or generated SVG markup.
+
+### System library variants
+
+System artwork is grouped into `outline` (stroke scaling enabled) and `fill`
+(stroke scaling disabled). Both variants fall back to each other for names only
+available in the other group. Existing concept names are unchanged; shared source
+addresses select the concrete variant. The former `default` variant is removed;
+custom explicit `/default` references must select `outline` or `fill` instead.
+
+Matching shapes share the same SVG filename across variants (for example,
+`outline/icons/circle.svg` and `fill/icons/circle.svg`). Application concepts
+retain their names: `circle-outline` maps to `sys:circle!/outline`, while
+`circle-fill` maps to `sys:circle!/fill`. Callers keep using those concepts.

@@ -8,14 +8,14 @@
 
 <div class="section-header">
     <div class="title">
-        <i class="fa fa-language"></i>
+        <icon name="language" />
         <span>@ViewBag.Title</span>
     </div>
     <div class="options">
         <zone name="admin_button_toolbar_before" />
 
         <a asp-action="Create" class="btn btn-primary">
-            <i class="fa fa-plus"></i>
+            <icon name="plus" />
             <span>@T("Admin.Common.AddNew")</span>
         </a>
 
@@ -61,7 +61,7 @@
                             @language.UniqueSeoCode
                         </td>
                         <td class="text-center">
-                            <i class="fa fa-fw icon-active-@language.Published.ToString().ToLower()"></i>
+                            <icon name="@(language.Published ? "check" : "minus")" fw class="icon-active-@language.Published.ToString().ToLowerInvariant()" />
                         </td>
                         <td>
                             @if (language.LastResourcesImportOn.HasValue)
@@ -70,17 +70,17 @@
                             }
                             else
                             {
-                                <i class="fa fa-fw icon-active-false"></i>
+                                <icon name="minus" class="icon-fw icon-active-false" />
                             }
                         </td>
                         <td class="text-center">
-                            <i class="fa fa-fw icon-active-@language.LimitedToStores.ToString().ToLower()"></i>
+                            <icon name="@(language.LimitedToStores ? "check" : "minus")" fw class="icon-active-@language.LimitedToStores.ToString().ToLowerInvariant()" />
                         </td>
                         <td class="text-center">
                             @language.DisplayOrder
                         </td>
                         <td class="omega text-truncate">
-                            <a asp-action="Edit" asp-route-id="@language.Id" class="btn btn-warning btn-sm">
+                            <a asp-action="Edit" asp-route-id="@language.Id" class="btn btn-light btn-sm">
                                 <span>@T("Admin.Common.Edit")</span>
                             </a>
                             <a asp-action="Resources" asp-route-languageId="@language.Id" class="btn btn-secondary btn-sm">

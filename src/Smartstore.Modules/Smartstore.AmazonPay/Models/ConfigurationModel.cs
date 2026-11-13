@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Smartstore.Web.Models;
 
 namespace Smartstore.AmazonPay.Models;
 
@@ -33,6 +34,9 @@ public class ConfigurationModel : ModelBase
     [LocalizedDisplay("*SaveEmailAndPhone")]
     public AmazonPaySaveDataType? SaveEmailAndPhone { get; set; }
 
+    [LocalizedDisplay("*ShowInPaymentMethodList")]
+    public bool ShowInPaymentMethodList { get; set; }
+
     [LocalizedDisplay("*ShowPayButtonForAdminOnly")]
     public bool ShowPayButtonForAdminOnly { get; set; }
 
@@ -43,10 +47,7 @@ public class ConfigurationModel : ModelBase
     public bool ShowSignoutButton { get; set; }
 
     [LocalizedDisplay("Admin.Configuration.Payment.Methods.AdditionalFee")]
-    public decimal AdditionalFee { get; set; }
-
-    [LocalizedDisplay("Admin.Configuration.Payment.Methods.AdditionalFeePercentage")]
-    public bool AdditionalFeePercentage { get; set; }
+    public Amount AdditionalFee { get; set; } = new(unitField: nameof(AmazonPaySettings.AdditionalFeePercentage));
 
     [LocalizedDisplay("Admin.Configuration.Payment.Methods.AddOrderNotes")]
     public bool AddOrderNotes { get; set; }

@@ -118,6 +118,13 @@ public class OrderTotalCalculationServiceTests : ServiceTestBase
 
         var checkoutAttributeMaterializerMock = new Mock<ICheckoutAttributeMaterializer>();
         _checkoutAttributeMaterializer = checkoutAttributeMaterializerMock.Object;
+        checkoutAttributeMaterializerMock
+            .Setup(x => x.MaterializeCheckoutAttributesAsync(It.IsAny<ShoppingCart>(), true))
+            .Returns((ShoppingCart cart, bool _) => Task.FromResult(new MaterializedCheckoutAttributes(
+                cart.Customer,
+                cart.Customer.GenericAttributes.CheckoutAttributes,
+                [],
+                [])));
 
         _discountServiceMock = new Mock<IDiscountService>();
         _discountService = _discountServiceMock.Object;
@@ -255,6 +262,50 @@ public class OrderTotalCalculationServiceTests : ServiceTestBase
         subTotal.TaxRates.Count.ShouldEqual(1);
         subTotal.TaxRates.ContainsKey(10).ShouldBeTrue();
         subTotal.TaxRates[10].ShouldEqual(8.939);
+    }
+
+    [TestCase(false)]
+    [TestCase(true)]
+    public async Task Can_apply_negative_checkout_attribute_price_adjustment(bool isTaxExempt)
+    {
+        var product = new Product
+        {
+            Id = 1,
+            Price = 100m,
+            Published = true
+        };
+        var cartItem = new ShoppingCartItem
+        {
+            Product = product,
+            ProductId = product.Id,
+            Customer = _customer,
+            CustomerId = _customer.Id,
+            Quantity = 1
+        };
+        var attributeValue = new CheckoutAttributeValue
+        {
+            PriceAdjustment = -10m,
+            CheckoutAttribute = new CheckoutAttribute
+            {
+                IsTaxExempt = isTaxExempt
+            }
+        };
+
+        Mock.Get(_checkoutAttributeMaterializer)
+            .Setup(x => x.MaterializeCheckoutAttributesAsync(It.IsAny<ShoppingCart>(), true))
+            .Returns((ShoppingCart cart, bool _) => Task.FromResult(new MaterializedCheckoutAttributes(
+                cart.Customer,
+                cart.Customer.GenericAttributes.CheckoutAttributes,
+                [],
+                [attributeValue])));
+
+        var cart = new ShoppingCart(_customer, 0, [new(cartItem)]);
+        _productBatchContext = new ProductBatchContext([product], DbContext, LifetimeScope, _store, _customer, false);
+
+        var subtotal = await _orderCalcService.GetShoppingCartSubtotalAsync(cart, false, _productBatchContext);
+
+        subtotal.SubtotalWithoutDiscount.Amount.ShouldEqual(90m);
+        subtotal.SubtotalWithDiscount.Amount.ShouldEqual(90m);
     }
 
     [Test]
@@ -1408,7 +1459,7 @@ public class OrderTotalCalculationServiceTests : ServiceTestBase
 
         // 56 - items, 10 - shipping (fixed), 20 - payment fee, 8.6 - tax, [-3] - discount = 91.6
         // 56 - items, 10 - shipping (fixed), 6.6 - tax, [-3] - discount = 69.6
-        var cartTotal = await _orderCalcService.GetShoppingCartTotalAsync(cart);
+        var cartTotal = await _orderCalcService.GetShoppingCartTotalAsync(cart, ShoppingCartTotalOptions.Default);
         cartTotal.Total.Value.Amount.ShouldEqual(69.6M);
         cartTotal.DiscountAmount.Amount.ShouldEqual(3);
         cartTotal.AppliedDiscount.ShouldNotBeNull();

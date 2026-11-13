@@ -1,5 +1,7 @@
 ﻿@model StripeCheckoutState
 
+@inject Smartstore.StripeElements.Settings.StripeSettings StripeSettings
+
 <script src="~/lib/jquery/jquery.deserialize.js"></script>
 
 <script data-origin="stripe-confirm">
@@ -15,32 +17,74 @@
 
                 e.disableBuyButton = true;
 
-                $.ajax({
-                    type: 'POST',
-                    url: '@Url.Action("ConfirmOrder", "Stripe")',
-                    data: { "formData": JSON.stringify(data) },
-                    success: function (response) {
-                        if (response.success) {
-                            if (response.redirectUrl){
-                                // Redirect to stripe to pay.
-                                window.location = response.redirectUrl;
-                            } else {
-                                isConfirmed = true;
-                                triggerBuyButton(false);
-                            }
-                        }
-                        else if (!_.isEmpty(response.messages)) {
-                            reportError(response.messages);
-                        }
-                    },
-                    error: function (objXml) {
-                        if (objXml != null && objXml.responseText != null && objXml.responseText !== '') {
-                            reportError(objXml.responseText);
-                        }
-                    }
-                });
+                confirmPayment(data);
             }
         });
+
+        function confirmPayment(data) {
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("ConfirmOrder", "Stripe")',
+                data: { formData: JSON.stringify(data) },
+                success: function (response) {
+                    if (response.success) {
+                        if (response.requiresAction) {
+                            Smartstore.Stripe
+                                .handleNextAction('@StripeSettings.PublicApiKey', '@StripeHelper.ApiVersion', response.clientSecret)
+                                .then(function (result) {
+                                    if (result.error) {
+                                        reportError(result.error.message);
+                                    }
+                                    else {
+                                        completePayment(data);
+                                    }
+                                })
+                                .catch(function (error) {
+                                    reportError(error.message);
+                                });
+                        }
+                        else if (response.redirectUrl) {
+                            // Redirect to stripe to pay.
+                            window.location = response.redirectUrl;
+                        }
+                        else {
+                            isConfirmed = true;
+                            triggerBuyButton(false);
+                        }
+                    }
+                    else if (!_.isEmpty(response.messages)) {
+                        reportError(response.messages);
+                    }
+                },
+                error: function (objXml) {
+                    if (objXml != null && objXml.responseText != null && objXml.responseText !== '') {
+                        reportError(objXml.responseText);
+                    }
+                }
+            });
+        }
+
+        function completePayment(data) {
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("CompletePayment", "Stripe")',
+                data: { formData: JSON.stringify(data) },
+                success: function (response) {
+                    if (response.success) {
+                        isConfirmed = true;
+                        triggerBuyButton(false);
+                    }
+                    else if (!_.isEmpty(response.messages)) {
+                        reportError(response.messages);
+                    }
+                },
+                error: function (objXml) {
+                    if (objXml != null && objXml.responseText != null && objXml.responseText !== '') {
+                        reportError(objXml.responseText);
+                    }
+                }
+            });
+        }
 
         // Restore form data.
         @if (Model.IsConfirmed && Model.FormData.HasValue())

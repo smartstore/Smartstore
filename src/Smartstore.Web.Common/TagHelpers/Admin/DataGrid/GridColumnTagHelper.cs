@@ -182,7 +182,8 @@ public class GridColumnTagHelper : TagHelper
     public string EntityMember { get; set; }
 
     /// <summary>
-    /// CSS class name of icon to use in column header, e.g. 'far fa-envelope'.
+    /// Icon concept or address to use in the column header,
+    /// e.g. <c>mail</c> or <c>bi:envelope!</c>.
     /// </summary>
     [HtmlAttributeName(IconAttributeName)]
     public string Icon { get; set; }

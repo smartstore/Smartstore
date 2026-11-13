@@ -38,6 +38,11 @@ public class PerformanceSettings : ISettings
     public int MaxUnavailableAttributeCombinations { get; set; } = 10000;
 
     /// <summary>
+    /// Maximum number of full price calculations for color and image swatches on the product detail page.
+    /// </summary>
+    public int MaxVariantPriceCalculations { get; set; } = 50;
+
+    /// <summary>
     /// Enables response compression for text-based static and dynamic responses
     /// (html, css, js, svg etc.). Turn this off if the webserver handles response
     /// compression already. Changing the value requires an application restart to take effect.
@@ -50,4 +55,18 @@ public class PerformanceSettings : ISettings
     /// and the <see cref="MediaFile"/> entities are loaded directly from the database.
     /// </summary>
     public int MediaDupeDetectorMaxCacheSize { get; set; } = 10000;
+
+    /// <summary>
+    /// The maximum number of guest customers to delete in a single batch.
+    /// This hidden setting helps manage performance and timeout issues when cleaning up guest accounts.
+    /// Default value is 5000.
+    /// </summary>
+    public int GuestCustomersDeletionBatchSize { get; set; } = 5000;
+
+    /// <summary>
+    /// Command timeout in seconds used exclusively while deleting guest customers.
+    /// This hidden setting helps manage performance and timeout issues when cleaning up guest accounts.
+    /// Default value is 0 to use the database default command timeout.
+    /// </summary>
+    public int GuestCustomersDeletionCommandTimeout { get; set; }
 }

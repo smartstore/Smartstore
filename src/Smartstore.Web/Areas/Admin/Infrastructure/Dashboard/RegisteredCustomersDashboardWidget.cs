@@ -2,6 +2,7 @@
 
 using Smartstore.Admin.Components;
 using Smartstore.Core.Localization;
+using Smartstore.Core.Security;
 using Smartstore.Core.Widgets.Dashboard;
 using Smartstore.Engine.Modularity;
 
@@ -11,7 +12,8 @@ namespace Smartstore.Admin.Infrastructure.Dashboard;
 /// Describes and creates the dashboard widget that renders customer registrations.
 /// </summary>
 [SystemName(SystemName)]
-public sealed class RegisteredCustomersDashboardWidget : DashboardViewComponentWidget<DashboardRegisteredCustomersViewComponent>
+public sealed class RegisteredCustomersDashboardWidget(IPermissionService permissions)
+    : DashboardViewComponentWidget<DashboardRegisteredCustomersViewComponent>(permissions, DashboardRegisteredCustomersViewComponent.RequiredPermission)
 {
     /// <summary>
     /// Identifies the registered customers dashboard widget type.
@@ -20,20 +22,13 @@ public sealed class RegisteredCustomersDashboardWidget : DashboardViewComponentW
 
     private static readonly DashboardWidgetDescriptor _descriptor = new(SystemName, ResolvableText.Resource("Admin.Report.CustomerRegistrations"))
     {
-        Description = ResolvableText.Resource("Admin.Report.CustomerRegistrations"),
         Group = KnownDashboardWidgetGroups.Customers,
-        IconName = "person-plus",
+        IconName = "user-add",
         CssClass = "report-customer-registrations",
         Order = 500,
-        DefaultSize = new DashboardWidgetSize(7, 1),
+        DefaultSize = new DashboardWidgetSize(6, 1),
         MinSize = new DashboardWidgetSize(4, 1),
-        MaxSize = new DashboardWidgetSize(12, 1),
-        AllowedSizes =
-        [
-            new DashboardWidgetSize(7, 1),
-            new DashboardWidgetSize(10, 1),
-            new DashboardWidgetSize(12, 1)
-        ]
+        MaxSize = new DashboardWidgetSize(12)
     };
 
     /// <inheritdoc />

@@ -27,7 +27,7 @@ public class ConfirmTagHelper : SmartTagHelper
     const string CenterContentAttributeName = "center-content";
     const string SizeAttributeName = "size";
     const string MessageAttributeName = "message";
-    const string IconClassAttributeName = "icon";
+    const string IconAttributeName = "icon";
     const string IconColorAttributeName = "icon-color";
 
     private readonly IWidgetProvider _widgetProvider;
@@ -126,10 +126,10 @@ public class ConfirmTagHelper : SmartTagHelper
     public string Message { get; set; }
 
     /// <summary>
-    /// Specifies the icon class.
+    /// Specifies the icon concept or address.
     /// </summary>
-    [HtmlAttributeName(IconClassAttributeName)]
-    public string IconClass { get; set; }
+    [HtmlAttributeName(IconAttributeName)]
+    public string Icon { get; set; }
 
     /// <summary>
     /// Specifies the custom icon color.
@@ -162,8 +162,8 @@ public class ConfirmTagHelper : SmartTagHelper
             CenterContent = CenterContent,
             Size = Size,
 
-            // Icon class & color
-            IconClass = IconClass ?? GetIconClass(ConfirmType),
+            // Icon address & color
+            Icon = Icon ?? GetIcon(ConfirmType),
             IconColor = IconColor ?? GetIconColor(ConfirmType),
             ButtonStyle = ButtonColor ?? GetButtonStyle(ConfirmType)
         };
@@ -180,12 +180,12 @@ public class ConfirmTagHelper : SmartTagHelper
         _widgetProvider.RegisterHtml("end", partial);
     }
 
-    private static string GetIconClass(ConfirmActionType confirmType)
+    private static string GetIcon(ConfirmActionType confirmType)
     {
         return confirmType switch
         {
-            ConfirmActionType.Action => "fa fa-exclamation-circle",
-            _ => "fa fa-trash-can",
+            ConfirmActionType.Action => "alert-circle",
+            _ => "trash",
         };
     }
 

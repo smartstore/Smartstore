@@ -127,7 +127,7 @@ public class ImportController : AdminController
             }
             else
             {
-                NotifyError(T("Admin.Common.InvalidFileName"));
+                NotifyError(T("Admin.Common.InvalidFileName", model.TempFileName.NaIfEmpty()));
             }
         }
         catch (Exception ex)
@@ -424,7 +424,7 @@ public class ImportController : AdminController
         }
         else
         {
-            message = "Invalid file name.";
+            message = T("Admin.Common.InvalidFileName", name.NaIfEmpty());
         }
 
         if (message.IsEmpty())
@@ -447,6 +447,11 @@ public class ImportController : AdminController
         var success = false;
         string error = null;
         var source = Request.Form.Files[0];
+
+        if (!PathUtility.IsFileName(source.FileName))
+        {
+            throw new BadHttpRequestException(T("Admin.Common.InvalidFileName", source.FileName.NaIfEmpty()));
+        }
 
         try
         {

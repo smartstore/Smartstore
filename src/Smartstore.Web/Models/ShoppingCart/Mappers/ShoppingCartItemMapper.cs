@@ -43,7 +43,7 @@ public class ShoppingCartItemMapper : CartItemMapperBase<ShoppingCartModel.Shopp
         Guard.NotNull(from);
         Guard.NotNull(to);
 
-        var requiredProducts = parameters?.RequiredProducts as Dictionary<int, OrganizedShoppingCartItem>;
+        var requiredProducts = parameters?.RequiredProducts as IReadOnlyDictionary<OrganizedShoppingCartItem, OrganizedShoppingCartItem>;
         var item = from.Item;
         var product = item.Product;
 
@@ -58,7 +58,7 @@ public class ShoppingCartItemMapper : CartItemMapperBase<ShoppingCartModel.Shopp
         to.DurabilityGuaranteeDurationYears = product.DurabilityGuaranteeDurationYears;
         to.ManufacturerPartNumber = product.ManufacturerPartNumber;
 
-        if (requiredProducts.TryGetValue(product.Id, out var parent))
+        if (requiredProducts.TryGetValue(from, out var parent))
         {
             var expectedQuantity = parent.Item.Quantity * product.QuantityPerParentUnit;
 

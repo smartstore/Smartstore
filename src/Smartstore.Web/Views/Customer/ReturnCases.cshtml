@@ -22,8 +22,8 @@
         <li class="returncase-item mb-3" aria-labelledby="returncase-title@(rc.Id)">
             <div class="card">
                 <div class="card-body">
-                    <h2 id="returncase-title@(rc.Id)" class="card-title h5 mb-4">
-                        <i class="fal fa-fw fal @(isWithdrawal ? "fa-reply-all" : "fa-truck") mr-1" aria-hidden="true"></i>
+                    <h2 id="returncase-title@(rc.Id)" class="card-title h5 mb-4 hstack gap-1">
+                        <icon name="return" fw aria-hidden="true" />
                         <span>@(rc.KindStr) &middot; @T("ReturnCase.Case", rc.Id)</span>
                     </h2>
                     <dl class="row mb-0" role="presentation">
@@ -72,13 +72,13 @@
                         @if (rc.CustomerComments.HasValue())
                         {
                             <dt class="col-sm-4 fwn text-muted">@T("Account.CustomerReturnRequests.Comments")</dt>
-                            <dd class="col-sm-8" dir="auto">@Html.Raw(HtmlUtility.ConvertPlainTextToHtml(rc.CustomerComments))</dd>
+                            <dd class="col-sm-8" dir="auto">@Html.Raw(HtmlUtility.ConvertPlainTextToHtml(rc.CustomerComments.HtmlEncode()))</dd>
                         }
                     </dl>
                 </div>
                 <div class="card-footer d-flex p-2">
                     <a href="@Url.Action("Details", "Order", new { id = rc.OrderId })" class="btn btn-light btn-sm btn-flat" rel="nofollow">
-                        <i class="far fa-rectangle-list" aria-hidden="true"></i>
+                        <icon name="list-square"  aria-hidden="true" />
                         <span>@T("Order.OrderDetails")</span>
                         <span class="sr-only"> @rc.OrderNumber</span>
                     </a>

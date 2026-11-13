@@ -1,0 +1,23 @@
+// Sample overlay of core/settings.json: only applied when sample data is installed.
+{
+  "CatalogSettings": {
+    "LabelAsNewForMaxDays": 30,
+    "ShowProductReviewsInProductLists": true,
+    // The roasted coffee text asks the visitor to watch the article number change with the pack size.
+    "ShowProductSku": true
+  },
+  "PriceSettings": {
+    "PriceDisplayType": "PreSelectedPrice",
+    // The bottle deposit (required product) is shown below the price of the lemonade.
+    "ShowRequiredProductPricesWithMainProduct": true
+  },
+  // The sample pictures show fine print on labels. The default quality (85, chroma subsampling 4:2:0)
+  // makes the downscaled thumbnails noisy around the letters.
+  "MediaSettings": {
+    "DefaultImageQuality": 95,
+    "JpegColorType": "YCbCrRatio444"
+  },
+  "SettingKeys": {
+    "ShippingRateComputationMethod.FixedRate.Rate.ShippingMethodId{$ref:ShippingMethod:by-ground}": 4.90
+  }
+}

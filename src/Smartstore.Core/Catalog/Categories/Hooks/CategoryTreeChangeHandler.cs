@@ -52,6 +52,7 @@ internal class CategoryTreeChangeHook : AsyncDbSaveHook<BaseEntity>, IConsumer
     private static readonly string[] _d =
     [
         nameof(Category.Name),
+        nameof(Category.Icon),
         nameof(Category.Alias),
         nameof(Category.ExternalLink),
         nameof(Category.MediaFileId),
@@ -156,6 +157,7 @@ internal class CategoryTreeChangeHook : AsyncDbSaveHook<BaseEntity>, IConsumer
                             if (node.Value is CategoryNode value)
                             {
                                 value.Name = category.Name;
+                                value.Icon = category.Icon;
                                 value.ExternalLink = category.ExternalLink;
                                 value.Alias = category.Alias;
                                 value.MediaFileId = category.MediaFileId;

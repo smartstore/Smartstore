@@ -31,6 +31,7 @@
     var multiple = GetMetadata<bool>("multiple", false);
     var items = StoreContext.GetAllStores().ToSelectListItems(SelectedIds);
     var attributes = new AttributeDictionary().Merge(ConvertUtility.ObjectToDictionary(ViewData["htmlAttributes"] ?? new object()));
+    attributes.Merge("data-icon", "store");
 
     if (multiple && !attributes.ContainsKey("data-placeholder"))
     {

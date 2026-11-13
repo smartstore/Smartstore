@@ -1,4 +1,4 @@
-﻿using System.Globalization;
+﻿using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Common;
 using Smartstore.Web.Modelling;
 
@@ -21,6 +21,17 @@ public abstract class ChoiceItemModel : EntityModelBase
     /// Gets or sets the calculated final price for this choice item.
     /// </summary>
     public Money? SwatchPrice { get; set; }
+
+    /// <summary>
+    /// Gets or sets the optional comparison price displayed as a struck-through amount in a swatch card.
+    /// </summary>
+    public Money? SwatchComparePrice { get; set; }
+
+    /// <summary>
+    /// Gets or sets the base price information associated with <see cref="SwatchPrice"/>.
+    /// </summary>
+    public string SwatchBasePriceInfo { get; set; }
+
     public int QuantityInfo { get; set; }
     public bool IsPreSelected { get; set; }
     public bool IsDisabled { get; set; }
@@ -38,7 +49,13 @@ public abstract class ChoiceItemModel : EntityModelBase
     /// Gets a value indicating whether this item has a non-transparent swatch color.
     /// </summary>
     public bool HasColor
-        => Color.HasValue() && !Color.EqualsNoCase("transparent");
+        => Color.HasValue() && !Color.Trim().EqualsNoCase("transparent");
+
+    /// <summary>
+    /// Gets a value indicating whether this item has more than one visible swatch color.
+    /// </summary>
+    public bool HasMultipleColors
+        => SwatchColorHelper.HasMultipleColors(Color, AdditionalColors);
 
     /// <summary>
     /// Gets a value indicating whether this item has a swatch image.
@@ -54,49 +71,17 @@ public abstract class ChoiceItemModel : EntityModelBase
         => HasImage || HasColor;
 
     /// <summary>
+    /// Gets the value text displayed in a swatch card, including linked-product quantity information.
+    /// </summary>
+    public string SwatchValueText
+        => QuantityInfo > 1 ? $"{QuantityInfo} x {Name}" : Name;
+
+    /// <summary>
     /// Gets the inline CSS for a swatch color, which may be a single color or a multicolor gradient.
     /// </summary>
     /// <returns>The inline CSS string for the swatch color.</returns>
     public string GetSwatchColorCss()
-    {
-        if (Color.IsEmpty() || Color.EqualsNoCase("transparent"))
-        {
-            return null;
-        }
-
-        var colors = new List<string>(4) { Color.Trim() };
-
-        foreach (var color in AdditionalColors ?? [])
-        {
-            if (colors.Count == 4)
-            {
-                break;
-            }
-
-            if (color.HasValue() && !color.EqualsNoCase("transparent"))
-            {
-                colors.Add(color.Trim());
-            }
-        }
-
-        var css = $"background-color: {colors[0]};";
-        if (colors.Count == 1)
-        {
-            return css;
-        }
-
-        var stops = new List<string>(colors.Count * 2);
-        for (var i = 0; i < colors.Count; i++)
-        {
-            var start = (i * 100d / colors.Count).ToString("0.####", CultureInfo.InvariantCulture);
-            var end = ((i + 1) * 100d / colors.Count).ToString("0.####", CultureInfo.InvariantCulture);
-
-            stops.Add($"{colors[i]} {start}%");
-            stops.Add($"{colors[i]} {end}%");
-        }
-
-        return $"{css}background-image: linear-gradient(135deg, {string.Join(", ", stops)});";
-    }
+        => SwatchColorHelper.GetCss(Color, AdditionalColors);
 
     /// <summary>
     /// Gets the inline CSS for a swatch, which may include a color and/or an image.
@@ -142,6 +127,41 @@ public abstract class ChoiceItemModel : EntityModelBase
             SwatchPriceDisplayMode.FinalPrice => SwatchPrice?.ToString(),
             _ => throw new ArgumentOutOfRangeException(nameof(displayMode), displayMode, null)
         };
+
+    /// <summary>
+    /// Gets the accessible label for a swatch card, including all information displayed in its detail panel.
+    /// </summary>
+    /// <param name="displayMode">The price display mode.</param>
+    /// <returns>The accessible swatch card label.</returns>
+    public string GetSwatchCardLabel(SwatchPriceDisplayMode displayMode)
+    {
+        var parts = new List<string> { SwatchValueText };
+        var price = GetSwatchPriceText(displayMode);
+
+        if (price.HasValue())
+        {
+            parts.Add(price);
+        }
+
+        if (displayMode == SwatchPriceDisplayMode.FinalPrice)
+        {
+            if (SwatchComparePrice.HasValue)
+            {
+                parts.Add(SwatchComparePrice.Value.ToString());
+            }
+            if (SwatchBasePriceInfo.HasValue())
+            {
+                parts.Add(SwatchBasePriceInfo);
+            }
+        }
+
+        if (UnavailableReason.HasValue())
+        {
+            parts.Add(UnavailableReason);
+        }
+
+        return string.Join(", ", parts);
+    }
 
     /// <summary>
     /// Gets the reason why this item is unavailable.

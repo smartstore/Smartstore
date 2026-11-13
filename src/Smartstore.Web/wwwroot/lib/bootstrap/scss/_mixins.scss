@@ -2,8 +2,8 @@
 //
 // Used in conjunction with global variables to enable certain theme features.
 
-// Vendor
-@import "vendor/rfs";
+// Typography
+@import "mixins/font-size";
 
 // Deprecate
 @import "mixins/deprecate";

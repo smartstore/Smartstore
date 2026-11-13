@@ -1,7 +1,6 @@
 ﻿using System.Data.Common;
 using System.Net.Http;
 using System.Net.Http.Json;
-using System.Text.RegularExpressions;
 using System.Xml;
 using Autofac;
 using Microsoft.AspNetCore.Http;
@@ -9,6 +8,7 @@ using Smartstore.Core;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Data;
 using Smartstore.Core.Data.Migrations;
+using Smartstore.Core.Installation.Seeding;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Messaging;
 using Smartstore.Data;
@@ -23,6 +23,7 @@ namespace Smartstore.Core.Installation;
 public partial class InstallationService : IInstallationService
 {
     const string LanguageCookieName = ".Smart.Installation.Lang";
+    const string InstallationResourcesFileName = "installation.xml";
 
     private List<InstallationLanguage> _installLanguages;
 
@@ -31,23 +32,21 @@ public partial class InstallationService : IInstallationService
     private readonly IApplicationContext _appContext;
     private readonly IFilePermissionChecker _filePermissionChecker;
     private readonly IAsyncState _asyncState;
-    private readonly IEnumerable<Lazy<InvariantSeedData, InstallationAppLanguageMetadata>> _seedDatas;
     private readonly string _urlHome;
+    private List<InstallationAppLanguageMetadata> _appLanguages;
 
     public InstallationService(
         IHttpContextAccessor httpContextAccessor,
         IHttpClientFactory httpClientFactory,
         IApplicationContext appContext,
         IFilePermissionChecker filePermissionChecker,
-        IAsyncState asyncState,
-        IEnumerable<Lazy<InvariantSeedData, InstallationAppLanguageMetadata>> seedDatas)
+        IAsyncState asyncState)
     {
         _httpContextAccessor = httpContextAccessor;
         _httpClientFactory = httpClientFactory;
         _appContext = appContext;
         _filePermissionChecker = filePermissionChecker;
         _asyncState = asyncState;
-        _seedDatas = seedDatas;
         _urlHome = (_httpContextAccessor?.HttpContext?.Request?.PathBase.Value ?? string.Empty) + "/";
 
         Logger = _appContext.Logger;
@@ -205,9 +204,9 @@ public partial class InstallationService : IInstallationService
             // So that DataSettings.DatabaseIsInstalled() returns false during installation.
             DataSettings.SetTestMode(true);
 
-            // Resolve SeedData instance from primary language
-            var lazyLanguage = GetAppLanguage(model.PrimaryLanguage);
-            if (lazyLanguage == null)
+            // Resolve the primary app language
+            var appLanguage = GetAppLanguage(model.PrimaryLanguage);
+            if (appLanguage == null)
             {
                 return Progress(x =>
                 {
@@ -228,14 +227,14 @@ public partial class InstallationService : IInstallationService
 
             cancelToken.ThrowIfCancellationRequested();
 
-            // Create Language domain object from lazyLanguage
+            // Create Language domain object from the app language
             var languages = db.Languages;
             var primaryLanguage = new Language
             {
-                Name = lazyLanguage.Metadata.Name,
-                LanguageCulture = lazyLanguage.Metadata.Culture,
-                UniqueSeoCode = lazyLanguage.Metadata.UniqueSeoCode,
-                FlagImageFileName = lazyLanguage.Metadata.FlagImageFileName
+                Name = appLanguage.Name,
+                LanguageCulture = appLanguage.Culture,
+                UniqueSeoCode = appLanguage.UniqueSeoCode,
+                FlagImageFileName = appLanguage.FlagImageFileName
             };
 
             // Build the seed configuration model
@@ -244,7 +243,6 @@ public partial class InstallationService : IInstallationService
                 DefaultUserName = model.AdminEmail,
                 DefaultUserPassword = model.AdminPassword,
                 SeedSampleData = model.InstallSampleData,
-                Data = lazyLanguage.Value,
                 Language = primaryLanguage,
                 StoreMediaInDB = model.MediaStorage == "db",
                 ProgressMessageCallback = msg => Progress(x => x.ProgressMessage = GetResource(msg))
@@ -543,16 +541,28 @@ public partial class InstallationService : IInstallationService
 
     public virtual IEnumerable<InstallationAppLanguageMetadata> GetAppLanguages()
     {
-        foreach (var data in _seedDatas)
+        if (_appLanguages == null)
         {
-            yield return data.Metadata;
+            var seedRoot = new LocalFileSystem(PathUtility.Join(_appContext.AppDataRoot.Root, SeedDataSource.AppDataFolder));
+
+            _appLanguages = SeedDataSource.DiscoverCultures(seedRoot)
+                .Select(x => new InstallationAppLanguageMetadata
+                {
+                    Culture = x.Culture,
+                    Name = x.Name,
+                    UniqueSeoCode = x.UniqueSeoCode,
+                    FlagImageFileName = x.FlagImageFileName
+                })
+                .ToList();
         }
+
+        return _appLanguages;
     }
 
-    public Lazy<InvariantSeedData, InstallationAppLanguageMetadata> GetAppLanguage(string culture)
+    public InstallationAppLanguageMetadata GetAppLanguage(string culture)
     {
         Guard.NotEmpty(culture, nameof(culture));
-        return _seedDatas.FirstOrDefault(x => x.Metadata.Culture.EqualsNoCase(culture));
+        return GetAppLanguages().FirstOrDefault(x => x.Culture.EqualsNoCase(culture));
     }
 
     public IList<InstallationLanguage> GetInstallationLanguages()
@@ -561,22 +571,22 @@ public partial class InstallationService : IInstallationService
         {
             _installLanguages = new List<InstallationLanguage>();
 
-            foreach (var file in _appContext.AppDataRoot.EnumerateFiles("Localization/Installation", "*.xml"))
+            // File location: "App_Data/Seed/cultures/{culture}/installation.xml".
+            // The language code is the unique SEO code from "culture.json", e.g. "de".
+            var seedRoot = new LocalFileSystem(PathUtility.Join(_appContext.AppDataRoot.Root, SeedDataSource.AppDataFolder));
+
+            foreach (var culture in SeedDataSource.DiscoverCultures(seedRoot))
             {
-                var filePath = file.PhysicalPath;
-                var xmlDocument = new XmlDocument();
-                xmlDocument.Load(filePath);
-
-                // Get language code
-                var languageCode = string.Empty;
-
-                // File name format: installation.{languagecode}.xml
-                var r = new Regex(Regex.Escape("installation.") + "(.*?)" + Regex.Escape(".xml"));
-                var matches = r.Matches(file.Name);
-                foreach (Match match in matches)
+                var file = seedRoot.GetFile(PathUtility.Join(SeedDataSource.CulturesFolder, culture.Culture, InstallationResourcesFileName));
+                if (!file.Exists)
                 {
-                    languageCode = match.Groups[1].Value;
+                    continue;
                 }
+
+                var xmlDocument = new XmlDocument();
+                xmlDocument.Load(file.PhysicalPath);
+
+                var languageCode = culture.UniqueSeoCode;
 
                 // Get language friendly name
                 var languageName = xmlDocument.SelectSingleNode(@"//Language").Attributes["Name"].InnerText.Trim();

@@ -55,16 +55,22 @@ public class AttributePriceCalculator : PriceCalculator
         // Ignore attributes that have no relevance for pricing.
         attributeValues = [.. attributeValues.Where(x => x.PriceAdjustment != decimal.Zero || x.ValueType == ProductVariantAttributeValueType.ProductLinkage)];
 
+        // Ensure that all linked products are loaded into context.LinkedProducts.
         var linkedProductIds = attributeValues
             .Where(x => x.ValueType == ProductVariantAttributeValueType.ProductLinkage && x.LinkedProductId != 0)
             .ToDistinctArray(x => x.LinkedProductId);
+        var linkedProducts = context.LinkedProducts ??= [];
+        var unloadedProductIds = linkedProductIds.Where(x => !linkedProducts.ContainsKey(x)).ToArray();
 
-        var linkedProducts = linkedProductIds.Length > 0
-            ? await _db.Products.AsNoTracking()
-                .Where(x => linkedProductIds.Contains(x.Id))
+        if (unloadedProductIds.Length > 0)
+        {
+            var loadedProducts = await _db.Products.AsNoTracking()
+                .Where(x => unloadedProductIds.Contains(x.Id))
                 .SelectSummary()
-                .ToDictionaryAsync(x => x.Id)
-            : [];
+                .ToDictionaryAsync(x => x.Id);
+
+            linkedProducts.AddRange(loadedProducts);
+        }
 
         foreach (var value in attributeValues)
         {

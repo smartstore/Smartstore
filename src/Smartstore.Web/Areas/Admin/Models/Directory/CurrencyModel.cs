@@ -34,11 +34,14 @@ public class CurrencyModel : EntityModelBase, ILocalizedModel<CurrencyLocalizedM
     [LocalizedDisplay("Common.CreatedOn")]
     public DateTime CreatedOn { get; set; }
 
+    [LocalizedDisplay("Common.UpdatedOn")]
+    public DateTime UpdatedOn { get; set; }
+
     [LocalizedDisplay("*DomainEndings")]
     public string DomainEndings { get; set; }
     public string[] DomainEndingsArray { get; set; }
 
-    public List<CurrencyLocalizedModel> Locales { get; set; } = new();
+    public List<CurrencyLocalizedModel> Locales { get; set; } = [];
 
     [UIHint("Stores")]
     [AdditionalMetadata("multiple", true)]
@@ -82,7 +85,7 @@ public class CurrencyModel : EntityModelBase, ILocalizedModel<CurrencyLocalizedM
     [LocalizedDisplay("*RoundOrderTotalRule")]
     public CurrencyRoundingRule RoundOrderTotalRule { get; set; }
 
-    public Dictionary<string, string> RoundOrderTotalPaymentMethods { get; set; } = new();
+    public Dictionary<string, string> RoundOrderTotalPaymentMethods { get; set; } = [];
 
     #endregion
 }

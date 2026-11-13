@@ -1,0 +1,351 @@
+using Autofac;
+using Autofac.Extensions.DependencyInjection;
+using Smartstore.Web.Rendering;
+using System.Collections.Generic;
+using System.IO;
+using System.Text.Encodings.Web;
+using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.Razor.TagHelpers;
+using Moq;
+using NUnit.Framework;
+using Smartstore.IconKit;
+using Smartstore.Web.TagHelpers.Shared;
+
+namespace Smartstore.Web.Tests.Common.TagHelpers;
+
+/// <summary>
+/// Verifies the minimal SVG helper's rendering, cache isolation and missing-icon behavior.
+/// </summary>
+[TestFixture]
+public class IconTagHelperTests
+{
+    [Test]
+    public async Task Force_Inline_Icon_Does_Not_Request_A_Kit_Reference()
+    {
+        var icon = new IconInfo { Name = "database", LibraryName = "hugeicons", VariantName = "stroke-rounded" };
+        var service = new Mock<IIconService>();
+        service.Setup(x => x.GetIconAsync("hi:database!/sr", null, It.IsAny<CancellationToken>())).ReturnsAsync(icon);
+        service.Setup(x => x.GetSvgAsync(icon, It.IsAny<CancellationToken>())).ReturnsAsync(new IconSvg
+        {
+            ViewBox = "0 0 24 24",
+            Content = "<path d=\"M0 0L1 1\" />"
+        });
+        var kits = new Mock<IIconKitService>(MockBehavior.Strict);
+        var helper = new TestIconTagHelper(service.Object, new IconRenderer(service.Object, kits.Object))
+        {
+            Name = "hi:database!/sr",
+            ForceInline = true,
+            ViewContext = new ViewContext { HttpContext = new DefaultHttpContext() }
+        };
+        var attributes = new TagHelperAttributeList { { "force-inline", true } };
+        var context = new TagHelperContext(attributes, new Dictionary<object, object>(), "test");
+        var output = new TagHelperOutput("icon", attributes, (_, _) => Task.FromResult<TagHelperContent>(new DefaultTagHelperContent()));
+
+        await helper.ProcessAsync(context, output);
+
+        Assert.That(output.Content.GetContent(), Does.Contain("<path").And.Not.Contain("<use"));
+        Assert.That(output.Attributes.ContainsName("force-inline"), Is.False);
+        kits.VerifyNoOtherCalls();
+    }
+
+    /// <summary>
+    /// Skips resolution when the cheatsheet selects another library through sm-if.
+    /// </summary>
+    [Test]
+    public async Task Suppressed_Icon_Does_Not_Resolve_Svg()
+    {
+        var service = new Mock<IIconService>(MockBehavior.Strict);
+        var helper = new TestIconTagHelper(service.Object, new IconRenderer(service.Object, Mock.Of<IIconKitService>())) { Name = "cart" };
+        var context = new TagHelperContext(new TagHelperAttributeList(), new Dictionary<object, object>(), "test");
+        var output = new TagHelperOutput("icon", new TagHelperAttributeList(), (_, _) => Task.FromResult<TagHelperContent>(new DefaultTagHelperContent()));
+        var condition = new IfTagHelper { Condition = false };
+        condition.Init(context);
+        await condition.ProcessAsync(context, output);
+        await helper.ProcessAsync(context, output);
+        service.VerifyNoOtherCalls();
+        Assert.That(output.TagName, Is.Null);
+    }
+
+    /// <summary>
+    /// Preserves caller presentation, encodes attributes and leaves cached payloads unchanged.
+    /// </summary>
+    /// <param name="librarySelector">The canonical library short name or system name fallback.</param>
+    /// <param name="variantSelector">The canonical variant short name or name fallback.</param>
+    [TestCase("hi", "sr")]
+    [TestCase("hi", "rounded")]
+    [TestCase("hugeicons", "sr")]
+    [TestCase("hugeicons", "rounded")]
+    public async Task Renders_Svg_Without_Mutating_Payload(string librarySelector, string variantSelector)
+    {
+        var svg = new IconSvg
+        {
+            Address = librarySelector + ":cart-01/" + variantSelector,
+            ViewBox = "0 0 24 24",
+            Content = "<path d=\"M0 0L1 1\" />",
+            RootAttributes = new Dictionary<string, string>
+            {
+                ["fill"] = "none",
+                ["style"] = "stroke-width:var(--icon-stroke-width,1.5);",
+                ["class"] = "source-icon"
+            }
+        };
+        var service = new Mock<IIconService>();
+        using var cancellation = new CancellationTokenSource();
+        var icon = new IconInfo
+        {
+            Name = "cart-01",
+            LibraryName = "hugeicons",
+            LibraryShortName = librarySelector == "hi" ? "hi" : null,
+            VariantName = "rounded",
+            VariantShortName = variantSelector == "sr" ? "sr" : null
+        };
+        service.Setup(x => x.GetIconAsync(new IconAddress("cart", "hi", "rounded"), null, CancellationToken.None)).ReturnsAsync(icon);
+        service.Setup(x => x.GetSvgAsync(icon, CancellationToken.None)).ReturnsAsync(svg);
+        var helper = new TestIconTagHelper(service.Object, new IconRenderer(service.Object, Mock.Of<IIconKitService>()))
+        {
+            Name = "cart",
+            Library = "hi",
+            Variant = "rounded",
+            ViewContext = new ViewContext { HttpContext = new DefaultHttpContext { RequestAborted = cancellation.Token } }
+        };
+        var attributes = new TagHelperAttributeList
+        {
+            { "name", "cart" }, { "lib", "hi" }, { "variant", "rounded" },
+            { "class", "icon-2x" }, { "style", "--icon-stroke-width:2" },
+            { "aria-label", "Cart \"<&" }
+        };
+        var context = new TagHelperContext(attributes, new Dictionary<object, object>(), "test");
+        var output = new TagHelperOutput("icon", attributes, (_, _) => Task.FromResult<TagHelperContent>(new DefaultTagHelperContent()));
+
+        await helper.ProcessAsync(context, output);
+
+        Assert.That(output.TagName, Is.EqualTo("svg"));
+        Assert.That(output.TagMode, Is.EqualTo(TagMode.StartTagAndEndTag));
+        Assert.That(output.Attributes.ContainsName("name"), Is.False);
+        Assert.That(output.Attributes.ContainsName("lib"), Is.False);
+        Assert.That(output.Attributes.ContainsName("variant"), Is.False);
+        Assert.That(output.Attributes["class"].Value.ToString(), Does.Contain("icon-2x").And.Contain("source-icon").And.Contain("icon"));
+        Assert.That(output.Attributes["class"].Value.ToString().Split(' '), Does.Contain("icon-" + librarySelector));
+        Assert.That(output.Attributes["class"].Value.ToString().Split(' '), Does.Contain("icon-" + librarySelector + "-" + variantSelector));
+        Assert.That(output.Attributes["style"].Value.ToString(), Is.EqualTo("stroke-width:var(--icon-stroke-width,1.5); --icon-stroke-width:2"));
+        Assert.That(output.Attributes.ContainsName("aria-hidden"), Is.False);
+        Assert.That(output.Attributes["role"].Value, Is.EqualTo("img"));
+        Assert.That(svg.RootAttributes["class"], Is.EqualTo("source-icon"));
+        Assert.That(svg.RootAttributes["style"], Is.EqualTo("stroke-width:var(--icon-stroke-width,1.5);"));
+        using var writer = new StringWriter();
+        output.WriteTo(writer, HtmlEncoder.Default);
+        Assert.That(writer.ToString(), Does.Contain("&quot;&lt;&amp;").And.Contain("<path"));
+        service.VerifyAll();
+    }
+
+    /// <summary>
+    /// Uses configured defaults when Razor binds null selectors as empty strings.
+    /// </summary>
+    [Test]
+    public async Task Empty_Selectors_Use_Defaults()
+    {
+        var icon = new IconInfo { Name = "user-02", LibraryName = "hugeicons", VariantName = "stroke-rounded" };
+        var service = new Mock<IIconService>(MockBehavior.Strict);
+        service.Setup(x => x.GetIconAsync("user", null, It.IsAny<CancellationToken>())).ReturnsAsync(icon);
+        service.Setup(x => x.GetSvgAsync(icon, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new IconSvg { ViewBox = "0 0 24 24", Content = "<path/>" });
+        var helper = new TestIconTagHelper(service.Object, new IconRenderer(service.Object, Mock.Of<IIconKitService>()))
+        {
+            Name = "user",
+            Library = string.Empty,
+            Variant = string.Empty,
+            ViewContext = new ViewContext { HttpContext = new DefaultHttpContext() }
+        };
+        var attributes = new TagHelperAttributeList { { "lib", string.Empty }, { "variant", string.Empty } };
+        var context = new TagHelperContext(attributes, new Dictionary<object, object>(), "test");
+        var output = new TagHelperOutput("icon", attributes, (_, _) => Task.FromResult<TagHelperContent>(new DefaultTagHelperContent()));
+
+        await helper.ProcessAsync(context, output);
+
+        Assert.That(output.TagName, Is.EqualTo("svg"));
+        Assert.That(output.Content.GetContent(), Does.Contain("<path/>"));
+        Assert.That(output.Attributes.ContainsName("lib"), Is.False);
+        Assert.That(output.Attributes.ContainsName("variant"), Is.False);
+        service.VerifyAll();
+    }
+
+    /// <summary>
+    /// Transfers explicit false and zero overrides and consumes all bound presentation attributes.
+    /// </summary>
+    [Test]
+    public async Task Transfers_Presentation_Options_Exactly_Once()
+    {
+        var icon = new IconInfo { Name = "cart-01" };
+        var service = new Mock<IIconService>();
+        service.Setup(x => x.GetIconAsync(new IconAddress("cart", "hi", null), null, It.IsAny<CancellationToken>())).ReturnsAsync(icon);
+        IconOptions captured = null;
+        IconPresentation capturedPresentation = default;
+        var renderer = new Mock<IIconRenderer>();
+        renderer.Setup(x => x.RenderAsync(It.IsAny<IconExpression>(), It.IsAny<IconOptions>(), It.IsAny<CancellationToken>()))
+            .Callback<IconExpression, IconOptions, CancellationToken>((expression, options, _) => { captured = options; capturedPresentation = expression.Presentation; })
+            .ReturnsAsync(new TagBuilder("svg"));
+        var helper = new TestIconTagHelper(service.Object, renderer.Object)
+        {
+            Name = "cart?flip=x", Library = "hi", Rotate = 0, FlipHorizontal = false, MirrorRtl = false,
+            StrokeScale = 1, Size = "3x", Animation = "throb", CssClass = "custom", Style = "color:red",
+            ViewContext = new ViewContext { HttpContext = new DefaultHttpContext() }
+        };
+        var attributes = new TagHelperAttributeList
+        {
+            { "name", helper.Name }, { "lib", "hi" }, { "rotate", 0 }, { "flip-h", false }, { "mirror-rtl", false },
+            { "stroke-scale", 1 }, { "size", "3x" }, { "animation", "throb" },
+            { "class", "custom" }, { "style", "color:red" }, { "data-test", "kept" }
+        };
+        var context = new TagHelperContext(attributes, new Dictionary<object, object>(), "test");
+        var output = new TagHelperOutput("icon", attributes, (_, _) => Task.FromResult<TagHelperContent>(new DefaultTagHelperContent()));
+        await helper.ProcessAsync(context, output);
+        Assert.That(capturedPresentation.Rotate, Is.EqualTo(0));
+        Assert.That(capturedPresentation.FlipHorizontal, Is.False);
+        Assert.That(capturedPresentation.MirrorRtl, Is.False);
+        Assert.That(captured.Attributes.ContainsKey("mirror-rtl"), Is.False);
+        Assert.That(capturedPresentation.StrokeScale, Is.EqualTo(1));
+        Assert.That(capturedPresentation.Animation, Is.EqualTo("throb"));
+        Assert.That(captured.Attributes, Has.Count.EqualTo(3));
+        Assert.That(captured.Attributes["class"], Is.EqualTo("custom"));
+        Assert.That(captured.Attributes["style"], Is.EqualTo("color:red"));
+        Assert.That(captured.Attributes["data-test"], Is.EqualTo("kept"));
+    }
+
+    /// <summary>
+    /// Uses an HTML host and retains independent SVG viewBoxes and layer order.
+    /// </summary>
+    [Test]
+    public async Task Stack_Renders_Independent_Icon_Layers()
+    {
+        var helper = new IconStackTagHelper(new IconRenderer(Mock.Of<IIconService>(), Mock.Of<IIconKitService>()))
+        {
+            Size = "2x", Rotate = 90, FlipHorizontal = true, Animation = "spin",
+            ViewContext = new ViewContext { HttpContext = new DefaultHttpContext() }
+        };
+        var children = new DefaultTagHelperContent().SetHtmlContent("<svg viewBox=\"0 0 16 16\"></svg><svg viewBox=\"0 0 24 24\"></svg>");
+        var attributes = new TagHelperAttributeList { { "aria-label", "Confirmed" } };
+        var context = new TagHelperContext(attributes, new Dictionary<object, object>(), "test");
+        var output = new TagHelperOutput("icon-stack", attributes, (_, _) => Task.FromResult(children));
+        await helper.ProcessAsync(context, output);
+        Assert.That(output.TagName, Is.EqualTo("span"));
+        // Quarter turns and mirroring are utility classes; only arbitrary angles need an inline style.
+        Assert.That(output.Attributes["class"].Value.ToString(), Does.Contain("icon-stack").And.Contain("icon-2x").And.Contain("icon-spin")
+            .And.Contain("icon-rotate-90").And.Contain("icon-flip-h"));
+        Assert.That(output.Attributes.ContainsName("style"), Is.False);
+        Assert.That(output.Attributes["role"].Value, Is.EqualTo("img"));
+        Assert.That(output.Content.GetContent(), Is.EqualTo(children.GetContent()));
+    }
+
+    /// <summary>
+    /// Renders missing icons with the system placeholder and makes unlabeled icons decorative.
+    /// </summary>
+    /// <param name="found">Whether the service resolves an icon.</param>
+    [TestCase(false)]
+    [TestCase(true)]
+    public async Task Handles_Missing_And_Decorative_Icons(bool found)
+    {
+        var service = new Mock<IIconService>();
+        var icon = new IconInfo { Name = "cart-01", LibraryName = "hugeicons", VariantName = "rounded" };
+        service.Setup(x => x.GetIconAsync("cart", null, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(found ? icon : null);
+        service.Setup(x => x.GetSvgAsync(icon, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new IconSvg { Address = "hi:cart-01/rounded", ViewBox = "0 0 24 24", Content = "<path/>" });
+        service.Setup(x => x.GetIconAsync("system:not-found!/outline", null, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(icon);
+        var helper = new TestIconTagHelper(service.Object, new IconRenderer(service.Object, Mock.Of<IIconKitService>()))
+        {
+            Name = "cart",
+            ViewContext = new ViewContext { HttpContext = new DefaultHttpContext() }
+        };
+        var context = new TagHelperContext(new TagHelperAttributeList(), new Dictionary<object, object>(), "test");
+        var output = new TagHelperOutput("icon", new TagHelperAttributeList(), (_, _) => Task.FromResult<TagHelperContent>(new DefaultTagHelperContent()));
+        await helper.ProcessAsync(context, output);
+        if (found)
+        {
+            Assert.That(output.Attributes["aria-hidden"].Value, Is.EqualTo("true"));
+            Assert.That(output.Attributes["focusable"].Value, Is.EqualTo("false"));
+        }
+        else
+        {
+            Assert.That(output.TagName, Is.EqualTo("svg"));
+            Assert.That(output.Attributes["class"].Value.ToString(), Does.Contain("icon-not-found").And.Not.Contain("text-danger"));
+            Assert.That(output.Content.GetContent(), Does.Contain("<path"));
+        }
+    }
+    [Test]
+    public async Task Typed_Expression_Retains_Address_And_Allows_Explicit_Presentation_Overrides()
+    {
+        var expression = IconExpression.Parse("hi:cart!/sr?size=lg&color=#123456&rotate=90&flip=x&stroke-scale=1.5");
+        var icon = new IconInfo { Name = "cart" };
+        var service = new Mock<IIconService>(MockBehavior.Strict);
+        var renderer = new Mock<IIconRenderer>(MockBehavior.Strict);
+        IconPresentation received = default;
+        renderer.Setup(x => x.RenderAsync(It.IsAny<IconExpression>(), It.IsAny<IconOptions>(), It.IsAny<CancellationToken>()))
+            .Callback<IconExpression, IconOptions, CancellationToken>((rendered, options, _) =>
+            {
+                Assert.That(rendered.Address, Is.EqualTo(expression.Address));
+                received = rendered.Presentation;
+                Assert.That(options.Attributes.ContainsKey("expression"), Is.False);
+            })
+            .ReturnsAsync(new TagBuilder("svg"));
+        var helper = new TestIconTagHelper(service.Object, renderer.Object)
+        {
+            Expression = expression,
+            Rotate = 0,
+            FlipHorizontal = false,
+            StrokeScale = 1,
+            ViewContext = new ViewContext { HttpContext = new DefaultHttpContext() }
+        };
+        var attributes = new TagHelperAttributeList { { "expression", expression } };
+        var context = new TagHelperContext(attributes, new Dictionary<object, object>(), "test");
+        var output = new TagHelperOutput("icon", attributes, (_, _) => Task.FromResult<TagHelperContent>(new DefaultTagHelperContent()));
+        await helper.ProcessAsync(context, output);
+        Assert.That(received.Rotate, Is.Zero);
+        Assert.That(received.FlipHorizontal, Is.False);
+        Assert.That(received.StrokeScale, Is.EqualTo(1));
+        Assert.That(received.Color, Is.EqualTo("#123456"));
+        Assert.That(received.Size, Is.EqualTo("lg"));
+        Assert.That(helper.Expression, Is.EqualTo(expression));
+        service.VerifyAll();
+        renderer.VerifyAll();
+    }
+
+    [TestCase("cart", null, null)]
+    [TestCase(null, "hi", null)]
+    [TestCase(null, null, "sr")]
+    [TestCase(null, null, null)]
+    public void Typed_Expression_Rejects_Identity_Conflicts_And_Empty_Addresses(string name, string library, string variant)
+    {
+        var helper = new TestIconTagHelper(Mock.Of<IIconService>(), Mock.Of<IIconRenderer>())
+        {
+            Expression = name == null && library == null && variant == null ? default(IconExpression) : IconExpression.Parse("cart"),
+            Name = name,
+            Library = library,
+            Variant = variant,
+            ViewContext = new ViewContext { HttpContext = new DefaultHttpContext() }
+        };
+        var context = new TagHelperContext(new TagHelperAttributeList(), new Dictionary<object, object>(), "test");
+        var output = new TagHelperOutput("icon", new TagHelperAttributeList(), (_, _) => Task.FromResult<TagHelperContent>(new DefaultTagHelperContent()));
+        Assert.ThrowsAsync<System.ArgumentException>(() => helper.ProcessAsync(context, output));
+    }
+
+    private sealed class TestIconTagHelper(IIconService icons, IIconRenderer renderer) : IconTagHelper
+    {
+        protected override async Task ProcessCoreAsync(TagHelperContext context, TagHelperOutput output)
+        {
+            var html = new Mock<IHtmlHelper>();
+            html.SetupGet(x => x.ViewContext).Returns(() => ViewContext);
+            var builder = new ContainerBuilder();
+            builder.RegisterInstance(icons);
+            builder.RegisterInstance(renderer);
+            builder.RegisterInstance(html.Object);
+                using var container = builder.Build();
+            ViewContext.HttpContext.RequestServices = new AutofacServiceProvider(container);
+            await base.ProcessCoreAsync(context, output);
+        }
+    }
+
+}

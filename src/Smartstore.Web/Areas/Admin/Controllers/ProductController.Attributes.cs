@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc.Rendering;
 using Smartstore.Admin.Models.Catalog;
+using Smartstore.Admin.Models.Common;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Products;
@@ -210,49 +211,37 @@ public partial class ProductController : AdminController
             .ToListAsync())
             .ToDictionarySafe(x => x.AttributeId, x => x.Count);
 
-        var rows = attributes.Select(x =>
-        {
-            var model = new ProductModel.ProductVariantAttributeModel
+        var rows = attributes
+            .Select(x =>
             {
-                Id = x.Id,
-                ProductId = x.ProductId,
-                ProductAttribute = x.ProductAttribute.GetLocalized(y => y.Name, language, true, false),
-                ProductAttributeId = x.ProductAttributeId,
-                TextPrompt = x.TextPrompt,
-                CustomData = x.CustomData,
-                IsRequired = x.IsRequired,
-                AttributeControlType = Services.Localization.GetLocalizedEnum(x.AttributeControlType, language.Id),
-                AttributeControlTypeId = x.AttributeControlTypeId,
-                DisplayOrder = x.DisplayOrder,
-                NumberOfRules = rulesCount.Get(x.Id),
-                EditUrl = Url.Action(nameof(EditAttributeValues), new { productVariantAttributeId = x.Id })
-            };
+                var model = CreateProductVariantAttributeModel(x, true);
+                model.NumberOfRules = rulesCount.Get(x.Id);
 
-            if (x.IsListTypeAttribute())
-            {
-                model.NumberOfOptions = x.ProductVariantAttributeValues?.Count ?? 0;
-                model.EditLinkText = canEditRules
-                    ? strRes["EditOptionsAndRules"].FormatInvariant(model.NumberOfOptions.ToString("N0"), model.NumberOfRules.ToString("N0"))
-                    : strRes["EditOptions"].FormatInvariant(model.NumberOfOptions.ToString("N0"));
-
-                if (x.ProductAttribute.ProductAttributeOptionsSets.Count > 0)
+                if (x.IsListTypeAttribute())
                 {
-                    model.OptionSets.Add(new { Id = string.Empty, Name = strRes["CopyOptions"] });
+                    model.NumberOfOptions = x.ProductVariantAttributeValues?.Count ?? 0;
+                    model.EditLinkText = canEditRules
+                        ? strRes["EditOptionsAndRules"].FormatInvariant(model.NumberOfOptions.ToString("N0"), model.NumberOfRules.ToString("N0"))
+                        : strRes["EditOptions"].FormatInvariant(model.NumberOfOptions.ToString("N0"));
 
-                    x.ProductAttribute.ProductAttributeOptionsSets.Each(set =>
+                    if (x.ProductAttribute.ProductAttributeOptionsSets.Count > 0)
                     {
-                        model.OptionSets.Add(new { set.Id, set.Name });
-                    });
-                }
-            }
-            else if (canEditRules)
-            {
-                model.EditLinkText = strRes["EditRules"].FormatInvariant(model.NumberOfRules.ToString("N0"));
-            }
+                        model.OptionSets.Add(new { Id = string.Empty, Name = strRes["CopyOptions"] });
 
-            return model;
-        })
-        .ToList();
+                        x.ProductAttribute.ProductAttributeOptionsSets.Each(set =>
+                        {
+                            model.OptionSets.Add(new { set.Id, set.Name });
+                        });
+                    }
+                }
+                else if (canEditRules)
+                {
+                    model.EditLinkText = strRes["EditRules"].FormatInvariant(model.NumberOfRules.ToString("N0"));
+                }
+
+                return model;
+            })
+            .ToList();
 
         return Json(new GridModel<ProductModel.ProductVariantAttributeModel>
         {
@@ -472,6 +461,167 @@ public partial class ProductController : AdminController
             numTracksDeleted.ToString("N0")));
     }
 
+    [Permission(Permissions.Catalog.Product.Read)]
+    public async Task<IActionResult> ProductAttributeSwatchEditPopup(string btnId, string formId, int id)
+    {
+        var pva = await _db.ProductVariantAttributes
+            .Include(x => x.ProductAttribute)
+            .FindByIdAsync(id, false);
+        if (pva == null)
+        {
+            return NotFound();
+        }
+
+        var model = CreateProductVariantAttributeModel(pva, false);
+
+        PrepareSwatchPopupViewBag(btnId, formId, pva);
+
+        return View(model);
+    }
+
+    [HttpPost]
+    [Permission(Permissions.Catalog.Product.EditVariant)]
+    public async Task<IActionResult> ProductAttributeSwatchEditPopup(string btnId, string formId, ProductModel.ProductVariantAttributeModel model)
+    {
+        var pva = await _db.ProductVariantAttributes
+            .Include(x => x.ProductAttribute)
+            .FindByIdAsync(model.Id);
+        if (pva == null)
+        {
+            return NotFound();
+        }
+
+        if (ModelState.IsValid)
+        {
+            pva.SwatchSize = model.SwatchSize != null && Enum.IsDefined(typeof(SwatchSize), model.SwatchSize)
+                ? (SwatchSize)model.SwatchSize
+                : null;
+            pva.SwatchAspectRatio = model.SwatchAspectRatio;
+            pva.SwatchShape = model.SwatchShape;
+            pva.ShowValueNameInSwatch = model.ShowValueNameInSwatch;
+            pva.SwatchPriceDisplay = model.SwatchPriceDisplay;
+
+            try
+            {
+                await _db.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError(string.Empty, ex.Message);
+                return View(model);
+            }
+
+            ViewBag.RefreshPage = true;
+            ViewBag.formId = formId;
+            ViewBag.btnId = btnId;
+        }
+        else
+        {
+            PrepareSwatchPopupViewBag(btnId, formId, pva);
+        }
+
+        return View(model);
+    }
+
+    private ProductModel.ProductVariantAttributeModel CreateProductVariantAttributeModel(ProductVariantAttribute pva, bool forList)
+    {
+        var localization = Services.Localization;
+        var language = _workContext.WorkingLanguage;
+
+        var model = new ProductModel.ProductVariantAttributeModel
+        {
+            Id = pva.Id,
+            ProductId = pva.ProductId,
+            ProductAttribute = pva.ProductAttribute.GetLocalized(y => y.Name, language, true, false),
+            ProductAttributeId = pva.ProductAttributeId,
+            TextPrompt = pva.TextPrompt,
+            CustomData = pva.CustomData,
+            IsRequired = pva.IsRequired,
+            AttributeControlTypeStr = localization.GetLocalizedEnum(pva.AttributeControlType, language.Id),
+            AttributeControlTypeId = pva.AttributeControlTypeId,
+            DisplayOrder = pva.DisplayOrder,
+            SwatchSize = pva.SwatchSize != null ? (int?)pva.SwatchSize : null,
+            SwatchAspectRatio = pva.SwatchAspectRatio,
+            SwatchShape = pva.SwatchShape,
+            ShowValueNameInSwatch = pva.ShowValueNameInSwatch,
+            SwatchPriceDisplay = pva.SwatchPriceDisplay,
+            HasSwatchOverrides = pva.HasSwatchOverrides,
+            EditUrl = Url.Action(nameof(EditAttributeValues), new { productVariantAttributeId = pva.Id })
+        };
+
+        if (forList && model.HasSwatchOverrides)
+        {
+            const string resKey = "Admin.Catalog.Attributes.ProductAttributes.Fields.";
+            var overrides = new List<string>(5);
+
+            if (pva.SwatchSize is { } size)
+            {
+                overrides.Add(localization.GetLocalizedEnum(size, language.Id));
+            }
+
+            if (pva.SwatchAspectRatio is { } ratio)
+            {
+                ratio = Math.Round(ratio, 2, MidpointRounding.AwayFromZero);
+                var ratioText = ratio switch
+                {
+                    0.5m => "2:1",
+                    0.56m => "16:9",
+                    0.67m => "3:2",
+                    0.75m => "4:3",
+                    1m => "1:1",
+                    1.33m => "3:4",
+                    1.5m => "2:3",
+                    1.78m => "9:16",
+                    2m => "1:2",
+                    3m => "1:3",
+                    < 1m => (1m / ratio).ToStringInvariant("0.##") + ":1",
+                    _ => "1:" + ratio.ToStringInvariant("0.##")
+                };                
+
+                overrides.Add(ratioText);
+            }
+
+            if (pva.SwatchShape is { } shape)
+            {
+                overrides.Add(localization.GetLocalizedEnum(shape, language.Id));
+            }
+
+            if (pva.ShowValueNameInSwatch is { } showName)
+            {
+                overrides.Add($"{T(resKey + nameof(pva.ShowValueNameInSwatch))}: {T(showName ? "Common.Yes" : "Common.No")}");
+            }
+
+            if (pva.SwatchPriceDisplay is { } priceDisplay)
+            {
+                overrides.Add($"{T(resKey + nameof(pva.SwatchPriceDisplay))}: {localization.GetLocalizedEnum(priceDisplay, language.Id)}");
+            }
+
+            model.SwatchOverridesInfo = T("Admin.Common.Overwritten", string.Join(", ", overrides));
+        }
+
+        return model;
+    }
+
+    private void PrepareSwatchPopupViewBag(string btnId, string formId, ProductVariantAttribute pva)
+    {
+        var localization = Services.Localization;
+        var attribute = pva.ProductAttribute;
+
+        ViewData[nameof(ProductAttributeModel.SwatchSize) + "DefaultValue"] = (int)(attribute.SwatchSize ?? _catalogSettings.DefaultSwatchSize);
+        ViewData[nameof(ProductAttributeModel.SwatchSize) + "RangeTicks"] = Enum.GetValues<SwatchSize>()
+            .Select(x => localization.GetLocalizedEnum(x))
+            .ToList();
+
+        ViewData[nameof(ProductAttributeModel.SwatchAspectRatio) + "DefaultValue"] = attribute.SwatchAspectRatio;
+
+        ViewData[nameof(ProductAttributeModel.SwatchShape) + "DefaultValue"] = attribute.SwatchShape ?? _catalogSettings.DefaultSwatchShape;
+
+        ViewBag.DefaultPriceDisplayMode = localization.GetLocalizedEnum(pva.SwatchPriceDisplay ?? attribute.SwatchPriceDisplay);
+
+        ViewBag.formId = formId;
+        ViewBag.btnId = btnId;
+    }
+
     #endregion
 
     #region Product variant attribute values
@@ -504,8 +654,7 @@ public partial class ProductController : AdminController
                 Name = x.Name,
                 NameString = (x.Color.IsEmpty() ? x.Name : $"{x.Name} - {x.Color}").HtmlEncode(),
                 Alias = x.Alias,
-                Color = x.Color,
-                HasColor = !x.Color.IsEmpty(),
+                Colors = ColorPaletteModel.Create(x.Color, x.AdditionalColors),
                 PictureId = x.MediaFileId,
                 PriceAdjustment = x.PriceAdjustment,
                 WeightAdjustment = x.WeightAdjustment,
@@ -515,7 +664,7 @@ public partial class ProductController : AdminController
                 DisplayOrder = x.DisplayOrder,
                 ValueTypeId = x.ValueTypeId,
                 TypeName = Services.Localization.GetLocalizedEnum(x.ValueType),
-                TypeNameClass = x.ValueType == ProductVariantAttributeValueType.ProductLinkage ? "fa fa-link mr-2" : "d-none hide hidden-xs-up",
+                TypeNameIcon = x.ValueType == ProductVariantAttributeValueType.ProductLinkage ? "link" : null,
                 LinkedProductId = x.LinkedProductId,
                 Quantity = x.Quantity
             };
@@ -644,7 +793,6 @@ public partial class ProductController : AdminController
             ProductId = pva.ProductId,
             ProductVariantAttributeId = productVariantAttributeId,
             IsListTypeAttribute = pva.IsListTypeAttribute(),
-            Color = string.Empty,
             Quantity = 1,
             DisplayOrder = ++maxDisplayOrder
         };
@@ -680,6 +828,8 @@ public partial class ProductController : AdminController
             var pvav = await MapperFactory.MapAsync<ProductModel.ProductVariantAttributeValueModel, ProductVariantAttributeValue>(model);
             pvav.MediaFileId = model.PictureId;
             pvav.LinkedProductId = pvav.ValueType == ProductVariantAttributeValueType.Simple ? 0 : model.LinkedProductId;
+            pvav.Color = model.Colors?.Color.NullEmpty();
+            pvav.AdditionalColors = model.Colors?.GetAdditionalColors();
 
             try
             {
@@ -725,7 +875,7 @@ public partial class ProductController : AdminController
             ProductVariantAttributeId = pvav.ProductVariantAttributeId,
             Name = pvav.Name,
             Alias = pvav.Alias,
-            Color = pvav.Color,
+            Colors = ColorPaletteModel.Create(pvav.Color, pvav.AdditionalColors),
             PictureId = pvav.MediaFileId,
             IsListTypeAttribute = pvav.ProductVariantAttribute.IsListTypeAttribute(),
             PriceAdjustment = pvav.PriceAdjustment,
@@ -734,7 +884,7 @@ public partial class ProductController : AdminController
             DisplayOrder = pvav.DisplayOrder,
             ValueTypeId = pvav.ValueTypeId,
             TypeName = Services.Localization.GetLocalizedEnum(pvav.ValueType),
-            TypeNameClass = pvav.ValueType == ProductVariantAttributeValueType.ProductLinkage ? "fa fa-link mr-2" : "d-none hide hidden-xs-up",
+            TypeNameIcon = pvav.ValueType == ProductVariantAttributeValueType.ProductLinkage ? "link" : null,
             LinkedProductId = pvav.LinkedProductId,
             Quantity = pvav.Quantity
         };
@@ -790,6 +940,8 @@ public partial class ProductController : AdminController
             await MapperFactory.MapAsync(model, pvav);
             pvav.MediaFileId = model.PictureId;
             pvav.LinkedProductId = pvav.ValueType == ProductVariantAttributeValueType.Simple ? 0 : model.LinkedProductId;
+            pvav.Color = model.Colors?.Color.NullEmpty();
+            pvav.AdditionalColors = model.Colors?.GetAdditionalColors();
 
             try
             {
@@ -962,6 +1114,11 @@ public partial class ProductController : AdminController
         if (foundCombination != null)
         {
             warnings.Add(T("Admin.Catalog.Products.ProductVariantAttributes.AttributeCombinations.CombiExists"));
+        }
+
+        if (!selection.HasAttributes)
+        {
+            warnings.Add(T("Admin.Catalog.Products.ProductVariantAttributes.AttributeCombinations.SelectAttributes"));
         }
 
         if (warnings.Count == 0)

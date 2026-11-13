@@ -69,6 +69,12 @@ public partial interface IPaymentMethod : IProvider, IUserEditable
     bool RequiresPaymentSelection { get; }
 
     /// <summary>
+    /// Gets a value indicating whether the payment method should be displayed in the payment method list during checkout.
+    /// This does not affect whether the payment method is active or available through other entry points.
+    /// </summary>
+    bool DisplayInPaymentMethodList { get; }
+
+    /// <summary>
     /// Gets the widget invoker for payment info. The payment info is displayed on checkout's payment page.
     /// Return <c>null</c> when there is nothing to render.
     /// </summary>

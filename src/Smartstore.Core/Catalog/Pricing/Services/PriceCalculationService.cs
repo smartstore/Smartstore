@@ -1,5 +1,6 @@
 ﻿using System.Linq.Dynamic.Core;
 using Smartstore.Core.Catalog.Attributes;
+using Smartstore.Core.Catalog.Discounts;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Tax;
@@ -401,7 +402,11 @@ public partial class PriceCalculationService : IPriceCalculationService
         }
 
         // Convert attribute price adjustments.
-        context.AttributePriceAdjustments.Each(x => x.Price = ConvertAmount(x.RawPriceAdjustment, context, taxRate, false, out _).Value);
+        context.AttributePriceAdjustments.Each(x =>
+        {
+            var adjustment = GetEffectivePriceAdjustment(x.RawPriceAdjustment, context);
+            x.Price = ConvertPriceAdjustment(adjustment, context, taxRate);
+        });
 
         // Detect retail & regular price.
         DetectComparePrices(context, result, taxRate);
@@ -420,7 +425,8 @@ public partial class PriceCalculationService : IPriceCalculationService
 
         // In product lists, show the base price of the preselected attribute combination (instead of the base price set on product level).
         var ac = context.AppliedAttributeCombination;
-        if (ac != null
+        if (context.AttributeCombination == null
+            && ac != null
             && (ac.BasePriceAmount.HasValue || ac.BasePriceBaseAmount.HasValue)
             && _priceSettings.ShowBasePriceInProductLists)
         {
@@ -434,6 +440,28 @@ public partial class PriceCalculationService : IPriceCalculationService
         }
 
         return result;
+    }
+
+    protected virtual decimal GetEffectivePriceAdjustment(decimal adjustment, CalculatorContext context)
+    {
+        // INFO: Discounts calculated exclusively for a tier price do not reduce attribute price adjustments.
+        // A single fixed-amount discount does not change the price difference between the variants.
+        var percentageDiscounts = context.AppliedDiscounts
+            .Where(x => x.UsePercentage && !context.CalculatedDiscounts.Any(y => y.Discount == x));
+
+        foreach (var discount in percentageDiscounts)
+        {
+            adjustment -= discount.GetDiscountAmount(adjustment);
+        }
+
+        return adjustment;
+    }
+
+    protected virtual Money ConvertPriceAdjustment(decimal amount, CalculatorContext context, TaxRate taxRate)
+    {
+        var converted = ConvertAmount(Math.Abs(amount), context, taxRate, false, out _).Value;
+
+        return amount < 0m ? converted.WithAmount(-converted.Amount) : converted;
     }
 
     protected virtual Money? ConvertAmount(decimal? amount, CalculatorContext context, TaxRate taxRate, bool isFinalPrice, out Tax? tax, int subtotalQuantity = 1)
@@ -500,41 +528,6 @@ public partial class PriceCalculationService : IPriceCalculationService
              ? _taxCalculator.CalculateTaxFromGross(amount, taxRate, options.TaxInclusive, roundingCurrency)
              : _taxCalculator.CalculateTaxFromNet(amount, taxRate, options.TaxInclusive, roundingCurrency);
     }
-
-    //private Tax CalculateTax_Old(PriceCalculationOptions options, decimal amount, TaxRate taxRate, int subtotalQuantity = 1)
-    //{
-    //    var roundingCurrency = options.RoundingCurrency;
-
-    //    if (subtotalQuantity <= 1)
-    //    {
-    //        // Round.
-    //        return options.IsGrossPrice
-    //             ? _taxCalculator.CalculateTaxFromGross(amount, taxRate, options.TaxInclusive, roundingCurrency)
-    //             : _taxCalculator.CalculateTaxFromNet(amount, taxRate, options.TaxInclusive, roundingCurrency);
-    //    }
-
-    //    // Do not round.
-    //    var t = options.IsGrossPrice
-    //         ? _taxCalculator.CalculateTaxFromGross(amount, taxRate, options.TaxInclusive)
-    //         : _taxCalculator.CalculateTaxFromNet(amount, taxRate, options.TaxInclusive);
-
-    //    // Round.
-    //    return new(
-    //        t.Rate,
-    //        t.Amount * subtotalQuantity,
-    //        GetSubtotal(t.Price),
-    //        GetSubtotal(t.PriceNet),
-    //        GetSubtotal(t.PriceGross),
-    //        t.IsGrossPrice,
-    //        t.Inclusive);
-
-    //    decimal GetSubtotal(decimal value)
-    //    {
-    //        return roundingCurrency.RoundUnitPrices ?? _currencySettings.RoundUnitPrices
-    //            ? _roundingHelper.RoundIfEnabledFor(value, roundingCurrency) * subtotalQuantity
-    //            : _roundingHelper.RoundIfEnabledFor(value * subtotalQuantity, roundingCurrency);
-    //    }
-    //}
 
     #endregion
 }

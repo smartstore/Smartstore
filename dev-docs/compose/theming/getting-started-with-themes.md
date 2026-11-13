@@ -7,8 +7,8 @@ A Smartstore theme is a collection of Sass files, Razor views, images and script
 A lot of effort has gone into the development of the Theming Engine to make creating themes easy, flexible and convenient. In addition, we have managed to make creating themes in Smartstore very easy by using techniques such as:
 
 * Multi-level theme inheritance
-* An integrated Sass compiler, that automatically translates all changes made to Sass files into CSS at runtime in an intelligent and highly performant way.
-* CSS _Autoprefixer_
+* Native embedded Dart Sass, which automatically compiles Sass files into CSS at runtime.
+* Browser-targeted CSS transpilation
 * Modern CSS and icon libraries
 * And many more
 
@@ -24,7 +24,7 @@ Sass files are automatically compiled at runtime using the **built-in Sass parse
 
 To keep static files as small as possible, Smartstore minifies JavaScript, Sass, and CSS files. Multiple physical files of a web project are combined into one file and then minified to create a bundle.
 
-The _Autoprefixer_ adds vendor-specific prefixes to CSS declarations coming from the Sass parser.
+Lightning CSS adds browser-targeted compatibility transforms to the generated style bundle, including vendor prefixes when needed.
 
 Smartstore is built using the [MVC-Pattern](https://learn.microsoft.com/en-us/aspnet/core/mvc/overview?view=aspnetcore-7.0). This pattern specifies that the HTML output is provided by views. Views are Razor files located in the subdirectories of the web project's _Views_ directory. They can be easily overwritten at the theme level without having to worry about preparing the model or implementing actions.
 
@@ -70,19 +70,17 @@ When using **Hot Reload** during debugging, we recommend using the **DebugNoRazo
 
 [Sass](https://sass-lang.com/) is a CSS preprocessor, which means it extends the CSS language by adding features like variables, mixins, functions, and many other techniques. These allow you to create CSS that is more maintainable, themable and extensible.
 
-Smartstore uses `.scss` files for CSS declarations. They provide a way to use Sass variables and functions. At runtime, Sass is automatically translated into CSS by the built-in Sass parser, which, unlike Sass, can be read by any browser.
+Smartstore uses `.scss` files for CSS declarations. At runtime, the native embedded Dart Sass compiler translates them into CSS that browsers can process.
 
 Smartstore's built-in file watcher keeps track of all changes made to the included Sass files while the application is running. When a change is detected, the cache is automatically cleared and the Sass files are retranslated into CSS. This provides you with a convenient, time-saving way to check for CSS changes on page refresh without having to restart the application.
 
-### Autoprefixer
+### CSS transpilation
 
 [Vendor prefixes](https://developer.mozilla.org/en-US/docs/Glossary/Vendor_Prefix) are a part of CSS that is added to certain properties and values. They enable experimental, non-standard features in different browsers. For example, the `-webkit-` prefix is used for properties and values supported by WebKit browsers (Google, Safari, etc.), and Mozilla Firefox uses the `-moz-` prefix.
 
-Without using a tool like CSS Autoprefixer, you would have to take care of adding the correct prefixes yourself. This can be tedious and error-prone.
+Smartstore uses Lightning CSS to transform style bundles for the browsers specified by `Bundling:CssTranspiler:Targets`. This includes vendor prefixes and syntax fallbacks where needed, so styles can generally be written without browser-specific declarations.
 
-To ensure compatibility with different browsers, Smartstore has a built-in CSS Autoprefixer. It is enabled in production mode, but not in debug mode. This allows you to write CSS code without having to add vendor prefixes yourself, as the tool will add them automatically. It uses the latest available [Can I Use](https://caniuse.com/) data to add the prefix to each corresponding CSS property and value.
-
-By using CSS Autoprefixer, developers can rest assured that all CSS styles will display correctly in all major browsers. They can focus on designing the site without worrying about compatibility.
+CSS transpilation is controlled by `Bundling:EnableCssTranspilation`, independently of minification. In development, `Bundling:CssTranspiler:AlwaysDisableInDevMode` disables it by default when no explicit value is set for `EnableCssTranspilation`.
 
 ### Cache & DiskCache
 
@@ -124,33 +122,15 @@ Font Awesome is fully integrated into Smartstore and can be used in all Razor vi
 For more information, see [Font Awesome](https://fontawesome.com/icons).
 {% endhint %}
 
-#### Icon variants
+#### Legacy font icons
 
-Font Awesome icons have light, regular, and solid variants. The displayed variant is specified by a CSS class (.fa, .fas, .far, or .fal), which sets the corresponding `font-weight` value. The `font-weight` values for the variant classes are defined by `$icon-font-weight-default` and `$icon-font-variants`. Changing these values has no effect when using the free version of Font Awesome.
+Remaining font-based icons use the bundled Font Awesome Free stylesheet. The legacy
+`.fal` and `.far` classes fall back to solid, except for icons available as regular.
+The old Pro theme switch and hosted CSS kit integration have been removed.
 
-<table><thead><tr><th width="182">Variant</th><th width="87.33333333333331">Class</th><th width="342">Sass variable</th><th>font-weight</th></tr></thead><tbody><tr><td>Fallback to Solid</td><td>fa</td><td>$icon-font-weight-default</td><td>900</td></tr><tr><td>Solid</td><td>fa<strong>s</strong></td><td>$icon-font-variants["solid"]</td><td>900</td></tr><tr><td>Regular</td><td>fa<strong>r</strong></td><td>$icon-font-variants["regular"]</td><td>400</td></tr><tr><td>Light</td><td>fa<strong>l</strong></td><td>$icon-font-variants["light"]</td><td>300</td></tr></tbody></table>
-
-#### Font Awesome Free
-
-The free version of Font Awesome contains a subset of icons. All solid and few regular icons are included, but none of the light icons.
-
-To keep the store's look consistent, the `font-weight` of all icons is set to `900`, then all supported regular icons and their light counterparts are set to `400`. This will ensure that all supported icons are displayed, even when using classes (like fal) whose icons are not available in the free version.
-
-#### Font Awesome Pro
-
-The professional version of Font Awesome removes the icon limitations and includes all solid, regular and light icons.
-
-Solid, regular and light icons all follow their font-weight values from `$icon-font-variants`. The `font-weight` of the .`fa` class is set to `$icon-font-weight-default`, unless it is 900.
-
-For licensing reasons, we cannot ship Font Awesome Pro directly. In order to use Font Awesome Pro after you bought a license, you must complete the following steps.
-
-* The `fa-use-pro` theme variable must be set to `true` in the `theme.config` file.
-* The Font Awesome Pro includes must be added to a view that is rendered globally for each page, such as `Head.cshtml`:
-
-```cshtml
-<link sm-target-zone="head_links" rel="preconnect" href="https://pro.fontawesome.com" />
-<link sm-target-zone="stylesheets" rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.10.1/css/all.css" integrity="your key" crossorigin="anonymous" />
-```
+New icons use the SVG icon framework. Install licensed Pro SVG sources as a separate
+library that replaces Font Awesome Free; configure variants in library metadata.
+See the [icon framework documentation](../../../src/Smartstore.Web/App_Data/Icons/README.md#replacing-a-library).
 
 ### Bootstrap Icons
 
@@ -160,12 +140,4 @@ _Bootstrap Icons_ is only available in Smartstore's backend, as the CSS for the 
 
 {% hint style="info" %}
 For more information, see [Bootstrap Icons](https://icons.getbootstrap.com/).
-{% endhint %}
-
-### Fontastic
-
-We’ve used Fontastic to integrate a special selection of icons that are relevant to e-commerce.
-
-{% hint style="info" %}
-A full list of all available icons can be found in [fontastic.css](../../../src/Smartstore.Web/wwwroot/lib/fontastic/fontastic.css).
 {% endhint %}

@@ -43,6 +43,11 @@ public class PublicStripeElementsModel : ModelBase
     public bool IsPaymentSelectionPage { get; set; }
 
     /// <summary>
+    /// JSON array of payment methods selected for Express Checkout buttons.
+    /// </summary>
+    public string PaymentPageButtonMethodsJson { get; set; } = "[]";
+
+    /// <summary>
     /// Defines whether the component is rendered on cart page.
     /// </summary>
     public bool IsCartPage { get; set; }

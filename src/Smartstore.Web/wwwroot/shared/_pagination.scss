@@ -77,6 +77,10 @@
     padding: 0 var(--pag-padding-x);
     border-radius: var(--pag-border-radius);
 
+    &.page-nav {
+        display: inline-flex;
+    }
+
     &:active {
         background-color: $gray-300;
     }

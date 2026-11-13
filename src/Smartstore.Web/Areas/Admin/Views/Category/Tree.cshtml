@@ -2,22 +2,22 @@
 
 @{
     ViewBag.Title = T("Admin.Catalog.Categories.Manage").Value;
+    Assets.BodyAttributes.AppendCssClass("category-tree-page");
 
     var isSingleStoreMode = (bool)ViewBag.IsSingleStoreMode;
     var canEdit = (bool)ViewBag.CanEdit;
 }
 
-@*INFO: please no sticky header here ('nofix'). It blocks the browser from auto scrolling during drag and drop.*@
-<div class="section-header nofix">
+<div class="section-header">
     <div class="title">
-        <i class="fa fa-sitemap"></i>
+        <icon name="nodes" />
         <span>@ViewBag.Title</span>
         <div class="btn-group ml-2">
             <a asp-action="List" class="btn btn-outline-secondary btn-sm tooltip-toggle" title="@T("Admin.Catalog.Categories.SwitchToListView")">
-                <i class="fa fa-bars"></i>
+                <icon name="bars" />
             </a>
             <a class="btn btn-outline-secondary btn-sm tooltip-toggle active" style="cursor:default" href="javascript:;">
-                <i class="fa fa-sitemap"></i>
+                <icon name="nodes" />
             </a>
         </div>
     </div>
@@ -25,7 +25,7 @@
 		<zone name="admin_button_toolbar_before" />
 
         <a asp-action="Create" class="btn btn-primary">
-            <i class="fa fa-plus"></i>
+            <icon name="plus" />
             <span>@T("Admin.Common.AddNew")…</span>
         </a>
 
@@ -67,8 +67,8 @@
                 url: url,
                 dropUrl: '@Url.Action("TreeDrop")',
                 dragAndDrop: @canEdit.ToString().ToLower(),
-                defaultCollapsedIconClass: 'fas fa-fw fa-folder text-success',
-                defaultExpandededIconClass: 'fas fa-fw fa-folder-open text-success',
+                defaultCollapsedIcon: 'folder?color=var(--success)',
+                defaultExpandedIcon: 'folder-open?color=var(--success)',
                 noDataNote: @T("Admin.Catalog.Categories.NoCategories").JsValue
             });
         }

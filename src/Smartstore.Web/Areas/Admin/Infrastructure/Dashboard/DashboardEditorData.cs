@@ -1,0 +1,96 @@
+using System.Text.Json.Nodes;
+using Smartstore.Core.Widgets.Dashboard;
+
+namespace Smartstore.Admin.Infrastructure.Dashboard;
+
+/// <summary>
+/// Defines the start data consumed by the dashboard editor, independently of persisted layouts.
+/// </summary>
+/// <param name="Layout">The placements and grid width required for local editing.</param>
+/// <param name="Layer">The authorized layer being edited.</param>
+/// <param name="Dirty">Whether the server returned an unsaved draft.</param>
+/// <param name="EditUrl">The route for changing the edited layer.</param>
+/// <param name="CancelUrl">The route for leaving the editor.</param>
+/// <param name="PreviewUrl">The route for previewing draft commands.</param>
+/// <param name="Widgets">The available widget types and size choices.</param>
+public sealed record DashboardEditorData(
+    DashboardEditorLayout Layout,
+    string Layer,
+    bool Dirty,
+    string EditUrl,
+    string CancelUrl,
+    string PreviewUrl,
+    IReadOnlyCollection<DashboardEditorWidgetChoice> Widgets);
+
+/// <summary>
+/// Contains only the layout information used by the browser's placement algorithm.
+/// </summary>
+/// <param name="Id">The dashboard's DOM identifier.</param>
+/// <param name="ColumnCount">The number of grid columns.</param>
+/// <param name="Widgets">The placements of the widgets rendered in the editor.</param>
+/// <param name="Rules">The placement constraints for each responsive layout tier.</param>
+public sealed record DashboardEditorLayout(
+    string Id,
+    int ColumnCount,
+    IReadOnlyCollection<DashboardEditorWidget> Widgets,
+    IReadOnlyCollection<DashboardEditorLayoutRule> Rules);
+
+/// <summary>
+/// Describes the grid constraints of one named editor layout tier.
+/// </summary>
+/// <param name="Breakpoint">The responsive layout tier.</param>
+/// <param name="ColumnCount">The number of columns available to movable widgets.</param>
+/// <param name="FullWidthWidgets">Whether widgets fill the content width.</param>
+/// <param name="HasNewsRail">Whether the fixed news widget occupies a side rail.</param>
+public sealed record DashboardEditorLayoutRule(
+    DashboardBreakpoint Breakpoint,
+    int ColumnCount,
+    bool FullWidthWidgets,
+    bool HasNewsRail);
+
+/// <summary>
+/// Describes one editable placement with optional editable settings, without exposing persisted metadata.
+/// </summary>
+/// <param name="Id">The instance identifier.</param>
+/// <param name="WidgetSystemName">The widget type used to update the picker.</param>
+/// <param name="Positions">The responsive placements.</param>
+/// <param name="AllowMove">Whether the editor allows moving the widget.</param>
+public sealed record DashboardEditorWidget(
+    string Id,
+    string WidgetSystemName,
+    IReadOnlyCollection<DashboardWidgetPosition> Positions,
+    bool AllowMove,
+    JsonObject Settings = null);
+
+/// <summary>
+/// Contains the widget catalog information used by duplicate detection.
+/// </summary>
+/// <param name="SystemName">The registered widget type.</param>
+/// <param name="AllowMultipleInstances">Whether more than one instance may be added.</param>
+/// <param name="MinSize">The minimum permitted widget size.</param>
+/// <param name="MaxSize">The maximum permitted widget size.</param>
+/// <param name="AllowedSizes">The optional explicit size restrictions.</param>
+public sealed record DashboardEditorWidgetChoice(
+    string SystemName,
+    bool AllowMultipleInstances,
+    DashboardWidgetSize MinSize,
+    DashboardWidgetSize MaxSize,
+    IReadOnlyCollection<DashboardWidgetSize> AllowedSizes);
+
+/// <summary>
+/// Defines the complete proposed widget membership and placements submitted by the editor.
+/// </summary>
+/// <param name="Widgets">The instances to retain or add; omitted instances are proposed removals.</param>
+public sealed record DashboardLayoutChanges(IReadOnlyCollection<DashboardWidgetPlacement> Widgets);
+
+/// <summary>
+/// Contains the placements and optional settings the editor may submit for persistence or preview.
+/// </summary>
+/// <param name="Id">The stable instance identifier.</param>
+/// <param name="WidgetSystemName">The registered type; existing instances cannot change type.</param>
+/// <param name="Positions">The proposed responsive placements.</param>
+public sealed record DashboardWidgetPlacement(
+    string Id,
+    string WidgetSystemName,
+    IReadOnlyCollection<DashboardWidgetPosition> Positions,
+    JsonObject Settings = null);

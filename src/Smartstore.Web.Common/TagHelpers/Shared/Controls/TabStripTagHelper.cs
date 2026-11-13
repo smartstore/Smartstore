@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 using Smartstore.Core.Localization;
+using Smartstore.IconKit;
 using Smartstore.Events;
 using Smartstore.Web.Modelling;
 using Smartstore.Web.Rendering;
@@ -56,6 +57,7 @@ public class TabStripTagHelper : SmartTagHelper
     const string HideSingleItemAttributeName = "sm-hide-single-item";
     const string ResponsiveAttributeName = "sm-responsive";
     const string PositionAttributeName = "sm-nav-position";
+    const string NavStickyAttributeName = "sm-nav-sticky";
     const string StyleAttributeName = "sm-nav-style";
     const string FadeAttributeName = "sm-fade";
     const string SmartTabSelectionAttributeName = "sm-smart-tab-selection";
@@ -93,6 +95,12 @@ public class TabStripTagHelper : SmartTagHelper
     /// </summary>
     [HtmlAttributeName(PositionAttributeName)]
     public TabsPosition Position { get; set; } = TabsPosition.Top;
+
+    /// <summary>
+    /// Whether to keep the navigation sticky for left or right tab positions. Default = false.
+    /// </summary>
+    [HtmlAttributeName(NavStickyAttributeName)]
+    public bool NavSticky { get; set; }
 
     /// <summary>
     /// Tab nav style
@@ -162,7 +170,7 @@ public class TabStripTagHelper : SmartTagHelper
                 await e.TabFactory.AppendAsync(builder => builder
                     .Text(EngineContext.Current.ResolveService<IText>().Get("Admin.Plugins"))
                     .Name("tab-special-module-widgets")
-                    .Icon("puzzle", "bi")
+                    .Icon("puzzle")
                     .LinkHtmlAttributes(new { data_tab_name = "MODULE_WIDGETS" })
                     .Content(widgetContent)
                     .Ajax(false));
@@ -241,7 +249,7 @@ public class TabStripTagHelper : SmartTagHelper
         }
 
         // nav/items
-        RenderNav(output.Content, isStacked);
+        await RenderNavAsync(output.Content, isStacked);
 
         // tab-content below nav
         if (Position != TabsPosition.Below && hasContent)
@@ -273,7 +281,7 @@ public class TabStripTagHelper : SmartTagHelper
 
     #region TabStrip
 
-    private void RenderNav(TagHelperContent content, bool isStacked)
+    private async Task RenderNavAsync(TagHelperContent content, bool isStacked)
     {
         TagBuilder ul = new("ul");
         var classList = ul.GetClassList();
@@ -302,6 +310,12 @@ public class TabStripTagHelper : SmartTagHelper
         if (isStacked)
         {
             classList.Add("nav-stacked", "flex-row", "flex-lg-column");
+            classList.Add("scroll-fade", "scroll-fade-x", "scroll-fade-lg-none", "scroll-fade-touch", "scroll-fade-observable");
+
+            if (NavSticky)
+            {
+                classList.Add("nav-sticky");
+            }
         }
 
         if (Position != TabsPosition.Top)
@@ -325,7 +339,7 @@ public class TabStripTagHelper : SmartTagHelper
         {
             if (tab.MustRender)
             {
-                content.AppendHtml(BuildTabItem(tab, isStacked, hasIcons));
+                content.AppendHtml(await BuildTabItemAsync(tab, isStacked, hasIcons));
             }
         }
 
@@ -453,7 +467,7 @@ public class TabStripTagHelper : SmartTagHelper
         return paneDiv;
     }
 
-    private TagBuilder BuildTabItem(TabTagHelper tab, bool isStacked, bool hasIcons)
+    private async Task<TagBuilder> BuildTabItemAsync(TabTagHelper tab, bool isStacked, bool hasIcons)
     {
         // <li [class="nav-item [d-none]"]><a href="#{id}" class="nav-link [active]" data-toggle="tab">{text}</a></li>
         TagBuilder li = new("li");
@@ -527,15 +541,10 @@ public class TabStripTagHelper : SmartTagHelper
                 }
             }
 
-            if (tab.BadgeText.HasValue())
-            {
-                a.AppendCssClass("clearfix");
-            }
-
             // Icon/Image
             if (hasIcons)
             {
-                BuildTabIcon(tab, a, isStacked);
+                await BuildTabIconAsync(tab, a, isStacked);
             }
 
             // Caption
@@ -550,35 +559,34 @@ public class TabStripTagHelper : SmartTagHelper
         return li;
     }
 
-    private void BuildTabIcon(TabTagHelper tab, TagBuilder a, bool isStacked)
+    private async Task BuildTabIconAsync(TabTagHelper tab, TagBuilder a, bool isStacked)
     {
         if (tab.Icon.HasValue())
         {
-            var el = (TagBuilder)HtmlHelper.Icon(tab.Icon);
-
+            var options = new IconOptions();
+            var classes = new List<string> { "nav-icon" };
             if (isStacked)
             {
-                el.AppendCssClass("bi-fw");
+                classes.Add("icon-fw");
             }
-
-            el.AppendCssClass("nav-icon");
             if (tab.IconClass.HasValue())
             {
-                el.AppendCssClass(tab.IconClass);
+                classes.Add(tab.IconClass);
             }
-
-            a.InnerHtml.AppendHtml(el);
+            options.CssClass = string.Join(" ", classes);
+            a.InnerHtml.AppendHtml(await HtmlHelper.IconAsync(IconExpression.Parse(tab.Icon), options));
         }
         else if (tab.ImageUrl.HasValue())
         {
             TagBuilder img = new("img");
+            img.AddCssClass("icon");
             img.Attributes["src"] = UrlHelper.Content(tab.ImageUrl);
             img.Attributes["alt"] = "Icon";
             a.InnerHtml.AppendHtml(img);
         }
         else if (isStacked)
         {
-            a.InnerHtml.AppendHtml("<i class=\"fa fa-fw\"></i>");
+            a.InnerHtml.AppendHtml("<span class=\"icon icon-fw\" aria-hidden=\"true\"></span>");
         }
     }
 
@@ -588,6 +596,7 @@ public class TabStripTagHelper : SmartTagHelper
         {
             TagBuilder caption = new("span");
             caption.AppendCssClass("tab-caption");
+            caption.Attributes["data-caption"] = tab.Title;
             caption.InnerHtml.Append(tab.Title);
             a.InnerHtml.AppendHtml(caption);
         }
@@ -597,12 +606,8 @@ public class TabStripTagHelper : SmartTagHelper
     {
         if (tab.BadgeText.HasValue())
         {
-            var temp = "ml-2 badge";
-            temp += " badge-" + tab.BadgeStyle.ToString().ToLower();
-            if (Position == TabsPosition.Left)
-            {
-                temp += " float-right"; // looks nicer 
-            }
+            var temp = Position == TabsPosition.Left ? "ml-auto flex-shrink-0" : "ml-2";
+            temp += " " + BadgeExpression.ToCssClasses(tab.BadgeStyle);
 
             TagBuilder span = new("span");
             span.AddCssClass(temp);

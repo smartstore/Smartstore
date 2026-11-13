@@ -10,8 +10,8 @@
     </sorting>
     <toolbar>
         <toolbar-group>
-            <button datagrid-action="DataGridToolAction.ToggleSearchPanel" class="btn btn-light btn-icon">
-                <i class="fa fa-fw fa-filter"></i>
+            <button datagrid-action="DataGridToolAction.ToggleSearchPanel" class="btn btn-plain btn-icon">
+                <icon name="filter" />
             </button>
         </toolbar-group>
         <zone name="datagrid_toolbar_alpha"></zone>
@@ -19,7 +19,7 @@
         <zone name="datagrid_toolbar_omega"></zone>
         <toolbar-group>
             <button datagrid-action="DataGridToolAction.DeleteSelectedRows" type="button" class="btn btn-danger btn-flat">
-                <i class="far fa-trash-can"></i>
+                <icon name="trash" />
                 <span>@T("Admin.Common.Delete.Selected")</span>
             </button>
         </toolbar-group>
@@ -36,7 +36,7 @@
         </column>
         <column for="ShortMessage" hideable="false">
             <display-template>
-                <div class="dg-cell-value d-flex align-items-center">
+                <div class="dg-cell-value hstack">
                     <span :class="'mr-2 level-badge badge badge-subtle badge-ring badge-' + item.row.LogLevelHint">{{ item.row.LogLevel }}</span>
 
                     <div class="flex-grow-1 overflow-hidden" style="min-width: 0;">

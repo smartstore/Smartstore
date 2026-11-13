@@ -13,7 +13,8 @@
 
 <div attr-class='(Model.MultiFile || !Model.HasTemplatePreview, "dropzone-container")'>
     <div class="dropzone-target" role="button" tabindex="0" aria-labelledby="@(Model.Name)-msg">
-        <div class="dropzone-file-info d-flex align-items-center">
+        <div class="dropzone-file-info hstack">
+            <icon name="cloud-upload" class="fu-upload-icon icon-xl" aria-hidden="true" />
             <div id="@(Model.Name)-msg" class="fu-message text-truncate empty" title="@Model.UploadText">
                 @if (Model.UploadText.HasValue())
                 {
@@ -30,7 +31,7 @@
                class="fu-remove remove btn btn-plain btn-sm btn-icon rounded-circle ml-1" 
                title="@T("FileUploader.Dropzone.DictRemoveFile")"
                aria-label="@T("FileUploader.Dropzone.DictRemoveFile")">
-                <i class="fu-remove-icon fs-h5 p-0 text-danger" aria-hidden="true">&times;</i>
+                <icon name="close" class="fu-remove-icon text-danger" aria-hidden="true" />
             </a>
         </div>
 
@@ -93,10 +94,10 @@
 @{
     async Task FilePreviewTemplate(string previewUrl, string fileName, string dataType)
     {
-        <span class="main-pic-badge badge badge-success">@T("FileUploader.MultiFiles.MainMediaFile")</span>
+        <span class="main-pic-badge badge badge-success badge-pill m-2">@T("FileUploader.MultiFiles.MainMediaFile")</span>
 
-        <figure class="file-figure d-flex m-0 align-items-center justify-content-center file-thumb show loaded" data-type="@dataType">
-            <i class="file-icon fa-fw show d-none"></i>
+        <figure class="file-figure hstack m-0 justify-content-center file-thumb show loaded" data-type="@dataType">
+            <sm-icon class="file-icon show d-none" fw aria-hidden="true"></sm-icon>
             @*Append number of ticks because otherwise when an image is updated via API or import, the old image will still be displayed.*@
             <img class="file-img" data-dz-thumbnail attr-src='(previewUrl.HasValue(), previewUrl + "&num=" + DateTime.UtcNow.Ticks)' alt="@fileName" />
         </figure>
@@ -104,14 +105,14 @@
         <!-- Media gallery preview overlay -->
         <div class="fu-file-info-container d-flex flex-column w-100 h-100 justify-content-between">
             <div class="drag-gripper align-middle">
-                <i class="drag-icon fas fa-grip-vertical fs-h5 text-white p-0 text-center"></i>
+                <icon name="grip-v" class="drag-icon icon-lg text-white p-2 text-center" />
             </div>
-            <div class="fu-file-info h-100 w-100 d-flex position-absolute justify-content-center align-items-center">
+            <div class="fu-file-info h-100 w-100 hstack position-absolute justify-content-center">
                 <div class="fu-file-info-name text-white font-weight-medium text-center">@fileName</div>
             </div>
             <div class="fu-preview-control-menu w-100 d-flex flex-wrap justify-content-between px-2 pb-2 pt-0">
                 <a href="#" class="fu-preview-control-set set-main-picture btn btn-sm btn-clear btn-3d btn-action btn-icon" title='@T("FileUploader.Preview.SetMainMedia.Title")'>
-                    <i class="fa fa-image fs-h6"></i>
+                    <icon name="image" class="fs-h6" />
                 </a>
                 <a href="#" class="fu-preview-control-remove delete-entity-picture btn btn-sm btn-clear btn-3d btn-action" title='@T("FileUploader.Preview.DeleteEntityMedia.Title")'>
                     <span class="fs-sm">@T("Common.Remove")</span>

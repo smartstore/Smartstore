@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Smartstore.AmazonPay.Services;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Common.Configuration;
-using Smartstore.Core.Configuration;
 using Smartstore.Core.Content.Menus;
 using Smartstore.Core.Data;
 using Smartstore.Core.Stores;
@@ -22,20 +21,17 @@ public class AmazonPayAdminController : AdminController
     private readonly SmartDbContext _db;
     private readonly IAmazonPayService _amazonPayService;
     private readonly IProviderManager _providerManager;
-    private readonly MultiStoreSettingHelper _settingHelper;
     private readonly CompanyInformationSettings _companyInformationSettings;
 
     public AmazonPayAdminController(
         SmartDbContext db,
         IAmazonPayService amazonPayService,
         IProviderManager providerManager,
-        MultiStoreSettingHelper settingHelper,
         CompanyInformationSettings companyInformationSettings)
     {
         _db = db;
         _amazonPayService = amazonPayService;
         _providerManager = providerManager;
-        _settingHelper = settingHelper;
         _companyInformationSettings = companyInformationSettings;
     }
 
@@ -167,12 +163,9 @@ public class AmazonPayAdminController : AdminController
         }
     }
 
-    [HttpPost]
-    public async Task<IActionResult> Configure(ConfigurationModel model, IFormCollection form)
+    [HttpPost, SaveSetting]
+    public async Task<IActionResult> Configure(ConfigurationModel model, AmazonPaySettings settings)
     {
-        var storeScope = GetActiveStoreScopeConfiguration();
-        var settings = await Services.SettingFactory.LoadSettingsAsync<AmazonPaySettings>(storeScope);
-
         if (!ModelState.IsValid)
         {
             return await Configure(settings);
@@ -184,12 +177,7 @@ public class AmazonPayAdminController : AdminController
         model.ClientId = model.ClientId.TrimSafe();
         model.SellerId = model.SellerId.TrimSafe();
 
-        settings = ((ISettings)settings).Clone() as AmazonPaySettings;
         MiniMapper.Map(model, settings);
-
-        _settingHelper.Contextualize(storeScope);
-        await _settingHelper.UpdateSettingsAsync(settings, form);
-        await _db.SaveChangesAsync();
 
         NotifySuccess(T("Admin.Common.DataSuccessfullySaved"));
 

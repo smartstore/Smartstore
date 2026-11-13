@@ -39,13 +39,7 @@ public class ProviderModel : ModelBase, ILocalizedModel<ProviderLocalizedModel>
     [LocalizedDisplay("Admin.Providers.ProvidingPlugin")]
     public string ProvidingModuleFriendlyName { get; set; }
 
-    /// <summary>
-    /// Returns the absolute path of the provider's icon url. 
-    /// </summary>
-    /// <remarks>
-    /// The parent plugin's icon url is returned as a fallback if provider icon cannot be resolved.
-    /// </remarks>
-    public string IconUrl { get; set; }
+    public ModuleIcon Icon { get; set; }
 
     public List<ProviderLocalizedModel> Locales
     {

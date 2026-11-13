@@ -5,18 +5,25 @@ namespace Smartstore.Admin.Models.Orders;
 [LocalizedDisplay("Admin.ReturnRequests.Fields.")]
 public class ReturnCaseListModel : ModelBase
 {
-    [LocalizedDisplay("*ID")]
-    [AdditionalMetadata("invariant", true)]
-    public int? SearchId { get; set; }
-
-    public DateTime? StartDate { get; set; }
-    public DateTime? EndDate { get; set; }
+    public string ReturnCaseId { get; set; }
 
     [LocalizedDisplay("Common.Type")]
     public int? SearchReturnCaseKind { get; set; }
 
     [LocalizedDisplay("*Status")]
     public int? SearchStatusId { get; set; }
+
+    [LocalizedDisplay("ReturnCase.Complete")]
+    public bool? SearchIsCompleted { get; set; }
+
+    [LocalizedDisplay("Common.CompletedOn")]
+    public DateTime? CompletedStartDate { get; set; }
+
+    [LocalizedDisplay("Common.CompletedOn")]
+    public DateTime? CompletedEndDate { get; set; }
+
+    public DateTime? StartDate { get; set; }
+    public DateTime? EndDate { get; set; }
 
     [LocalizedDisplay("Admin.Orders.List.CustomerEmail")]
     public string CustomerEmail { get; set; }
@@ -29,5 +36,5 @@ public class ReturnCaseListModel : ModelBase
 
     [UIHint("Stores")]
     [LocalizedDisplay("Admin.Common.Store.SearchFor")]
-    public int SearchStoreId { get; set; }
+    public int? SearchStoreId { get; set; }
 }

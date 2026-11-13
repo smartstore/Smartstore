@@ -1,0 +1,38 @@
+{
+  "color": {
+    "name": "Farbe"
+  },
+  "custom-text": {
+    "name": "Eigener Text"
+  },
+  "size": {
+    "name": "Größe"
+  },
+  "pack-size": {
+    "name": "Packungsgröße"
+  },
+  "grind": {
+    "name": "Mahlgrad"
+  },
+  "print": {
+    "name": "Aufdruck"
+  },
+  "cover": {
+    "name": "Bezug"
+  },
+  "frame": {
+    "name": "Gestell"
+  },
+  "finish": {
+    "name": "Ausführung"
+  },
+  "amount": {
+    "name": "Betrag"
+  },
+  "first-delivery": {
+    "name": "Erste Lieferung am"
+  },
+  "delivery-notes": {
+    "name": "Lieferhinweise"
+  }
+}

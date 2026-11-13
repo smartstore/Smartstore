@@ -22,7 +22,7 @@
                 <span id="orders-delta-percentage"></span><span id="orders-delta-percentage-chevron" class="chevron pl-1 d-none"></span>
             </div>
         </div>
-        <div class="btn-group btn-group-toggle flex-nowrap" data-toggle="buttons">
+        <div class="btn-group btn-group-toggle flex-wrap" data-toggle="buttons">
             <label class="btn btn-secondary btn-dashboard active">
                 <input type="radio" name="orders-toggle" data-period="0" autocomplete="off" checked>
                 @T("Admin.Report.Today")
@@ -46,12 +46,12 @@
         </div>
     </div>
     <div class="px-4 pt-2" id="orders-chart-legend"></div>
-    <div class="canvas-container h-100" style="min-height: 380px; max-height: 380px;">
+    <div class="canvas-container" style="min-height: 380px;">
         <canvas id="orders-chart"></canvas>
     </div>
 </div>
 
-<script sm-target-zone="scripts" data-origin="DashboardOrders">
+<script data-origin="DashboardOrders">
     $(function () {
         const data = @Html.Raw(jsonData);
         if (document.documentElement.getAttribute('dir') == 'rtl') {

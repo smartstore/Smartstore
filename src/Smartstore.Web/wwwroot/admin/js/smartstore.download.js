@@ -24,17 +24,17 @@
 
             el.find('#is-url-download').attr("value", useUrl);
 
-            var i = el.find('.panel-switcher > .dropdown-toggle > .fa');
+            var icon = el.find('.panel-switcher-icon');
 
             if (useUrl) {
-                i.removeClass('fa-upload').addClass('fa-globe');
+                icon.attr('name', 'globe');
                 el.find('.panel-file').addClass('hide');
                 el.find('.panel-url').show();
                 el.find('.toggle-file').removeClass("disabled");
                 el.find('.toggle-url').addClass("disabled");
             }
             else {
-                i.removeClass('fa-globe').addClass('fa-upload');
+                icon.attr('name', 'upload');
                 el.find('.panel-url').hide();
                 el.find('.panel-file').removeClass('hide');
                 el.find('.toggle-file').addClass("disabled");

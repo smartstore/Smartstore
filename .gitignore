@@ -213,11 +213,15 @@ build/artifacts
 build/packages
 src/Smartstore.Web/Modules/*
 src/Smartstore.Web/App_Data/*
+!src/Smartstore.Web/App_Data/Icons/
+# Licensed local-only Font Awesome Pro assets; only our concept mappings are distributable.
+/src/Smartstore.Web/App_Data/Icons/fontawesome-pro/*
+!/src/Smartstore.Web/App_Data/Icons/fontawesome-pro/mapping.json
+# Shared runtime cache space; never commit generated component caches.
+src/Smartstore.Web/App_Data/.cache/
 !src/Smartstore.Web/App_Data/EmailTemplates/*
 !src/Smartstore.Web/App_Data/Geo/*
-!src/Smartstore.Web/App_Data/Localization/*
-!src/Smartstore.Web/App_Data/Samples/*
-!src/Smartstore.Web/App_Data/icons.json
+!src/Smartstore.Web/App_Data/Seed/
 !src/Smartstore.Web/App_Data/widgetzones.json
 
 # Themes
@@ -227,6 +231,7 @@ src/Smartstore.Web/Themes/*
 !src/Smartstore.Web/Themes/FlexBlack/
 !src/Smartstore.Web/Themes/HausLuxe/
 !src/Smartstore.Web/Themes/HausLuxe/**
+!src/Smartstore.Web/Themes/Flex*/
 
 # DataProtection
 DataProtection-Keys/
@@ -246,3 +251,6 @@ src/Tools/Smartstore.WebApi.Client/Smartstore.WebApi.Client.sln
 
 src/Smartstore.Packager.sln
 Log.txt
+
+# Local native-package and Docker test scratch space.
+/.temp/

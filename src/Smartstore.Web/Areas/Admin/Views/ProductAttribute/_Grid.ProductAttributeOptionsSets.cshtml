@@ -30,14 +30,14 @@
     <toolbar>
         <toolbar-group>
             <button datagrid-action="DataGridToolAction.InsertRow" type="button" class="btn btn-primary btn-flat no-anims mr-auto">
-                <i class="fa fa-plus"></i>
+                <icon name="plus"  />
                 <span>@T("Admin.Common.AddNew")</span>
             </button>
-            <button datagrid-action="DataGridToolAction.SaveChanges" type="button" class="btn btn-warning no-anims btn-flat">
-                <i class="fa fa-check"></i>
+            <button datagrid-action="DataGridToolAction.SaveChanges" type="button" class="btn btn-primary no-anims btn-flat">
+                <icon name="check" />
                 <span>@T("Admin.Common.SaveChanges")</span>
             </button>
-            <button datagrid-action="DataGridToolAction.CancelEdit" type="button" class="btn btn-light btn-flat mr-auto">
+            <button datagrid-action="DataGridToolAction.CancelEdit" type="button" class="btn btn-plain mr-auto">
                 <span>@T("Common.Cancel")</span>
             </button>
         </toolbar-group>
@@ -70,8 +70,8 @@
                 :paging="{ enabled: false }" 
                 :sorting="{ enabled: false }">
                 <template v-slot:display-name="item">
-                    <i :class='item.row.TypeNameClass' :title='item.row.TypeName'></i>
-                    <span class="color-container" v-if="item.row.HasColor"><span class='color' :style='{ background: item.row.Color }' :title='item.row.Color'>&nbsp;</span></span>
+                    <sm-icon v-if='item.row.TypeNameIcon' :name='item.row.TypeNameIcon' class='mr-2' :title='item.row.TypeName'></sm-icon>
+                    @Html.ColorPalette()
                     <a href="#" class="text-truncate edit-attribute-option" :data-key="item.row.Id" :data-setid="item.row.ProductAttributeOptionsSetId">{{ item.value }} {{ item.row.QuantityInfo }}</a>
                 </template>
                 <template v-slot:display-linkedproductname="item">
@@ -89,13 +89,13 @@
                         <div class="dg-toolbar-group">
                             <button type="button" class="btn btn-primary btn-sm btn-flat no-anims mr-auto insert-attribute-option" 
                                 :data-setid="item.row.Id" v-if="!grid.editing.active" v-on:click.prevent="grid.insertRow">
-                                <i class="fa fa-plus"></i>
+                                <icon name="plus"  />
                                 <span>@T("Admin.Common.AddNew")</span>
                             </button>
                         </div>
                         <div class="dg-toolbar-group omega">
                             <button type="button" class="btn btn-danger btn-sm btn-flat no-anims" href="#" v-bind:class="{ &#x27;disabled&#x27;: !grid.hasSelection }" v-on:click.prevent="grid.deleteSelectedRows">
-                                <i class="far fa-trash-can"></i>
+                                <icon name="trash" />
                                 <span>@T("Admin.Common.Delete.Selected")</span>
                             <span v-if='grid.hasSelection' class='badge badge-success'>{{ grid.selectedRowsCount }}</span></button>
                         </div>

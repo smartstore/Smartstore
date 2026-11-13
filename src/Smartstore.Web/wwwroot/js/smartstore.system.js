@@ -273,5 +273,6 @@
     });
 
     // provide main app namespace
-    window.Smartstore = {};
+    window.Smartstore = window.Smartstore || {};
+    Smartstore.isMac = /mac/i.test(navigator.userAgentData?.platform ?? navigator.userAgent);
 })(jQuery);

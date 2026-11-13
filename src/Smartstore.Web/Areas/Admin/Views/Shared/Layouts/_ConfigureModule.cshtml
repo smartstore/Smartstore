@@ -23,7 +23,6 @@
 
     var systemName = module.SystemName;
     var friendlyName = ModuleManager.GetLocalizedFriendlyName(module);
-    var iconUrl = Url.Content(ModuleManager.GetIconUrl(module));
     var returnUrl = Context.GetRouteValueAs("returnUrl", Url.Action("List", "Module"));
 
     ViewBag.Title = T("Admin.Common.Configure").Value + " - " + friendlyName;
@@ -32,13 +31,13 @@
 <div class="section-header">
     <div class="title" title="@ViewBag.Title (@systemName)">
         <a sm-backto href='@returnUrl'></a>
-        <img src="@iconUrl" alt="@friendlyName" />
+        <module-icon model="ModuleManager.GetIcon(module)" alt="@friendlyName" />
         <span>@ViewBag.Title</span>
     </div>
     <div class="options">
         <zone name="admin_button_toolbar_before" />
         <a class="update-string-resources btn btn-secondary" href='@Url.Action("UpdateStringResources", "Module")' data-system-name="@systemName">
-            <i class="fa fa-rotate"></i>
+            <icon name="refresh" />
             <span>@T("Admin.Configuration.Plugins.Resources.Update")</span>
         </a>
         <zone name="admin_button_toolbar_after" />

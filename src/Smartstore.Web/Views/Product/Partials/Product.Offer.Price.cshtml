@@ -1,4 +1,5 @@
-﻿@using Smartstore.Web.Models.Catalog
+﻿@using Smartstore.Web.Rendering
+@using Smartstore.Web.Models.Catalog
 
 @model ProductDetailsModel
 
@@ -26,7 +27,7 @@
                             data-trigger="focus"
                             data-content="@priceModel.Description"
                             aria-hidden="true">
-                        <i class="fa fa-circle-info" aria-hidden="true"></i>
+                        <icon name="info-circle"  aria-hidden="true" />
                     </button>
                     <div id="pd-promoprice-desc" class="sr-only">@priceModel.Description</div>
                 }
@@ -80,7 +81,7 @@
                 <div sm-if="pm.Badges.Count > 0" class="pd-promobadges">
                     @foreach (var badge in pm.Badges.OrderBy(x => x.DisplayOrder))
                     {
-                        <span class="badge badge-@badge.Style">@Html.Raw(badge.Label)</span>
+                        <span class="@BadgeExpression.ToCssClasses(badge.Style)">@Html.Raw(badge.Label)</span>
                     }
                 </div>
 
@@ -139,19 +140,19 @@
             <partial name="Product.TierPrices" model="Model.Price.TierPrices" />
         </div>
 
-        <div class="pd-group" sm-if="(basePriceEnabled && pm.BasePriceInfo.HasValue()) || (Model.ShowLegalInfo && Model.LegalInfo.HasValue())">
+        <div class="pd-group" sm-if="(basePriceEnabled && pm.BasePriceInfo.HasValue()) || Model.ShowLegalInfo">
             <!-- Pangv & legal info -->
             <div class="pd-pangv" sm-if="basePriceEnabled && pm.BasePriceInfo.HasValue()">
                 @Html.Raw(LocalizedValue.FixBrackets(pm.BasePriceInfo, WorkContext.WorkingLanguage))
             </div>
-            <div class="pd-legalinfo" sm-if="Model.ShowLegalInfo && Model.LegalInfo.HasValue() && pm.FinalPrice != 0">
+            <div class="pd-legalinfo" sm-if="Model.ShowLegalInfo && pm.FinalPrice != 0">
                 @Html.Raw(Model.LegalInfo)
             </div>
         </div>
         <div sm-if="pm.Reward != null" class="pd-group">
             <div class="pd-review-amount text-success hstack gap-2">
                 <span class="badge bg-success rounded-circle p-0" style="width: 28px; min-width: 28px; height: 28px; --badge-font-size: 1em">
-                    <i class="fa fa-award text-white opacity-100"></i>
+                    <icon name="award" class="text-white opacity-100" />
                 </span>
                 <span id="pd-points-for-purchase-info" class="fs-sm">
                     @Html.Raw(T("RewardPoints.Message.RewardPointsForProductPurchase", pm.Reward.Points, pm.Reward.Amount.ToString()))

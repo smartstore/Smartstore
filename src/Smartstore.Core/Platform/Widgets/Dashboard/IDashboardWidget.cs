@@ -35,8 +35,8 @@ public interface IDashboardWidget
     /// </summary>
     /// <param name="context">The current dashboard context.</param>
     /// <param name="instance">The concrete widget instance.</param>
-    /// <returns>The configuration widget, or <see langword="null"/> when the widget has no configuration UI.</returns>
-    Widget? CreateConfigurationWidget(DashboardWidgetContext context, DashboardWidgetInstance instance);
+    /// <returns>A task containing the configuration widget, or <see langword="null"/> when the widget has no configuration UI.</returns>
+    Task<Widget?> CreateConfigurationWidgetAsync(DashboardWidgetContext context, DashboardWidgetInstance instance);
 
     /// <summary>
     /// Creates a fresh settings payload for a new widget instance.

@@ -43,7 +43,7 @@
                            type="email" 
                            sm-required="true" 
                            autocomplete="email"
-                           attr-readonly='(Model.AllowChangedCustomerEmail, "readonly")' 
+                           attr-readonly='(!Model.AllowChangedCustomerEmail, "readonly")' 
                            placeholder="@T("Products.EmailAFriend.YourEmailAddress.Hint")" 
                            class="fullname" />
                     <span asp-validation-for="YourEmailAddress"></span>
@@ -67,7 +67,7 @@
 
                 <div class="form-group">
                     <button type="submit" name="send-email" class="btn btn-primary send-email-a-friend-button">
-                        <i class="fa fa-envelope" aria-hidden="true"></i>
+                        <icon name="mail"  aria-hidden="true" />
                         <span>@T("Products.EmailAFriend.Button")</span>
                     </button>
                 </div>

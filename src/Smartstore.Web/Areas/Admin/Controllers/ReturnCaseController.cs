@@ -1,10 +1,12 @@
 ﻿using System.Data;
 using System.Linq.Dynamic.Core;
+using System.Text.Json;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Smartstore.Admin.Models.Orders;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Orders;
+using Smartstore.Core.Checkout.Shipping;
 using Smartstore.Core.Checkout.Tax;
 using Smartstore.Core.Common.Services;
 using Smartstore.Core.Localization;
@@ -14,6 +16,7 @@ using Smartstore.Core.Rules;
 using Smartstore.Core.Rules.Filters;
 using Smartstore.Core.Security;
 using Smartstore.Core.Stores;
+using Smartstore.Json;
 using Smartstore.Web.Models.DataGrid;
 using Smartstore.Web.Rendering;
 
@@ -52,37 +55,64 @@ public class ReturnCaseController : AdminController
     [Permission(Permissions.Order.ReturnCase.Read)]
     public IActionResult List()
     {
-        ViewBag.IsSingleStoreMode = Services.StoreContext.IsSingleStoreMode();
+        ViewBag.Stores = Services.StoreContext.GetAllStores().ToSelectListItems();
 
         return View(new ReturnCaseListModel());
+    }
+
+    [HttpPost, ActionName("List")]
+    [FormValueRequired("go-to-returncase")]
+    [Permission(Permissions.Order.ReturnCase.Read)]
+    public async Task<IActionResult> GoToReturnCase(ReturnCaseListModel model)
+    {
+        var returnCaseId = model.ReturnCaseId.TrimSafe().ToInt();
+        var id = returnCaseId > 0
+            ? await _db.ReturnCases
+                .Where(x => x.Id == returnCaseId)
+                .Select(x => x.Id)
+                .FirstOrDefaultAsync()
+            : 0;
+
+        if (id != 0)
+        {
+            return RedirectToAction(nameof(Edit), new { id });
+        }
+
+        NotifyWarning(T("Admin.ReturnRequests.NotFound", model.ReturnCaseId));
+
+        return RedirectToAction(nameof(List));
     }
 
     [Permission(Permissions.Order.ReturnCase.Read)]
     public async Task<IActionResult> ReturnCaseList(GridCommand command, ReturnCaseListModel model)
     {
         var dtHelper = Services.DateTimeHelper;
-        DateTime? startDateUtc = model.StartDate == null
+        DateTime? startDate = model.StartDate == null
             ? null
             : dtHelper.ConvertToUtcTime(model.StartDate.Value, dtHelper.CurrentTimeZone);
 
-        DateTime? endDateUtc = model.EndDate == null
+        DateTime? endDate = model.EndDate == null
             ? null
             : dtHelper.ConvertToUtcTime(model.EndDate.Value, dtHelper.CurrentTimeZone).AddDays(1);
+
+        DateTime? completedStartDate = model.CompletedStartDate == null
+            ? null
+            : dtHelper.ConvertToUtcTime(model.CompletedStartDate.Value, dtHelper.CurrentTimeZone);
+
+        DateTime? completedEndDate = model.CompletedEndDate == null
+            ? null
+            : dtHelper.ConvertToUtcTime(model.CompletedEndDate.Value, dtHelper.CurrentTimeZone).AddDays(1);
 
         var query = _db.ReturnCases
             .Include(x => x.Customer).ThenInclude(x => x.BillingAddress)
             .Include(x => x.Customer).ThenInclude(x => x.ShippingAddress)
             .AsNoTracking();
 
-        if (model.SearchId.HasValue)
-        {
-            query = query.Where(x => x.Id == model.SearchId);
-        }
-        if (model.SearchReturnCaseKind.HasValue)
+        if (model.SearchReturnCaseKind != null)
         {
             query = query.Where(x => x.Kind == (ReturnCaseKind)model.SearchReturnCaseKind.Value);
         }
-        if (model.SearchStatusId.HasValue)
+        if (model.SearchStatusId != null)
         {
             query = query.Where(x => x.ReturnCaseStatusId == model.SearchStatusId.Value);
         }
@@ -115,10 +145,26 @@ public class ReturnCaseController : AdminController
                 join rc in query on oi.Id equals rc.OrderItemId
                 select rc;
         }
+        if (model.CompletedStartDate != null || model.CompletedEndDate != null || model.SearchIsCompleted != null)
+        {
+            query = query.Where(x => x.Kind == ReturnCaseKind.Return);
+        }
+        if (model.CompletedStartDate != null)
+        {
+            query = query.Where(x => completedStartDate.Value <= x.CompletedOn);
+        }
+        if (model.CompletedEndDate != null)
+        {
+            query = query.Where(x => completedEndDate.Value >= x.CompletedOn);
+        }
+        if (model.SearchIsCompleted != null)
+        {
+            query = query.Where(x => (x.CompletedOn != null) == model.SearchIsCompleted.Value);
+        }
 
         var returnCases = await query
-            .ApplyAuditDateFilter(startDateUtc, endDateUtc)
-            .ApplyStandardFilter(null, null, model.SearchStoreId)
+            .ApplyAuditDateFilter(startDate, endDate)
+            .ApplyStandardFilter(null, null, model.SearchStoreId ?? 0)
             .ApplyGridCommand(command)
             .ToPagedList(command)
             .LoadAsync();
@@ -131,12 +177,19 @@ public class ReturnCaseController : AdminController
             .AsNoTracking()
             .Where(x => orderItemIds.Contains(x.Id))
             .ToDictionaryAsync(x => x.Id, x => x);
+        var shipmentItems = (await _db.ShipmentItems
+            .Include(x => x.Shipment)
+            .AsNoTracking()
+            .Where(x => orderItemIds.Contains(x.OrderItemId))
+            .ToListAsync())
+            .ToMultimap(x => x.OrderItemId, x => x);
 
         var rows = await returnCases
             .SelectAwait(async x =>
             {
                 var m = new ReturnCaseModel();
-                await PrepareReturnCaseModel(m, x, orderItems.Get(x.OrderItemId), allStores, false, true);
+                var shipments = shipmentItems.TryGetValues(x.OrderItemId, out var tmp) ? tmp : [];
+                await PrepareReturnCaseModel(m, x, orderItems.Get(x.OrderItemId), shipments, allStores, false, true);
                 return m;
             })
             .ToListAsync();
@@ -198,6 +251,11 @@ public class ReturnCaseController : AdminController
             returnCase.AdminComment = model.AdminComment;
             returnCase.ReturnCaseStatusId = model.ReturnCaseStatusId;
             returnCase.UpdatedOnUtc = utcNow;
+
+            if (returnCase.Kind == ReturnCaseKind.Return && returnCase.IsCompleted != model.IsCompleted)
+            {
+                returnCase.CompletedOn = model.IsCompleted ? utcNow : null;
+            }
 
             await _db.SaveChangesAsync();
 
@@ -298,6 +356,7 @@ public class ReturnCaseController : AdminController
         {
             returnCase.Kind = ReturnCaseKind.Return;
             returnCase.ReturnCaseStatus = ReturnCaseStatus.Pending;
+            returnCase.CompletedOn = null;
 
             await _db.SaveChangesAsync();
 
@@ -337,8 +396,13 @@ public class ReturnCaseController : AdminController
             .Include(x => x.Product)
             .Include(x => x.Order)
             .FindByIdAsync(returnCase.OrderItemId, false);
+        var shipmentItems = await _db.ShipmentItems
+            .Include(x => x.Shipment)
+            .AsNoTracking()
+            .Where(x => x.OrderItemId == returnCase.OrderItemId)
+            .ToListAsync();
 
-        await PrepareReturnCaseModel(model, returnCase, orderItem, allStores, excludeProperties);
+        await PrepareReturnCaseModel(model, returnCase, orderItem, shipmentItems, allStores, excludeProperties);
 
         return model;
     }
@@ -347,17 +411,18 @@ public class ReturnCaseController : AdminController
         ReturnCaseModel model,
         ReturnCase returnCase,
         OrderItem orderItem,
+        IEnumerable<ShipmentItem> shipmentItems,
         Dictionary<int, Store> allStores,
         bool excludeProperties = false,
         bool forList = false)
     {
         Guard.NotNull(returnCase);
 
+        var localization = Services.Localization;
         var dtHelper = Services.DateTimeHelper;
         var store = allStores.Get(returnCase.StoreId);
         var order = orderItem?.Order;
         var customer = returnCase.Customer;
-        var localization = Services.Localization;
 
         model.Id = returnCase.Id;
         model.WithdrawalId = returnCase.WithdrawalId;
@@ -369,6 +434,8 @@ public class ReturnCaseController : AdminController
         model.AttributeInfo = orderItem?.AttributeDescription;
         model.OrderId = orderItem?.OrderId ?? 0;
         model.OrderNumber = order?.GetOrderNumber();
+        model.OrderCancelled = order?.OrderStatus == OrderStatus.Cancelled;
+        model.OrderStatusStr = order != null ? localization.GetLocalizedEnum(order.OrderStatus) : string.Empty;
         model.CustomerId = returnCase.CustomerId;
         model.CustomerDeleted = customer.Deleted;
         model.CustomerEmail = customer.FindEmail();
@@ -381,6 +448,10 @@ public class ReturnCaseController : AdminController
         model.CreatedOn = dtHelper.ConvertToUserTime(returnCase.CreatedOnUtc, DateTimeKind.Utc);
         model.UpdatedOn = dtHelper.ConvertToUserTime(returnCase.UpdatedOnUtc, DateTimeKind.Utc);
         model.EditUrl = Url.Action(nameof(Edit), "ReturnCase", new { id = returnCase.Id });
+        model.IsCompleted = returnCase.IsCompleted;
+        model.CompletedOn = returnCase.Kind == ReturnCaseKind.Return && returnCase.CompletedOn != null
+            ? dtHelper.ConvertToUserTime(returnCase.CompletedOn.Value, DateTimeKind.Utc)
+            : null;
 
         if (customer != null)
         {
@@ -391,6 +462,53 @@ public class ReturnCaseController : AdminController
         {
             model.OrderEditUrl = Url.Action("Edit", "Order", new { id = orderItem.OrderId });
             model.ProductEditUrl = Url.Action("Edit", "Product", new { id = orderItem.ProductId });
+        }
+
+        model.Shipments = shipmentItems
+            .Where(x => x.Shipment != null)
+            .Select(x => new ReturnCaseModel.ReturnCaseShipmentModel
+            {
+                Id = x.ShipmentId,
+                Quantity = x.Quantity,
+                ShippedOn = x.Shipment.ShippedDateUtc != null
+                    ? dtHelper.ConvertToUserTime(x.Shipment.ShippedDateUtc.Value, DateTimeKind.Utc)
+                    : null,
+                DeliveredOn = x.Shipment.DeliveryDateUtc != null
+                    ? dtHelper.ConvertToUserTime(x.Shipment.DeliveryDateUtc.Value, DateTimeKind.Utc)
+                    : null
+            })
+            .OrderBy(x => x.Id)
+            .ToList();
+
+        if (model.Shipments.Count > 0)
+        {
+            var shipmentLabel = T("Admin.Orders.Shipments.ID");
+            var notShipped = T("Admin.Orders.Shipments.ShippedDate.NotYet");
+            var notDelivered = T("Admin.Orders.Shipments.DeliveryDate.NotYet");
+
+            model.ShippedOn = model.Shipments.Max(x => x.ShippedOn);
+            model.ShippedShipmentCount = model.Shipments.Count(x => x.ShippedOn.HasValue);
+            model.ShippedOnStr = model.ShippedOn?.ToString("g");
+
+            if (model.ShippedShipmentCount > 1)
+            {
+                model.ShippedOnStr += '…';
+            }
+
+            model.ShippedOnSummary = string.Join(Environment.NewLine, 
+                model.Shipments.Select(x => $"{shipmentLabel}{x.Id}: {x.ShippedOn?.ToString("g") ?? notShipped}"));
+
+            model.DeliveredOn = model.Shipments.Max(x => x.DeliveredOn);
+            model.DeliveredShipmentCount = model.Shipments.Count(x => x.DeliveredOn.HasValue);
+            model.DeliveredOnStr = model.DeliveredOn?.ToString("g");
+
+            if (model.DeliveredShipmentCount > 1)
+            {
+                model.DeliveredOnStr += '…';
+            }
+
+            model.DeliveredOnSummary = string.Join(Environment.NewLine, 
+                model.Shipments.Select(x => $"{shipmentLabel}{x.Id}: {x.DeliveredOn?.ToString("g") ?? notDelivered}"));
         }
 
         if (allStores.Count > 1)
@@ -420,12 +538,12 @@ public class ReturnCaseController : AdminController
             string returnActions = _orderSettings.GetLocalizedSetting(x => x.ReturnRequestActions, order?.CustomerLanguageId, store?.Id, true, false);
             string unspec = T("Common.Unspecified");
 
-            var reasonForReturn = returnReasons.SplitSafe(',')
+            var reasonForReturn = (returnReasons.HasValue() ? JsonSerializer.Deserialize<string[]>(returnReasons, SmartJsonOptions.Default) ?? [] : [])
                 .Select(x => new SelectListItem { Text = x, Value = x, Selected = x == returnCase.ReasonForReturn })
                 .ToList();
             reasonForReturn.Insert(0, new SelectListItem { Text = unspec, Value = string.Empty });
 
-            var actionsForReturn = returnActions.SplitSafe(',')
+            var actionsForReturn = (returnActions.HasValue() ? JsonSerializer.Deserialize<string[]>(returnActions, SmartJsonOptions.Default) ?? [] : [])
                 .Select(x => new SelectListItem { Text = x, Value = x, Selected = x == returnCase.RequestedAction })
                 .ToList();
             actionsForReturn.Insert(0, new SelectListItem { Text = unspec, Value = string.Empty });

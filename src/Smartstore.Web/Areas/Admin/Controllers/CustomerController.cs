@@ -163,7 +163,7 @@ public class CustomerController : AdminController
         model.AllowCustomersToSetTimeZone = _dateTimeSettings.AllowCustomersToSetTimeZone;
         model.AllowManagingCustomerRoles = await Services.Permissions.AuthorizeAsync(Permissions.Customer.EditRole);
         model.CustomerNumberEnabled = _customerSettings.CustomerNumberMethod != CustomerNumberMethod.Disabled;
-        model.UsernamesEnabled = _customerSettings.CustomerLoginType != CustomerLoginType.Email;
+        model.UsernamesEnabled = _customerSettings.SupportsUsernames();
         model.SelectedStoreIds = await _storeMappingService.GetAuthorizedStoreIdsAsync(customer);
 
         if (customer != null)
@@ -449,7 +449,7 @@ public class CustomerController : AdminController
 
         var listModel = new CustomerListModel
         {
-            UsernamesEnabled = _customerSettings.CustomerLoginType != CustomerLoginType.Email,
+            UsernamesEnabled = _customerSettings.SupportsUsernames(),
             DateOfBirthEnabled = _customerSettings.DateOfBirthEnabled,
             CompanyEnabled = _customerSettings.CompanyEnabled,
             PhoneEnabled = _customerSettings.PhoneEnabled,
@@ -714,8 +714,7 @@ public class CustomerController : AdminController
 
         // Username.
         if (ModelState.IsValid
-            && _customerSettings.CustomerLoginType != CustomerLoginType.Email
-            && _customerSettings.AllowUsersToChangeUsernames
+            && _customerSettings.CanEditUsernames()
             && !newUsername.EqualsNoCase(customer.Username))
         {
             var result = await _userManager.SetUserNameAsync(customer, newUsername);
@@ -1331,7 +1330,7 @@ public class CustomerController : AdminController
     [Permission(Permissions.Customer.Read)]
     public async Task<IActionResult> Reports()
     {
-        ViewBag.UsernamesEnabled = _customerSettings.CustomerLoginType != CustomerLoginType.Email;
+        ViewBag.UsernamesEnabled = _customerSettings.SupportsUsernames();
         ViewBag.AvailableOrderStatuses = OrderStatus.Pending.ToSelectList(false).ToList();
         ViewBag.AvailablePaymentStatuses = PaymentStatus.Pending.ToSelectList(false).ToList();
         ViewBag.AvailableShippingStatuses = ShippingStatus.NotYetShipped.ToSelectList(false).ToList();
@@ -1479,10 +1478,15 @@ public class CustomerController : AdminController
         await MapperFactory.MapAsync(customerSettings, model.CustomerSettings);
         await MapperFactory.MapAsync(addressSettings, model.AddressSettings);
         await MapperFactory.MapAsync(privacySettings, model.PrivacySettings);
+        model.AddressSettings.Salutations ??= [];
 
         AddLocales(model.Locales, (locale, languageId) =>
         {
-            locale.Salutations = addressSettings.GetLocalizedSetting(x => x.Salutations, languageId, storeScope, false, false);
+            locale.Salutations = addressSettings
+                .GetLocalizedSetting(x => x.Salutations, languageId, storeScope, false, false)
+                .Value
+                .SplitSafe(',')
+                .ToArray();
         });
 
         return View(model);
@@ -1510,16 +1514,22 @@ public class CustomerController : AdminController
         }
         ModelState.Clear();
 
-        await MapperFactory.MapAsync(model.CustomerSettings, customerSettings);
-
         var csm = model.CustomerSettings;
-        if (csm.PasswordMinLength != customerSettings.PasswordMinLength
+        csm.CustomerNameAllowedCharacters = csm.CustomerNameAllowedCharacters == null
+            ? null
+            : new string(csm.CustomerNameAllowedCharacters.Distinct().ToArray());
+
+        var identityOptionsChanged = csm.PasswordMinLength != customerSettings.PasswordMinLength
             || csm.PasswordRequireDigit != customerSettings.PasswordRequireDigit
             || csm.PasswordRequireUppercase != customerSettings.PasswordRequireUppercase
             || csm.PasswordRequiredUniqueChars != customerSettings.PasswordRequiredUniqueChars
             || csm.PasswordRequireLowercase != customerSettings.PasswordRequireLowercase
             || csm.PasswordRequireNonAlphanumeric != customerSettings.PasswordRequireNonAlphanumeric
-            || csm.CustomerNameAllowedCharacters != customerSettings.CustomerNameAllowedCharacters)
+            || csm.CustomerNameAllowedCharacters != customerSettings.CustomerNameAllowedCharacters;
+
+        await MapperFactory.MapAsync(model.CustomerSettings, customerSettings);
+
+        if (identityOptionsChanged)
         {
             // Save customerSettings now so new values can be applied in IdentityOptionsConfigurer.
             await Services.SettingFactory.SaveSettingsAsync(customerSettings, storeScope);
@@ -1534,7 +1544,12 @@ public class CustomerController : AdminController
 
         foreach (var localized in model.Locales)
         {
-            await _localizedEntityService.ApplyLocalizedSettingAsync(addressSettings, x => x.Salutations, localized.Salutations, localized.LanguageId, storeScope);
+            await _localizedEntityService.ApplyLocalizedSettingAsync(
+                addressSettings,
+                x => x.Salutations,
+                string.Join(',', localized.Salutations ?? []),
+                localized.LanguageId,
+                storeScope);
         }
 
         await _db.SaveChangesAsync();

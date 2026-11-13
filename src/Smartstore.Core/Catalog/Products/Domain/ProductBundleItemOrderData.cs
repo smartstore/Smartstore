@@ -28,6 +28,7 @@ public partial class ProductBundleItemOrderData : IAttributeAware
     public decimal PriceWithDiscount { get; set; }
     public int DisplayOrder { get; set; }
     public string AttributesInfo { get; set; }
+    public string EssentialSpecAttributesInfo { get; set; }
     public bool PerItemShoppingCart { get; set; }
     public string RawAttributes
     {

@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
+using Smartstore.AmazonPay.Components;
 using Smartstore.Core;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Checkout.Payment;
@@ -17,9 +17,9 @@ public class CheckoutFilter : IAsyncActionFilter
     private readonly IWorkContext _workContext;
     private readonly INotifier _notifier;
     private readonly Lazy<IPaymentService> _paymentService;
-    private readonly Lazy<IUrlHelper> _urlHelper;
     private readonly Lazy<IWidgetProvider> _widgetProvider;
     private readonly ICheckoutStateAccessor _checkoutStateAccessor;
+    private readonly AmazonPaySettings _settings;
     private readonly OrderSettings _orderSettings;
     private readonly Localizer T;
 
@@ -28,9 +28,9 @@ public class CheckoutFilter : IAsyncActionFilter
         IWorkContext workContext,
         INotifier notifier,
         Lazy<IPaymentService> paymentService,
-        Lazy<IUrlHelper> urlHelper,
         Lazy<IWidgetProvider> widgetProvider,
         ICheckoutStateAccessor checkoutStateAccessor,
+        AmazonPaySettings settings,
         OrderSettings orderSettings,
         Localizer localizer)
     {
@@ -38,9 +38,9 @@ public class CheckoutFilter : IAsyncActionFilter
         _workContext = workContext;
         _notifier = notifier;
         _paymentService = paymentService;
-        _urlHelper = urlHelper;
         _widgetProvider = widgetProvider;
         _checkoutStateAccessor = checkoutStateAccessor;
+        _settings = settings;
         _orderSettings = orderSettings;
         T = localizer;
     }
@@ -49,7 +49,15 @@ public class CheckoutFilter : IAsyncActionFilter
     {
         var action = context.RouteData.Values.GetActionName();
 
-        if (action.EqualsNoCase(nameof(CheckoutController.Completed)))
+        if (action.EqualsNoCase(nameof(CheckoutController.PaymentMethod)))
+        {
+            var state = _checkoutStateAccessor.CheckoutState.GetCustomState<AmazonPayCheckoutState>();
+            if (_settings.ShowInPaymentMethodList && state.SessionId.IsEmpty() && await IsAmazonPayActive())
+            {
+                _widgetProvider.Value.RegisterViewComponent<PayButtonViewComponent>("checkout_payment_method_buttons", new { isPaymentSelection = true });
+            }
+        }        
+        else if (action.EqualsNoCase(nameof(CheckoutController.Completed)))
         {
             var session = context.HttpContext.Session;
             var responseStatus = session.GetString("AmazonPayResponseStatus");
@@ -83,18 +91,10 @@ public class CheckoutFilter : IAsyncActionFilter
         if (IsAmazonPaySelected() && await IsAmazonPayActive())
         {
             var state = _checkoutStateAccessor.CheckoutState.GetCustomState<AmazonPayCheckoutState>();
-            if (state.SessionId.HasValue())
+            if (state.Flow == AmazonPayCheckoutFlow.Express && state.SessionId.HasValue())
             {
-                if (action.EqualsNoCase(nameof(CheckoutController.PaymentMethod)))
-                {
-                    context.Result = new RedirectResult(_urlHelper.Value.Action(nameof(CheckoutController.Confirm), "Checkout"));
-                    return;
-                }
-                else
-                {
-                    _widgetProvider.Value.RegisterWidget("end",
-                        new PartialViewWidget("_CheckoutNavigation", state, "Smartstore.AmazonPay"));
-                }
+                _widgetProvider.Value.RegisterWidget("end",
+                    new PartialViewWidget("_CheckoutNavigation", state, "Smartstore.AmazonPay"));
             }
         }
 

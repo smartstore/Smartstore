@@ -1,11 +1,15 @@
 ﻿using Microsoft.AspNetCore.Mvc.Rendering;
+using Smartstore.Admin.Models.Common;
 using Smartstore.Admin.Models.Orders;
 using Smartstore.ComponentModel;
+using Smartstore.Core.Catalog;
+using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Checkout.Attributes;
 using Smartstore.Core.Common.Configuration;
 using Smartstore.Core.Common.Services;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Logging;
+using Smartstore.Core.Rules;
 using Smartstore.Core.Security;
 using Smartstore.Core.Stores;
 using Smartstore.Web.Models.DataGrid;
@@ -19,22 +23,28 @@ public class CheckoutAttributeController : AdminController
     private readonly ILocalizedEntityService _localizedEntityService;
     private readonly ICurrencyService _currencyService;
     private readonly IStoreMappingService _storeMappingService;
+    private readonly IRuleService _ruleService;
     private readonly MeasureSettings _measureSettings;
+    private readonly CatalogSettings _catalogSettings;
 
     public CheckoutAttributeController(
         SmartDbContext db,
         IActivityLogger activityLogger,
         ILocalizedEntityService localizedEntityService,
         ICurrencyService currencyService,
+        IStoreMappingService storeMappingService,
+        IRuleService ruleService,
         MeasureSettings measureSettings,
-        IStoreMappingService storeMappingService)
+        CatalogSettings catalogSettings)
     {
         _db = db;
         _activityLogger = activityLogger;
         _localizedEntityService = localizedEntityService;
         _currencyService = currencyService;
-        _measureSettings = measureSettings;
         _storeMappingService = storeMappingService;
+        _ruleService = ruleService;
+        _measureSettings = measureSettings;
+        _catalogSettings = catalogSettings;
     }
 
     #region Checkout attributes
@@ -143,7 +153,9 @@ public class CheckoutAttributeController : AdminController
             await _db.SaveChangesAsync();
 
             await UpdateAttributeLocales(checkoutAttribute, model);
+            await _ruleService.ApplyRuleSetMappingsAsync(checkoutAttribute, model.SelectedRuleSetIds);
             await SaveStoreMappingsAsync(checkoutAttribute, model.SelectedStoreIds);
+            await _db.SaveChangesAsync();
 
             _activityLogger.LogActivity(KnownActivityLogTypes.AddNewCheckoutAttribute, T("ActivityLog.AddNewCheckoutAttribute"), checkoutAttribute.Name);
             NotifySuccess(T("Admin.Catalog.Attributes.CheckoutAttributes.Added"));
@@ -161,7 +173,9 @@ public class CheckoutAttributeController : AdminController
     [Permission(Permissions.Cart.CheckoutAttribute.Read)]
     public async Task<IActionResult> Edit(int id)
     {
-        var checkoutAttribute = await _db.CheckoutAttributes.FindByIdAsync(id, false);
+        var checkoutAttribute = await _db.CheckoutAttributes
+            .Include(x => x.RuleSets)
+            .FindByIdAsync(id);
         if (checkoutAttribute == null)
         {
             return NotFound();
@@ -184,7 +198,9 @@ public class CheckoutAttributeController : AdminController
     [Permission(Permissions.Cart.CheckoutAttribute.Update)]
     public async Task<IActionResult> Edit(CheckoutAttributeModel model, bool continueEditing)
     {
-        var checkoutAttribute = await _db.CheckoutAttributes.FindByIdAsync(model.Id);
+        var checkoutAttribute = await _db.CheckoutAttributes
+            .Include(x => x.RuleSets)
+            .FindByIdAsync(model.Id);
         if (checkoutAttribute == null)
         {
             return NotFound();
@@ -194,6 +210,7 @@ public class CheckoutAttributeController : AdminController
         {
             await MapperFactory.MapAsync(model, checkoutAttribute);
             await UpdateAttributeLocales(checkoutAttribute, model);
+            await _ruleService.ApplyRuleSetMappingsAsync(checkoutAttribute, model.SelectedRuleSetIds);
             await SaveStoreMappingsAsync(checkoutAttribute, model.SelectedStoreIds);
             await _db.SaveChangesAsync();
 
@@ -269,6 +286,7 @@ public class CheckoutAttributeController : AdminController
             {
                 var model = await mapper.MapAsync(x);
                 model.NameString = (x.Color.IsEmpty() ? x.Name : $"{x.Name} - {x.Color}").HtmlEncode();
+                model.Colors = ColorPaletteModel.Create(x.Color, x.AdditionalColors);
 
                 return model;
             })
@@ -335,6 +353,8 @@ public class CheckoutAttributeController : AdminController
         if (ModelState.IsValid)
         {
             var checkoutAttributeValue = await MapperFactory.MapAsync<CheckoutAttributeValueModel, CheckoutAttributeValue>(model);
+            checkoutAttributeValue.AdditionalColors = model.Colors?.GetAdditionalColors();
+
             _db.CheckoutAttributeValues.Add(checkoutAttributeValue);
             await _db.SaveChangesAsync();
 
@@ -358,6 +378,8 @@ public class CheckoutAttributeController : AdminController
         }
 
         var model = await MapperFactory.MapAsync<CheckoutAttributeValue, CheckoutAttributeValueModel>(checkoutAttributeValue);
+        model.Colors = ColorPaletteModel.Create(checkoutAttributeValue.Color, checkoutAttributeValue.AdditionalColors);
+
         await PrepareCheckoutAttributeValueModel(model, checkoutAttributeValue.CheckoutAttribute);
 
         AddLocales(model.Locales, (locale, languageId) =>
@@ -387,6 +409,8 @@ public class CheckoutAttributeController : AdminController
         if (ModelState.IsValid)
         {
             await MapperFactory.MapAsync(model, checkoutAttributeValue);
+            checkoutAttributeValue.AdditionalColors = model.Colors?.GetAdditionalColors();
+
             await UpdateValueLocales(checkoutAttributeValue, model);
             await _db.SaveChangesAsync();
 
@@ -444,6 +468,8 @@ public class CheckoutAttributeController : AdminController
     {
         Guard.NotNull(model);
 
+        var localization = Services.Localization;
+
         var taxCategories = await _db.TaxCategories
             .AsNoTracking()
             .OrderBy(x => x.DisplayOrder)
@@ -458,9 +484,31 @@ public class CheckoutAttributeController : AdminController
             })
             .ToList();
 
+        ViewData[nameof(CheckoutAttributeModel.SwatchSize) + "DefaultValue"] = (int)_catalogSettings.DefaultSwatchSize;
+        ViewData[nameof(CheckoutAttributeModel.SwatchSize) + "RangeTicks"] = Enum.GetValues<SwatchSize>()
+            .Select(x => localization.GetLocalizedEnum(x))
+            .ToList();
+
+        ViewData[nameof(CheckoutAttributeModel.SwatchShape) + "DefaultValue"] = _catalogSettings.DefaultSwatchShape;
+
+        ViewBag.SwatchPriceDisplayModes = new List<SelectListItem>
+        {
+            new()
+            {
+                Text = localization.GetLocalizedEnum(SwatchPriceDisplayMode.None),
+                Value = ((int)SwatchPriceDisplayMode.None).ToString()
+            },
+            new()
+            {
+                Text = localization.GetLocalizedEnum(SwatchPriceDisplayMode.Adjustment),
+                Value = ((int)SwatchPriceDisplayMode.Adjustment).ToString()
+            }
+        };
+
         if (!excludeProperties)
         {
             model.SelectedStoreIds = await _storeMappingService.GetAuthorizedStoreIdsAsync(checkoutAttribute);
+            model.SelectedRuleSetIds = checkoutAttribute.RuleSets.Select(x => x.Id).ToArray();
         }
     }
 

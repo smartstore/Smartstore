@@ -1,0 +1,116 @@
+@inject Smartstore.IconKit.IIconAreaResolver IconAreaResolver
+@using Smartstore.IconKit
+@using Smartstore.Web.Models.Media
+@model IconBrowserModel
+@inject IIconBrowser Browser
+@inject IIconService Icons
+@inject IIconKitService Kits
+
+@{
+    var defaultLibraryName = Icons.DefaultLibrary.SystemName;
+    var libraries = (await Icons.GetLibrariesAsync())
+        .Where(x => !x.SystemName.Equals("system", StringComparison.OrdinalIgnoreCase))
+        .OrderBy(x => x.SystemName.Equals(defaultLibraryName, StringComparison.OrdinalIgnoreCase) ? 0 : 1)
+        .ThenBy(x => x.DisplayName).ToArray();
+
+    var fieldName = ViewData.TemplateInfo.GetFullHtmlFieldName(nameof(Model.Icon));
+    var expression = Model.Icon;
+    if (ViewData.ModelState.TryGetValue(fieldName, out var state))
+    {
+        expression = IconExpression.TryParse(state.AttemptedValue, out var posted) ? posted : null;
+    }
+    if (expression.HasValue && expression.Value.Address.IsEmpty)
+    {
+        expression = null;
+    }
+
+    var presentation = expression?.Presentation ?? default;
+    var selectedAddress = expression?.Address.ToString();
+    var selectedLabel = expression?.Address.Name;
+    var area = Model.Area.NullEmpty() ?? IconAreaResolver.ResolveArea(Context);
+    var selectedIcon = expression.HasValue ? await Icons.GetIconAsync(expression.Value.Address, area) : null;
+    var showHiddenKits = Model.ShowHiddenKits;
+    var initialSource = Browser.GetSource(selectedAddress, area, showHiddenKits);
+    // Retain the selected hidden source for label initialization, without listing it.
+    var kits = Kits.Kits.Where(x => x.ShowInPicker || showHiddenKits || x.Name == initialSource?.Kit)
+        .ToArray();
+    var visibleOptions = Model.VisibleOptions;
+}
+
+<script src="~/js/smartstore.icontools.js" sm-target-zone="scripts" sm-key="icontools"></script>
+<script src="~/admin/js/smartstore.iconbrowser.js" sm-target-zone="scripts" sm-key="iconbrowser"></script>
+
+<div class="icon-browser" data-search-url="@Url.RouteUrl("IconKit.Browse")"
+     data-icon-area="@area" data-icon-presentation="@presentation.ToString()" data-show-provider-indicators="@(Model.ShowProviderIndicators ? "true" : "false")"
+     data-external-label="@(Model.ShowProviderIndicators ? T("Admin.IconBrowser.External").ToString() : null)" data-size-label="@T("Admin.IconBrowser.Size")" data-visible-options="@((int)visibleOptions)">
+    @Html.HiddenFor(x => x.Icon, new { @class = "icon-browser-expression" })
+    <div class="row gx-2">
+        <div class="col-3 dropdown icon-browser-source-dropdown">
+            <button type="button" class="btn btn-secondary dropdown-toggle btn-block"
+                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" title="@T("Admin.IconBrowser.SelectSource.Hint")">
+                <span class="text-truncate icon-browser-source-label">@T("Admin.IconBrowser.SelectSource")</span>
+            </button>
+            <div class="dropdown-menu icon-browser-source-menu scrollbar-thin overflow-y-auto">
+                @if (kits.Length > 0)
+                {
+                    <h6 sm-if="kits.Any(x => x.ShowInPicker || showHiddenKits)" class="dropdown-header">@T("Admin.IconBrowser.Kits")</h6>
+                    @foreach (var kit in kits)
+                    {
+                        var kitLabel = kit.DisplayName ?? kit.Name;
+                        var kitIcon = kit.Icon ?? "box";
+                        <button type="button" class="dropdown-item" data-kit="@kit.Name" data-label="@kitLabel"
+                                attr-class='(!kit.ShowInPicker && !showHiddenKits, "d-none")'
+                                data-initial="@(kit.Name == initialSource?.Kit ? "true" : null)" title="@T("Admin.IconBrowser.KitTitle", kitLabel)">
+                            <icon name="@kitIcon" aria-hidden="true" />
+                            <span>@kitLabel</span>
+                            <span class="small text-success fwm pl-3 ml-auto">@kit.Icons.Count.ToString("N0")</span>
+                        </button>
+                    }
+                }
+                @if (libraries.Length > 0)
+                {
+                    <h6 class="dropdown-header @(kits.Length > 0 ? "mt-2" : null)">@T("Admin.IconBrowser.Libraries")</h6>
+                }
+                @foreach (var library in libraries)
+                {
+                    var libraryLabel = library.DisplayName.HasValue() ? library.DisplayName : library.SystemName.Titleize();
+                    @foreach (var variant in library.Variants.Values)
+                    {
+                        var variantLabel = variant.Name.EqualsNoCase("default")
+                            ? null : (variant.DisplayName ?? variant.Name).Titleize();
+                        var variantSuffix = variantLabel.HasValue() ? " " + variantLabel : string.Empty;
+                        var sourceLabel = libraryLabel + variantSuffix;
+                        var buttonLabel = (variantLabel.HasValue() && variant.DisplayName.HasValue() && library.ShortName.HasValue()
+                            ? library.ShortName.ToUpperInvariant() : libraryLabel) + variantSuffix;
+                        var sourceIcon = variant.Icon ?? library.Icon ?? "layers";
+                        <button type="button" class="dropdown-item" data-lib="@library.SystemName" data-variant="@variant.Name"
+                                data-label="@sourceLabel" data-button-label="@buttonLabel" title="@T("Admin.IconBrowser.LibraryTitle", sourceLabel)"
+                                data-initial="@(initialSource?.Kit == null && library.SystemName == initialSource?.Library && variant.Name == initialSource?.Variant ? "true" : null)">
+                            <icon name="@sourceIcon" aria-hidden="true" />
+                            <span>@sourceLabel</span>
+                            <span class="small text-success fwm pl-3 ml-auto">@Icons.GetIconCount(library.SystemName, variant.Name).ToString("N0")</span>
+                        </button>
+                    }
+                }
+            </div>
+        </div>
+        <div class="col-9">
+            <div class="icon-browser-selection">
+                <select id="@Html.Id("")"
+                        class="form-control icon-browser-select noskin" aria-label="@T("Admin.IconBrowser.Icon")"
+                        data-placeholder="@T("Admin.IconBrowser.Search")">
+                    <option></option>
+                    @if (selectedAddress.HasValue())
+                    {
+                        <option value="@selectedAddress" data-external="@(initialSource?.IsExternal == true ? "true" : "false")" attr-data-scalable='@(selectedIcon?.SupportsStrokeScaling == true, "true")' selected>@selectedLabel</option>
+                    }
+                </select>
+                @if (visibleOptions != IconOptionFields.None)
+                {
+                    <partial name="_IconPresentationToolbar" model="visibleOptions" />
+                }
+            </div>
+            @Html.ValidationMessageFor(x => x.Icon)
+        </div>
+    </div>
+</div>

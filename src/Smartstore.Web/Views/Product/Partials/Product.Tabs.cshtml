@@ -35,7 +35,7 @@
             sm-badge-text="@(Model.ReviewCount == 0 ? string.Empty : Model.ReviewCount.ToString())"
             sm-badge-style="Warning">
         <p class="mb-4">
-            <a asp-action="Reviews" asp-controller="Product" asp-route-id="@Model.Id" class="btn btn-warning">
+            <a asp-action="Reviews" asp-controller="Product" asp-route-id="@Model.Id" class="btn btn-light">
                 <span>@T($"Reviews.Overview.{(Model.ProductReviews.TotalReviewsCount > 0 ? "AddNew" : "First")}")</span>
             </a>
         </p>

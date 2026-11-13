@@ -1,0 +1,201 @@
+﻿@using System.Linq.Expressions
+@using Smartstore.Admin.Models.Settings
+@model IconSettingsModel
+
+@{
+    ViewBag.Title = T("Admin.Configuration.Settings.Icons").Value;
+    Layout = "_SettingLayout";
+}
+
+<form id="icon-settings-form" asp-action="IconSettings" method="post">
+    <div class="section-header">
+        <div class="title">
+            <icon name="star" />
+            @T("Admin.Configuration.Settings.Icons")
+        </div>
+        <div class="options">
+            <button type="submit" name="save" value="save" class="btn btn-primary">
+                <icon name="check" />
+                <span>@T("Admin.Common.Save")</span>
+            </button>
+        </div>
+    </div>
+
+    @await Component.InvokeAsync("StoreScope")
+
+    <div asp-validation-summary="All"></div>
+
+    <div class="adminContent">
+        <div class="admin-config-group">
+            <div class="adminRow">
+                <p class="info adminContainer">@T("Admin.Configuration.Settings.Icons.Description")</p>
+            </div>
+        </div>
+
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="MainMenu" for="@(Html.IdFor(x => x.MainMenu.DisplayIcons))" />
+            </div>
+            <div class="adminData">
+                <setting-editor asp-for="MainMenu">
+                    <editor asp-for="MainMenu.DisplayIcons" data-toggler-for="#pnlMainMenuIconOptions" />
+                </setting-editor>
+            </div>
+        </div>
+        <div id="pnlMainMenuIconOptions">
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="MainMenu.Size" />
+                </div>
+                <div class="adminData">
+                    @{ await IconSizeTemplate(x => x.MainMenu.Size); }
+                    <span asp-validation-for="MainMenu.Size"></span>
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="MainMenu.FallbackIcon" />
+                </div>
+                <div class="adminData">
+                    <editor asp-for="MainMenu.FallbackIcon" />
+                    <span asp-validation-for="MainMenu.FallbackIcon.Icon"></span>
+                </div>
+            </div>
+        </div>
+        <div class="adminSeparator"><hr /></div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="MainMenuDropdown" for="@(Html.IdFor(x => x.MainMenuDropdown.DisplayIcons))" />
+            </div>
+            <div class="adminData">
+                <setting-editor asp-for="MainMenuDropdown">
+                    <editor asp-for="MainMenuDropdown.DisplayIcons" data-toggler-for="#pnlMainMenuDropdownIconOptions" />
+                </setting-editor>
+            </div>
+        </div>
+        <div id="pnlMainMenuDropdownIconOptions">
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="MainMenuDropdown.Size" />
+                </div>
+                <div class="adminData">
+                    @{ await IconSizeTemplate(x => x.MainMenuDropdown.Size); }
+                    <span asp-validation-for="MainMenuDropdown.Size"></span>
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="MainMenuDropdown.FallbackIcon" />
+                </div>
+                <div class="adminData">
+                    <editor asp-for="MainMenuDropdown.FallbackIcon" />
+                    <span asp-validation-for="MainMenuDropdown.FallbackIcon.Icon"></span>
+                </div>
+            </div>
+        </div>
+        <div class="adminSeparator"><hr /></div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="OffCanvasMenu" for="@(Html.IdFor(x => x.OffCanvasMenu.DisplayIcons))" />
+            </div>
+            <div class="adminData">
+                <setting-editor asp-for="OffCanvasMenu">
+                    <editor asp-for="OffCanvasMenu.DisplayIcons" data-toggler-for="#pnlOffCanvasMenuIconOptions" />
+                </setting-editor>
+            </div>
+        </div>
+        <div id="pnlOffCanvasMenuIconOptions">
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="OffCanvasMenu.Size" />
+                </div>
+                <div class="adminData">
+                    @{ await IconSizeTemplate(x => x.OffCanvasMenu.Size); }
+                    <span asp-validation-for="OffCanvasMenu.Size"></span>
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="OffCanvasMenu.FallbackIcon" />
+                </div>
+                <div class="adminData">
+                    <editor asp-for="OffCanvasMenu.FallbackIcon" />
+                    <span asp-validation-for="OffCanvasMenu.FallbackIcon.Icon"></span>
+                </div>
+            </div>
+        </div>
+        <div class="adminSeparator"><hr /></div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="CategoryMenu" for="@(Html.IdFor(x => x.CategoryMenu.DisplayIcons))" />
+            </div>
+            <div class="adminData">
+                <setting-editor asp-for="CategoryMenu">
+                    <editor asp-for="CategoryMenu.DisplayIcons" data-toggler-for="#pnlCategoryMenuIconOptions" />
+                </setting-editor>
+            </div>
+        </div>
+        <div id="pnlCategoryMenuIconOptions">
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="CategoryMenu.Size" />
+                </div>
+                <div class="adminData">
+                    @{ await IconSizeTemplate(x => x.CategoryMenu.Size); }
+                    <span asp-validation-for="CategoryMenu.Size"></span>
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="CategoryMenu.FallbackIcon" />
+                </div>
+                <div class="adminData">
+                    <editor asp-for="CategoryMenu.FallbackIcon" />
+                    <span asp-validation-for="CategoryMenu.FallbackIcon.Icon"></span>
+                </div>
+            </div>
+        </div>
+        <div class="adminSeparator"><hr /></div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="MyAccountIconSize" />
+            </div>
+            <div class="adminData">
+                <setting-editor asp-for="MyAccountIconSize">
+                    @{ await IconSizeTemplate(x => x.MyAccountIconSize); }
+                </setting-editor>
+                <span asp-validation-for="MyAccountIconSize"></span>
+            </div>
+        </div>
+    </div>
+</form>
+
+@{
+    async Task IconSizeTemplate(Expression<Func<IconSettingsModel, string>> expression)
+    {
+        var value = Html.ValueFor(expression);
+
+        <div class="menu-icon-size">
+            @Html.HiddenFor(expression)
+            <div class="btn-group" role="group" aria-label="@T("Admin.Configuration.Settings.Icons.Fields.Size")">
+                <button type="button" class="btn btn-outline-secondary" data-value="md" attr-class='(value == "md", "active")' aria-pressed="@(value == "md" ? "true" : "false")">16</button>
+                <button type="button" class="btn btn-outline-secondary" data-value="lg" attr-class='(value == "lg", "active")' aria-pressed="@(value == "lg" ? "true" : "false")">20</button>
+                <button type="button" class="btn btn-outline-secondary" data-value="xl" attr-class='(value == "xl", "active")' aria-pressed="@(value == "xl" ? "true" : "false")">24</button>
+            </div>
+        </div>
+    }
+}
+
+<script>
+    $(function () {
+        const form = $('#icon-settings-form');
+
+        form.on('click', '.menu-icon-size button', function () {
+            const button = $(this);
+            const picker = button.closest('.menu-icon-size');
+            picker.find('input[type=hidden]').val(button.data('value')).trigger('change');
+            picker.find('button').removeClass('active').attr('aria-pressed', 'false');
+            button.addClass('active').attr('aria-pressed', 'true');
+        });
+    });
+</script>

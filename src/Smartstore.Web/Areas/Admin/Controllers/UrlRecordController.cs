@@ -138,7 +138,7 @@ public class UrlRecordController : AdminController
 
         if (!urlRecord.IsActive && model.IsActive)
         {
-            var urlRecords = (await _urlService.GetUrlRecordCollectionAsync(model.EntityName, new[] { model.LanguageId }, new[] { model.EntityId }))
+            var urlRecords = (await _urlService.GetUrlRecordCollectionAsync(model.EntityName, [model.LanguageId], [model.EntityId]))
                 .Where(x => x.IsActive == true)
                 .ToList();
 
@@ -151,7 +151,6 @@ public class UrlRecordController : AdminController
         if (ModelState.IsValid)
         {
             urlRecord.Slug = model.Slug;
-            urlRecord.EntityName = model.EntityName;
             urlRecord.IsActive = model.IsActive;
             urlRecord.LanguageId = model.LanguageId;
 

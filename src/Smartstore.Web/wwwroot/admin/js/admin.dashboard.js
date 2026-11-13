@@ -10,13 +10,14 @@ Smartstore.Admin.Charts = {
 
         const customTooltip = function (tooltip) {
             const canvas = this._chart.canvas;
-            const chartElement = canvas.closest('.report');
-            // Get tooltip of chart element
-            let tooltipEl = document.getElementById(chartElement.id).querySelector('.chart-tooltip');
+            const chartContainer = canvas.closest('.canvas-container');
+            const tooltipContainer = canvas.closest('.report').parentElement;
+            tooltipContainer.classList.add('dashboard-chart-tooltip-host');
+            let tooltipEl = tooltipContainer.querySelector(':scope > .chart-tooltip');
             if (!tooltipEl) {
                 tooltipEl = document.createElement('div');
                 tooltipEl.classList.add('chart-tooltip');
-                chartElement.append(tooltipEl);
+                tooltipContainer.append(tooltipEl);
             }
 
             // Hide if no tooltip visible
@@ -59,11 +60,24 @@ Smartstore.Admin.Charts = {
             }
 
             // Display tooltip and set position
-            const position = canvas.getBoundingClientRect();
-            const canvasHeight = parseInt(getComputedStyle(canvas).getPropertyValue('height'));
+            const canvasRect = canvas.getBoundingClientRect();
+            const hostRect = tooltipContainer.getBoundingClientRect();
+            const canvasLeft = canvasRect.left - hostRect.left;
+            const caretX = canvasLeft + tooltip.caretX;
             tooltipEl.style.opacity = 1;
-            tooltipEl.style.left = position.left + tooltip.caretX + 'px';
-            tooltipEl.style.marginTop = tooltip.caretY - canvasHeight + 'px';
+            tooltipEl.style.left = caretX + 'px';
+            tooltipEl.style.top = canvasRect.top - hostRect.top + tooltip.caretY + 'px';
+            tooltipEl.style.removeProperty('--chart-tooltip-caret-x');
+
+            if (tooltip.yAlign === 'bottom') {
+                // Allow a small overhang so the arrow can follow the edge points without chart padding.
+                const width = tooltipEl.offsetWidth;
+                const minLeft = Math.max(canvasLeft - 15, -hostRect.left);
+                const maxLeft = Math.min(canvasLeft + chartContainer.clientWidth + 15, document.documentElement.clientWidth - hostRect.left) - width;
+                const left = Math.max(minLeft, Math.min(caretX - width / 2, maxLeft));
+                tooltipEl.style.left = left + width / 2 + 'px';
+                tooltipEl.style.setProperty('--chart-tooltip-caret-x', caretX - left + 'px');
+            }
         };
 
         const chartToggleListener = function (el, setChartData) {
@@ -108,6 +122,7 @@ Smartstore.Admin.Charts = {
                     }
                 }
 
+                const reports = new Map();
                 const chartConfig = {
                     maintainAspectRatio: false,
                     cutoutPercentage: 90,
@@ -155,7 +170,7 @@ Smartstore.Admin.Charts = {
                                     && data.datasets[0].data[1] == 0) {
                                     return textFulfilled;
                                 }
-                                const d = dataSets[this._chart.id + alreadyExistingCharts].Data[item.index];
+                                const d = reports.get(this._chart).Data[item.index];
                                 return [textOrders + ':  ' + d.QuantityFormatted, textAmount + ':  ' + d.AmountFormatted];
                             },
                             title: function (item, data) {
@@ -193,7 +208,7 @@ Smartstore.Admin.Charts = {
                 );
 
                 // This value is needed for mapping tooltip data
-                const alreadyExistingCharts = chartDay.id;
+                reports.set(chartDay, dataSets[0]);
                 const dataWeek = {
                     labels: [textNotShipped, textNotPayed, textNewOrders],
                     datasets: [{
@@ -216,6 +231,7 @@ Smartstore.Admin.Charts = {
                         options: chartConfig
                     }
                 );
+                reports.set(chartWeek, dataSets[1]);
 
                 const dataMonth = {
                     labels: [textNotShipped, textNotPayed, textNewOrders],
@@ -239,6 +255,7 @@ Smartstore.Admin.Charts = {
                         options: chartConfig
                     }
                 );
+                reports.set(chartMonth, dataSets[2]);
 
                 const dataOverall = {
                     labels: [textNotShipped, textNotPayed, textNewOrders],
@@ -262,6 +279,7 @@ Smartstore.Admin.Charts = {
                         options: chartConfig
                     }
                 );
+                reports.set(chartOverall, dataSets[3]);
             },
             OrdersChart: function (dataSets, textCancelled, textPending, textProcessing, textComplete, textOrders) {
                 const reportElement = document.getElementById('orders-report');

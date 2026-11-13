@@ -23,18 +23,14 @@ public abstract class NUglifyProcessor : BundleProcessor
             try
             {
                 var result = MinifyCore(asset.Content);
-                var minCode = result.Code;
-
                 if (result.HasErrors)
                 {
                     HandleError(asset, string.Join(Environment.NewLine + Environment.NewLine, result.Errors.Select(x => x.ToString())));
-                }
-                else
-                {
-                    context.ProcessorCodes.Add(Code);
+                    continue;
                 }
 
-                asset.Content = minCode;
+                asset.Content = result.Code;
+                context.ProcessorCodes.Add(Code);
             }
             catch (Exception ex)
             {
@@ -49,6 +45,8 @@ public abstract class NUglifyProcessor : BundleProcessor
 
     protected virtual void HandleError(AssetContent asset, string message)
     {
-        asset.Content = "/* NUGLIFY ERRORS: " + Environment.NewLine + message + " */" + Environment.NewLine + asset.Content;
+        // Diagnostics must not terminate the comment and become executable content.
+        var diagnostic = (asset.Path + Environment.NewLine + message).Replace("*/", "* /");
+        asset.Content = "/* NUGLIFY ERRORS: " + Environment.NewLine + diagnostic + " */" + Environment.NewLine + asset.Content;
     }
 }

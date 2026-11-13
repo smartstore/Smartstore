@@ -14,6 +14,8 @@ public abstract class NavigationItem : INavigatable, IHideObjectMembers
     private string _controllerName;
     private string _routeName;
     private string _url;
+    private string _icon;
+    private string _iconLibrary;
 
     public NavigationItem()
     {
@@ -61,9 +63,23 @@ public abstract class NavigationItem : INavigatable, IHideObjectMembers
 
     public int? ImageId { get; set; }
 
-    public string IconLibrary { get; set; }
+    [Obsolete("Use a qualified address in Icon instead, for example bi:telephone.")]
+    public string IconLibrary
+    {
+        get => _iconLibrary;
+        set => _iconLibrary = value;
+    }
 
-    public string Icon { get; set; }
+    /// <summary>
+    /// Gets or sets the icon concept or address. Explicit address qualifiers take precedence over the legacy library.
+    /// </summary>
+    public string Icon
+    {
+        get => _icon.HasValue() && _iconLibrary.HasValue() && !_icon.Contains(':') && !_icon.Contains(' ')
+            ? $"{_iconLibrary}:{_icon}"
+            : _icon;
+        set => _icon = value;
+    }
 
     public string IconClass { get; set; }
 
@@ -75,7 +91,7 @@ public abstract class NavigationItem : INavigatable, IHideObjectMembers
 
     public string BadgeText { get; set; }
 
-    public int BadgeStyle { get; set; }
+    public string BadgeStyle { get; set; } = "secondary";
 
     [DefaultValue(true)]
     public bool Visible { get; set; } = true;

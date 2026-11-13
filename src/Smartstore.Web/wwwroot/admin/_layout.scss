@@ -1,0 +1,846 @@
+/// <reference path="references.scss" />
+
+// The admin uses one full-height shell: a fixed sidebar and a content scrollport.
+// SPA pages manage scrolling inside their content; popups omit the navigation inset.
+html {
+    height: 100%;
+}
+
+body {
+    --page-bg: var(--surface-bg);
+    --content-bg: #fff;
+    height: 100dvh;
+    overflow: hidden;
+    background-color: var(--page-bg);
+
+    --sidebar-icon-size: 20px;
+    --sidebar-padding-x: 6px;
+    --sidebar-item-padding-y: 9px;
+    --sidebar-item-padding-x: 12px;
+    --sidebar-item-margin-x: 2px;
+    // The compact width follows the icon plus the symmetric inner and outer spacing.
+    --sidebar-width: calc(var(--sidebar-icon-size) + 2 * (var(--sidebar-item-padding-x) + var(--sidebar-item-margin-x) + var(--sidebar-padding-x)));
+    --sidebar-label-gap: 0px;
+    --sidebar-label-width: 0px;
+    --sidebar-label-opacity: 0;
+    --sidebar-label-shift: -8px;
+    --sidebar-brand-width: 140px;
+    --sidebar-wordmark-width: 0px;
+    --sidebar-chevron-display: none;
+    --sidebar-motion: 0s;
+
+    &.sidebar-ready:not(.popup) {
+        --sidebar-motion: 200ms;
+    }
+
+    @include media-breakpoint-up(lg) {
+        &.sidebar-expanded:not(.popup) {
+            --sidebar-width: 180px;
+            --sidebar-label-width: 120px;
+            --sidebar-label-gap: 10px;
+            --sidebar-label-opacity: 1;
+            --sidebar-label-shift: 0px;
+            --sidebar-wordmark-width: calc(var(--sidebar-brand-width) * 0.8);
+            --sidebar-chevron-display: inline-block;
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        &.sidebar-ready:not(.popup) {
+            --sidebar-motion: 0s;
+        }
+    }
+
+    &.popup {
+        --sidebar-width: 0px;
+        --content-padding-x: #{$content-padding-x};
+
+        .dispensable {
+            display: none !important;
+        }
+    }
+}
+
+#page {
+    position: relative;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+.page-main {
+    --section-header-height: calc(var(--section-header-size) + var(--section-header-padding-y) + var(--section-header-padding-bottom));
+    position: relative;
+    display: grid;
+    height: 100%;
+    min-height: 0;
+    grid-template-columns: 100%;
+    grid-template-rows: minmax(0, 1fr);
+    margin-left: var(--sidebar-width);
+    background-color: var(--page-bg);
+    transition: margin-left var(--sidebar-motion) ease,
+                opacity $offcanvas-duration $offcanvas-easing,
+                transform $offcanvas-duration $offcanvas-easing;
+}
+
+#header {
+    grid-column: 1 / -1;
+    grid-row: 1;
+}
+
+.sidebar-left {
+    grid-column: 1 / 2;
+}
+
+.popup:not(.bare) {
+    --section-header-spacing: 16px;
+}
+
+#content {
+    position: relative;
+    min-height: 0;
+    overflow-y: auto;
+    margin: 0;
+    padding: 0 0 var(--content-padding-x);
+    background-color: var(--content-bg);
+    grid-column: 1 / -1;
+    grid-row: 1;
+    z-index: 9;
+
+    .popup & {
+        padding-inline: var(--content-padding-x);
+        border: 0;
+    }
+}
+
+.cph {
+    display: flex;
+    flex-flow: column;
+    padding-inline: var(--admin-content-padding-x, var(--content-padding-x));
+
+    .popup & {
+        padding-inline: 0;
+    }
+}
+
+.popup.bare {
+    height: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+
+    #content {
+        overflow-y: visible;
+    }
+
+    #page,
+    #content,
+    .cph {
+        height: 100%;
+        padding: 0;
+    }
+}
+
+.section-header {
+    position: sticky;
+    top: 0;
+    z-index: $zindex-sticky;
+    flex-shrink: 0;
+    padding-inline: var(--content-padding-x);
+    padding-block: var(--section-header-padding-y) var(--section-header-padding-bottom);
+
+    @include make-row();
+    flex-wrap: nowrap;
+    margin-inline: calc(-1 * var(--admin-content-padding-x, var(--content-padding-x)));
+    margin-block-end: var(--section-header-spacing);
+
+    .title, .options {
+        @include make-col-ready();
+    }
+
+    .title {
+        font-family: $headings-font-family;
+        font-weight: $font-weight-medium;
+        font-size: $h4-font-size;
+        line-height: var(--section-header-size);
+        min-height: var(--section-header-size);
+        vertical-align: middle;
+        @include text-truncate();
+        padding-inline: 0 5px;
+        color: inherit;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.75rem;
+        // mimic .col
+        flex-basis: 0;
+        flex-grow: 1;
+        max-width: 100%;
+
+        > :is(.icon, .icon-stack) {
+            display: none; // Turn off for now, seems to look nicer
+            --icon-size: 28px;
+            vertical-align: text-top;
+            color: inherit;
+        }
+
+        > img {
+            max-height: var(--section-header-size);
+            max-width: 120px;
+            vertical-align: top;
+        }
+
+        a:not(.btn):not(.dropdown-item) {
+            text-decoration: none;
+            font-family: $font-family-sans-serif;
+            font-size: 12px;
+            font-weight: normal;
+            padding-inline-start: 5px;
+        }
+    }
+    // .title
+    .options {
+        // mimic .col-auto
+        flex: 0 0 auto;
+        width: auto;
+        max-width: none; // Reset earlier grid tiers
+        padding-inline: 5px 0;
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+
+        &.btn-toolbar {
+            margin: 0;
+        }
+
+        .btn.label-hidden > span:not(:only-child) {
+            display: none;
+        }
+
+        .section-header-actions .dropdown-divider {
+            display: block;
+        }
+
+        @include media-breakpoint-down(lg) {
+            // Keep mixed action bars on one line while reserving space for the title and navigation controls.
+            &:has(input:not([type="hidden"]), select, textarea) {
+                flex-shrink: 1;
+                min-width: 0;
+                max-width: 75%;
+
+                > :is(.input-group, .has-icon, .form-control) {
+                    flex-shrink: 1;
+                    min-width: 0;
+                    max-width: 100%;
+                }
+
+                .form-control {
+                    min-width: 0;
+                    max-width: 100%;
+                }
+
+                > :is(.btn, .dropdown) {
+                    flex-shrink: 0;
+                }
+            }
+
+        }
+    }
+}
+
+#content .section-header {
+    background: var(--section-header-bg, var(--content-bg));
+    box-shadow: none;
+    border-bottom: 0;
+    transition: none;
+}
+
+// Fade into the header's own color without making the content background transparent.
+// The overlay follows the header width, so it never covers the native scrollbar.
+body.sticky-header #content .section-header::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    inset-inline: 0;
+    height: var(--section-header-spacing);
+    background: linear-gradient(to bottom, var(--section-header-bg, var(--content-bg)), transparent);
+    pointer-events: none;
+}
+
+@include media-breakpoint-up(md) {
+    .left-sidebar {
+        .page-main {
+            grid-template-columns: 206px 1fr;
+        }
+
+        #content {
+            grid-column: 2 / -1;
+        }
+
+        .locale-editor {
+            max-width: calc(100dvw - var(--sidebar-width) - 206px - (var(--content-padding-x) * 2));
+        }
+    }
+}
+
+.spa-layout {
+    --section-header-spacing: var(--section-header-padding-y);
+
+    #content {
+        overflow-y: visible;
+    }
+
+    .page-main {
+        grid-template-columns: 1fr minmax(380px, 20%);
+    }
+
+    .cph {
+        height: 100%;
+        min-height: 0;
+
+        // The header takes its natural height; a direct grid fills only the remaining space.
+        > .datagrid-root {
+            flex-basis: 0;
+        }
+    }
+
+    .spa-stretch {
+        flex: 1 1 auto;
+        overflow: hidden;
+        display: flex;
+        flex-flow: column;
+
+        // Let grids use the remaining space instead of shrinking adjacent controls to fit their rows.
+        > .datagrid-root {
+            flex-basis: 0;
+        }
+    }
+}
+
+@include media-breakpoint-up(md) {
+    .spa-layout.left-sidebar .page-main {
+        grid-template-columns: 206px minmax(100px, 1fr) !important;
+    }
+}
+
+// Adjacent sticky panels use this offset; the header itself occupies normal layout space.
+#content:has(.section-header) {
+    --sticky-offset: calc(var(--section-header-height) + var(--section-header-spacing));
+}
+
+#navbar.navbar-sidebar {
+    --nav-link-padding-x: var(--sidebar-item-padding-x);
+    --nav-link-padding-y: var(--sidebar-item-padding-y);
+    --navbar-nav-link-padding-x: var(--nav-link-padding-x);
+    --nav-link-color: #{mix($indigo, #fff, 22%)};
+    --nav-link-disabled-color: #{$navbar-dark-disabled-color};
+    --nav-link-hover-color: #fff;
+    --nav-link-hover-bg: #{rgba(#fff, 0.09)};
+    --nav-link-active-color: var(--nav-link-hover-color);
+    --nav-link-active-bg: #{rgba(#fff, 0.15)};
+
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    z-index: $zindex-fixed;
+    width: var(--sidebar-width);
+    transition: width var(--sidebar-motion) ease;
+    padding: 12px var(--sidebar-padding-x);
+    flex-direction: column;
+    flex-wrap: nowrap;
+    gap: 12px;
+    background: var(--indigo);
+
+    .dropdown-toggle::after {
+        display: none;
+    }
+
+    #navbar-menu .nav-item > .dropdown-toggle::after {
+        @include icon-mask(var(--icon-mask-chevron-right), 1rem);
+        display: var(--sidebar-chevron-display);
+        flex: 0 0 auto;
+        margin-inline: auto -4px;
+        border: 0;
+        opacity: 0.5;
+    }
+
+    .dropdown-menu {
+        will-change: auto;
+        transform: translateX(var(--sidebar-menu-slide-x, calc(-1 * var(--sidebar-menu-slide-distance, 16px))));
+        transition: transform 0.2s ease, opacity 0.275s ease-out, visibility 0s 0.275s;
+        pointer-events: none;
+
+        &.show {
+            transform: none;
+            transition-delay: 0s;
+            pointer-events: auto;
+        }
+    }
+
+    .reddot {
+        position: absolute;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background-color: $red;
+        color: #fff;
+    }
+
+    .navbar-brand {
+        position: relative;
+        flex: 0 0 48px;
+        width: 100%;
+        margin: 0;
+        padding: 8px 0 12px;
+    }
+
+    .navbar-brand-symbol,
+    .navbar-brand-wordmark {
+        position: absolute;
+        top: 8px;
+        // Align the drawn logo center with the navigation icons, including their configurable spacing.
+        left: calc(var(--sidebar-item-margin-x) + var(--sidebar-item-padding-x) + var(--sidebar-icon-size) / 2);
+        height: 29px;
+        overflow: hidden;
+        transform: translateX(calc(var(--sidebar-brand-width) * -0.0988));
+
+        > img {
+            display: block;
+            width: var(--sidebar-brand-width);
+            max-width: none;
+            height: auto;
+            margin-top: calc((29px - var(--sidebar-brand-width) * 0.1792) / 2);
+        }
+    }
+
+    // The symbol spans x=0.6..48.8 in the original 250-unit viewBox; its center is 24.7 / 250.
+    .navbar-brand-symbol {
+        width: calc(var(--sidebar-brand-width) * 0.2);
+    }
+
+    .navbar-brand-wordmark {
+        margin-left: calc(var(--sidebar-brand-width) * 0.2);
+        width: var(--sidebar-wordmark-width);
+        transition: width var(--sidebar-motion) ease;
+
+        > img {
+            margin-left: calc(var(--sidebar-brand-width) * -0.2);
+            opacity: var(--sidebar-label-opacity);
+            transform: translateX(var(--sidebar-label-shift));
+            transition: opacity var(--sidebar-motion) ease, transform var(--sidebar-motion) ease;
+        }
+    }
+
+    .navbar-sidebar-toggle {
+        flex: 0 0 auto;
+        cursor: pointer;
+
+        &:disabled {
+            opacity: 0.4;
+            cursor: default;
+        }
+    }
+
+    .navbar-sidebar-toggle.expanded {
+        .navbar-toggle-expand {
+            display: none;
+        }
+
+        .navbar-toggle-collapse {
+            display: inline-block;
+        }
+    }
+
+    .navbar-toggle-expand {
+        display: inline-block;
+    }
+
+    .navbar-toggle-collapse {
+        display: none;
+    }
+
+    .nav-item .navbar-label,
+    .navbar-sidebar-toggle .navbar-label {
+        display: block;
+        min-width: 0;
+        max-width: var(--sidebar-label-width);
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        text-align: left;
+        margin-inline-start: var(--sidebar-label-gap);
+        padding: 0;
+        opacity: var(--sidebar-label-opacity);
+        transform: translateX(var(--sidebar-label-shift));
+        transition: max-width var(--sidebar-motion) ease, opacity var(--sidebar-motion) ease,
+                    margin-inline-start var(--sidebar-motion) ease, transform var(--sidebar-motion) ease;
+    }
+
+    #navbar-menu {
+        --dropdown-icon-item-padding-x: 1rem;
+        flex: 1 1 auto;
+        min-height: 0;
+        width: 100%;
+        overflow-y: auto;
+        scrollbar-width: none;
+        align-items: flex-start;
+
+        .dropdown-menu {
+            --dropdown-padding-x: 0.5rem;
+            --dropdown-padding-y: 0.5rem;
+            --dropdown-item-padding-y: 0.5rem;
+            --dropdown-divider-margin-y: 0.5rem;
+            --shadow-intensity: 0.7;
+            --dropdown-box-shadow: #{$box-shadow-lg};
+        }
+
+        .dropdown-item {
+            font-weight: $font-weight-medium;
+            gap: 1rem;
+            white-space: normal;
+            overflow-wrap: anywhere;
+        }
+
+        .dropdown-header {
+            font-size: $font-size-xs;
+            text-transform: uppercase;
+        }
+    }
+
+    .navbar-nav {
+        width: 100%;
+        flex-direction: column;
+        gap: 0;
+    }
+
+    .navbar-footer {
+        display: flex;
+        flex: 0 0 auto;
+        flex-direction: column;
+        width: 100%;
+        gap: 2px;
+    }
+
+    .navbar-account {
+        flex: 0 0 auto;
+        width: 100%;
+    }
+
+    .nav-item {
+        width: 100%;
+        position: static;
+    }
+
+    .nav-link {
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        column-gap: 0;
+        width: calc(100% - 2 * var(--sidebar-item-margin-x));
+        transition: color 0.1s linear, opacity 0.1s linear, background-color 0.1s linear;
+        margin: 0 var(--sidebar-item-margin-x);
+        border: 0;
+        box-shadow: none;
+        border-radius: var(--border-radius-md);
+
+        &:focus-visible {
+            outline: none;
+        }
+    }
+
+    .navbar-icon.icon, .nav-link > img {
+        --icon-size: var(--sidebar-icon-size);
+        color: inherit;
+        flex: 0 0 auto;
+        width: var(--sidebar-icon-size);
+        height: var(--sidebar-icon-size);
+        margin-inline: 0;
+    }
+
+    .dropdown-menu-compact,
+    .dropdown-menu-compact .dropdown-menu {
+        --dropdown-item-padding-x: 10px;
+        --dropdown-icon-item-padding-x: 10px;
+
+        .dropdown-item {
+            gap: 10px;
+        }
+
+        .dropdown-group > .dropdown-item {
+            padding-inline-end: calc(var(--dropdown-item-padding-x) + 1rem);
+        }
+    }
+
+    .navbar-account .reddot {
+        bottom: calc(1lh + 2 * var(--sidebar-item-padding-y) + 2px);
+        right: 10px;
+    }
+
+    .navbar-account > .nav-item > .dropdown-menu:not(.show) {
+        transform: translateY(var(--sidebar-menu-slide-distance, 16px));
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        --sidebar-menu-slide-distance: 0px;
+
+        .dropdown-menu,
+        .sidebar-menu-arrow {
+            transition: none;
+        }
+    }
+
+    .nav-item > .dropdown-menu {
+        position: fixed;
+        top: var(--sidebar-menu-top, 8px);
+        left: var(--sidebar-menu-left, var(--sidebar-width, 64px)) !important;
+        right: auto;
+        margin: 0;
+        max-width: var(--sidebar-menu-max-width, calc(100vw - var(--sidebar-menu-left, var(--sidebar-width, 64px)) - 8px));
+        max-height: var(--sidebar-menu-max-height, calc(100dvh - 16px));
+
+        &.sidebar-menu-scrollable {
+            overflow-y: auto;
+            overscroll-behavior: contain;
+        }
+    }
+
+    // Keep the arrow outside the menu's scrollable surface so overflow cannot clip it.
+    .sidebar-menu-arrow {
+        @include bubble("left", "near", 8,
+            var(--sidebar-menu-arrow-bg, #{$dropdown-bg}),
+            var(--sidebar-menu-arrow-border-color, #{$dropdown-border-color}), 0px);
+
+        position: fixed;
+        z-index: $zindex-dropdown;
+        left: var(--sidebar-menu-arrow-x, var(--sidebar-width));
+        top: calc(var(--sidebar-menu-arrow-y, 0px) - var(--bubble-size));
+        width: 0;
+        height: 0;
+        direction: ltr; // The sidebar remains on the left in RTL layouts too.
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+        transform: translateX(var(--sidebar-menu-slide-x, calc(-1 * var(--sidebar-menu-slide-distance, 16px))));
+        transition: transform 0.2s ease, opacity 0.275s ease-out, visibility 0s 0.275s;
+
+    }
+
+    .nav-item.show > .sidebar-menu-arrow {
+        opacity: 1;
+        visibility: visible;
+        transform: none;
+        transition-delay: 0s;
+    }
+
+    .dropdown-group > .dropdown-menu {
+        width: max-content;
+        max-height: calc(100dvh - 16px);
+        overflow-y: auto;
+    }
+
+    .sidebar-submenu-back {
+        display: none;
+    }
+
+    .sidebar-submenu-overlap > .sidebar-submenu-back {
+        display: flex;
+    }
+
+    .sidebar-submenu-back-icon {
+        @include icon-mask(var(--icon-mask-chevron-left), 1rem);
+    }
+}
+
+.sidebar-tooltip {
+    > .tooltip-inner {
+        background-color: var(--dark);
+    }
+
+    &.bs-tooltip-right > .arrow::before {
+        border-right-color: var(--dark);
+    }
+}
+
+//
+// Mobile Sidebar
+// --------------------------------------------------------------
+
+.navbar-mobile-toggle {
+    display: none;
+}
+
+@include media-breakpoint-down(xs) {
+    body:not(.popup):not(.installation) {
+        --sidebar-width: 180px;
+        --sidebar-label-width: 120px;
+        --sidebar-label-gap: 10px;
+        --sidebar-label-opacity: 1;
+        --sidebar-label-shift: 0px;
+        --sidebar-wordmark-width: calc(var(--sidebar-brand-width) * 0.8);
+        --sidebar-chevron-display: inline-block;
+
+        #navbar-menu {
+            --sidebar-menu-offset-x: -32px;
+        }
+
+        .page-main {
+            margin-left: 0;
+        }
+
+        &.sidebar-ready .navbar-mobile-toggle {
+            display: inline-flex;
+            flex: 0 0 auto;
+        }
+
+        .section-header .title > .navbar-mobile-toggle:has(+ a.btn) {
+            margin-inline-end: -0.375rem;
+        }
+
+        #content > .cph > .navbar-mobile-toggle {
+            align-self: flex-start;
+            margin-block: var(--section-header-padding-y) var(--section-header-spacing);
+        }
+
+        #navbar.navbar-sidebar {
+            visibility: hidden;
+            transform: translateX(-100%);
+            transition: transform var(--sidebar-motion) ease,
+                        visibility 0s var(--sidebar-motion);
+        }
+
+        &.sidebar-mobile-open #navbar.navbar-sidebar {
+            visibility: visible;
+            transform: none;
+            transition-delay: 0s;
+        }
+    }
+}
+
+
+//
+// Settings Menu
+// --------------------------------------------------------------
+
+// Menu component shared by the desktop navigation and the mobile collapse.
+.settings-menu.nav-pills {
+    --nav-link-padding-x: 12px;
+    --nav-link-padding-y: 10px;
+    --nav-link-color: var(--gray-800);
+    --nav-link-hover-color: var(--gray-900);
+    --nav-link-hover-bg: rgb(0 0 0 / 0.06);
+    --nav-link-active-color: var(--nav-link-hover-color);
+    --nav-link-active-bg: rgb(0 0 0 / 0.10);
+    --nav-link-transition: background-color 0.12s ease;
+    --nav-pills-link-active-color: var(--nav-link-color);
+    --nav-pills-link-active-bg: rgb(0 0 0 / 0.08);
+    --nav-pills-border-radius: var(--border-radius-pill);
+    --settings-icon-gap: 1rem;
+    --border-color: var(--nav-link-hover-bg);
+
+    min-height: 0;
+    gap: 1px;
+
+    // Main menu entries and the separate footer containing "All settings".
+    .settings-menu-items,
+    .settings-menu-footer {
+        gap: inherit;
+    }
+
+    .nav-link {
+        column-gap: var(--settings-icon-gap);
+    }
+}
+
+
+// Body class applied by the settings page layout.
+.settings-layout {
+    --settings-navigation-width: 220px;
+    --settings-navigation-gap: 24px;
+
+    // Wrapper containing the navigation column and the settings page content.
+    .settings-shell {
+        flex: 1 1 auto;
+        min-height: 0;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+        grid-template-rows: minmax(0, 1fr);
+
+    }
+
+    // Main page area containing the section header, settings form or data grid.
+    .settings-content {
+        min-width: 0;
+    }
+
+    // Desktop <nav> column that keeps the settings menu beside the page content.
+    .settings-navigation {
+        --scrollbar-size: 8px;
+        --scrollbar-thumb-padding: 2px;
+        position: sticky;
+        top: var(--sticky-offset);
+        z-index: $zindex-sticky - 1;
+        margin-top: var(--sticky-offset);
+        height: max(0px, calc(100dvh - var(--sticky-offset) - var(--settings-navigation-gap)));
+
+        // Desktop menu instance; the mobile instance uses the base values above.
+        .settings-menu {
+            --nav-link-padding-y: 8px;
+            --settings-icon-gap: calc(1rem - 3px);
+            --nav-pills-border-radius: var(--border-radius-md);
+            // A half-height pill keeps the browser from shrinking the opposite corners.
+            --settings-pill-radius: calc(0.5lh + var(--nav-link-padding-y));
+        }
+
+        // Selected link: pill-shaped on the left, standard rounded corners on the right.
+        .nav-link.active {
+            border-top-left-radius: var(--settings-pill-radius);
+            border-bottom-left-radius: var(--settings-pill-radius);
+
+            // Center the selected link's icon in its pill-shaped leading edge.
+            > .settings-menu-icon {
+                translate: -2px;
+            }
+        }
+
+        // Scrollable menu entries; the "All settings" footer stays outside this area.
+        .settings-menu-items {
+            overscroll-behavior: contain;
+            scrollbar-color: var(--scrollbar-thumb-color) transparent;
+        }
+    }
+
+    @include media-breakpoint-down(sm) {
+        // Mobile content wrapper; place its section header before the collapsible menu.
+        .settings-content {
+            display: flex;
+            flex-direction: column;
+
+            > form {
+                display: contents;
+            }
+
+            .section-header {
+                order: -1;
+            }
+        }
+    }
+
+    @include media-breakpoint-up(md) {
+        #content {
+            padding-bottom: var(--settings-navigation-gap);
+        }
+
+        #content > .cph {
+            padding-inline-start: var(--settings-navigation-gap);
+        }
+
+        // Desktop two-column arrangement of the navigation/content wrapper.
+        .settings-shell {
+            grid-template-columns: var(--settings-navigation-width) minmax(0, 1fr);
+            column-gap: var(--settings-navigation-gap);
+        }
+
+        #content .settings-content .section-header {
+            margin-inline-start: calc(-1 * (var(--settings-navigation-width) + 2 * var(--settings-navigation-gap)));
+        }
+    }
+}

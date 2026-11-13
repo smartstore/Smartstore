@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc.Rendering;
+﻿using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Smartstore.Core.Catalog.Products;
 
 namespace Smartstore.Admin.Models.Catalog;
@@ -19,6 +20,7 @@ public class ProductBundleItemModel : EntityModelBase, ILocalizedModel<ProductBu
     public string Name { get; set; }
 
     [LocalizedDisplay("*ShortDescription")]
+    [DisplayFormat(ConvertEmptyStringToNull = false)]
     public string ShortDescription { get; set; }
 
     [LocalizedDisplay("*Quantity")]
@@ -61,6 +63,7 @@ public class ProductBundleItemLocalizedModel : ILocalizedLocaleModel
     public string Name { get; set; }
 
     [LocalizedDisplay("*ShortDescription")]
+    [DisplayFormat(ConvertEmptyStringToNull = false)]
     public string ShortDescription { get; set; }
 }
 

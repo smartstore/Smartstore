@@ -7,23 +7,21 @@
 @await Component.InvokeAsync("StoreScope")
 
 <widget target-zone="admin_button_toolbar_before">
-    <button id="SaveConfigButton" type="submit" name="save" class="btn btn-warning" value="save">
-        <i class="fa fa-check"></i>
+    <button id="SaveConfigButton" type="submit" name="save" class="btn btn-primary" value="save">
+        <icon name="check"  />
         <span>@T("Admin.Common.Save")</span>
     </button>
 </widget>
 
-<div class="plugin-configuration">
-    <div>
-        <div class="alert alert-info alert-dismissible">
+<div class="alert alert-info alert-dismissible fade show">
+    <button type="button" class="btn-close" data-dismiss="alert"></button>
+    <a class="d-inline-block mb-3 mw-100" style="max-width: 268px" href="https://www.clickatell.com/" target="_blank">
+        <img class="img-fluid alert-branding" src="@Url.Content("~/Modules/Smartstore.Clickatell/branding.png")" alt="Clickatell" />
+    </a>
+    <div class="text-expander" data-max-height="130">
+        <div class="text-expander-content">
             @Html.Raw(T("Plugins.Sms.Clickatell.AdminInstruction"))
-            <button class="btn-close" data-dismiss="alert"></button>
         </div>
-    </div>
-    <div class="mt-5">
-        <a href="https://www.clickatell.com/" target="_blank">
-            <img src="@Url.Content("~/Modules/Smartstore.Clickatell/branding.png")" alt="Clickatell" />
-        </a>
     </div>
 </div>
 
@@ -76,7 +74,7 @@
             <div class="adminTitle">
             </div>
             <div class="adminData">
-                <div class="alert @(Model.TestSucceeded ? "alert-info" : "alert-danger") alert-dismissible">
+                <div class="alert @(Model.TestSucceeded ? "alert-info" : "alert-danger") alert-dismissible fade show">
                     <div>@Model.TestSmsResult</div>
                     <div>@Model.TestSmsDetailResult</div>
                     <button class="btn-close" data-dismiss="alert"></button>
@@ -88,7 +86,7 @@
             </div>
             <div class="adminData">
                 <button type="submit" name="test-sms" value="test-sms" class="btn btn-secondary">
-                    <i class="fa fa-envelope"></i>
+                    <icon name="mail"  />
                     <span>@T("Plugins.Sms.Clickatell.SendTest")</span>
                 </button>
             </div>

@@ -1,5 +1,7 @@
 /// <reference path="references.scss" />
 
+@use "sass:math";
+
 // General
 // =================================
 
@@ -51,7 +53,7 @@
     }
 
     .throbber {
-        background-color: #fff;
+        background-color: $card-bg;
     }
 }
 
@@ -73,13 +75,13 @@
 
         .no-item-title  { font-size: $h2-font-size; font-weight: 400; }
         .no-item-icon   { color: rgba(0,0,0, 0.15); }
-        .no-item-info   { color: $text-muted; .fa { color: $body-color; } }
+        .no-item-info   { color: $text-muted; :is(.icon, .icon-stack) { color: $body-color; } }
     }
 }
 
 .offcanvas-cart-item {
     border-bottom: 1px solid rgba(#000, 0.15);
-    padding: $grid-gutter-width / 1.5;
+    padding: math.div($grid-gutter-width, 1.5);
 
     &:last-child { border-width: 0; }
 
@@ -111,11 +113,8 @@
 		border-color: transparent;
 	}
     .mb-bundle-pictures {
-        a, .fa {
+        a, .icon {
             padding-inline-end: 3px;
-        }
-        .fa {
-            font-size: 0.625rem;
         }
         a:hover {
             text-decoration: none;
@@ -127,37 +126,81 @@
     }
 }
 
+// Off-canvas footer: a docked receipt with a torn-off top edge, quiet labels,
+// the main action as a flat primary button and the other actions as ghost buttons.
+// It adapts to light and dark backgrounds.
+
+// Label color for the off-canvas footer: white, unless the background is too light for it.
+$offcanvas-cart-footer-color: if(color-contrast($offcanvas-cart-footer) == $color-contrast-dark, $color-contrast-dark, $white) !default;
+$offcanvas-cart-footer-muted: rgba($offcanvas-cart-footer-color, 0.7) !default;
+
 .offcanvas-cart-footer {
+    position: relative;
     background-color: $offcanvas-cart-footer;
+
+    // Torn-off receipt edge
+    &::before {
+        content: "";
+        position: absolute;
+        inset-inline: 0;
+        bottom: 100%;
+        height: 6px;
+        background: radial-gradient(circle at 50% 0, transparent 5px, $offcanvas-cart-footer 5.5px) repeat-x;
+        background-size: 14px 6px;
+        pointer-events: none;
+    }
+
+    // Primary colors on the flat .btn-clear base: no shadow, light rim.
+    .btn-clear:not(.ajax-cart-link) {
+        @extend .btn-primary;
+    }
+
+    // Secondary actions as ghost buttons in the label color.
+    @if $offcanvas-cart-footer-color == $color-contrast-dark {
+        .btn-clear.ajax-cart-link,
+        .btn-flat-light {
+            @extend .btn-plain;
+        }
+    }
+    @else {
+        .btn-clear.ajax-cart-link {
+            @extend .btn-no-border;
+        }
+    }
 }
 
 .offcanvas-cart-footer-row {
-    display: flex; 
+    display: flex;
     justify-content: space-between;
     align-items: center;
     line-height: 1.1;
-    color: #fff;
+    color: $offcanvas-cart-footer-color;
     padding: 1rem;
 
     .sub-total-caption {
-        text-transform: uppercase; 
-        font-size: 0.8rem; 
+        text-transform: uppercase;
+        font-size: 0.8rem;
+        color: $offcanvas-cart-footer-muted;
+        font-weight: $font-weight-medium;
+        letter-spacing: 0.06em;
+        margin-bottom: 0.25rem;
     }
 
     .sub-total {
         font-size: 1.5rem;
+        font-weight: $font-weight-medium;
     }
 }
 
 .offcanvas-cart-external-checkout {
     .heading-center:before {
-        background: rgba(#fff, 0.4) !important;
+        background: rgba($offcanvas-cart-footer-color, 0.15) !important;
         width: calc(100% - 2rem);
     }
 
     .heading-title {
         background-color: $offcanvas-cart-footer;
-        color: rgba($white, 0.8);
+        color: $offcanvas-cart-footer-muted;
         margin-bottom: 0;
         text-transform: uppercase;
     }
@@ -173,7 +216,7 @@
 .cart-container {
     --cart-row-padding-x: 1.25rem;
     --cart-row-padding-y: 1.25rem;
-    --cart-border-radius: var(--border-radius-md);
+    --cart-border-radius: var(--border-radius-lg);
     --cart-border-color: var(--border-color);
     --cart-item-img-width: 96px;
     --cart-item-title-font-size: 1rem;
@@ -443,7 +486,7 @@
         margin: 0;
 
         &:after {
-            @include fontawesome("\f106");
+            @include icon-mask(var(--icon-mask-chevron-up), 1rem);
             position: absolute;
             inset-inline-end: 0;
             top: 50%;

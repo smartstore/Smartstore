@@ -10,12 +10,12 @@
 <form asp-action="MediaSettings">
     <div class="section-header">
         <div class="title">
-            <i class="far fa-image"></i>
+            <icon name="image" />
             @T("Admin.Configuration.Settings.Media")
         </div>
         <div class="options">
-            <button type="submit" name="save" value="save" class="btn btn-warning">
-                <i class="fa fa-check"></i>
+            <button type="submit" name="save" value="save" class="btn btn-primary">
+                <icon name="check" />
                 <span>@T("Admin.Common.Save")</span>
             </button>
         </div>
@@ -291,7 +291,7 @@
                         <select asp-for="StorageProvider" asp-items="ViewBag.AvailableStorageProviders"></select>
 
                         <button type="button" id="MoveMediaButton" class="btn btn-danger mt-3" data-url="@Url.Action("ChangeMediaStorage", "Media", new { area = "Admin" })">
-                            <i class="fa fa-fw fa-dolly"></i>
+                            <icon name="folder-transfer" class="icon-fw" />
                             <span>@(T("Admin.Common.MoveNow"))!</span>
                         </button>
 

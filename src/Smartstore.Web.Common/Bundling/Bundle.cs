@@ -32,11 +32,16 @@ public class ScriptBundle : Bundle
 }
 
 /// <summary>
-/// Represents a stylesheet bundle that does CSS minification, URL rewrite & Autoprefixing.
+/// Represents a stylesheet bundle that does CSS minification, URL rewriting and transpilation.
 /// </summary>
 [DebuggerDisplay("StyleBundle: {Route}")]
 public class StyleBundle : Bundle
 {
+    /// <summary>
+    /// Gets or sets the icon area used by Sass icon-url calls. Asset requests do not carry an MVC page area.
+    /// </summary>
+    public string IconArea { get; set; } = "public";
+
     public StyleBundle(string route)
         : base(route, "text/css", DefaultStyleProcessors)
     {
@@ -119,13 +124,13 @@ public class Bundle
 
     internal static IBundleProcessor[] DefaultScriptProcessors
     {
-        //get => [ConcatProcessor.Instance, NUglifyJsMinProcessor.Instance];
-        get => [JsMinProcessor.Instance, ConcatProcessor.Instance];
+        //get => [JsMinProcessor.Instance, ConcatProcessor.Instance];
+        get => [NUglifyJsMinProcessor.Instance, ConcatProcessor.Instance];
     }
 
     internal static IBundleProcessor[] DefaultStyleProcessors
     {
-        get => [SassProcessor.Instance, CssRewriteUrlProcessor.Instance, ConcatProcessor.Instance, NUglifyCssMinProcessor.Instance, AutoprefixerProcessor.Instance];
+        get => [SassProcessor.Instance, CssRewriteUrlProcessor.Instance, ConcatProcessor.Instance, LightningCssProcessor.Instance];
     }
 
     #endregion

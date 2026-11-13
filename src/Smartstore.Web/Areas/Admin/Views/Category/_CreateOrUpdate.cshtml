@@ -17,14 +17,16 @@
     var productCategoriesViewData = new ViewDataDictionary(ViewData);
     productCategoriesViewData["Parent"] = Model;
 
-    var withdrawalPeriodDays = await CommonServices.Settings.GetSettingByKeyAsync<string>("WithdrawalSettings.WithdrawalPeriodDays");
+    var settings = CommonServices.Settings;
+    var withdrawalPeriodDays = await settings.GetSettingByKeyAsync<string>("WithdrawalSettings.WithdrawalPeriodDays");
+    var allowWithdrawalBeforeShipping = await settings.GetSettingByKeyAsync<bool>("WithdrawalSettings.AllowWithdrawalBeforeShipping");
 }
 
 <div asp-validation-summary="All"></div>
 <input type="hidden" asp-for="Id" />
 
-<tabstrip id="category-edit" sm-nav-style="Material" sm-nav-position="Left" sm-onajaxsuccess="categoryEditTab_onAjaxSuccess">
-	<tab sm-title="@T("Admin.Common.General")" sm-icon="bi:pencil" sm-selected="true">
+<tabstrip id="category-edit" sm-nav-style="Material" sm-nav-position="Left" sm-nav-sticky="true" sm-onajaxsuccess="categoryEditTab_onAjaxSuccess">
+	<tab sm-title="@T("Admin.Common.General")" sm-icon="pen" sm-selected="true">
         <div class="adminContent">
             <div sm-if="Model.Id != 0" class="adminRow">
                 <div class="adminTitle">
@@ -124,6 +126,12 @@
 		        <div class="adminRow description-container">
 			        <div class="adminTitle">
                         <smart-label asp-for="Locales[item].Description" />
+                        <div class="adminTitle-addon">
+                            <button type="button" class="btn btn-secondary btn-sm" data-toggle="description">
+                                <icon name="arrow-up-down" />
+                                <span>@T("Admin.Catalog.Categories.DescriptionToggle")</span>
+                            </button>
+                        </div>
 			        </div>
                     <div class="adminData wide">
                         <html-editor asp-for="Locales[item].Description" 
@@ -134,6 +142,12 @@
 		        <div class="adminRow description-container d-none">
 			        <div class="adminTitle">
                         <smart-label asp-for="Locales[item].BottomDescription" />
+                        <div class="adminTitle-addon">
+                            <button type="button" class="btn btn-secondary btn-sm" data-toggle="description">
+                                <icon name="arrow-up-down" />
+                                <span>@T("Admin.Catalog.Categories.DescriptionToggle")</span>
+                            </button>
+                        </div>
 			        </div>
                     <div class="adminData wide">
                         <html-editor asp-for="Locales[item].BottomDescription" 
@@ -141,17 +155,6 @@
                         <span asp-validation-for="Locales[item].BottomDescription"></span>
                     </div>
 		        </div>
-                <div class="adminRow">
-                    <div class="adminTitle">
-                        &nbsp;
-                    </div>
-                    <div class="adminData">
-                        <button type="button" class="btn btn-secondary description-toggle-button">
-                            <i class="fa fa-right-left"></i>
-                            <span>@T("Admin.Catalog.Categories.DescriptionToggle")</span>
-                        </button>
-                    </div>
-                </div>
 		        <div class="adminRow">
 			        <div class="adminTitle">
                         <smart-label asp-for="Locales[item].BadgeText" />
@@ -187,6 +190,12 @@
 		        <div class="adminRow description-container">
 			        <div class="adminTitle">
                         <smart-label asp-for="Description" />
+                        <div class="adminTitle-addon">
+                            <button type="button" class="btn btn-secondary btn-sm" data-toggle="description">
+                                <icon name="arrow-up-down" />
+                                <span>@T("Admin.Catalog.Categories.DescriptionToggle")</span>
+                            </button>
+                        </div>
 			        </div>
                     <div class="adminData wide">
                         <ai-rich-text asp-for="Description"
@@ -202,6 +211,12 @@
 		        <div class="adminRow description-container d-none">
 			        <div class="adminTitle">
                         <smart-label asp-for="BottomDescription" />
+                        <div class="adminTitle-addon">
+                            <button type="button" class="btn btn-secondary btn-sm" data-toggle="description">
+                                <icon name="arrow-up-down" />
+                                <span>@T("Admin.Catalog.Categories.DescriptionToggle")</span>
+                            </button>
+                        </div>
 			        </div>
                     <div class="adminData wide">
                         <ai-rich-text asp-for="BottomDescription"
@@ -215,17 +230,6 @@
                         <span asp-validation-for="BottomDescription"></span>
                     </div>
 		        </div>
-                <div class="adminRow">
-                    <div class="adminTitle">
-                        &nbsp;
-                    </div>
-                    <div class="adminData">
-                        <button type="button" class="btn btn-secondary description-toggle-button">
-                            <i class="fa fa-right-left"></i>
-                            <span>@T("Admin.Catalog.Categories.DescriptionToggle")</span>
-                        </button>
-                    </div>
-                </div>
 		        <div class="adminRow">
 			        <div class="adminTitle">
                         <smart-label asp-for="BadgeText" />
@@ -246,6 +250,15 @@
                 <div class="adminData">
                     <editor asp-for="BadgeStyle" />
                     <span asp-validation-for="BadgeStyle"></span>
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="IconModel" />
+                </div>
+                <div class="adminData">
+                    <editor asp-for="IconModel" />
+                    <span asp-validation-for="IconModel"></span>
                 </div>
             </div>
             <div class="adminRow">
@@ -298,7 +311,7 @@
                     <smart-label asp-for="PageSizeOptions" />
                 </div>
                 <div class="adminData">
-                    <input asp-for="PageSizeOptions" />
+                    <editor asp-for="PageSizeOptions" />
                     <span asp-validation-for="PageSizeOptions"></span>
                 </div>
             </div>
@@ -323,15 +336,26 @@
                     <span asp-validation-for="CategoryTemplateId"></span>
                 </div>
             </div>
-            <div class="adminRow" sm-if="@(moduleCatalog.GetModuleByName("Smartstore.Withdrawal") != null)">
-                <div class="adminTitle">
-                    <smart-label asp-for="WithdrawalPeriodDays" />
+            <div sm-if="@(moduleCatalog.GetModuleByName("Smartstore.Withdrawal") != null)">
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="WithdrawalPeriodDays" />
+                    </div>
+                    <div class="adminData">
+                        <editor asp-for="WithdrawalPeriodDays"
+                                sm-postfix="@T("Time.Days")"
+                                placeholder="@(withdrawalPeriodDays.NullEmpty() ?? T("Common.Unlimited"))" />
+                        <span asp-validation-for="WithdrawalPeriodDays"></span>
+                    </div>
                 </div>
-                <div class="adminData">
-                    <editor asp-for="WithdrawalPeriodDays" 
-                            sm-postfix="@T("Time.Days")" 
-                            placeholder="@(withdrawalPeriodDays.NullEmpty() ?? T("Common.Unlimited"))" />
-                    <span asp-validation-for="WithdrawalPeriodDays"></span>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="AllowWithdrawalBeforeShipping" />
+                    </div>
+                    <div class="adminData">
+                        <editor asp-for="AllowWithdrawalBeforeShipping" placeholder="@T(allowWithdrawalBeforeShipping ? "Common.Yes" : "Common.No")" />
+                        <span asp-validation-for="AllowWithdrawalBeforeShipping"></span>
+                    </div>
                 </div>
             </div>
             <div class="adminRow">
@@ -355,8 +379,8 @@
                         <div class="alert alert-danger">
                             @Html.Raw(T("Admin.Configuration.Category.Stores.AssignToSubCategoriesAndProducts.Hint"))
                         </div>
-                        <button type="submit" name="inherit-stores-into-children" value="inherit-stores-into-children" class="btn btn-danger confirm">
-                            <i class="fa fa-bolt"></i>
+                        <button type="submit" name="inherit-stores-into-children" value="inherit-stores-into-children" class="btn btn-secondary btn-destructive confirm">
+                            <icon name="bolt"  />
                             <span>@T("Admin.Configuration.Category.Stores.AssignToSubCategoriesAndProducts")</span>
                         </button>
                     </div>
@@ -374,8 +398,8 @@
                         <div class="alert alert-danger">
                             @Html.Raw(T("Admin.Configuration.Category.Acl.AssignToSubCategoriesAndProducts.Hint"))
                         </div>
-                        <button type="submit" name="inherit-acl-into-children" value="inherit-acl-into-children" class="btn btn-danger confirm">
-                            <i class="fa fa-bolt"></i>
+                        <button type="submit" name="inherit-acl-into-children" value="inherit-acl-into-children" class="btn btn-secondary btn-destructive confirm">
+                            <icon name="bolt"  />
                             <span>@T("Admin.Configuration.Category.Acl.AssignToSubCategoriesAndProducts")</span>
                         </button>
                     </div>
@@ -404,7 +428,7 @@
         </div>
 	</tab>
 
-	<tab sm-title="@T("Admin.Common.SEO")" sm-icon="bi:search">
+	<tab sm-title="@T("Admin.Common.SEO")" sm-icon="seo">
     @(Html.LocalizedEditor<CategoryModel, CategoryLocalizedModel>("category-seo-localized",
 	    @<text>
             <div class="adminContent">
@@ -516,7 +540,7 @@
 	    </text>))
 	</tab>
 
-	<tab sm-title="@T("Admin.Catalog.Categories.Products")" sm-icon="bi:box">
+	<tab sm-title="@T("Admin.Catalog.Categories.Products")" sm-icon="box">
         @if (Model.Id > 0)
         {
             <div class="adminContent">
@@ -562,9 +586,11 @@
             }
         }).trigger('change');
 
-        // Toggle top\bottom description.
-		$('.description-toggle-button').on('click', function() {
-			$('.description-container').toggleClass('d-none');
+        // Switch descriptions within the current language and keep focus on the visible toggle.
+        $('[data-toggle=description]').on('click', function() {
+            const descriptions = $(this).closest('.adminContent').children('.description-container');
+            descriptions.toggleClass('d-none');
+            descriptions.filter(':not(.d-none)').find('[data-toggle=description]')[0]?.focus({ preventScroll: true });
         });
 
         // Reapply rules.

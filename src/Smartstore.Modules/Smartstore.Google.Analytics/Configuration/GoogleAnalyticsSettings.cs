@@ -20,4 +20,10 @@ public class GoogleAnalyticsSettings : ISettings
     public bool RenderCatalogScripts { get; set; } = false;
     public bool RenderCheckoutScripts { get; set; } = false;
     public bool MinifyScripts { get; set; } = true;
+
+    /// <summary>
+    /// Specifies which value is transmitted as item_id. Should match the ID of the Google Merchant Center feed.
+    /// Existing installations are migrated to <see cref="AnalyticsItemIdentifier.Sku"/> to keep their statistics consistent.
+    /// </summary>
+    public AnalyticsItemIdentifier ItemIdentifier { get; set; } = AnalyticsItemIdentifier.ProductId;
 }

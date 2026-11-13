@@ -1,0 +1,55 @@
+{
+  "AboutUs": {
+    "title": "Über uns",
+    "body": "<p>Fügen Sie hier Informationen über den Shop ein. Diesen Text können Sie auch im Administrations-Bereich editieren.</p>",
+    "slug": "ueber-uns"
+  },
+  "CheckoutAsGuestOrRegister": {
+    "body": "@file"
+  },
+  "ConditionsOfUse": {
+    "title": "AGB",
+    "body": "<p>Fügen Sie Ihre AGB hier ein. Diesen Text können Sie auch im Administrations-Bereich editieren.</p>",
+    "slug": "agb"
+  },
+  "ContactUs": {
+    "title": "Kontakt",
+    "body": "<p>Fügen Sie Ihre Kontaktdaten hier ein. Diesen Text können Sie auch im Administrations-Bereich editieren.</p>",
+    "slug": "kontakt"
+  },
+  "HomePageText": {
+    "title": "Herzlich Willkommen",
+    "body": "<p>Fügen Sie eine Willkommens-Nachricht für den Online-Shop hier ein. Diesen Text können Sie auch im Administrations-Bereich editieren.</p>"
+  },
+  "LoginRegistrationInfo": {
+    "title": "Anmeldung/Registrierung",
+    "body": "@file"
+  },
+  "PrivacyInfo": {
+    "title": "Datenschutzerklärung",
+    "shortTitle": "Datenschutz",
+    "body": "<p>Legen Sie Ihre Datenschutzerkl&#228;rung hier fest. Diesen Text können Sie auch im Administrations-Bereich editieren.</p>",
+    "slug": "datenschutz"
+  },
+  "ShippingInfo": {
+    "title": "Versand und Rücksendungen",
+    "shortTitle": "Versandinfos",
+    "body": "<p>Informationen zu Versand und Rücksendungen. Diesen Text können Sie auch im Administrations-Bereich editieren.</p>",
+    "slug": "versand-und-rueckgabe"
+  },
+  "Imprint": {
+    "title": "Impressum",
+    "body": "@file",
+    "slug": "impressum"
+  },
+  "Disclaimer": {
+    "title": "Widerrufsrecht",
+    "body": "<p>Fügen Sie Ihr Widerrufsrecht hier ein. Diesen Text können Sie auch im Administrations-Bereich editieren.</p>",
+    "slug": "widerrufsrecht"
+  },
+  "PaymentInfo": {
+    "title": "Zahlungsarten",
+    "body": "<p>Fügen Sie Informationen zu Zahlungsarten hier ein. Diesen Text können Sie auch im Administrations-Bereich editieren.</p>",
+    "slug": "zahlungsarten"
+  }
+}

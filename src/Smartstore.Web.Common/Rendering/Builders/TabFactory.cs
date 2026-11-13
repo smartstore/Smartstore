@@ -151,18 +151,14 @@ public class TabFactory
             Ajax = item.Ajax,
             Title = item.Text,
             Name = item.Name,
-            BadgeStyle = (BadgeStyle)item.BadgeStyle,
+            BadgeStyle = item.BadgeStyle,
             BadgeText = item.BadgeText,
             Icon = item.Icon,
+            IconClass = item.IconClass,
             ImageUrl = item.ImageUrl,
             Position = position,
             HideIfEmpty = item.HideIfEmpty
         };
-
-        if (item.IconLibrary == "bi" && tagHelper.Icon.HasValue())
-        {
-            tagHelper.Icon = tagHelper.Icon.EnsureStartsWith("bi:");
-        }
 
         // Create TagHelperContext for tab passing it parent context's items dictionary (that's what Razor does)
         var context = new TagHelperContext("tab", new TagHelperAttributeList(), Context.Items, CommonHelper.GenerateRandomDigitCode(10));

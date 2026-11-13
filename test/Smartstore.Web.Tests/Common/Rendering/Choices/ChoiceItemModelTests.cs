@@ -1,4 +1,5 @@
 using NUnit.Framework;
+using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Common;
 using Smartstore.Web.Rendering.Choices;
 
@@ -25,10 +26,8 @@ public class ChoiceItemModelTests
         };
 
         Assert.That(item.GetSwatchColorCss(), Is.EqualTo(
-            "background-color: #ff0000;background-image: linear-gradient(135deg, " +
-            "#ff0000 0%, #ff0000 33.3333%, " +
-            "#00ff00 33.3333%, #00ff00 66.6667%, " +
-            "#0000ff 66.6667%, #0000ff 100%);"));
+            "--swatch-color-count: 3;--swatch-color-1: #ff0000;" +
+            "--swatch-color-2: #00ff00;--swatch-color-3: #0000ff;"));
     }
 
     [Test]
@@ -37,7 +36,7 @@ public class ChoiceItemModelTests
         var item = new TestChoiceItemModel
         {
             Color = "#111111",
-            AdditionalColors = [null, "transparent", "#222222", "#333333", "#444444", "#555555"]
+            AdditionalColors = [null, " transparent ", " ", "#222222", "#333333", "#444444", "#555555"]
         };
 
         var css = item.GetSwatchColorCss();
@@ -50,6 +49,8 @@ public class ChoiceItemModelTests
     [TestCase(null)]
     [TestCase("")]
     [TestCase("transparent")]
+    [TestCase(" Transparent ")]
+    [TestCase(" ")]
     public void Does_not_generate_css_without_primary_color(string color)
     {
         var item = new TestChoiceItemModel
@@ -58,7 +59,12 @@ public class ChoiceItemModelTests
             AdditionalColors = ["#123456"]
         };
 
-        Assert.That(item.GetSwatchColorCss(), Is.Null);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(item.GetSwatchColorCss(), Is.Null);
+            Assert.That(item.HasColor, Is.False);
+            Assert.That(item.HasMultipleColors, Is.False);
+        }
     }
 
     [TestCase(12.5, "+€12.50")]
@@ -109,6 +115,40 @@ public class ChoiceItemModelTests
         Assert.That(item.GetSwatchPriceText(SwatchPriceDisplayMode.None), Is.Null);
         Assert.That(item.GetSwatchPriceText(SwatchPriceDisplayMode.Adjustment), Is.EqualTo("+€12.50"));
         Assert.That(item.GetSwatchPriceText(SwatchPriceDisplayMode.FinalPrice), Is.EqualTo("€99.00"));
+    }
+
+    [Test]
+    public void Builds_swatch_card_value_with_quantity()
+    {
+        var item = new TestChoiceItemModel
+        {
+            Name = "Red",
+            QuantityInfo = 2
+        };
+
+        Assert.That(item.SwatchValueText, Is.EqualTo("2 x Red"));
+    }
+
+    [Test]
+    public void Adds_compare_and_base_price_only_to_final_price_card_label()
+    {
+        var currency = new Currency
+        {
+            CurrencyCode = "EUR",
+            DisplayLocale = "en-US",
+            CustomFormatting = "€0.00"
+        };
+        var item = new TestChoiceItemModel
+        {
+            Name = "Red",
+            PriceAdjustment = new Money(12.5m, currency),
+            SwatchPrice = new Money(99m, currency),
+            SwatchComparePrice = new Money(119m, currency),
+            SwatchBasePriceInfo = "€9.90 / kg"
+        };
+
+        Assert.That(item.GetSwatchCardLabel(SwatchPriceDisplayMode.Adjustment), Is.EqualTo("Red, +€12.50"));
+        Assert.That(item.GetSwatchCardLabel(SwatchPriceDisplayMode.FinalPrice), Is.EqualTo("Red, €99.00, €119.00, €9.90 / kg"));
     }
 
     [Test]

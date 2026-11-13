@@ -1,4 +1,5 @@
-﻿using Smartstore.Core.Catalog.Attributes;
+﻿using System.Globalization;
+using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Discounts;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Cart;
@@ -176,7 +177,7 @@ public partial class OrderProcessingService : IOrderProcessingService
         }
 
         // Check if the current cart total matches the total that was paid.
-        var total = await _orderCalculationService.GetShoppingCartTotalAsync(cart);
+        var total = await _orderCalculationService.GetShoppingCartTotalAsync(cart, ShoppingCartTotalOptions.Default);
         if (total.Total == null)
         {
             return CreateFailure(T("Order.CannotCalculateOrderTotal"));
@@ -304,6 +305,14 @@ public partial class OrderProcessingService : IOrderProcessingService
                 }
             }
 
+            if (_shoppingCartSettings.ShowEsdRevocationWaiverBox
+                && cart.Items.Any(x => x.Item.Product?.IsEsd == true
+                    && customer.GenericAttributes.CheckoutOrderData?.ContainsKey(GetWithdrawalWaiverAcceptedOnKey(x.Item.ProductId)) != true))
+            {
+                warnings.Add(T("Checkout.EsdRevocationWaiverConfirmation.PleaseAgree"));
+                return (warnings, cart);
+            }
+
             // Order total validation.
             var totalValidation = await ValidateOrderTotalAsync(cart, customer.CustomerRoleMappings.Select(x => x.CustomerRole).ToArray());
             if (!totalValidation.IsAboveMinimum)
@@ -332,7 +341,7 @@ public partial class OrderProcessingService : IOrderProcessingService
                 return (warnings, cart);
             }
 
-            Money? cartTotal = await _orderCalculationService.GetShoppingCartTotalAsync(cart, batchContext: batchContext);
+            Money? cartTotal = await _orderCalculationService.GetShoppingCartTotalAsync(cart, ShoppingCartTotalOptions.Default, batchContext);
             if (!cartTotal.HasValue)
             {
                 warnings.Add(T("Order.CannotCalculateOrderTotal"));
@@ -511,6 +520,7 @@ public partial class OrderProcessingService : IOrderProcessingService
             var customerCurrencyId = customer.GenericAttributes.Get<int>(SystemCustomerAttributeNames.CurrencyId, storeId);
             var currencyTmp = await _db.Currencies.FindByIdAsync(customerCurrencyId, false);
             var customerCurrency = (currencyTmp?.Published ?? false) ? currencyTmp : _workingCurrency;
+            var checkoutAttributes = await _checkoutAttributeMaterializer.MaterializeCheckoutAttributesAsync(ctx.Cart);
 
             order.CustomerCurrencyCode = customerCurrency.CurrencyCode;
             order.CurrencyRate = customerCurrency.Rate / _primaryCurrency.Rate;
@@ -522,7 +532,7 @@ public partial class OrderProcessingService : IOrderProcessingService
                 : string.Empty;
 
             order.RawAttributes = customer.GenericAttributes.RawCheckoutAttributes;
-            order.CheckoutAttributeDescription = await _checkoutAttributeFormatter.FormatAttributesAsync(customer.GenericAttributes.CheckoutAttributes, customer);
+            order.CheckoutAttributeDescription = await _checkoutAttributeFormatter.FormatAttributesAsync(checkoutAttributes);
 
             if (ctx.CartRequiresShipping)
             {
@@ -620,7 +630,7 @@ public partial class OrderProcessingService : IOrderProcessingService
             order.TaxRates = FormatTaxRates(taxRates);
 
             // Order total.
-            ctx.CartTotal = await _orderCalculationService.GetShoppingCartTotalAsync(ctx.Cart, batchContext: ctx.BatchContext);
+            ctx.CartTotal = await _orderCalculationService.GetShoppingCartTotalAsync(ctx.Cart, ShoppingCartTotalOptions.Default, ctx.BatchContext);
             order.OrderTotal = ctx.CartTotal.Total.Value.Amount;
             order.OrderTotalRounding = ctx.CartTotal.ToNearestRounding.Amount;
             order.RefundedAmount = decimal.Zero;
@@ -820,13 +830,15 @@ public partial class OrderProcessingService : IOrderProcessingService
                     product,
                     ProductAttributeFormatOptions.Default,
                     ctx.Customer);
+                var essentialSpecAttributesInfo = _productAttributeFormatter.FormatSpecificationAttributes(
+                    await ctx.BatchContext.EssentialAttributes.GetOrLoadAsync(product.Id),
+                    ProductAttributeFormatOptions.Default);
 
                 var itemWeight = await _shippingService.GetCartItemWeightAsync(cartItem, false);
-                var displayDeliveryTime =
-                    _shoppingCartSettings.DeliveryTimesInShoppingCart != DeliveryTimesPresentation.None &&
-                    product.DeliveryTimeId.HasValue &&
-                    product.IsShippingEnabled &&
-                    product.DisplayDeliveryTimeAccordingToStock(_catalogSettings);
+                var displayDeliveryTime = _shoppingCartSettings.DeliveryTimesInShoppingCart != DeliveryTimesPresentation.None
+                    && product.DeliveryTimeId.HasValue
+                    && product.IsShippingEnabled
+                    && product.DisplayDeliveryTimeAccordingToStock(_catalogSettings);
 
                 // Product cost always in primary currency without tax.
                 var productCost = await _priceCalculationService.CalculateProductCostAsync(product, item.AttributeSelection);
@@ -851,6 +863,7 @@ public partial class OrderProcessingService : IOrderProcessingService
                     DiscountAmountInclTax = discountTax.PriceGross,
                     DiscountAmountExclTax = discountTax.PriceNet,
                     AttributeDescription = attributeDescription,
+                    EssentialSpecificationAttributesInfo = essentialSpecAttributesInfo,
                     RawAttributes = item.RawAttributes,
                     Quantity = item.Quantity,
                     DownloadCount = 0,
@@ -861,6 +874,12 @@ public partial class OrderProcessingService : IOrderProcessingService
                     DeliveryTimeId = product.GetDeliveryTimeIdAccordingToStock(_catalogSettings),
                     DisplayDeliveryTime = displayDeliveryTime
                 };
+
+                if (ctx.CheckoutOrderData.TryGetValue(GetWithdrawalWaiverAcceptedOnKey(item.ProductId), out var rawAcceptedOn)
+                    && DateTime.TryParseExact(rawAcceptedOn, "O", CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind, out var acceptedOn))
+                {
+                    orderItem.WithdrawalWaiverAcceptedOn = acceptedOn.ToUniversalTime();
+                }
 
                 if (product.ProductType == ProductType.BundledProduct && cartItem.ChildItems != null)
                 {
@@ -877,8 +896,15 @@ public partial class OrderProcessingService : IOrderProcessingService
                             childItem.Item.Product,
                             new() { IncludePrices = false },
                             ctx.Customer);
+                        var childEssentialSpecAttributesInfo = _productAttributeFormatter.FormatSpecificationAttributes(
+                            await ctx.BatchContext.EssentialAttributes.GetOrLoadAsync(childItem.Item.ProductId),
+                            ProductAttributeFormatOptions.Default);
 
-                        var bundleItemData = childItem.Item.BundleItem.ToOrderData(childSubtotal.FinalPrice.Amount, childItem.Item.RawAttributes, attributesInfo);
+                        var bundleItemData = childItem.Item.BundleItem.ToOrderData(
+                            childSubtotal.FinalPrice.Amount,
+                            childItem.Item.RawAttributes,
+                            attributesInfo,
+                            childEssentialSpecAttributesInfo);
                         if (bundleItemData != null)
                         {
                             bundleItemDataList.Add(bundleItemData);
@@ -933,12 +959,14 @@ public partial class OrderProcessingService : IOrderProcessingService
                     PriceExclTax = oi.PriceExclTax,
                     TaxRate = oi.TaxRate,
                     AttributeDescription = oi.AttributeDescription,
+                    EssentialSpecificationAttributesInfo = oi.EssentialSpecificationAttributesInfo,
                     RawAttributes = oi.RawAttributes,
                     Quantity = oi.Quantity,
                     DiscountAmountInclTax = oi.DiscountAmountInclTax,
                     DiscountAmountExclTax = oi.DiscountAmountExclTax,
                     DownloadCount = 0,
                     IsDownloadActivated = false,
+                    WithdrawalWaiverAcceptedOn = oi.WithdrawalWaiverAcceptedOn,
                     LicenseDownloadId = 0,
                     ItemWeight = oi.ItemWeight,
                     BundleData = oi.BundleData,
@@ -984,6 +1012,9 @@ public partial class OrderProcessingService : IOrderProcessingService
 
         // INFO: CheckOrderStatus performs commit.
     }
+
+    internal static string GetWithdrawalWaiverAcceptedOnKey(int productId)
+        => "WithdrawalWaiverAcceptedOn:" + productId.ToStringInvariant();
 
     private async Task AddAssociatedData(PlaceOrderContext ctx)
     {

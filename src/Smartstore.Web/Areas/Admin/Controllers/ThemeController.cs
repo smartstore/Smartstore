@@ -2,9 +2,7 @@
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Options;
 using Smartstore.Admin.Models.Themes;
-using Smartstore.Collections;
 using Smartstore.ComponentModel;
-using Smartstore.Core.Content.Media.Icons;
 using Smartstore.Core.Logging;
 using Smartstore.Core.Security;
 using Smartstore.Core.Stores;
@@ -22,7 +20,6 @@ public class ThemeController : AdminController
     private readonly IThemeVariableService _themeVarService;
     private readonly IThemeContext _themeContext;
     private readonly IBundleCache _bundleCache;
-    private readonly Lazy<IIconExplorer> _iconExplorer;
     private readonly IOptionsMonitorCache<BundlingOptions> _bundlingOptionsCache;
 
     public ThemeController(
@@ -31,7 +28,6 @@ public class ThemeController : AdminController
         IThemeVariableService themeVarService,
         IThemeContext themeContext,
         IBundleCache bundleCache,
-        Lazy<IIconExplorer> iconExplorer,
         IOptionsMonitorCache<BundlingOptions> bundlingOptionsCache)
     {
         _db = db;
@@ -40,7 +36,6 @@ public class ThemeController : AdminController
         _themeContext = themeContext;
         _bundleCache = bundleCache;
         _bundlingOptionsCache = bundlingOptionsCache;
-        _iconExplorer = iconExplorer;
     }
 
     #region Themes
@@ -56,6 +51,10 @@ public class ThemeController : AdminController
         var selectedStoreId = storeId ?? Services.StoreContext.CurrentStore.Id;
         var themeSettings = await Services.SettingFactory.LoadSettingsAsync<ThemeSettings>(selectedStoreId);
         var model = await MapperFactory.MapAsync<ThemeSettings, ThemeListModel>(themeSettings);
+
+        // Unlike the selected theme, the Sass process belongs to the application, not a store.
+        var globalThemeSettings = await Services.SettingFactory.LoadSettingsAsync<ThemeSettings>();
+        model.KeepSassCompilerInMemory = globalThemeSettings.KeepSassCompilerInMemory;
 
         var bundlingOptions = new List<SelectListItem>
         {
@@ -89,19 +88,31 @@ public class ThemeController : AdminController
         var themes = from m in _themeRegistry.GetThemeDescriptors(includeHidden)
                      select PrepareThemeDescriptorModel(m, themeSettings);
 
-        var sortedThemes = themes.ToArray().SortTopological(StringComparer.OrdinalIgnoreCase).Cast<ThemeDescriptorModel>();
-
-        return sortedThemes.OrderByDescending(x => x.IsActive).ToList();
+        return themes
+            .OrderByDescending(x => x.IsActive)
+            .ThenBy(x => x.FriendlyName ?? x.Name, StringComparer.CurrentCultureIgnoreCase)
+            .ThenBy(x => x.Name, StringComparer.OrdinalIgnoreCase)
+            .ToList();
     }
 
     protected virtual ThemeDescriptorModel PrepareThemeDescriptorModel(ThemeDescriptor descriptor, ThemeSettings themeSettings)
     {
+        var rootTheme = descriptor;
+        while (rootTheme.BaseTheme != null)
+        {
+            rootTheme = rootTheme.BaseTheme;
+        }
+
         var model = new ThemeDescriptorModel
         {
             Name = descriptor.Name,
             BaseTheme = descriptor.BaseThemeName,
+            RootTheme = rootTheme.BaseThemeName ?? rootTheme.Name,
             FriendlyName = descriptor.FriendlyName,
-            Description = descriptor.Description,
+            Description = Services.Localization.GetResource($"Admin.Themes.Info.{descriptor.Name}",
+                logIfNotFound: false,
+                defaultValue: descriptor.Description,
+                returnEmptyIfNotFound: true),
             Author = descriptor.Author,
             ProjectUrl = descriptor.ProjectUrl,
             Version = descriptor.Version.ToString(),
@@ -140,6 +151,15 @@ public class ThemeController : AdminController
 
         await MapperFactory.MapAsync(model, themeSettings);
         await Services.SettingFactory.SaveSettingsAsync(themeSettings, model.StoreId);
+
+        // Save this global setting separately from the store-scoped theme options.
+        var globalThemeSettings = await Services.SettingFactory.LoadSettingsAsync<ThemeSettings>();
+        if (globalThemeSettings.KeepSassCompilerInMemory != model.KeepSassCompilerInMemory)
+        {
+            globalThemeSettings.KeepSassCompilerInMemory = model.KeepSassCompilerInMemory;
+            await Services.SettingFactory.SaveSettingsAsync(globalThemeSettings);
+        }
+
         await Services.EventPublisher.PublishAsync(new ModelBoundEvent(model, themeSettings, form, model.StoreId));
 
         NotifySuccess(T("Admin.Configuration.Updated"));
@@ -438,47 +458,4 @@ public class ThemeController : AdminController
 
     #endregion
 
-    #region UI Helpers
-
-    [HttpPost]
-    public JsonResult SearchIcons(string term, string selected = null, int page = 1)
-    {
-        const int pageSize = 250;
-
-        var iconExplorer = _iconExplorer.Value;
-        var icons = iconExplorer.All.AsEnumerable();
-
-        if (term.HasValue())
-        {
-            icons = iconExplorer.FindIcons(term, true);
-        }
-
-        var result = icons.ToPagedList(page - 1, pageSize);
-
-        if (selected.HasValue() && term.IsEmpty())
-        {
-            var selIcon = iconExplorer.GetIconByName(selected);
-            if (!selIcon.IsPro && !result.Contains(selIcon))
-            {
-                result.Insert(0, selIcon);
-            }
-        }
-
-        return Json(new
-        {
-            results = result.AsEnumerable().Select(x => new
-            {
-                id = x.Name,
-                text = x.Name,
-                hasRegularStyle = x.HasRegularStyle,
-                isBrandIcon = x.IsBrandIcon,
-                isPro = x.IsPro,
-                label = x.Label,
-                styles = x.Styles
-            }),
-            pagination = new { more = result.HasNextPage }
-        });
-    }
-
-    #endregion
 }

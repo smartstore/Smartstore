@@ -27,6 +27,7 @@
     var strValue = string.Join(',', Value);
     var ruleScope = TryGetMetadata<RuleScope>("scope", out var scope) ? scope : (RuleScope?)null;
     var attributes = new AttributeDictionary().Merge(ConvertUtility.ObjectToDictionary(ViewData["htmlAttributes"] ?? new object()));
+    attributes.Merge("data-icon", "filter");
 
     attributes["data-select-url"] = Url.Action("AllRuleSets", "Rule", new { selectedIds = strValue, scope = ruleScope, area = "Admin" });
     attributes["data-select-init-load"] = (Value.Length > 0).ToString().ToLower();

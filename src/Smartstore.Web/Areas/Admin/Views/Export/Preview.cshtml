@@ -24,14 +24,14 @@
 <div class="section-header">
     <div class="title">
         <a sm-backto asp-action="Edit" asp-route-id="@Model.Id" title="@T("Common.Back")"></a>
-        <img src="@Url.Content(Model.ThumbnailUrl)" />
+        <module-icon model="Model.Icon" />
         <span>@ViewBag.Title - @Model.Name</span>
     </div>
     <div class="options">
         @if (Model.LogFileExists)
         {
             <a asp-action="DownloadLogFile" asp-route-id="@Model.Id" class="btn btn-secondary" target="LogFile">
-                <i class="far fa-file-lines"></i>
+                <icon name="file-text" />
                 <span>@T("Admin.Configuration.ActivityLog")</span>
             </a>
         }

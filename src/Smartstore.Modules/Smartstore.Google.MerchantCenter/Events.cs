@@ -30,7 +30,7 @@ internal class Events : IConsumer
             await message.TabFactory.AppendAsync(builder => builder
                 .Text("GMC")
                 .Name("tab-gmc")
-                .Icon("google", "bi")
+                .Icon("google")
                 .LinkHtmlAttributes(new { data_tab_name = "GMC" })
                 .Action("ProductEditTab", "GoogleMerchantCenter", new { productId })
                 .Ajax());

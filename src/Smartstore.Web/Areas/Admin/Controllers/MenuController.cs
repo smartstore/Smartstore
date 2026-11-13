@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Smartstore.Admin.Models.Menus;
+using Smartstore.IconKit;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Content.Menus;
 using Smartstore.Core.Localization;
@@ -398,6 +399,7 @@ public class MenuController : AdminController
             itemModel.ParentItemId ??= 0;
 
             var item = await MapperFactory.MapAsync<MenuItemModel, MenuItemEntity>(itemModel);
+            item.Icon = itemModel.IconModel.Icon.ToString();
             item.PermissionNames = string.Join(',', itemModel.PermissionNames ?? []).NullEmpty();
 
             _db.MenuItems.Add(item);
@@ -431,6 +433,7 @@ public class MenuController : AdminController
         }
 
         var model = await MapperFactory.MapAsync<MenuItemEntity, MenuItemModel>(item);
+        model.IconModel.Icon = IconExpression.TryParse(item.Icon, out var icon) ? icon : null;
         model.ParentItemId = item.ParentItemId == 0 ? null : item.ParentItemId;
         model.PermissionNames = item.PermissionNames.SplitSafe(',').ToArray();
 
@@ -460,6 +463,7 @@ public class MenuController : AdminController
             itemModel.ParentItemId ??= 0;
 
             await MapperFactory.MapAsync(itemModel, item);
+            item.Icon = itemModel.IconModel.Icon.ToString();
             item.PermissionNames = string.Join(',', itemModel.PermissionNames ?? []).NullEmpty();
 
             await _storeMappingService.ApplyStoreMappingsAsync(item, itemModel.SelectedStoreIds);

@@ -6,4 +6,4 @@ requests to the API through a **Try it out** button. To open the Swagger help pa
 
 - [Developer guide (in English)](https://smartstore.gitbook.io/developer-guide/framework/web-api)
 - [Breaking changes in Web API 5](https://smartstore.gitbook.io/developer-guide/framework/web-api/breaking-changes-in-web-api-5)
-- [API client test tool](https://github.com/smartstore/Smartstore/tree/main/tools/Smartstore.WebApi.Client)
+- [API client test tools](../../../dev-docs/appendix/developer-tools/web-api-clients.md)

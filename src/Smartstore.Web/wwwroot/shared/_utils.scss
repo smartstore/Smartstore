@@ -1,6 +1,8 @@
 /// <reference path="references.scss" />
 
 //
+@use "sass:color";
+
 // Bidi
 // --------------------------------------------------
 
@@ -18,6 +20,18 @@
 		// INFO: "right" is correct!
 		text-align: right;
 	}
+}
+
+
+//
+// Inline horizontal stack
+// --------------------------------------------------
+
+.hstack-inline {
+    display: inline-flex;
+    flex-direction: row;
+    align-items: center;
+    align-self: stretch;
 }
 
 
@@ -83,32 +97,6 @@
 }
 
 
-//
-// Fontastic utils (ensure crisp icons with 20/40...px)
-// ------------------------------------------------------
-
-.icm {
-	font-size: 20px;
-	display: inline-block;
-}
-
-.icm-2x {
-	font-size: 40px;
-}
-
-.icm-3x {
-	font-size: 60px;
-}
-
-.icm-4x {
-	font-size: 80px;
-}
-
-.icm-5x {
-	font-size: 100px;
-}
-
-
 // Imaging
 // ------------------------------------------------------
 
@@ -148,8 +136,10 @@
 img[src*="/images/flags/"] {
     width: 20px;
     min-height: 10px;
-    border-radius: 1px;
-    box-shadow: 0 0 0 1px rgba(#000, 0.15);
+    max-height: 16px;
+    object-fit: cover;
+    border-radius: 3px;
+    border: 1px solid rgba(#000, 0.125);
 }
 
 
@@ -202,10 +192,17 @@ table th {
 	&.has-icons {
 		.list-group-item {
 			display: inline-flex;
-			align-items: baseline;
+			align-items: flex-start;
 		}
 
 		.list-group-item-icon {
+			display: inline-flex;
+			align-items: center;
+			justify-content: center;
+			flex: none;
+			width: 1.25em;
+			// Center the artwork within the first text line, including multiline labels.
+			height: 1lh;
 			margin-inline-end: 0.75rem;
 		}
 	}
@@ -242,10 +239,10 @@ table th {
 @each $color, $value in $theme-colors {
     @if $color != "secondary" and $color != "light" { 
         .shadow-#{$color} { 
-            $c: mix($value, #000, 50%);
-            --lightness: #{lightness($value)};
+            $c: color.mix($value, #000, 50%);
+            --lightness: #{color.lightness($value)};
             --shadow-intensity: 1.25 !important;
-            --shadow-color-rgb: #{red($c)}, #{green($c)}, #{blue($c)} !important;
+            --shadow-color-rgb: #{color.red($c)}, #{color.green($c)}, #{color.blue($c)} !important;
             --shadow-colorbase-rgb: var(--shadow-color-rgb) !important;
         }
     }
@@ -476,6 +473,46 @@ table th {
 
 // Animations
 // ------------------------------------------------------
+
+:is(.collapse, .collapsing) {
+    // Closed accordion state
+    [aria-expanded="false"] + &,
+    .card:has(> .card-header [aria-expanded="false"]) > &,
+    .nav-toggler:has(> [aria-expanded="false"]) + & {
+        @include collapse-hidden();
+    }
+
+    // Open accordion state
+    [aria-expanded="true"] + &,
+    .card:has(> .card-header [aria-expanded="true"]) > &,
+    .nav-toggler:has(> [aria-expanded="true"]) + & {
+        @include collapse-expanded();
+    }
+}
+
+// Programmatically controlled collapse without a structurally related trigger.
+.collapsing.collapsible {
+    @include collapse-hidden();
+
+    &.expanded {
+        @include collapse-expanded();
+    }
+}
+
+@starting-style {
+    // Without this, opacity will not animate on expand.
+    .collapsing {
+        [aria-expanded="true"] + &,
+        .card:has(> .card-header [aria-expanded="true"]) > &,
+        .nav-toggler:has(> [aria-expanded="true"]) + & {
+            @include collapse-hidden();
+        }
+    }
+
+    .collapsing.collapsible.expanded {
+        @include collapse-hidden();
+    }
+}
 
 .no-anims,
 .no-anims * {

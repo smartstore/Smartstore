@@ -67,6 +67,10 @@ label.required,
     }
 }
 
+.choice-item-linked-product-img {
+    width: var(--choice-item-size);
+}
+
 .choice-description {
     color: $text-muted;
     font-size: $font-size-sm;

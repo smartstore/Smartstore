@@ -75,7 +75,7 @@
             font-size: var(--ocm-item-font-size);
             padding: var(--ocm-item-padding-y) var(--ocm-item-padding-x);
             padding-inline-end: 1.5rem;
-            text-decoration: none !important;
+            text-decoration: none;
 
             &:active,
             &:focus {
@@ -87,27 +87,17 @@
             position: absolute;
             inset-inline-end: 1rem;
             top: 50%;
-            // Don't use transform here... the animation will overwrite it.
-            margin-top: calc(var(--ocm-item-font-size) * -0.5);
-            @include fontawesome('\f054', var(--ocm-item-font-size));
+            // Keep centering independent of the spinner's transform animation.
+            translate: 0 -50%;
+            @include icon-mask(var(--icon-mask-chevron-right), 1rem);
             color: var(--gray-700);
-            font-size: 14px;
-            width: var(--ocm-item-font-size);
-            height: var(--ocm-item-font-size);
-            min-height: var(--ocm-item-font-size);
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
         }
 
         &.has-children.animating:after {
-            animation: fa-spin .6s infinite linear;
-            //margin-top: -9px;
+            animation: spin .6s infinite linear;
             transform: none;
             transform-origin: center;
-            font-family: fontastic;
-            content: '\e8d3' !important;
+            mask-image: icon-url("spinner");
         }
 
         &.selected:before,
@@ -116,11 +106,26 @@
         }
     }
 
+    .ocm-nav.has-icons > .ocm-item:not(.show-current-node) > .ocm-link {
+        display: flex;
+        align-items: center;
+
+        > .icon {
+            flex-shrink: 0;
+            // Reserve one text line without resizing the icon artwork.
+            margin-block: calc((var(--ocm-item-font-size) * var(--ocm-item-line-height) - 1em) / 2);
+        }
+
+        > .icon + span {
+            margin-inline-start: 0.5rem;
+        }
+    }
+
     .ocm-nav .ocm-back {
         padding-inline-start: 0;
 
-        .fa {
-            padding-inline-end: .425rem;
+        :is(.icon, .icon-stack) {
+            margin-inline-end: .425rem;
         }
     }
 
@@ -139,7 +144,7 @@
         .ocm-link {
             --btn-height: var(--ocm-back-size);
 
-            display: block;
+            display: inline-flex;
             position: absolute;
             inset-inline-start: var(--ocm-item-padding-x);
             top: 50%;
@@ -204,7 +209,7 @@
 #offcanvas-menu {
     .layer {
         transition: transform 0.3s ease-out;
-        background: #fff;
+        background: $card-bg;
         transform: translateX(-30%);
         z-index: 0;
         border-inline: 1px solid var(--ocm-border-color);
@@ -253,7 +258,7 @@
         padding: var(--ocm-item-padding-y) var(--ocm-item-padding-x);
         font-size: inherit;
         border-bottom: 1px solid var(--ocm-border-color);
-        background-color: #fff;
+        background-color: $card-bg;
         color: $body-color;
         border-radius: 0;
     }
@@ -270,7 +275,7 @@
     }
 
     .openend .menubar-caret:before {
-        content: "\f106";
+        @include icon-mask(var(--icon-mask-chevron-up), 1rem);
     }
 
     .dropdown-menu {

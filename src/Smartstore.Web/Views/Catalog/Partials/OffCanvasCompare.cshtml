@@ -8,10 +8,10 @@
             @T("ShoppingCart.Mini.EmptyCompare.Title")
         </h4>
         <p class="no-item-icon">
-            <i class="fa fa-retweet fa-4x" aria-hidden="true"></i>
+            <icon name="compare" class="icon-4x" aria-hidden="true" />
         </p>
         <p class="no-item-info text-muted">
-            @Html.Raw(T("ShoppingCart.Mini.EmptyCompare.Info", "fa fa-lg fa-retweet"))
+            @Html.Raw(T("ShoppingCart.Mini.EmptyCompare.Info", (await Html.IconAsync("compare?size=lg")).ToHtmlString()))
         </p>
     </div>
 
@@ -40,7 +40,7 @@
                             </div>
                         }
 
-                        <div class="d-flex align-items-center sm-gutters mt-2">
+                        <div class="hstack sm-gutters mt-2">
                             <div class="col">
                                 <span sm-if="item.Price.HasCalculation" class="price unit-price">
                                     @item.Price.FinalPrice
@@ -55,7 +55,7 @@
                                         aria-describedby="sr-desc-empty"
                                         data-type="compare"
                                         data-action="remove">
-                                    <i class="far fa-trash-can" aria-hidden="true"></i>
+                                    <icon name="trash" aria-hidden="true" />
                                 </button>
                             </div>
                         </div>
@@ -72,7 +72,7 @@
     <div class="offcanvas-cart-footer-row no-gutters">
         <div class="col pr-2">
             <a class="btn btn-clear btn-block btn-action" asp-route="CompareProducts">
-                <i class="fa fa-check" aria-hidden="true"></i>
+                <icon name="check"  aria-hidden="true" />
                 <span>@T("Products.Compare.CompareNow")</span>
             </a>
         </div>
@@ -82,7 +82,7 @@
                     class="btn btn-clear btn-block btn-action ajax-cart-link"
                     data-type="compare"
                     data-action="remove">
-                <i class="fal fa-trash-can" aria-hidden="true"></i>
+                <icon name="trash" aria-hidden="true" />
                 <span>@T("Products.Compare.Clear")</span>
             </button>
         </div>

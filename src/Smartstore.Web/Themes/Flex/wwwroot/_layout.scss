@@ -1,6 +1,8 @@
 /// <reference path="references.scss" />
 
 
+@use "sass:math";
+
 // Responsive Typo
 // ==============================================================
 
@@ -90,8 +92,8 @@ body {
         }
     
         .page-main .container {
-            padding-left: $grid-gutter-width / 2;
-            padding-right: $grid-gutter-width / 2;
+            padding-left: math.div($grid-gutter-width, 2);
+            padding-right: math.div($grid-gutter-width, 2);
         }
 
         @include media-breakpoint-up(sm) {
@@ -121,8 +123,8 @@ body {
     width: 42px;
     height: 42px;
     border-radius: 50%;
-    background: #fff;
-    color: var(--body-color) !important;
+    background: $card-bg;
+    color: var(--body-color);
     text-decoration: none;
     opacity: 0;
     transform: scale(0.7);

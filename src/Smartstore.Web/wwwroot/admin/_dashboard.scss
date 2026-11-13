@@ -1,5 +1,43 @@
 /// <reference path="references.scss" />
 
+// Named positions inherit from the preceding tier; Bootstrap owns the pixel thresholds.
+$dashboard-column: auto;
+$dashboard-row: auto;
+
+@each $breakpoint in map-keys($grid-breakpoints) {
+    $dashboard-column: var(--dashboard-column-#{$breakpoint}, #{$dashboard-column});
+    $dashboard-row: var(--dashboard-row-#{$breakpoint}, #{$dashboard-row});
+
+    @include media-breakpoint-up($breakpoint) {
+        .dashboard-widget {
+            grid-column: $dashboard-column;
+            grid-row: $dashboard-row;
+        }
+    }
+}
+
+.dashboard-page {
+    --content-bg: transparent;
+    --section-header-bg: var(--page-bg);
+    --section-header-padding-y: 16px;
+    --section-header-spacing: var(--section-header-padding-y);
+
+    #content {
+        box-shadow: none;
+    }
+
+    .report.sticky-report {
+        top: var(--sticky-offset);
+    }
+
+    // The desktop news rail must not impose fixed-width columns on stacked layouts.
+    @include media-breakpoint-down(md) {
+        #admin-dashboard-grid {
+            grid-template-columns: repeat(12, minmax(0, 1fr)) !important;
+        }
+    }
+}
+
 .chart-colors {
     --chart-color-danger: #{$chart-color-danger};
     --chart-color-warning: #{$chart-color-warning};
@@ -78,10 +116,27 @@
 
 .report {
     background-color: white;
-    border-radius: var(--border-radius-md);
+    border-radius: var(--border-radius-lg);
     box-shadow: $box-shadow-sm;
     height: 100%;
     overflow: hidden;
+
+    &#orders-report,
+    &#customers-report {
+        display: flex;
+        flex-direction: column;
+
+        > .canvas-container {
+            flex: 1;
+            margin-bottom: .75rem;
+
+            > canvas {
+                position: absolute;
+                top: 0;
+                left: 0;
+            }
+        }
+    }
 
     &.sticky-report {
         position: sticky;
@@ -273,7 +328,7 @@
         color: var(--success);
 
         &:after {
-            @include fontawesome-font("\f077", regular);
+            @include icon-mask(var(--icon-mask-chevron-up), 1rem);
             position: absolute;
         }
 
@@ -283,14 +338,16 @@
         }
     }
 
-    .chart-tooltip {
+    @at-root .chart-tooltip {
+        --chart-tooltip-background: #{mix($black, $white, 80%)};
+
         opacity: 1;
         position: absolute;
-        width: fit-content;
-        background: rgba(#000, 0.8);
+        width: max-content;
+        background: var(--chart-tooltip-background);
         color: $light;
         border-radius: var(--border-radius-sm);
-        transition: all 0.2s ease-in-out;
+        transition: opacity 0.2s ease-in-out;
         pointer-events: none;
         transform: translateX(-50%);
         z-index: 10;
@@ -317,24 +374,10 @@
             transform: translate(-50%, calc(-100% - 15px));
 
             &:after {
-                border-top: 9px solid rgba($black, 0.8);
-                top: 100%;
-            }
-
-            &.left {
-                transform: translate(-10%, calc(-100% - 15px));
-
-                &:after {
-                    inset-inline-start: 10%;
-                }
-            }
-
-            &.right {
-                transform: translate(-90%, calc(-100% - 15px));
-
-                &:after {
-                    inset-inline-start: 90%;
-                }
+                border-top: 9px solid var(--chart-tooltip-background);
+                top: calc(100% - 1px);
+                inset-inline-start: auto;
+                left: var(--chart-tooltip-caret-x, 50%);
             }
         }
 
@@ -342,8 +385,8 @@
             transform: translate(-50%, 15px);
 
             &:after {
-                border-bottom: 9px solid rgba($black, 0.8);
-                top: -9px;
+                border-bottom: 9px solid var(--chart-tooltip-background);
+                top: -8px;
             }
         }
 
@@ -360,8 +403,8 @@
             transform: translate(15px, -50%);
 
             &:after {
-                border-inline-end: 9px solid rgba($black, 0.8);
-                inset-inline-start: -9px;
+                border-inline-end: 9px solid var(--chart-tooltip-background);
+                inset-inline-start: -8px;
             }
         }
 
@@ -369,8 +412,8 @@
             transform: translate(calc(-100% - 15px), -50%);
 
             &:after {
-                border-inline-start: 9px solid rgba($black, 0.8);
-                inset-inline-start: 100%;
+                border-inline-start: 9px solid var(--chart-tooltip-background);
+                inset-inline-start: calc(100% - 1px);
             }
         }
 
@@ -401,15 +444,24 @@
     }
 }
 
-@include media-breakpoint-up(sm) {
-    .incomplete-orders-container {
-        width: 50% !important;
+.dashboard-chart-tooltip-host {
+    position: relative;
+}
+
+// Use the widget width instead of the viewport when arranging the charts.
+#incomplete-orders-report {
+    container-type: inline-size;
+}
+
+@container (min-width: 450px) {
+    .report .incomplete-orders-container {
+        width: 50%;
     }
 }
 
-@include media-breakpoint-up(md) {
-    .incomplete-orders-container {
-        width: 25% !important;
+@container (min-width: 1000px) {
+    .report .incomplete-orders-container {
+        width: 25%;
     }
 }
 
@@ -519,4 +571,101 @@
 
 .btn-newsfeed {
     padding: 1.25rem 1.5rem;
+}
+
+.dashboard-widget, .dashboard-widget-body {
+    position: relative;
+    min-width: 0;
+}
+
+.dashboard-widget {
+    display: grid;
+    border-radius: var(--border-radius-lg);
+}
+
+.dashboard-widget-body, .dashboard-widget-content {
+    height: 100%;
+}
+
+.dashboard-widget-config {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: var(--border-radius-lg);
+    overflow: hidden;
+
+    > .card-header {
+        background-color: $white;
+        border: 0;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: map-get($spacers, 2);
+        flex-shrink: 0;
+    }
+
+    > .card-body {
+        container-type: inline-size;
+        container-name: dashboard-widget-config;
+        overflow: auto;
+    }
+
+    .form-group.form-row > .col-6 {
+        width: 100%;
+    }
+
+    @container dashboard-widget-config (min-width: 450px) {
+        .form-group.form-row > .col-6 {
+            width: 50%;
+        }
+    }
+}
+
+.dashboard-widget-tools {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    position: absolute;
+    top: 0;
+    right: 0;
+    z-index: 3;
+    margin: map-get($spacers, 2);
+    background-color: var(--body-bg);
+    border: var(--border-width) solid var(--gray-400);
+    padding: map-get($spacers, 1);
+    border-radius: var(--border-radius-md);
+    opacity: 0;
+    pointer-events: none;
+
+    &:has(> .btn:only-child) {
+        background-color: transparent;
+        border-color: transparent;
+    }
+
+    > .btn:not(.dashboard-refresh) {
+        --btn-border-radius: 6px;
+        --btn-font-weight: #{$font-weight-normal};
+        --btn-color: var(--gray-650);
+        --btn-active-shadow: none;
+        --btn-focus-box-shadow: none;
+    }
+
+    .btn:focus-visible {
+        box-shadow: inset 0 0 0 var(--border-width) currentColor;
+    }
+
+    @media (hover: none) {
+        opacity: 1;
+        pointer-events: auto;
+    }
+}
+
+.dashboard-widget:hover,
+.dashboard-widget:focus-within,
+.dashboard-interacting {
+    .dashboard-widget-tools {
+        opacity: 1;
+        pointer-events: auto;
+    }
 }

@@ -175,6 +175,10 @@ public class ModuleDescriptor : IModuleDescriptor, ITopologicSortable<string>, I
 
     /// <inheritdoc/>
     [JsonInclude]
+    public string Icon { get; internal set; }
+
+    /// <inheritdoc/>
+    [JsonInclude]
     public string Author { get; internal set; }
 
     /// <inheritdoc/>

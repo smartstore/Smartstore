@@ -1,4 +1,5 @@
-﻿@using Smartstore.Web.Models.Catalog
+﻿@using Smartstore.Web.Rendering
+@using Smartstore.Web.Models.Catalog
 @using Smartstore.Web.Models.Cart
 
 @model CartItemPriceModel
@@ -21,7 +22,7 @@
                     data-trigger="focus"
                     data-content="@priceModel.Description"
                     aria-label="@priceModel.Description">
-                <i class="fa fa-circle-info" aria-hidden="true"></i>
+                <icon name="info-circle"  aria-hidden="true" />
             </button>
         </div>
     }
@@ -31,7 +32,7 @@
 <div sm-if="Model.Badges.Count > 0" class="pd-promobadges">
     @foreach (var badge in Model.Badges.OrderBy(x => x.DisplayOrder))
     {
-        <span class="badge badge-@badge.Style">@Html.Raw(badge.Label)</span>
+        <span class="@BadgeExpression.ToCssClasses(badge.Style)">@Html.Raw(badge.Label)</span>
     }
 </div>
 

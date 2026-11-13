@@ -14,6 +14,7 @@ namespace Smartstore.StripeElements.Components;
 public class StripeElementsViewComponent : SmartViewComponent
 {
     private readonly StripeSettings _settings;
+    private readonly OrderSettings _orderSettings;
     private readonly IShoppingCartService _shoppingCartService;
     private readonly IOrderCalculationService _orderCalculationService;
     private readonly ICurrencyService _currencyService;
@@ -22,6 +23,7 @@ public class StripeElementsViewComponent : SmartViewComponent
 
     public StripeElementsViewComponent(
         StripeSettings settings,
+        OrderSettings orderSettings,
         IShoppingCartService shoppingCartService,
         IOrderCalculationService orderCalculationService,
         ICurrencyService currencyService,
@@ -29,6 +31,7 @@ public class StripeElementsViewComponent : SmartViewComponent
         StripeHelper stripeHelper)
     {
         _settings = settings;
+        _orderSettings = orderSettings;
         _shoppingCartService = shoppingCartService;
         _orderCalculationService = orderCalculationService;
         _currencyService = currencyService;
@@ -47,6 +50,11 @@ public class StripeElementsViewComponent : SmartViewComponent
             return Empty();
         }
 
+        if (!_orderSettings.AnonymousCheckoutAllowed && !Services.WorkContext.CurrentCustomer.IsRegistered())
+        {
+            return Empty();
+        }
+
         var routeIdent = Request.RouteValues.GenerateRouteIdentifier();
         var isPaymentSelectionPage = routeIdent == "Checkout.PaymentMethod" || routeIdent == "Checkout.PaymentInfoAjax";
 
@@ -60,16 +68,27 @@ public class StripeElementsViewComponent : SmartViewComponent
 
         if (isPaymentSelectionPage)
         {
+            var paymentPageButtonMethods = _settings.PaymentPageButtonMethods ?? [];
+            model.PaymentPageButtonMethodsJson = JsonSerializer.Serialize(paymentPageButtonMethods);
+
             var store = Services.StoreContext.CurrentStore;
             var customer = Services.WorkContext.CurrentCustomer;
             var currency = Services.WorkContext.WorkingCurrency;
             var cart = await _shoppingCartService.GetCartAsync(customer, ShoppingCartType.ShoppingCart, store.Id);
 
-            // Get subtotal
-            var cartSubTotal = await _orderCalculationService.GetShoppingCartSubtotalAsync(cart, true);
-            var subTotalConverted = _currencyService.ConvertFromPrimaryCurrency(cartSubTotal.SubtotalWithDiscount.Amount, currency);
+            if (paymentPageButtonMethods.Length > 0)
+            {
+                var cartTotal = await _orderCalculationService.GetShoppingCartTotalAsync(cart, ShoppingCartTotalOptions.Default);
+                model.Amount = _roundingHelper.ToSmallestCurrencyUnit(cartTotal.ConvertedAmount.Total.Value);
+            }
+            else
+            {
+                // Get subtotal
+                var cartSubTotal = await _orderCalculationService.GetShoppingCartSubtotalAsync(cart, true);
+                var subTotalConverted = _currencyService.ConvertFromPrimaryCurrency(cartSubTotal.SubtotalWithDiscount.Amount, currency);
 
-            model.Amount = _roundingHelper.ToSmallestCurrencyUnit(subTotalConverted);
+                model.Amount = _roundingHelper.ToSmallestCurrencyUnit(subTotalConverted);
+            }
             model.Currency = currency.CurrencyCode.ToLower();
             model.CaptureMethod = _settings.CaptureMethod;
 

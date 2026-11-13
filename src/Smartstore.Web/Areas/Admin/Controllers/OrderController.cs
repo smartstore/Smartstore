@@ -1,6 +1,7 @@
 ﻿using System.Data;
 using System.Linq.Dynamic.Core;
 using System.Text;
+using System.Text.Json;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Smartstore.Admin.Models.Catalog;
@@ -30,6 +31,7 @@ using Smartstore.Core.Rules.Filters;
 using Smartstore.Core.Security;
 using Smartstore.Core.Stores;
 using Smartstore.Engine.Modularity;
+using Smartstore.Json;
 using Smartstore.Utilities.Html;
 using Smartstore.Web.Modelling.Settings;
 using Smartstore.Web.Models.Common;
@@ -47,6 +49,7 @@ public class OrderController : AdminController
     private readonly Lazy<IProductAttributeFormatter> _productAttributeFormatter;
     private readonly Lazy<IGiftCardService> _giftCardService;
     private readonly IProductAttributeMaterializer _productAttributeMaterializer;
+    private readonly Lazy<IProductService> _productService;
     private readonly IPaymentService _paymentService;
     private readonly ILocalizedEntityService _localizedEntityService;
     private readonly ITaxService _taxService;
@@ -69,6 +72,7 @@ public class OrderController : AdminController
         Lazy<IProductAttributeFormatter> productAttributeFormatter,
         Lazy<IGiftCardService> giftCardService,
         IProductAttributeMaterializer productAttributeMaterializer,
+        Lazy<IProductService> productService,
         IPaymentService paymentService,
         ILocalizedEntityService localizedEntityService,
         ICurrencyService currencyService,
@@ -90,6 +94,7 @@ public class OrderController : AdminController
         _productAttributeFormatter = productAttributeFormatter;
         _giftCardService = giftCardService;
         _productAttributeMaterializer = productAttributeMaterializer;
+        _productService = productService;
         _paymentService = paymentService;
         _localizedEntityService = localizedEntityService;
         _taxService = taxService;
@@ -1583,8 +1588,17 @@ public class OrderController : AdminController
             return View(model);
         }
 
-        var attributeDescription = await _productAttributeFormatter.Value.FormatAttributesAsync(selection, product, ProductAttributeFormatOptions.Default, order.Customer);
+        var attributesInfo = await _productAttributeFormatter.Value.FormatAttributesAsync(
+            selection,
+            product,
+            ProductAttributeFormatOptions.Default,
+            order.Customer);
         var productCost = await _priceCalculationService.Value.CalculateProductCostAsync(product, selection);
+
+        var batchContext = _productService.Value.CreateProductBatchContext([product]);
+        var essentialSpecAttributesInfo = _productAttributeFormatter.Value.FormatSpecificationAttributes(
+            await batchContext.EssentialAttributes.GetOrLoadAsync(product.Id),
+            ProductAttributeFormatOptions.Default);
 
         var orderItem = new OrderItem
         {
@@ -1597,7 +1611,8 @@ public class OrderController : AdminController
             PriceInclTax = model.PriceInclTax,
             PriceExclTax = model.PriceExclTax,
             TaxRate = model.TaxRate,
-            AttributeDescription = attributeDescription,
+            AttributeDescription = attributesInfo,
+            EssentialSpecificationAttributesInfo = essentialSpecAttributesInfo,
             RawAttributes = selection.AsJson(),
             Quantity = model.Quantity,
             DiscountAmountInclTax = decimal.Zero,
@@ -1807,12 +1822,7 @@ public class OrderController : AdminController
     [LoadSetting]
     public async Task<IActionResult> OrderSettings(int storeScope, OrderSettings settings)
     {
-        var allStores = Services.StoreContext.GetAllStores();
-        var store = storeScope == 0 ? Services.StoreContext.CurrentStore : allStores.FirstOrDefault(x => x.Id == storeScope);
         var model = await MapperFactory.MapAsync<OrderSettings, OrderSettingsModel>(settings);
-
-        model.PrimaryStoreCurrencyCode = Services.CurrencyService.PrimaryCurrency.CurrencyCode;
-        model.StoreCount = allStores.Count;
 
         if (settings.GiftCards_Activated_OrderStatusId > 0)
         {
@@ -1826,13 +1836,23 @@ public class OrderController : AdminController
 
         AddLocales(model.Locales, (locale, languageId) =>
         {
-            locale.ReturnRequestActions = settings.GetLocalizedSetting(x => x.ReturnRequestActions, languageId, storeScope, false, false);
-            locale.ReturnRequestReasons = settings.GetLocalizedSetting(x => x.ReturnRequestReasons, languageId, storeScope, false, false);
+            string returnRequestActions = settings.GetLocalizedSetting(x => x.ReturnRequestActions, languageId, storeScope, false, false);
+            string returnRequestReasons = settings.GetLocalizedSetting(x => x.ReturnRequestReasons, languageId, storeScope, false, false);
+            locale.ReturnRequestActions = returnRequestActions.HasValue() ? JsonSerializer.Deserialize<string[]>(returnRequestActions, SmartJsonOptions.Default) ?? [] : [];
+            locale.ReturnRequestReasons = returnRequestReasons.HasValue() ? JsonSerializer.Deserialize<string[]>(returnRequestReasons, SmartJsonOptions.Default) ?? [] : [];
         });
 
         model.OrderIdent = _db.DataProvider.GetTableIdent<Order>();
+        PrepareOrderSettingsModel(model);
 
         return View(model);
+    }
+
+    private void PrepareOrderSettingsModel(OrderSettingsModel model)
+    {
+        model.OrderIdent ??= _db.DataProvider.GetTableIdent<Order>();
+        model.PrimaryStoreCurrencyCode = Services.CurrencyService.PrimaryCurrency.CurrencyCode;
+        model.StoreCount = Services.StoreContext.GetAllStores().Count;
     }
 
     [Permission(Permissions.Configuration.Setting.Update)]
@@ -1841,10 +1861,14 @@ public class OrderController : AdminController
     {
         if (!ModelState.IsValid)
         {
-            return await OrderSettings(storeScope, settings);
+            PrepareOrderSettingsModel(model);
+            return View(model);
         }
 
         ModelState.Clear();
+
+        model.ReturnRequestReasons = model.ReturnRequestReasons?.Where(x => x.HasValue()).Select(x => x.Trim()).ToArray() ?? [];
+        model.ReturnRequestActions = model.ReturnRequestActions?.Where(x => x.HasValue()).Select(x => x.Trim()).ToArray() ?? [];
 
         await MapperFactory.MapAsync(model, settings);
         settings.GiftCards_Activated_OrderStatusId = Convert.ToInt32(model.GiftCardsActivatedOrderStatusId);
@@ -1852,8 +1876,10 @@ public class OrderController : AdminController
 
         foreach (var localized in model.Locales)
         {
-            await _localizedEntityService.ApplyLocalizedSettingAsync(settings, x => x.ReturnRequestActions, localized.ReturnRequestActions, localized.LanguageId, storeScope);
-            await _localizedEntityService.ApplyLocalizedSettingAsync(settings, x => x.ReturnRequestReasons, localized.ReturnRequestReasons, localized.LanguageId, storeScope);
+            var returnRequestActions = localized.ReturnRequestActions?.Where(x => x.HasValue()).Select(x => x.Trim()).ToArray() ?? [];
+            var returnRequestReasons = localized.ReturnRequestReasons?.Where(x => x.HasValue()).Select(x => x.Trim()).ToArray() ?? [];
+            await _localizedEntityService.ApplyLocalizedSettingAsync(settings, x => x.ReturnRequestActions, returnRequestActions.Length > 0 ? JsonSerializer.Serialize(returnRequestActions, SmartJsonOptions.Default) : string.Empty, localized.LanguageId, storeScope);
+            await _localizedEntityService.ApplyLocalizedSettingAsync(settings, x => x.ReturnRequestReasons, returnRequestReasons.Length > 0 ? JsonSerializer.Serialize(returnRequestReasons, SmartJsonOptions.Default) : string.Empty, localized.LanguageId, storeScope);
         }
 
         await _db.SaveChangesAsync();
@@ -2178,6 +2204,10 @@ public class OrderController : AdminController
             model.ProductTypeLabelHint = product.ProductTypeLabelHint;
             model.IsDownload = product.IsDownload;
             model.DownloadActivationType = product.DownloadActivationType;
+            model.IsEsd = product.IsEsd;
+            model.WithdrawalWaiverAcceptedOn = item.WithdrawalWaiverAcceptedOn != null
+                ? Services.DateTimeHelper.ConvertToUserTime(item.WithdrawalWaiverAcceptedOn.Value, DateTimeKind.Utc)
+                : null;
             model.UnitPriceInclTaxString = Format(item.UnitPriceInclTax, true, true);
             model.UnitPriceExclTaxString = Format(item.UnitPriceExclTax, false, true);
             model.PriceInclTaxString = Format(item.PriceInclTax, true, true);

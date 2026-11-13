@@ -315,7 +315,7 @@ public class RuleController : AdminController
         var model = await MapperFactory.MapAsync<RuleSetEntity, RuleSetModel>(ruleSet);
 
         ViewData["IsSingleStoreMode"] = Services.StoreContext.IsSingleStoreMode();
-        ViewData["UsernamesEnabled"] = _customerSettings.CustomerLoginType != CustomerLoginType.Email;
+        ViewData["UsernamesEnabled"] = _customerSettings.SupportsUsernames();
         ViewData["DisplayProductPictures"] = _adminAreaSettings.DisplayProductPictures;
 
         return View(model);

@@ -65,7 +65,7 @@ public partial class PayPalRequestFactory
     /// <summary>
     /// Verifies a webhook request by checking its signature against the API.
     /// </summary>
-    public PayPalRequest<VerifyWebhookSignature<T>, object> WebhookVerifySignature<T>(VerifyWebhookSignature<T>? body) where T : class
+    public PayPalRequest<VerifyWebhookSignature, VerifyWebhookSignatureResponse> WebhookVerifySignature(VerifyWebhookSignature? body)
         => new(body, "/v1/notifications/verify-webhook-signature?", HttpMethod.Post);
 
     #endregion

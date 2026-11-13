@@ -89,6 +89,17 @@ public class ChoiceModelTests
         Assert.That(model.EffectiveSwatchShape, Is.EqualTo(SwatchShape.Rounded));
     }
 
+    [TestCase(1, 135)]
+    [TestCase(0.5, 153.4349)]
+    [TestCase(2, 116.5651)]
+    [TestCase(0, 135)]
+    public void Calculates_multicolor_gradient_angle_from_aspect_ratio(double aspectRatio, double expected)
+    {
+        var model = new TestChoiceModel { SwatchAspectRatio = (decimal)aspectRatio };
+
+        Assert.That(model.MulticolorGradientAngle, Is.EqualTo(expected).Within(0.0001));
+    }
+
     private sealed class TestChoiceModel : ChoiceModel
     {
         public override string BuildControlId() => "choice";

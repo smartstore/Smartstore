@@ -26,11 +26,11 @@
                 <input type="text" class="form-control" id="linked-product-name" placeholder="@T("Common.Unspecified")" value="@Model.LinkedProductName" readonly />
                 <div class="input-group-append">
                     <button type="button" class="btn btn-outline-secondary btn-to-danger rounded-right btn-remove-product-linkage">
-                        <i class="fa fa-times"></i>
+                        <icon name="close"  />
                         <span>@T("Admin.Catalog.Products.ProductVariantAttributes.Attributes.Values.UnlinkProduct")</span>
                     </button>
                     <entity-picker asp-for="LinkedProductId"
-                                   icon-css-class="fa fa-link"
+                                   icon="link"
                                    max-items="1"
                                    append-mode="false"
                                    disabled-entity-ids="new[] { Model.ProductId }"
@@ -116,11 +116,11 @@
     </div>
     <div class="adminRow">
         <div class="adminTitle">
-            <smart-label asp-for="Color" />
+            <smart-label asp-for="Colors" />
         </div>
         <div class="adminData">
-            <editor asp-for="Color" />
-            <span asp-validation-for="Color"></span>
+            <editor asp-for="Colors" />
+            <span asp-validation-for="Colors"></span>
         </div>
     </div>
     <div class="adminRow" id="group-price-adjustment">

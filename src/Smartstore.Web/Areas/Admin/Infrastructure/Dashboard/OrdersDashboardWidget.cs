@@ -2,6 +2,7 @@
 
 using Smartstore.Admin.Components;
 using Smartstore.Core.Localization;
+using Smartstore.Core.Security;
 using Smartstore.Core.Widgets.Dashboard;
 using Smartstore.Engine.Modularity;
 
@@ -11,7 +12,8 @@ namespace Smartstore.Admin.Infrastructure.Dashboard;
 /// Describes and creates the dashboard widget that renders the orders report.
 /// </summary>
 [SystemName(SystemName)]
-public sealed class OrdersDashboardWidget : DashboardViewComponentWidget<DashboardOrdersViewComponent>
+public sealed class OrdersDashboardWidget(IPermissionService permissions)
+    : DashboardViewComponentWidget<DashboardOrdersViewComponent>(permissions, DashboardOrdersViewComponent.RequiredPermission)
 {
     /// <summary>
     /// Identifies the orders dashboard widget type.
@@ -20,20 +22,13 @@ public sealed class OrdersDashboardWidget : DashboardViewComponentWidget<Dashboa
 
     private static readonly DashboardWidgetDescriptor _descriptor = new(SystemName, ResolvableText.Resource("Admin.Orders"))
     {
-        Description = ResolvableText.Resource("Admin.Orders"),
         Group = KnownDashboardWidgetGroups.Sales,
-        IconName = "graph-up",
+        IconName = "chart-line-arrow",
         CssClass = "report-orders",
         Order = 200,
-        DefaultSize = new DashboardWidgetSize(7, 1),
+        DefaultSize = new DashboardWidgetSize(6, 1),
         MinSize = new DashboardWidgetSize(4, 1),
-        MaxSize = new DashboardWidgetSize(12, 1),
-        AllowedSizes =
-        [
-            new DashboardWidgetSize(7, 1),
-            new DashboardWidgetSize(10, 1),
-            new DashboardWidgetSize(12, 1)
-        ]
+        MaxSize = new DashboardWidgetSize(12)
     };
 
     /// <inheritdoc />

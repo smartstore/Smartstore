@@ -52,10 +52,15 @@ public class DynamicScriptBundle : DynamicBundle
 }
 
 /// <summary>
-/// Represents a dynamic stylesheet bundle that does CSS minification, URL rewrite & Autoprefixing.
+/// Represents a dynamic stylesheet bundle that does CSS minification, URL rewriting and transpilation.
 /// </summary>
 public class DynamicStyleBundle : DynamicBundle
 {
+    /// <summary>
+    /// Gets or sets the icon area used by Sass icon-url calls. Asset requests do not carry an MVC page area.
+    /// </summary>
+    public string IconArea { get; set; } = "public";
+
     public DynamicStyleBundle(string routeTemplate, object defaults = null)
         : base(routeTemplate, defaults, "text/css", null, DefaultStyleProcessors)
     {

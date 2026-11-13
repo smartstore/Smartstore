@@ -12,12 +12,12 @@
 <form asp-action="RewardPointsSettings">
     <div class="section-header">
         <div class="title">
-            <i class="fa fa-trophy"></i>
+            <icon name="trophy" />
             @T("Admin.Configuration.Settings.RewardPoints")
         </div>
         <div class="options">
-            <button type="submit" name="save" value="save" class="btn btn-warning">
-                <i class="fa fa-check"></i>
+            <button type="submit" name="save" value="save" class="btn btn-primary">
+                <icon name="check" />
                 <span>@T("Admin.Common.Save")</span>
             </button>
         </div>
@@ -27,7 +27,7 @@
 
     <div asp-validation-summary="All"></div>
 
-    <div class="alert alert-info alert-dismissible">
+    <div class="alert alert-info alert-dismissible fade show">
         @T("Admin.Configuration.Settings.RewardPoints.Description")
         <button class="btn-close" data-dismiss="alert"></button>
     </div>
@@ -49,16 +49,7 @@
                 </div>
                 <div class="adminData">
                     <setting-editor asp-for="ExchangeRate">
-                        <div class="container p-0">
-                            <div class="row no-gutters">
-                                <div class="input-group-prepend col-auto number-input-prepend">
-                                    <span class="input-group-text">@T("Admin.Configuration.Settings.RewardPoints.ExchangeRate.Hint2")</span>
-                                </div>
-                                <div class="col">
-                                    <editor asp-for="ExchangeRate" sm-postfix="@primaryCurrencyCode" />
-                                </div>
-                            </div>
-                        </div>
+                        <editor asp-for="ExchangeRate" sm-prefix="@T("Admin.Configuration.Settings.RewardPoints.ExchangeRate.Hint2")" sm-postfix="@primaryCurrencyCode" />
                     </setting-editor>
                     <span asp-validation-for="ExchangeRate"></span>
                 </div>
@@ -120,11 +111,15 @@
                 <div class="adminData">
                     <div class="form-row flex-nowrap">
                         <div class="col w-50">
-                            <setting-editor asp-for="PointsForPurchases_Amount" sm-postfix="@primaryCurrencyCode" placeholder="@T("RewardPoints.OrderAmount")"></setting-editor>
+                            <setting-editor asp-for="PointsForPurchases_Amount">
+                                <editor asp-for="PointsForPurchases_Amount" sm-prefix="@T("RewardPoints.OrderAmount")" sm-postfix="@primaryCurrencyCode" placeholder="@T("RewardPoints.OrderAmount")" />
+                            </setting-editor>
                             <span asp-validation-for="PointsForPurchases_Amount"></span>
                         </div>
                         <div class="col w-50">
-                            <setting-editor asp-for="PointsForPurchases_Points" placeholder="@T("RewardPoints.Fields.Points")"></setting-editor>
+                            <setting-editor asp-for="PointsForPurchases_Points">
+                                <editor asp-for="PointsForPurchases_Points" sm-prefix="@T("RewardPoints.Fields.Points")" placeholder="@T("RewardPoints.Fields.Points")" />
+                            </setting-editor>
                             <span asp-validation-for="PointsForPurchases_Points"></span>
                         </div>
                     </div>

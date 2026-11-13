@@ -4,7 +4,6 @@ using Smartstore.Core.Checkout.Attributes;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.GiftCards;
 using Smartstore.Core.Checkout.Orders;
-using Smartstore.Core.Checkout.Orders.Handlers;
 using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Checkout.Payment.Rules;
 using Smartstore.Core.Checkout.Rules;
@@ -15,7 +14,6 @@ using Smartstore.Core.Identity.Rules;
 using Smartstore.Core.Rules;
 using Smartstore.Core.Rules.Rendering;
 using Smartstore.Engine.Builders;
-using Smartstore.Net;
 using Smartstore.Net.Http;
 
 namespace Smartstore.Core.Bootstrapping;
@@ -24,14 +22,6 @@ internal sealed class CheckoutStarter : StarterBase
 {
     public override void ConfigureServices(IServiceCollection services, IApplicationContext appContext)
     {
-        services.AddHttpClient<PdfInvoiceHttpClient>()
-            .AddSmartstoreUserAgent()
-            .PropagateCookies(CookieNames.Identity, CookieNames.Visitor)
-            .ConfigureHttpClient(client =>
-            {
-                client.Timeout = TimeSpan.FromSeconds(10);
-            });
-
         services.AddHttpClient<ViesTaxationHttpClient>()
             .AddSmartstoreUserAgent()
             .ConfigureHttpClient(client =>

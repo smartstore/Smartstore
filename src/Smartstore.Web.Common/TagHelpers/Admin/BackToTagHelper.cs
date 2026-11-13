@@ -1,14 +1,16 @@
 ﻿using Microsoft.AspNetCore.Razor.TagHelpers;
-using Smartstore.Core.Localization;
+using Smartstore.IconKit;
+
+using Smartstore.Web.Rendering;
 
 namespace Smartstore.Web.TagHelpers.Admin;
 
 [HtmlTargetElement("a", Attributes = BackToAttributeName)]
-public class BackToTagHelper(Localizer localizer) : TagHelper
+public class BackToTagHelper : SmartTagHelper
 {
-    const string BackToAttributeName = "sm-backto";
+    protected override string GenerateTagId(TagHelperContext context) => null;
 
-    private Localizer T { get; } = localizer;
+    const string BackToAttributeName = "sm-backto";
 
     /// <summary>
     /// Renders the link as a regular button with a left arrow icon.
@@ -16,13 +18,8 @@ public class BackToTagHelper(Localizer localizer) : TagHelper
     [HtmlAttributeName(BackToAttributeName)]
     public bool IsBackButton { get; set; }
 
-    public override void Process(TagHelperContext context, TagHelperOutput output)
+    protected override async Task ProcessCoreAsync(TagHelperContext context, TagHelperOutput output)
     {
-        if (context.ShouldSuppressChildContent())
-        {
-            return;
-        }
-
         if (!IsBackButton)
         {
             return;
@@ -35,7 +32,7 @@ public class BackToTagHelper(Localizer localizer) : TagHelper
             output.Attributes.SetAttribute("title", T("Admin.Common.BackToList"));
         }
 
-        output.Content.Clear();
-        output.Content.SetHtmlContent("<i class=\"fa fa-arrow-left\"></i>");
+        var icon = await HtmlHelper.IconAsync("arrow-left?size=lg");
+        output.Content.SetHtmlContent(icon);
     }
 }

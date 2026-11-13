@@ -1,0 +1,31 @@
+// Key field: systemName
+[
+  {
+    "email": "builtin@search-engine-record.com",
+    "adminComment": "Built-in system guest record used for requests from search engines.",
+    "active": true,
+    "isSystemAccount": true,
+    "systemName": "SearchEngine"
+  },
+  {
+    "email": "builtin@background-task-record.com",
+    "adminComment": "Built-in system record used for background tasks.",
+    "active": true,
+    "isSystemAccount": true,
+    "systemName": "BackgroundTask"
+  },
+  {
+    "email": "builtin@pdf-converter-record.com",
+    "adminComment": "Built-in system record used for the PDF converter.",
+    "active": true,
+    "isSystemAccount": true,
+    "systemName": "PdfConverter"
+  },
+  {
+    "email": "builtin@webhook-client.com",
+    "adminComment": "Built-in system record used for webhook clients.",
+    "active": true,
+    "isSystemAccount": true,
+    "systemName": "WebhookClient"
+  }
+]

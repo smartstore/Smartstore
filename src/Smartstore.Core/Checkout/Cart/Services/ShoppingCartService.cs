@@ -84,6 +84,12 @@ public partial class ShoppingCartService : IShoppingCartService
         }
 
         customer.ShoppingCartItems.Add(ctx.Item);
+
+        if (ctx.RequiredItems.Count > 0)
+        {
+            customer.ShoppingCartItems.AddRange(ctx.RequiredItems);
+        }
+
         await _db.SaveChangesAsync();
 
         if (ctx.ChildItems.Count > 0)
@@ -177,6 +183,11 @@ public partial class ShoppingCartService : IShoppingCartService
                 return false;
             }
 
+            if (ctx.RequiredItems.Count > 0)
+            {
+                ctx.Customer.ShoppingCartItems.AddRange(ctx.RequiredItems);
+            }
+
             // Update cart item
             await _db.SaveChangesAsync();
             return true;
@@ -232,7 +243,7 @@ public partial class ShoppingCartService : IShoppingCartService
         {
             // Add the corresponding bundle items.
             var bundleItems = await _db.ProductBundleItem
-                .ApplyBundledProductsFilter([ctx.Product.Id], true)
+                .ApplyBundledProductsFilter([ctx.Product.Id])
                 .Include(x => x.Product)
                 .ToListAsync();
 
@@ -247,6 +258,7 @@ public partial class ShoppingCartService : IShoppingCartService
                     CartType = ctx.CartType,
                     BundleItem = bundleItem,
                     ChildItems = ctx.ChildItems,
+                    RequiredItems = ctx.RequiredItems,
                     Product = bundleItem.Product,
                     Quantity = bundleItem.Quantity,
                     VariantQuery = ctx.VariantQuery,
@@ -292,7 +304,9 @@ public partial class ShoppingCartService : IShoppingCartService
                 Quantity = childItem.Quantity,
                 RawAttributes = childItem.RawAttributes,
                 CustomerEnteredPrice = new(childItem.CustomerEnteredPrice, ctx.CustomerEnteredPrice.Currency),
-                ChildItems = ctx.ChildItems
+                ChildItems = ctx.ChildItems,
+                RequiredItems = ctx.RequiredItems,
+                AutomaticallyAddRequiredProducts = ctx.AutomaticallyAddRequiredProducts
             };
 
             if (!await AddToCartAsync(childCtx))
@@ -709,7 +723,7 @@ public partial class ShoppingCartService : IShoppingCartService
     }
 
     /// <summary>
-    /// Removes invalid checkout attributes. For example if the attribute requires shipping but the cart does not require shipping at all.
+    /// Removes checkout attributes that are not available for the current cart.
     /// </summary>
     protected virtual async Task<int> RemoveInvalidCheckoutAttributesAsync(Customer customer, int storeId)
     {
@@ -719,22 +733,20 @@ public partial class ShoppingCartService : IShoppingCartService
             return 0;
         }
 
-        var idsToRemove = new HashSet<int>();
-        var attributes = await _checkoutAttributeMaterializer.MaterializeCheckoutAttributesAsync(attributeSelection);
-
         var cart = await GetCartAsync(customer, ShoppingCartType.ShoppingCart, storeId);
-        if (!cart.IsShippingRequired)
-        {
-            idsToRemove.AddRange(attributes
-                .Where(x => x.ShippableProductRequired)
-                .Select(x => x.Id));
-        }
 
-        idsToRemove.AddRange(attributes
-            .Where(x => !x.IsActive)
-            .Select(x => x.Id));
+        // INFO: Match cart rules because removing an item can cause a previously matching checkout attribute
+        // (for example one requiring that product to be in the cart) to become invalid. Materializing the
+        // stored selection alone would still return that attribute and retain its obsolete value.
+        var activeAttributeIds = (await _checkoutAttributeMaterializer.GetCheckoutAttributesAsync(cart, storeId))
+            .Select(x => x.Id)
+            .ToHashSet();
+        var idsToRemove = attributeSelection.AttributesMap
+            .Select(x => x.Key)
+            .Where(x => !activeAttributeIds.Contains(x))
+            .ToArray();
 
-        if (idsToRemove.Count > 0)
+        if (idsToRemove.Length > 0)
         {
             attributeSelection.RemoveAttributes(idsToRemove);
             customer.GenericAttributes.CheckoutAttributes = attributeSelection;
@@ -742,7 +754,7 @@ public partial class ShoppingCartService : IShoppingCartService
             await _db.SaveChangesAsync();
         }
 
-        return idsToRemove.Count;
+        return idsToRemove.Length;
     }
 
     protected virtual async Task AddRequiredProductsAsync(ShoppingCart cart, AddToCartContext ctx)
@@ -808,15 +820,7 @@ public partial class ShoppingCartService : IShoppingCartService
         // Check whether required products are still missing.
         if (await _cartValidator.ValidateRequiredProductsAsync(ctx.Product, items, ctx.Warnings))
         {
-            foreach (var item in newItems)
-            {
-                await AddItemToCartAsync(new()
-                {
-                    Item = item.Item,
-                    ChildItems = ctx.ChildItems,
-                    Customer = ctx.Customer
-                });
-            }
+            ctx.RequiredItems.AddRange(newItems.Select(x => x.Item));
         }
     }
 

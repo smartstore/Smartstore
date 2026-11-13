@@ -140,6 +140,15 @@ internal class AddProductToOrderMapper : IMapper<AddOrderProductModel, MapperRes
                 AllowedFileExtensions = _catalogSettings.FileUploadAllowedExtensions
             };
 
+            if (attribute.AttributeControlType == AttributeControlType.Boxes)
+            {
+                attributeModel.SwatchSize = attribute.SwatchSize ?? attribute.ProductAttribute.SwatchSize ?? _catalogSettings.DefaultSwatchSize;
+                attributeModel.SwatchAspectRatio = Math.Max(attribute.SwatchAspectRatio ?? attribute.ProductAttribute.SwatchAspectRatio, 0);
+                attributeModel.SwatchShape = attribute.SwatchShape ?? attribute.ProductAttribute.SwatchShape ?? _catalogSettings.DefaultSwatchShape;
+                attributeModel.ShowValueNameInSwatch = attribute.ShowValueNameInSwatch ?? attribute.ProductAttribute.ShowValueNameInSwatch;
+                attributeModel.SwatchPriceDisplay = attribute.SwatchPriceDisplay ?? attribute.ProductAttribute.SwatchPriceDisplay;
+            }
+
             if (attribute.IsListTypeAttribute())
             {
                 var valueModels = await attribute.ProductVariantAttributeValues
@@ -154,6 +163,11 @@ internal class AddProductToOrderMapper : IMapper<AddOrderProductModel, MapperRes
                             IsPreSelected = x.IsPreSelected,
                             DisplayOrder = x.DisplayOrder
                         };
+
+                        if (!x.AdditionalColors.IsNullOrEmpty())
+                        {
+                            m.AdditionalColors.AddRange(x.AdditionalColors);
+                        }
 
                         if (x.ValueType == ProductVariantAttributeValueType.ProductLinkage &&
                             linkedProducts.TryGetValue(x.LinkedProductId, out var linkedProduct))

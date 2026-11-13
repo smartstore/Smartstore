@@ -2,7 +2,7 @@
 
     <PropertyGroup>
         <OutputType>WinExe</OutputType>
-        <TargetFramework>net9.0-windows</TargetFramework>
+        <TargetFramework>net10.0-windows</TargetFramework>
         <Nullable>disable</Nullable>
         <UseWindowsForms>true</UseWindowsForms>
         <ImplicitUsings>enable</ImplicitUsings>
@@ -10,6 +10,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+		<ProjectReference Include="..\Smartstore.Packager.Common\Smartstore.Packager.Common.csproj" />
 		<ProjectReference Include="..\..\src\Smartstore\Smartstore.csproj" />
 	    <ProjectReference Include="..\..\src\Smartstore.Core\Smartstore.Core.csproj">
 			<IncludeAssets>none</IncludeAssets>

@@ -8,7 +8,7 @@
     // Forms
     // -----
     .ctl-label {
-        padding-left: 2.5rem;
+        padding-left: var(--field-gutter, 2.5rem);
         padding-right: initial;
 
         > label {
@@ -46,7 +46,7 @@
 
     // Themes
     // ------
-    #theme-list .theme-broken-badge {
+    .theme-list .theme-broken-badge {
         left: 0;
         right: auto;
     }

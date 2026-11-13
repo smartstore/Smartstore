@@ -39,7 +39,11 @@ internal class CartTotalRule : IRule<CartRuleContext>
 
             // Do not cache because otherwise subsequent calls of 'GetShoppingCartTotalAsync' may get
             // an incorrect result where this rule is not taken into account.
-            var cartTotal = await _orderCalculationService.GetShoppingCartTotalAsync(cart, includeTax: _priceSettings.RulesCalculateIncludingTax, cache: false);
+            var cartTotal = await _orderCalculationService.GetShoppingCartTotalAsync(cart, new ShoppingCartTotalOptions
+            {
+                IncludeTax = _priceSettings.RulesCalculateIncludingTax,
+                UseRequestCache = false
+            });
 
             // Currency values must be rounded here because otherwise unexpected results may occur.
             var roundedTotal = _roundingHelper.Round(cartTotal.Total?.Amount ?? decimal.Zero);

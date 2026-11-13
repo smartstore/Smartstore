@@ -10,15 +10,18 @@ public class MenuController : SmartController
     private readonly IMenuService _menuService;
     private readonly CatalogSettings _catalogSettings;
     private readonly CatalogHelper _catalogHelper;
+    private readonly IconSettings _iconSettings;
 
     public MenuController(
         IMenuService menuService,
         CatalogSettings catalogSettings,
-        CatalogHelper catalogHelper)
+        CatalogHelper catalogHelper,
+        IconSettings iconSettings)
     {
         _menuService = menuService;
         _catalogSettings = catalogSettings;
         _catalogHelper = catalogHelper;
+        _iconSettings = iconSettings;
     }
 
     #region OffCanvasMenu 
@@ -88,6 +91,7 @@ public class MenuController : SmartController
         var model = new MenuModel
         {
             Name = "offcanvas",
+            IconOptions = _iconSettings.OffCanvasMenu,
             Root = root,
             SelectedNode = IsNullNode(nodeId)
                 ? root

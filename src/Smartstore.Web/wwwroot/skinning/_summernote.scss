@@ -1,0 +1,10 @@
+// Smartstore icon integration; keep separate from the editor fork's stylesheet.
+.note-btn.dropdown-toggle:after {
+    --icon-mask-chevron-down: #{icon-url("chevron-down?stroke-scale=1.4")};
+    width: 0.8125rem;
+    height: 0.8125rem;
+}
+
+.note-btn-group > .note-btn.dropdown-toggle:not(.dropdown-toggle-split) {
+    gap: 0.15em;
+}

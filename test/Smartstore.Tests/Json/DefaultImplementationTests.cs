@@ -152,7 +152,7 @@ public class DefaultImplementationTests
             Name = "Cat",
             Published = false,
             DisplayOrder = 0,
-            BadgeStyle = 0,
+            BadgeStyle = null,
             SubjectToAcl = false,
             LimitedToStores = false
         };

@@ -13,7 +13,9 @@ internal class CommonBundles : IBundleProvider
 
         /*´jQuery --> /bundle/js/jquery.js
         -----------------------------------------------------*/
-        bundles.Add(new ScriptBundle("/bundle/js/jquery.js").Include(lib + "jquery/jquery-3.7.1.js"));
+        bundles.Add(new ScriptBundle("/bundle/js/jquery.js").Include(
+            js + "smartstore.icons.js",
+            lib + "jquery/jquery-3.7.1.js"));
 
         if (!appContext.IsInstalled)
         {
@@ -37,8 +39,7 @@ internal class CommonBundles : IBundleProvider
         -----------------------------------------------------*/
         bundles.Add(new ScriptBundle("/bundle/js/smart-gallery.js").Include(
             lib + "drift/Drift.js",
-            lib + "photoswipe/photoswipe.js",
-            lib + "photoswipe/photoswipe-ui-default.js",
+            js + "smartstore.lightbox.js",
             js + "smartstore.gallery.js"));
     }
 }

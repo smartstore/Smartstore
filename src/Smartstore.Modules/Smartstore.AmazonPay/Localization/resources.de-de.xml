@@ -107,8 +107,11 @@
     <LocaleResource Name="MissingBillingAddress">
         <Value>Die Amazon Rechnungsanschrift fehlt. Bitte hinterlegen Sie eine Rechnungsanschrift bei Amazon oder wählen Sie eine andere Zahlart.</Value>
     </LocaleResource>
-    <LocaleResource Name="Layout">
-        <Value>Layout</Value>
+    <LocaleResource Name="ShowInPaymentMethodList">
+        <Value>In Zahlartenliste anzeigen</Value>
+    </LocaleResource>
+    <LocaleResource Name="ShowInPaymentMethodList.Hint">
+        <Value>Legt fest, ob Amazon Pay während des Bestellvorgangs in der Zahlartenliste angeboten wird.</Value>
     </LocaleResource>
     <LocaleResource Name="CloseChargeReason">
         <Value>Keine weiteren Buchungen erforderlich.</Value>

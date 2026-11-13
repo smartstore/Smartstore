@@ -53,7 +53,7 @@ public class PaymentMethodHandler : CheckoutHandlerBase
             return await SavePaymentMethod(systemName, true, context);
         }
 
-        var cartTotal = (Money?)await _orderCalculationService.GetShoppingCartTotalAsync(cart, false);
+        var cartTotal = (Money?)await _orderCalculationService.GetShoppingCartTotalAsync(cart, new ShoppingCartTotalOptions { ApplyRewardPoints = false });
         state.IsPaymentRequired = cartTotal.GetValueOrDefault() != decimal.Zero;
 
         if (!state.IsPaymentRequired)
@@ -198,7 +198,12 @@ public class PaymentMethodHandler : CheckoutHandlerBase
 
     private async Task<List<Provider<IPaymentMethod>>> GetPaymentMethods(ShoppingCart cart)
     {
-        var providers = await _paymentService.LoadActivePaymentProvidersAsync(cart, cart.StoreId);
+        var providers = await _paymentService.LoadActivePaymentProvidersAsync(
+            cart,
+            cart.StoreId,
+            PaymentMethodType.Standard | PaymentMethodType.Redirection);
+
+        providers = providers.Where(x => x.Value.DisplayInPaymentMethodList);
 
         if (cart.ContainsRecurringItem())
         {

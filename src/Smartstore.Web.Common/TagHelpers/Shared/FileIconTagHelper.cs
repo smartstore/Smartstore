@@ -1,10 +1,15 @@
 ﻿using Microsoft.AspNetCore.Razor.TagHelpers;
+using Smartstore.IconKit;
+
+using Smartstore.Web.Rendering;
 
 namespace Smartstore.Web.TagHelpers.Shared;
 
 [HtmlTargetElement("file-icon", Attributes = FileExtensionAttributeName, TagStructure = TagStructure.WithoutEndTag)]
-public class FileIconTagHelper : TagHelper
+public class FileIconTagHelper : SmartTagHelper
 {
+    protected override string GenerateTagId(TagHelperContext context) => null;
+
     const string FileExtensionAttributeName = "file-extension";
     const string LabelAttributeName = "label";
     const string ShowLabelAttributeName = "show-label";
@@ -34,13 +39,8 @@ public class FileIconTagHelper : TagHelper
     [HtmlAttributeName(BadgeClassAttributeName)]
     public string BadgeClass { get; set; }
 
-    public override void Process(TagHelperContext context, TagHelperOutput output)
+    protected override async Task ProcessCoreAsync(TagHelperContext context, TagHelperOutput output)
     {
-        if (context.ShouldSuppressChildContent())
-        {
-            return;
-        }
-
         output.TagName = null;
         output.TagMode = TagMode.StartTagAndEndTag;
 
@@ -53,26 +53,29 @@ public class FileIconTagHelper : TagHelper
         {
             var ext = FileExtension.EmptyNull().TrimStart('.');
 
-            var iconClass = ext.ToLowerInvariant() switch
+            var iconName = ext.ToLowerInvariant() switch
             {
-                "pdf" => "far fa-file-pdf",
-                "doc" or "docx" or "docm" or "odt" or "dot" or "dotx" or "dotm" => "far fa-file-word",
-                "xls" or "xlsx" or "xlsm" or "xlsb" or "ods" => "far fa-file-excel",
-                "csv" or "tab" => "fa fa-file-csv",
-                "ppt" or "pptx" or "pptm" or "ppsx" or "odp" or "potx" or "pot" or "potm" or "pps" or "ppsm" => "far fa-file-powerpoint",
-                "zip" or "rar" or "7z" => "far fa-file-archive",
-                "png" or "jpg" or "jpeg" or "bmp" or "psd" => "far fa-file-image",
-                "mp3" or "wav" or "ogg" or "wma" => "far fa-file-audio",
-                "mp4" or "mkv" or "wmv" or "avi" or "asf" or "mpg" or "mpeg" => "far fa-file-video",
-                "txt" => "far fa-file-lines",
-                "exe" => "fa fa-cog",
-                "xml" or "html" or "htm" => "far fa-file-code",
-                _ => "far fa-file",
+                "pdf" => "file-pdf",
+                "doc" or "docx" or "docm" or "odt" or "dot" or "dotx" or "dotm" => "file-word",
+                "xls" or "xlsx" or "xlsm" or "xlsb" or "ods" => "file-spreadsheet",
+                "csv" or "tab" => "file-csv",
+                "ppt" or "pptx" or "pptm" or "ppsx" or "odp" or "potx" or "pot" or "potm" or "pps" or "ppsm" => "file-presentation",
+                "zip" or "rar" or "7z" => "file-archive",
+                "png" or "jpg" or "jpeg" or "bmp" or "psd" => "file-image",
+                "mp3" or "wav" or "ogg" or "wma" => "file-audio",
+                "mp4" or "mkv" or "wmv" or "avi" or "asf" or "mpg" or "mpeg" => "file-video",
+                "json" => "file-braces",
+                "txt" => "file-text",
+                "exe" => "gear",
+                "xml" or "html" or "htm" => "file-code",
+                _ => "file",
             };
 
             ext = ext.NaIfEmpty().ToUpper();
 
-            output.Content.AppendHtml($"<i class='fa-fw {iconClass}' title='{ext}'></i>");
+            output.Content.AppendHtml(await HtmlHelper.IconAsync(
+                new IconExpression(new IconAddress(iconName), new IconPresentation { FixedWidth = true }),
+                new IconOptions { Attributes = { ["title"] = ext } }));
 
             if (ShowLabel)
             {

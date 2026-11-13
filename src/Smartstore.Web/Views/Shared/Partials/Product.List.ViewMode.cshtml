@@ -20,7 +20,7 @@
            attr-aria-current='(isGrid, "page")'
            aria-label="@resSwitchToGrid">
             <input type="radio" name="artlist-viewmode" id="artlist-viewmode-grid" attr-checked='(isGrid, "checked")' aria-hidden="true" tabindex="-1" />
-            <i class="fa fa-grip" aria-hidden="true"></i>
+            <icon name="grip"  aria-hidden="true" />
         </a>
         <a href='@Display.ModifyQueryString(null, "?v=list")' 
            rel="nofollow" 
@@ -32,7 +32,7 @@
            attr-aria-current='(!isGrid, "page")'
            aria-label="@resSwitchToList">
             <input type="radio" name="artlist-viewmode" id="artlist-viewmode-list" attr-checked='(!isGrid, "checked")' aria-hidden="true" tabindex="-1" />
-            <i class="fa fa-list" aria-hidden="true"></i>
+            <icon name="list"  aria-hidden="true" />
         </a>
     </div>
 </div>

@@ -1,0 +1,136 @@
+// Key field: key
+[
+  {
+    "key": "piece",
+    "name": "Piece",
+    "namePlural": "Pieces",
+    "description": "Piece",
+    "isDefault": true
+  },
+  {
+    "key": "box",
+    "name": "Box",
+    "namePlural": "Boxes",
+    "description": "Box",
+    "displayOrder": 1
+  },
+  {
+    "key": "parcel",
+    "name": "Parcel",
+    "namePlural": "Parcels",
+    "description": "Parcel",
+    "displayOrder": 2
+  },
+  {
+    "key": "palette",
+    "name": "Palette",
+    "namePlural": "Pallets",
+    "description": "Palette",
+    "displayOrder": 3
+  },
+  {
+    "key": "unit",
+    "name": "Unit",
+    "namePlural": "Units",
+    "description": "Unit",
+    "displayOrder": 4
+  },
+  {
+    "key": "sack",
+    "name": "Sack",
+    "namePlural": "Sacks",
+    "description": "Sack",
+    "displayOrder": 5
+  },
+  {
+    "key": "bag",
+    "name": "Bag",
+    "namePlural": "Bags",
+    "description": "Bag",
+    "displayOrder": 6
+  },
+  {
+    "key": "can",
+    "name": "Can",
+    "namePlural": "Cans",
+    "description": "Can",
+    "displayOrder": 7
+  },
+  {
+    "key": "packet",
+    "name": "Packet",
+    "namePlural": "Packets",
+    "description": "Packet",
+    "displayOrder": 8
+  },
+  {
+    "key": "bar",
+    "name": "Bar",
+    "namePlural": "Bars",
+    "description": "Bar",
+    "displayOrder": 9
+  },
+  {
+    "key": "bottle",
+    "name": "Bottle",
+    "namePlural": "Bottles",
+    "description": "Bottle",
+    "displayOrder": 10
+  },
+  {
+    "key": "glass",
+    "name": "Glass",
+    "namePlural": "Glasses",
+    "description": "Glass",
+    "displayOrder": 11
+  },
+  {
+    "key": "bunch",
+    "name": "Bunch",
+    "namePlural": "Bunches",
+    "description": "Bunch",
+    "displayOrder": 12
+  },
+  {
+    "key": "roll",
+    "name": "Roll",
+    "namePlural": "Rolls",
+    "description": "Roll",
+    "displayOrder": 13
+  },
+  {
+    "key": "cup",
+    "name": "Cup",
+    "namePlural": "Cups",
+    "description": "Cup",
+    "displayOrder": 14
+  },
+  {
+    "key": "bundle",
+    "name": "Bundle",
+    "namePlural": "Bundles",
+    "description": "Bundle",
+    "displayOrder": 15
+  },
+  {
+    "key": "barrel",
+    "name": "Barrel",
+    "namePlural": "Barrels",
+    "description": "Barrel",
+    "displayOrder": 16
+  },
+  {
+    "key": "set",
+    "name": "Set",
+    "namePlural": "Sets",
+    "description": "Set",
+    "displayOrder": 17
+  },
+  {
+    "key": "bucket",
+    "name": "Bucket",
+    "namePlural": "Buckets",
+    "description": "Bucket",
+    "displayOrder": 18
+  }
+]

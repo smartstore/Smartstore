@@ -1,0 +1,11 @@
+@model Smartstore.Admin.Infrastructure.Dashboard.ContactRequestsDashboardWidgetSettings
+
+<div class="form-group form-row">
+    <div class="col-6">
+        <smart-label class="col-form-label col-form-label-sm" asp-for="Count" />
+    </div>
+    <div class="col-6">
+        <input sm-control-size="Small" asp-for="Count" type="number" sm-numberinput-group-class="overflow-visible" min="1" max="50" step="1" required />
+        <span asp-validation-for="Count"></span>
+    </div>
+</div>

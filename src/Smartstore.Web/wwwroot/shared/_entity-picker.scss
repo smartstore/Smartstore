@@ -61,14 +61,11 @@
     .published {
         margin-left: 1px;
         margin-right: 6px;
-        font-size: 15px;
-        line-height: 18px;
-        vertical-align: sub;
     }
-    .published.fa-globe {
+    .published.is-published {
         color: inherit;
     }
-    .published.fa-eye-slash {
+    .published.is-unpublished {
         color: $gray-600;
     }
 

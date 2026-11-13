@@ -2,12 +2,14 @@
 
     <PropertyGroup>
         <BinDir>bin\$(Configuration)\</BinDir>
+        <!-- RID builds must collect matching provider binaries, never a stale portable build. -->
+        <BinDir Condition="'$(RuntimeIdentifier)' != '' And '$(AppendRuntimeIdentifierToOutputPath)' != 'false'">$(BinDir)$(RuntimeIdentifier)\</BinDir>
         <DataDir>..\Smartstore.Data\</DataDir>
     </PropertyGroup>
 
     <ItemGroup>
         <!-- Compile output of all data provider projects except JSON files -->
-        <DistFiles Include="$(DataDir)Smartstore.Data.*\bin\$(Configuration)\*" Exclude="**\*.json" />
+        <DistFiles Include="$(DataDir)Smartstore.Data.*\$(BinDir)*" Exclude="**\*.json" />
     </ItemGroup>
 
     <Target Name="CopyDataProvidersToOutput" AfterTargets="Build">

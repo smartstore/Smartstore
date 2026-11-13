@@ -10,7 +10,11 @@
         // RangeSlider
         "range": function (el) { $(el).rangeSlider() },
         // ColorBox
-        "color": function (el) { $(el).colorpickerWrapper() },
+        "color": function (el) { $(el).colorpicker() },
+        // ColorPalette
+        "color-palette": function (el) { $(el).colorPalette() },
+        // EditableList
+        "editable-list": function (el) { $(el).editableList() },
         // Select2: AccessPermissions, CustomerRoles, DeliveryTimes, Discounts, Stores
         "select": function (el) {
             if ($.fn.select2 === undefined || $.fn.selectWrapper === undefined)
@@ -22,13 +26,18 @@
         },
         // Datetime & Time
         "date-time": function (el) {
-            var $el = $(el);
-            $el.parent().datetimepicker({
+            const group = el.parentElement;
+            if (Smartstore.DateTimePicker.getInstance(group)) return;
+            const $el = $(el);
+            const picker = new Smartstore.DateTimePicker(group, {
                 format: $el.data("format"),
-                useCurrent: $el.data("use-current"),
+                useCurrent: $el.data("use-current") ?? true,
                 locale: moment.locale(),
                 keepOpen: false
             });
+            group.addEventListener('smartdatetimepicker:change', event => {
+                $(group).trigger({ type: 'change.datetimepicker', ...event.detail });
+            }, { signal: picker.events.signal });
         },
         // Html
         "html": function (el) {
@@ -42,60 +51,6 @@
         }
     };
     editorMap["time"] = editorMap["date-time"];
-
-    // Replace datetimepicker internal _place() method with our own, because the original is really badly fucked up!
-    // TODO: (core) Move $.fn.datetimepicker.Constructor.prototype._place() to applicable place when bundling is available.
-    $.fn.datetimepicker.Constructor.prototype._place = function (e) {
-        const self = e?.data?.picker || this,
-            parent = document.body,
-            component = (self.component?.length ? self.component : self._element).get(0),
-            position = component.getBoundingClientRect(),
-            widget = self.widget[0],
-            scrollTop = document.documentElement.scrollTop;
-        let vpos = "bottom",
-            hpos = "right";
-
-        parent.append(widget);
-
-        const widgetWidth = widget.offsetWidth;
-        const widgetHeight = widget.offsetHeight;
-
-        if (position.bottom + widgetHeight > window.innerHeight && position.top - widgetHeight > -2) {
-            vpos = "top";
-        }
-
-        if (position.right - widgetWidth < 0) {
-            hpos = "left";
-        }
-
-        if (vpos === "top") {
-            widget.classList.add("top");
-            widget.classList.remove("bottom");
-        }
-        else {
-            widget.classList.add("bottom");
-            widget.classList.remove("top");
-        }
-
-        if (hpos === "left") {
-            widget.classList.add("float-left");
-            widget.classList.remove("float-right");
-        }
-        else {
-            widget.classList.add("float-right");
-            widget.classList.remove("float-left");
-        }
-
-        // Default pos --> right/bottom
-        var pos = {
-            top: (vpos === "top" ? Math.max(0, scrollTop + position.top - widgetHeight - 8) : (scrollTop + position.bottom)) + "px",
-            left: (hpos == "left" ? position.left : position.left + (position.width - widgetWidth)) + "px",
-            bottom: "auto",
-            right: "auto"
-        };
-
-        $.extend(widget.style, pos);
-    };
 
     function initConfirmationDialogs(context) {
         // TODO: (mh) (core) Move initConfirmationDialogs() to applicable place later (e.g. globalinit, plugin factories or alike)

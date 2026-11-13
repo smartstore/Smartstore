@@ -52,8 +52,8 @@ public abstract partial class BaseEntity : INamedEntity, IEquatable<BaseEntity>
     /// <param name="state">Hook state data to add.</param>
     public void AddHookState(string key, object state)
     {
-        Guard.NotEmpty(key, nameof(key));
-        Guard.NotNull(state, nameof(state));
+        Guard.NotEmpty(key);
+        Guard.NotNull(state);
 
         _hookState ??= new(StringComparer.OrdinalIgnoreCase);
         _hookState[key] = state;
@@ -64,7 +64,7 @@ public abstract partial class BaseEntity : INamedEntity, IEquatable<BaseEntity>
     /// </summary>
     public object GetHookState(string key)
     {
-        Guard.NotEmpty(key, nameof(key));
+        Guard.NotEmpty(key);
 
         return _hookState?.Get(key);
     }

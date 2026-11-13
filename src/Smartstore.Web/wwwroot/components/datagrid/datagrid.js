@@ -10,15 +10,48 @@ const DATAGRID_VALIDATION_SETTINGS = {
     }
 };
 
-// https://dev.to/loilo92/an-approach-to-vuejs-template-variables-5aik
-// TODO: (core) Move Vue.pass component to a central location.
-Vue.component("pass", {
-    render() {
-        return this.$scopedSlots.default(this.$attrs);
-    }
-});
+Smartstore.Admin.DataGridVue = {
+    components: Object.create(null),
+    nextComponentId: 0,
 
-Vue.component("sm-datagrid", {
+    mount(selector, data) {
+        const app = Vue.createApp({
+            data() {
+                return data;
+            }
+        });
+
+        app.use(Smartstore.Icons);
+        Object.keys(this.components).forEach(name => app.component(name, this.components[name]));
+
+        const root = app.mount(selector);
+        const refs = new Proxy(root.$refs, {
+            get(target, name) {
+                const value = Reflect.get(target, name);
+                return Array.isArray(value) && value.length === 1 ? value[0] : value;
+            }
+        });
+
+        // Preserve the public Vue 2 grid handle used by existing modules and custom views.
+        return new Proxy(root, {
+            get(target, name) {
+                if (name === "$children") {
+                    return [target.$refs.grid];
+                }
+                if (name === "$refs") {
+                    return refs;
+                }
+                if (name === "grid") {
+                    return target.$refs.grid;
+                }
+
+                return Reflect.get(target, name);
+            }
+        });
+    }
+};
+
+Smartstore.Admin.DataGridVue.components["sm-datagrid"] = {
     template: `
         <div class="datagrid" 
             :style="{ maxHeight: options.maxHeight }" 
@@ -28,8 +61,8 @@ Vue.component("sm-datagrid", {
             <div v-if="hasSearchPanel" class="dg-search d-flex flex-column" :class="{ show: options.showSearch }">
                 <div class="dg-search-header d-flex py-3 mx-3">
                     <h6 class="m-0 text-muted">{{ T.filter }}</h6>
-                    <button v-show="numSearchFilters > 0" type="button" class="dg-filter-reset btn btn-light btn-flat btn-sm ml-auto" @click.prevent.stop="resetSearchFilters()">
-                        <i class="fa fa-filter-circle-xmark"></i>
+                    <button v-show="numSearchFilters > 0" type="button" class="dg-filter-reset btn btn-plain btn-sm ml-auto" @click.prevent.stop="resetSearchFilters()">
+                        <sm-icon name="filter-remove"></sm-icon>
                         <span>{{ T.resetState }}</span>
                     </button>
                 </div>
@@ -93,10 +126,10 @@ Vue.component("sm-datagrid", {
                                         :class="{ 'dg-sortable': sorting.enabled && column.sortable }"
                                         :title="column.hint"
                                         v-on:click="onSort($event, column)">
-                                        <i v-if="column.icon" class="dg-icon" :class="column.icon"></i>
+                                        <sm-icon v-if="column.icon" class="dg-icon" :name="column.icon"></sm-icon>
                                         <span v-if="column.title" class="dg-cell-value">{{ column.title }}</span>
-                                        <i v-if="isSortedAsc(column)" class="fa fa-fw fa-sm fa-arrow-up mx-1"></i>
-                                        <i v-if="isSortedDesc(column)" class="fa fa-fw fa-sm fa-arrow-down mx-1"></i>
+                                        <sm-icon name="arrow-up" v-if="isSortedAsc(column)" class="mx-1"></sm-icon>
+                                        <sm-icon name="arrow-up" v-if="isSortedDesc(column)" class="mx-1 flip-v"></sm-icon>
                                     </div>
                                     <div v-if="options.allowResize && column.resizable" 
                                         class="dg-resize-handle"
@@ -118,12 +151,12 @@ Vue.component("sm-datagrid", {
                                 </td>
                             </tr>                            
                             
-                            <template v-for="(row, rowIndex) in rows">
-                                <tr class="dg-tr" :class="getDataRowClass(row, rowIndex)" :data-key="row[options.keyMemberName]" :key="'row-' + row[options.keyMemberName]">
+                            <template v-for="(row, rowIndex) in rows" :key="'row-' + row[options.keyMemberName]">
+                                <tr class="dg-tr" :class="getDataRowClass(row, rowIndex)" :data-key="row[options.keyMemberName]">
 
                                     <td v-if="allowRowSelection || hasDetailView" class="dg-td dg-col-selector dg-col-pinned alpha">
                                         <div v-if="hasDetailView" class="dg-cell dg-cell-detail-toggle" :class="{ 'expanded': getRowDetailState(row) === true }" @click="toggleDetailView(row)">
-                                            <i class="fa fa-chevron-right fa-sm"></i>
+                                            <sm-icon name="chevron-right" size="sm"></sm-icon>
                                         </div>
                                         <label v-if="allowRowSelection" class="dg-cell dg-cell-selector w-100">
                                             <span v-if="!isInlineEditRow(row) || !editing.insertMode" class="dg-cell-value" style="overflow: initial">
@@ -143,7 +176,7 @@ Vue.component("sm-datagrid", {
                                         <div class="dg-cell" :class="getCellClass(row, column)" :style="getCellStyles(row, column, false)">
                                             <slot v-if="!isInlineEditCell(row, column)" :name="'display-' + column.member.toLowerCase()" v-bind="{ row, rowIndex, column, columnIndex, value: getColumnValue(column, row) }">
                                                 <template v-if="column.type === 'boolean'">
-                                                    <div class="dg-cell-value"><i class="fa fa-fw" :class="'icon-active-' + getColumnValue(column, row)"></i></div>
+                                                    <div class="dg-cell-value"><sm-icon :name="getColumnValue(column, row) === true ? 'check' : getColumnValue(column, row) === false ? 'minus' : null" fw :class="'icon-active-' + getColumnValue(column, row)"></sm-icon></div>
                                                 </template>
                                                 <template v-else>
                                                     <div class="dg-cell-value" v-if="column.encoded" v-html="renderCellValue(getColumnValue(column, row), column, row)"></div>
@@ -166,17 +199,17 @@ Vue.component("sm-datagrid", {
                                         <div class="dg-cell dg-commands p-0">
                                             <div v-show="hasRowCommands && (!editing.active || row != editing.row)" class="dg-commands-toggle w-100 h-100 align-items-center justify-content-center dropdown">
                                                 <a href="#" class="dg-commands-toggle-button dropdown-toggle no-chevron btn btn-secondary btn-flat btn-icon btn-sm" data-toggle="dropdown" data-boundary="window">
-                                                    <i class="fa fa-ellipsis-h"></i>
+                                                    <sm-icon name="ellipsis"></sm-icon>
                                                 </a>
                                                 <slot name="rowcommands" v-bind="{ row, activateEdit, deleteRows }"></slot> 
                                             </div>
 
-                                            <div v-show="editing.active && row == editing.row" class="dg-row-edit-commands btn-group-vertical">
-                                                <a href="#" @click.prevent.stop="saveChanges()" class="btn btn-primary btn-sm btn-flat rounded-0" :title="T.saveChanges">
-                                                    <i class="fa fa-check"></i>
+                                            <div v-if="editing.active && row == editing.row" class="dg-row-edit-commands bg-white rounded-pill border">
+                                                <a href="#" @click.prevent.stop="saveChanges()" class="btn btn-primary btn-xs btn-flat btn-icon rounded-circle btn-row-command" :title="T.saveChanges">
+                                                    <sm-icon name="check" size="xs"></sm-icon>
                                                 </a>
-                                                <a href="#" @click.prevent.stop="cancelEdit()" class="btn btn-secondary btn-sm btn-flat rounded-0" :title="T.cancel">
-                                                    <i class="fa fa-times"></i>
+                                                <a href="#" @click.prevent.stop="cancelEdit()" class="btn btn-secondary btn-xs btn-flat btn-icon rounded-circle btn-row-command" :title="T.cancel">
+                                                    <sm-icon name="close" size="xs"></sm-icon>
                                                 </a>
                                             </div>
                                         </div>
@@ -232,7 +265,7 @@ Vue.component("sm-datagrid", {
         options: {
             type: Object,
             required: false,
-            default: {}
+            default() { return {}; }
         },
 
         dataSource: {
@@ -263,6 +296,16 @@ Vue.component("sm-datagrid", {
             default() { return { enabled: false, descriptors: [] } }
         }
     },
+
+    emits: [
+        "data-binding",
+        "data-bound",
+        "row-selected",
+        "deleting-rows",
+        "deleted-rows",
+        "saving-changes",
+        "saved-changes"
+    ],
 
     data() {
         return {
@@ -401,18 +444,6 @@ Vue.component("sm-datagrid", {
             this.userPrefs = userPrefs?.version === this.options.version ? userPrefs : null;
         }  
 
-        this.$on('data-binding', command => {
-            this._callHandler(this.options, 'onDataBinding', command);
-        });
-
-        this.$on('data-bound', (command, rows) => {
-            this.setMasterSelectorState(this.getMasterSelectorState());
-            this._callHandler(this.options, 'onDataBound', command, rows);
-        });
-
-        this.$on('row-selected', (selectedRows, row, selected) => {
-            this._callHandler(this.options, 'onRowSelected', selectedRows, row, selected);
-        });
     },
 
     mounted () {
@@ -477,9 +508,9 @@ Vue.component("sm-datagrid", {
         });
 
         this.hasEditableVisibleColumn = this.columns.some(this.isEditableVisibleColumn);
-        this.hasFooterTemplate = this.columns.some(c => this.$scopedSlots["colfooter-" + c.member.toLowerCase()]);
-        this.hasRowCommands = !!(this.$scopedSlots.rowcommands);
-        this.hasDetailView = !!(this.$scopedSlots.detailview);
+        this.hasFooterTemplate = this.columns.some(c => this.$slots["colfooter-" + c.member.toLowerCase()]);
+        this.hasRowCommands = !!(this.$slots.rowcommands);
+        this.hasDetailView = !!(this.$slots.detailview);
         
         //this.destroyRowValidator();
 
@@ -492,6 +523,10 @@ Vue.component("sm-datagrid", {
         this.initializeEditRow();
     },
 
+    beforeUnmount() {
+        this.destroyRowEditPopper();
+    },
+
     computed: {
         command() {
             return {
@@ -502,7 +537,7 @@ Vue.component("sm-datagrid", {
         },
 
         hasSearchPanel() {
-            return !!(this.$scopedSlots.search);
+            return !!(this.$slots.search);
         },
 
         canEditRow() {
@@ -596,7 +631,7 @@ Vue.component("sm-datagrid", {
             },
             deep: true
         },
-        selectedRows() {
+        selectedRowsInCurrentPage() {
             this.setMasterSelectorState(this.getMasterSelectorState());
         },
         userPrefs(value) {
@@ -844,6 +879,7 @@ Vue.component("sm-datagrid", {
 
             self.isBusy = true;
             self.$emit("data-binding", command);
+            self._callHandler(self.options, "onDataBinding", command);
 
             $.ajax({
                 url: this.dataSource.read,
@@ -865,6 +901,8 @@ Vue.component("sm-datagrid", {
                     else {
                         self.aggregates = result.aggregates !== undefined ? result.aggregates : {};
                         self.$emit("data-bound", command, self.rows);
+                        self.setMasterSelectorState(self.getMasterSelectorState());
+                        self._callHandler(self.options, "onDataBound", command, self.rows);
                         self.ready = true;
                         self.isBusy = false;
                     }
@@ -1051,7 +1089,7 @@ Vue.component("sm-datagrid", {
             }
 
             if (descriptor && !multiMode) {
-                this.sorting.descriptors = this.sorting.descriptors.filter(x => x === descriptor);
+                this.sorting.descriptors = [descriptor];
             }
         },
 
@@ -1094,12 +1132,14 @@ Vue.component("sm-datagrid", {
             const key = row[this.options.keyMemberName];
             const selectedRow = this.selectedRows[key];
             if (selectedRow && !select) {
-                this.$delete(this.selectedRows, key);
+                delete this.selectedRows[key];
                 this.$emit('row-selected', this.selectedRows, row, false);
+                this._callHandler(this.options, "onRowSelected", this.selectedRows, row, false);
             }
             else if (!selectedRow) {
-                this.$set(this.selectedRows, key, row);
+                this.selectedRows[key] = row;
                 this.$emit('row-selected', this.selectedRows, row, true);
+                this._callHandler(this.options, "onRowSelected", this.selectedRows, row, true);
             }
         },
 
@@ -1250,6 +1290,7 @@ Vue.component("sm-datagrid", {
                 return;
             }
 
+            this.destroyRowEditPopper();
             this.destroyRowValidator();
 
             if (this.editing.insertMode && this.rows.length && this.rows[0] === this.editing.row) {
@@ -1295,7 +1336,55 @@ Vue.component("sm-datagrid", {
                     elFocus = $(editing.tr).find('.dg-cell-edit :input:visible');
                 }
                 elFocus.first().trigger('focus');
+
+                this.createRowEditPopper();
             });
+        },
+
+        createRowEditPopper() {
+            const cell = this.editing.tr?.querySelector(".dg-col-pinned.omega");
+            const commands = cell?.querySelector(".dg-row-edit-commands");
+
+            if (!cell || !commands) {
+                return;
+            }
+
+            this._rowEditCommands = commands;
+            this._rowEditCommandsParent = commands.parentNode;
+            this.$refs.tableWrapper.appendChild(commands);
+
+            const centerOffset = -((cell.offsetHeight + commands.offsetHeight) / 2);
+
+            this._rowEditPopper = new Popper(cell, commands, {
+                placement: "top",
+                modifiers: {
+                    offset: {
+                        offset: `0, ${centerOffset}`
+                    },
+                    flip: {
+                        enabled: false
+                    },
+                    preventOverflow: {
+                        boundariesElement: this.$refs.tableWrapper,
+                        padding: 4
+                    },
+                    computeStyle: {
+                        gpuAcceleration: false
+                    }
+                }
+            });
+        },
+
+        destroyRowEditPopper() {
+            this._rowEditPopper?.destroy();
+            this._rowEditPopper = null;
+
+            if (this._rowEditCommands && this._rowEditCommandsParent) {
+                this._rowEditCommandsParent.appendChild(this._rowEditCommands);
+            }
+
+            this._rowEditCommands = null;
+            this._rowEditCommandsParent = null;
         },
 
         rememberColumnWidths() {
@@ -1537,7 +1626,7 @@ Vue.component("sm-datagrid", {
         toggleDetailView(row) {
             const key = row[this.options.keyMemberName];
             const entry = this.detailRows[key];
-            Vue.set(this.detailRows, key, entry === undefined ? true : !entry);
+            this.detailRows[key] = entry === undefined ? true : !entry;
         },
 
         getRowDetailState(row) {
@@ -1546,4 +1635,4 @@ Vue.component("sm-datagrid", {
 
         // #endregion
     }
-});
+};

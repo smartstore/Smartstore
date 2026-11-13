@@ -1,0 +1,1182 @@
+{
+  "DE": {
+    "name": "Deutschland",
+    "stateProvinces": [
+      {
+        "name": "Baden-Württemberg",
+        "abbreviation": "BW",
+        "published": true,
+        "displayOrder": 1
+      },
+      {
+        "name": "Bayern",
+        "abbreviation": "BY",
+        "published": true,
+        "displayOrder": 1
+      },
+      {
+        "name": "Berlin",
+        "abbreviation": "BE",
+        "published": true,
+        "displayOrder": 1
+      },
+      {
+        "name": "Brandenburg",
+        "abbreviation": "BB",
+        "published": true,
+        "displayOrder": 1
+      },
+      {
+        "name": "Bremen",
+        "abbreviation": "HB",
+        "published": true,
+        "displayOrder": 1
+      },
+      {
+        "name": "Hamburg",
+        "abbreviation": "HH",
+        "published": true,
+        "displayOrder": 1
+      },
+      {
+        "name": "Hessen",
+        "abbreviation": "HE",
+        "published": true,
+        "displayOrder": 1
+      },
+      {
+        "name": "Mecklenburg-Vorpommern",
+        "abbreviation": "MV",
+        "published": true,
+        "displayOrder": 1
+      },
+      {
+        "name": "Niedersachsen",
+        "abbreviation": "NI",
+        "published": true,
+        "displayOrder": 1
+      },
+      {
+        "name": "Nordrhein-Westfalen",
+        "abbreviation": "NW",
+        "published": true,
+        "displayOrder": 1
+      },
+      {
+        "name": "Rheinland-Pfalz",
+        "abbreviation": "RP",
+        "published": true,
+        "displayOrder": 1
+      },
+      {
+        "name": "Saarland",
+        "abbreviation": "SL",
+        "published": true,
+        "displayOrder": 1
+      },
+      {
+        "name": "Sachsen",
+        "abbreviation": "SN",
+        "published": true,
+        "displayOrder": 1
+      },
+      {
+        "name": "Sachsen-Anhalt",
+        "abbreviation": "ST",
+        "published": true,
+        "displayOrder": 1
+      },
+      {
+        "name": "Schleswig-Holstein",
+        "abbreviation": "SH",
+        "published": true,
+        "displayOrder": 1
+      },
+      {
+        "name": "Thüringen",
+        "abbreviation": "TH",
+        "published": true,
+        "displayOrder": 1
+      }
+    ]
+  },
+  "AT": {
+    "name": "Österreich",
+    "published": false,
+    "stateProvinces": [
+      {
+        "name": "Burgenland",
+        "abbreviation": "Bgld.",
+        "published": true,
+        "displayOrder": 1
+      },
+      {
+        "name": "Kärnten",
+        "abbreviation": "Ktn.",
+        "published": true,
+        "displayOrder": 1
+      },
+      {
+        "name": "Niederösterreich",
+        "abbreviation": "NÖ",
+        "published": true,
+        "displayOrder": 1
+      },
+      {
+        "name": "Oberösterreich",
+        "abbreviation": "OÖ",
+        "published": true,
+        "displayOrder": 1
+      },
+      {
+        "name": "Salzburg",
+        "abbreviation": "Sbg.",
+        "published": true,
+        "displayOrder": 1
+      },
+      {
+        "name": "Steiermark",
+        "abbreviation": "Stmk.",
+        "published": true,
+        "displayOrder": 1
+      },
+      {
+        "name": "Tirol",
+        "abbreviation": "T",
+        "published": true,
+        "displayOrder": 1
+      },
+      {
+        "name": "Vorarlberg",
+        "abbreviation": "Vbg.",
+        "published": true,
+        "displayOrder": 1
+      },
+      {
+        "name": "Wien",
+        "abbreviation": "W",
+        "published": true,
+        "displayOrder": 1
+      }
+    ]
+  },
+  "CH": {
+    "name": "Schweiz",
+    "published": false,
+    "stateProvinces": [
+      {
+        "name": "Zürich",
+        "abbreviation": "ZH",
+        "published": true,
+        "displayOrder": 1
+      },
+      {
+        "name": "Bern",
+        "abbreviation": "BE",
+        "published": true,
+        "displayOrder": 1
+      },
+      {
+        "name": "Luzern",
+        "abbreviation": "LU",
+        "published": true,
+        "displayOrder": 1
+      },
+      {
+        "name": "Uri",
+        "abbreviation": "UR",
+        "published": true,
+        "displayOrder": 1
+      },
+      {
+        "name": "Schwyz",
+        "abbreviation": "SZ",
+        "published": true,
+        "displayOrder": 1
+      },
+      {
+        "name": "Obwalden",
+        "abbreviation": "OW",
+        "published": true,
+        "displayOrder": 1
+      },
+      {
+        "name": "Nidwalden",
+        "abbreviation": "ST",
+        "published": true,
+        "displayOrder": 1
+      },
+      {
+        "name": "Glarus",
+        "abbreviation": "GL",
+        "published": true,
+        "displayOrder": 1
+      },
+      {
+        "name": "Zug",
+        "abbreviation": "ZG",
+        "published": true,
+        "displayOrder": 1
+      },
+      {
+        "name": "Freiburg",
+        "abbreviation": "FR",
+        "published": true,
+        "displayOrder": 1
+      },
+      {
+        "name": "Solothurn",
+        "abbreviation": "SO",
+        "published": true,
+        "displayOrder": 1
+      },
+      {
+        "name": "Basel-Stadt",
+        "abbreviation": "BS",
+        "published": true,
+        "displayOrder": 1
+      },
+      {
+        "name": "Basel-Landschaft",
+        "abbreviation": "BL",
+        "published": true,
+        "displayOrder": 1
+      },
+      {
+        "name": "Schaffhausen",
+        "abbreviation": "SH",
+        "published": true,
+        "displayOrder": 1
+      },
+      {
+        "name": "Appenzell Ausserrhoden",
+        "abbreviation": "AR",
+        "published": true,
+        "displayOrder": 1
+      },
+      {
+        "name": "Appenzell Innerrhoden",
+        "abbreviation": "AI",
+        "published": true,
+        "displayOrder": 1
+      },
+      {
+        "name": "St. Gallen",
+        "abbreviation": "SG",
+        "published": true,
+        "displayOrder": 1
+      },
+      {
+        "name": "Graubünden",
+        "abbreviation": "GR",
+        "published": true,
+        "displayOrder": 1
+      },
+      {
+        "name": "Aargau",
+        "abbreviation": "AG",
+        "published": true,
+        "displayOrder": 1
+      },
+      {
+        "name": "Thurgau",
+        "abbreviation": "TG",
+        "published": true,
+        "displayOrder": 1
+      },
+      {
+        "name": "Tessin",
+        "abbreviation": "Ti",
+        "published": true,
+        "displayOrder": 1
+      },
+      {
+        "name": "Waadt",
+        "abbreviation": "VD",
+        "published": true,
+        "displayOrder": 1
+      },
+      {
+        "name": "Wallis",
+        "abbreviation": "VS",
+        "published": true,
+        "displayOrder": 1
+      },
+      {
+        "name": "Neuenburg",
+        "abbreviation": "NE",
+        "published": true,
+        "displayOrder": 1
+      },
+      {
+        "name": "Genf",
+        "abbreviation": "GE",
+        "published": true,
+        "displayOrder": 1
+      },
+      {
+        "name": "Jura",
+        "abbreviation": "JU",
+        "published": true,
+        "displayOrder": 1
+      }
+    ]
+  },
+  "US": {
+    "name": "Vereinigte Staaten von Amerika",
+    "published": false,
+    "displayOrder": 100
+  },
+  "CA": {
+    "name": "Kanada",
+    "published": false,
+    "displayOrder": 100
+  },
+  "AR": {
+    "name": "Argentinien",
+    "published": false
+  },
+  "AM": {
+    "name": "Armenien",
+    "published": false
+  },
+  "AW": {
+    "published": false
+  },
+  "AU": {
+    "name": "Australien",
+    "published": false
+  },
+  "AZ": {
+    "name": "Aserbaidschan",
+    "published": false
+  },
+  "BS": {
+    "published": false
+  },
+  "BD": {
+    "published": false
+  },
+  "BY": {
+    "name": "Weissrussland",
+    "published": false
+  },
+  "BE": {
+    "name": "Belgien",
+    "published": false
+  },
+  "BZ": {
+    "published": false
+  },
+  "BM": {
+    "name": "Bermudas",
+    "published": false
+  },
+  "BO": {
+    "name": "Bolivien",
+    "published": false
+  },
+  "BA": {
+    "name": "Bosnien-Herzegowina",
+    "published": false
+  },
+  "BR": {
+    "name": "Brasilien",
+    "published": false
+  },
+  "BG": {
+    "name": "Bulgarien",
+    "published": false
+  },
+  "KY": {
+    "name": "Kaiman Inseln",
+    "published": false
+  },
+  "CL": {
+    "published": false
+  },
+  "CN": {
+    "published": false
+  },
+  "CO": {
+    "name": "Kolumbien",
+    "published": false
+  },
+  "CR": {
+    "published": false
+  },
+  "HR": {
+    "name": "Kroatien",
+    "published": false
+  },
+  "CU": {
+    "name": "Kuba",
+    "published": false
+  },
+  "CY": {
+    "name": "Zypern",
+    "published": false
+  },
+  "CZ": {
+    "name": "Tschechische Republik",
+    "published": false
+  },
+  "DK": {
+    "name": "Dänemark",
+    "published": false
+  },
+  "DO": {
+    "name": "Dominikanische Republik",
+    "published": false
+  },
+  "EC": {
+    "published": false
+  },
+  "EG": {
+    "name": "Ägypten",
+    "published": false
+  },
+  "FI": {
+    "name": "Finnland",
+    "published": false
+  },
+  "FR": {
+    "name": "Frankreich",
+    "published": false
+  },
+  "GE": {
+    "name": "Georgien",
+    "published": false
+  },
+  "GI": {
+    "published": false
+  },
+  "GR": {
+    "name": "Griechenland",
+    "published": false
+  },
+  "GT": {
+    "published": false
+  },
+  "HK": {
+    "published": false
+  },
+  "HU": {
+    "name": "Ungarn",
+    "published": false
+  },
+  "IN": {
+    "name": "Indien",
+    "published": false
+  },
+  "ID": {
+    "name": "Indonesien",
+    "published": false
+  },
+  "IE": {
+    "name": "Irland",
+    "published": false
+  },
+  "IL": {
+    "published": false
+  },
+  "IT": {
+    "name": "Italien",
+    "published": false
+  },
+  "JM": {
+    "name": "Jamaika",
+    "published": false
+  },
+  "JP": {
+    "published": false
+  },
+  "JO": {
+    "name": "Jordanien",
+    "published": false
+  },
+  "KZ": {
+    "name": "Kasachstan",
+    "published": false
+  },
+  "KP": {
+    "name": "Nord Korea",
+    "published": false
+  },
+  "KW": {
+    "published": false
+  },
+  "MY": {
+    "published": false
+  },
+  "MX": {
+    "name": "Mexiko",
+    "published": false
+  },
+  "NL": {
+    "name": "Niederlande",
+    "published": false
+  },
+  "NZ": {
+    "name": "Neuseeland",
+    "published": false
+  },
+  "NO": {
+    "name": "Norwegen",
+    "published": false
+  },
+  "PK": {
+    "published": false
+  },
+  "PY": {
+    "published": false
+  },
+  "PE": {
+    "published": false
+  },
+  "PH": {
+    "name": "Philippinen",
+    "published": false
+  },
+  "PL": {
+    "name": "Polen",
+    "published": false
+  },
+  "PT": {
+    "published": false
+  },
+  "PR": {
+    "published": false
+  },
+  "QA": {
+    "published": false
+  },
+  "RO": {
+    "name": "Rumänien",
+    "published": false
+  },
+  "RU": {
+    "name": "Rußland",
+    "published": false
+  },
+  "SA": {
+    "name": "Saudi Arabien",
+    "published": false
+  },
+  "SG": {
+    "name": "Singapur",
+    "published": false
+  },
+  "SK": {
+    "name": "Slowakei",
+    "published": false
+  },
+  "SI": {
+    "name": "Slowenien",
+    "published": false
+  },
+  "ZA": {
+    "name": "Südafrika",
+    "published": false
+  },
+  "ES": {
+    "name": "Spanien",
+    "published": false
+  },
+  "SE": {
+    "name": "Schweden",
+    "published": false
+  },
+  "TW": {
+    "published": false
+  },
+  "TH": {
+    "published": false
+  },
+  "TL": {
+    "published": false
+  },
+  "TR": {
+    "name": "Türkei",
+    "published": false
+  },
+  "UA": {
+    "published": false
+  },
+  "AE": {
+    "name": "Vereinigte Arabische Emirate",
+    "published": false
+  },
+  "GB": {
+    "name": "Großbritannien",
+    "published": false
+  },
+  "UM": {
+    "name": "United States Minor Outlying Islands",
+    "published": false
+  },
+  "UY": {
+    "published": false
+  },
+  "UZ": {
+    "name": "Usbekistan",
+    "published": false
+  },
+  "VE": {
+    "published": false
+  },
+  "RS": {
+    "name": "Serbien",
+    "published": false
+  },
+  "AF": {
+    "published": false
+  },
+  "AL": {
+    "name": "Albanien",
+    "published": false
+  },
+  "DZ": {
+    "name": "Algerien",
+    "published": false
+  },
+  "AS": {
+    "name": "Samoa",
+    "published": false
+  },
+  "AD": {
+    "published": false
+  },
+  "AO": {
+    "published": false
+  },
+  "AI": {
+    "published": false
+  },
+  "AQ": {
+    "name": "Antarktis",
+    "published": false
+  },
+  "AG": {
+    "name": "Antigua und Barbuda",
+    "published": false
+  },
+  "BH": {
+    "published": false
+  },
+  "BB": {
+    "published": false
+  },
+  "BJ": {
+    "published": false
+  },
+  "BT": {
+    "published": false
+  },
+  "BW": {
+    "published": false
+  },
+  "BV": {
+    "name": "Bouvet Inseln",
+    "published": false
+  },
+  "IO": {
+    "name": "Britisch-Indischer Ozean",
+    "published": false
+  },
+  "BN": {
+    "name": "Brunei",
+    "published": false
+  },
+  "BF": {
+    "published": false
+  },
+  "BI": {
+    "published": false
+  },
+  "KH": {
+    "name": "Kambodscha",
+    "published": false
+  },
+  "CM": {
+    "name": "Kamerun",
+    "published": false
+  },
+  "CV": {
+    "name": "Kap Verde",
+    "published": false
+  },
+  "CF": {
+    "name": "Zentralafrikanische Republik",
+    "published": false
+  },
+  "TD": {
+    "name": "Tschad",
+    "published": false
+  },
+  "CX": {
+    "published": false
+  },
+  "CC": {
+    "name": "Kokosinseln",
+    "published": false
+  },
+  "KM": {
+    "name": "Komoren",
+    "published": false
+  },
+  "CG": {
+    "name": "Kongo",
+    "published": false
+  },
+  "CK": {
+    "name": "Cook Inseln",
+    "published": false
+  },
+  "CI": {
+    "name": "Elfenbeinküste",
+    "published": false
+  },
+  "DJ": {
+    "name": "Djibuti",
+    "published": false
+  },
+  "DM": {
+    "name": "Dominika",
+    "published": false
+  },
+  "SV": {
+    "published": false
+  },
+  "GQ": {
+    "name": "Äquatorial Guinea",
+    "published": false
+  },
+  "ER": {
+    "published": false
+  },
+  "EE": {
+    "name": "Estland",
+    "published": false
+  },
+  "ET": {
+    "name": "Äthiopien",
+    "published": false
+  },
+  "FK": {
+    "name": "Falkland Inseln",
+    "published": false
+  },
+  "FO": {
+    "name": "Färöer Inseln",
+    "published": false
+  },
+  "FJ": {
+    "name": "Fidschi",
+    "published": false
+  },
+  "GF": {
+    "name": "Französisch Guyana",
+    "published": false
+  },
+  "PF": {
+    "name": "Französisch Polynesien",
+    "published": false
+  },
+  "TF": {
+    "name": "Französisches Süd-Territorium",
+    "published": false
+  },
+  "GA": {
+    "name": "Gabun",
+    "published": false
+  },
+  "GM": {
+    "published": false
+  },
+  "GH": {
+    "published": false
+  },
+  "GL": {
+    "name": "Grönland",
+    "published": false
+  },
+  "GD": {
+    "published": false
+  },
+  "GP": {
+    "published": false
+  },
+  "GU": {
+    "published": false
+  },
+  "GN": {
+    "published": false
+  },
+  "GW": {
+    "name": "Guinea Bissau",
+    "published": false
+  },
+  "GY": {
+    "published": false
+  },
+  "HT": {
+    "published": false
+  },
+  "HM": {
+    "name": "Heard und McDonald Islands",
+    "published": false
+  },
+  "HN": {
+    "published": false
+  },
+  "IS": {
+    "name": "Island",
+    "published": false
+  },
+  "IR": {
+    "name": "Iran",
+    "published": false
+  },
+  "IQ": {
+    "name": "Irak",
+    "published": false
+  },
+  "KE": {
+    "name": "Kenia",
+    "published": false
+  },
+  "KI": {
+    "published": false
+  },
+  "KR": {
+    "name": "Süd Korea",
+    "published": false
+  },
+  "XK": {
+    "published": false
+  },
+  "KG": {
+    "name": "Kirgisistan",
+    "published": false
+  },
+  "LA": {
+    "name": "Laos",
+    "published": false
+  },
+  "LV": {
+    "name": "Lettland",
+    "published": false
+  },
+  "LB": {
+    "name": "Libanon",
+    "published": false
+  },
+  "LS": {
+    "published": false
+  },
+  "LR": {
+    "published": false
+  },
+  "LY": {
+    "name": "Libyen",
+    "published": false
+  },
+  "LI": {
+    "published": false
+  },
+  "LT": {
+    "name": "Litauen",
+    "published": false
+  },
+  "LU": {
+    "name": "Luxemburg",
+    "published": false
+  },
+  "MO": {
+    "name": "Macao",
+    "published": false
+  },
+  "MK": {
+    "name": "Mazedonien",
+    "published": false
+  },
+  "MG": {
+    "name": "Madagaskar",
+    "published": false
+  },
+  "MW": {
+    "published": false
+  },
+  "MV": {
+    "name": "Malediven",
+    "published": false
+  },
+  "ML": {
+    "published": false
+  },
+  "MT": {
+    "published": false
+  },
+  "MH": {
+    "name": "Marshall Inseln",
+    "published": false
+  },
+  "MQ": {
+    "published": false
+  },
+  "MR": {
+    "name": "Mauretanien",
+    "published": false
+  },
+  "MU": {
+    "published": false
+  },
+  "YT": {
+    "published": false
+  },
+  "FM": {
+    "name": "Mikronesien",
+    "published": false
+  },
+  "MD": {
+    "name": "Moldavien",
+    "published": false
+  },
+  "MC": {
+    "published": false
+  },
+  "MN": {
+    "name": "Mongolei",
+    "published": false
+  },
+  "ME": {
+    "published": false
+  },
+  "MS": {
+    "published": false
+  },
+  "MA": {
+    "name": "Marokko",
+    "published": false
+  },
+  "MZ": {
+    "name": "Mocambique",
+    "published": false
+  },
+  "MM": {
+    "name": "Birma",
+    "published": false
+  },
+  "NA": {
+    "published": false
+  },
+  "NR": {
+    "published": false
+  },
+  "NP": {
+    "published": false
+  },
+  "AN": {
+    "name": "Niederländische Antillen",
+    "published": false
+  },
+  "NC": {
+    "name": "Neukaledonien",
+    "published": false
+  },
+  "NI": {
+    "published": false
+  },
+  "NE": {
+    "published": false
+  },
+  "NG": {
+    "published": false
+  },
+  "NU": {
+    "published": false
+  },
+  "NF": {
+    "name": "Norfolk Inseln",
+    "published": false
+  },
+  "MP": {
+    "name": "Marianen",
+    "published": false
+  },
+  "OM": {
+    "published": false
+  },
+  "PW": {
+    "published": false
+  },
+  "PS": {
+    "name": "Palästinensisches Gebiet",
+    "published": false
+  },
+  "PA": {
+    "published": false
+  },
+  "PG": {
+    "name": "Papua Neuguinea",
+    "published": false
+  },
+  "PN": {
+    "published": false
+  },
+  "RE": {
+    "published": false
+  },
+  "RW": {
+    "name": "Ruanda",
+    "published": false
+  },
+  "KN": {
+    "name": "St. Kitts Nevis Anguilla",
+    "published": false
+  },
+  "LC": {
+    "published": false
+  },
+  "VC": {
+    "name": "St. Vincent",
+    "published": false
+  },
+  "WS": {
+    "published": false
+  },
+  "SM": {
+    "published": false
+  },
+  "ST": {
+    "name": "Sao Tome",
+    "published": false
+  },
+  "SN": {
+    "published": false
+  },
+  "SC": {
+    "name": "Seychellen",
+    "published": false
+  },
+  "SL": {
+    "published": false
+  },
+  "SB": {
+    "name": "Solomon Inseln",
+    "published": false
+  },
+  "SO": {
+    "published": false
+  },
+  "GS": {
+    "name": "South Georgia, South Sandwich Isl.",
+    "published": false
+  },
+  "LK": {
+    "published": false
+  },
+  "SH": {
+    "published": false
+  },
+  "PM": {
+    "name": "St. Pierre und Miquelon",
+    "published": false
+  },
+  "SD": {
+    "published": false
+  },
+  "SR": {
+    "name": "Surinam",
+    "published": false
+  },
+  "SJ": {
+    "name": "Svalbard und Jan Mayen Islands",
+    "published": false
+  },
+  "SZ": {
+    "name": "Swasiland",
+    "published": false
+  },
+  "SY": {
+    "name": "Syrien",
+    "published": false
+  },
+  "TJ": {
+    "name": "Tadschikistan",
+    "published": false
+  },
+  "TZ": {
+    "name": "Tansania",
+    "published": false
+  },
+  "TG": {
+    "published": false
+  },
+  "TK": {
+    "published": false
+  },
+  "TO": {
+    "published": false
+  },
+  "TT": {
+    "name": "Trinidad Tobago",
+    "published": false
+  },
+  "TN": {
+    "name": "Tunesien",
+    "published": false
+  },
+  "TM": {
+    "published": false
+  },
+  "TC": {
+    "name": "Turks und Kaikos Inseln",
+    "published": false
+  },
+  "TV": {
+    "published": false
+  },
+  "UG": {
+    "published": false
+  },
+  "VU": {
+    "published": false
+  },
+  "VA": {
+    "name": "Vatikan",
+    "published": false
+  },
+  "VN": {
+    "name": "Vietnam",
+    "published": false
+  },
+  "VG": {
+    "name": "Virgin Island (Brit.)",
+    "published": false
+  },
+  "VI": {
+    "name": "Virgin Island (USA)",
+    "published": false
+  },
+  "WF": {
+    "name": "Wallis et Futuna",
+    "published": false
+  },
+  "EH": {
+    "name": "Westsahara",
+    "published": false
+  },
+  "YE": {
+    "name": "Jemen",
+    "published": false
+  },
+  "ZM": {
+    "name": "Sambia",
+    "published": false
+  },
+  "ZW": {
+    "published": false
+  }
+}

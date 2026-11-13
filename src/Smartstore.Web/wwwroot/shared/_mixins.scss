@@ -1,7 +1,18 @@
 /// <reference path="references.scss" />
 
+@use "sass:map";
+@use "sass:string";
+
 // Mixins
 // ========================================================================
+
+// Repeating checkerboard background; size is the edge length of one square.
+@mixin bg-checkerboard($size: 8px, $foreground: #d9d9d9, $background: #fff) {
+    background-color: $background;
+    background-image: repeating-conic-gradient(from 90deg, $foreground 0% 25%, transparent 25% 50%);
+    background-repeat: repeat;
+    background-size: var(--checkerboard-size, #{$size * 2}) var(--checkerboard-size, #{$size * 2});
+}
 
 @mixin bg-color-vars($state) {
     --bg-color: var(--#{$state});
@@ -101,66 +112,26 @@
     }
 }
 
-@mixin fontastic($content, $size: 20px) {
+// Accept an icon address or a CSS variable containing a prepared mask.
+// icon-url is supplied by the server-side Sass compiler.
+@mixin icon-mask($address, $size: 1em) {
+    content: "";
     display: inline-block;
-    font: normal normal normal 16px/1 'fontastic';
-    font-size: $size;
-    speak: none;
-    text-transform: none;
-    content: $content;
-}
-
-@mixin fontawesome($content, $size: $icon-font-size-base, $variant: $icon-font-variant-default) {
-    // Copied over from FA's core stylesheet. We don't want to customize the FA core.
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    display: inline-block;
-    font-feature-settings: normal;
-    font-style: normal;
-    font-synthesis: none;
-    font-variant: normal;
-    line-height: 1;
-    text-align: center;
-    text-rendering: auto;
-    width: 1.25em;
-
-    font-size: $size;
-    @include fontawesome-font($content, $variant);
-}
-
-@mixin fontawesome-font($content, $variant: $icon-font-variant-default) {
-    @if $fa-use-pro == false and $variant == "light" {
-        $variant: regular;
+    width: $size;
+    height: $size;
+    background-color: currentColor;
+    $image: $address;
+    @if string.index($address, "var(") != 1 {
+        $image: icon-url($address);
     }
-    
-    @if $fa-use-pro == false and $variant == "regular" {
-        @if not(map-has-key($fa-free-regular-icons, $content)) {
-            $variant: solid;
-        }
-    }
-
-    @if $variant == "brand" {
-        font-family: $fa-font-family-brands;
-        font-weight: 400;
-    }
-    @else {
-        font-weight: map-get($icon-font-variants, $variant);
-        @if $fa-use-pro {
-            font-family: $fa-font-family-pro;
-        }
-        @else {
-            font-family: $fa-font-family-free;
-        }
-    }
-
-    content: $content;
+    mask: $image center / contain no-repeat;
+    mask-mode: alpha;
 }
 
 @mixin alert-iconic() {
     --alert-icon-bg: rgba(var(--alert-base-rgb), 1);
     --alert-icon-bg-rgb: var(--alert-base-rgb);
     --alert-icon-color: var(--alert-bg);
-    --alert-icon-content: "\f129"; // info
     padding-inline-start: 4rem;
 	border-width: 0;
     @include alert-icon-box;
@@ -182,19 +153,17 @@
 	}
 
     // Icon
-	&:after {
-		display: block;
-		position: absolute;
-		color: var(--alert-icon-color);
-        @include fontawesome-font(var(--alert-icon-content), regular);
-		inset-inline-start: 0;
-		top: 50%;
-		font-size: 24px;
-		width: 3rem;
-		text-align: center;
-		transform: translateY(-50%);
-		z-index: 2;
-	}
+    &:after {
+        @include icon-mask(var(--alert-icon-mask, var(--icon-mask-alert-info)), 28px);
+        position: absolute;
+        color: var(--alert-icon-color);
+        inset-inline-start: 0;
+        top: 50%;
+        width: 3rem;
+        mask-size: 28px;
+        translate: 0 -50%;
+        z-index: 2;
+    }
 }
 
 @mixin active-list-item($size: 4px, $color: theme-color("warning")) {
@@ -284,4 +253,15 @@
     #{":is"}(#{$list}) {
         @content;
     }
+}
+
+@mixin collapse-hidden() {
+    opacity: 0;
+    transform: translate(0, $collapse-offset);
+    //transform: translate($collapse-offset, $collapse-offset);
+}
+
+@mixin collapse-expanded() {
+    opacity: 1;
+    transform: translate(0, 0);
 }

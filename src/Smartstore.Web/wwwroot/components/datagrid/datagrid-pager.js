@@ -1,35 +1,43 @@
-﻿Vue.component("sm-datagrid-pager", {
+﻿Smartstore.Admin.DataGridVue.components["sm-datagrid-pager"] = {
     template: `
         <div class="dg-pager btn-toolbar hstack">
             <div class="dg-page-refresh-wrapper">
-                <a href="#" class="dg-page dg-page-refresh btn btn-light btn-icon btn-sm" @click.prevent="refresh">
-                    <i class="fa fa-rotate" :class="{ 'fa-spin text-success': $parent.isBusy }"></i>
+                <a href="#" class="dg-page dg-page-refresh btn btn-plain btn-icon btn-sm" @click.prevent="refresh">
+                    <sm-icon name="refresh" :class="{ 'icon-spin text-success': $parent.isBusy }"></sm-icon>
                 </a>
             </div>
             
             <template v-if="paging.enabled">
-                <a href="#" class="dg-page dg-page-arrow btn btn-light btn-sm" @click.prevent="pageTo(1)" :class="{ disabled: !hasPrevPage }"><i class="fa fa-angle-double-left"></i></a>
-                <a href="#" class="dg-page dg-page-arrow btn btn-light btn-sm" @click.prevent="pageTo(currentPageIndex - 1)" :class="{ disabled: !hasPrevPage }"><i class="fa fa-angle-left"></i></a>
+                <a href="#" class="dg-page dg-page-arrow btn btn-plain btn-sm" @click.prevent="pageTo(1)" :class="{ disabled: !hasPrevPage }">
+                    <sm-icon name="chevrons-left"></sm-icon>
+                </a>
+                <a href="#" class="dg-page dg-page-arrow btn btn-plain btn-sm" @click.prevent="pageTo(currentPageIndex - 1)" :class="{ disabled: !hasPrevPage }">
+                    <sm-icon name="chevron-left"></sm-icon>
+                </a>
             
-                <a v-for="item in pageItems" href="#" @click.prevent="pageTo(item.page)" class="dg-page dg-page-number btn btn-light py-1 btn-sm d-none d-lg-inline" :class="{ active: item.active }">
+                <a v-for="item in pageItems" :key="item.page" href="#" @click.prevent="pageTo(item.page)" class="dg-page dg-page-number btn btn-plain py-1 btn-sm d-none d-lg-flex" :class="{ active: item.active }">
                     {{ item.label || item.page }}
                 </a>
             
-                <a href="#" class="dg-page dg-page-arrow btn btn-light btn-sm" @click.prevent="pageTo(currentPageIndex + 1)" :class="{ disabled: !hasNextPage }"><i class="fa fa-angle-right"></i></a>
-                <a href="#" class="dg-page dg-page-arrow btn btn-light btn-sm" @click.prevent="pageTo(totalPages)" :class="{ disabled: !hasNextPage }"><i class="fa fa-angle-double-right"></i></a>
+                <a href="#" class="dg-page dg-page-arrow btn btn-plain btn-sm" @click.prevent="pageTo(currentPageIndex + 1)" :class="{ disabled: !hasNextPage }">
+                    <sm-icon name="chevron-right"></sm-icon>
+                </a>
+                <a href="#" class="dg-page dg-page-arrow btn btn-plain btn-sm" @click.prevent="pageTo(totalPages)" :class="{ disabled: !hasNextPage }">
+                    <sm-icon name="chevrons-right"></sm-icon>
+                </a>
             </template>
 
             <div class="ml-auto d-flex">
-                <div class="d-flex align-items-center">
+                <div class="hstack">
                     <span v-if="paging.enabled && paging.showInfo" class="dg-page text-muted text-truncate d-none d-md-inline px-2">
                         <span class="d-none d-xl-inline">{{ T.displayingItems.format(firstItemIndex.toLocaleString(), lastItemIndex.toLocaleString(), total.toLocaleString()) }}</span>
                         <span class="d-inline d-xl-none">{{ T.displayingItemsShort.format(firstItemIndex.toLocaleString(), lastItemIndex.toLocaleString(), total.toLocaleString()) }}</span>
                     </span>
-                    <div v-if="paging.enabled && paging.showSizeChooser && paging.availableSizes?.length" class="dropdown d-flex align-items-center border-left pl-1 ml-2">
-                        <a href="#" v-html="T.xPerPage.format(command.pageSize)" class="dg-page dg-page-size-chooser btn btn-light btn-sm dropdown-toggle text-truncate px-2" data-toggle="dropdown">
+                    <div v-if="paging.enabled && paging.showSizeChooser && paging.availableSizes?.length" class="dropdown hstack border-left pl-1 ml-2">
+                        <a href="#" v-html="T.xPerPage.format(command.pageSize)" class="dg-page dg-page-size-chooser btn btn-plain btn-sm dropdown-toggle text-truncate px-2" data-toggle="dropdown">
                         </a>
                         <div class="dropdown-menu" style="min-width: 6rem">
-                            <a v-for="size in paging.availableSizes" href="#" class="dropdown-item" @click.prevent="setPageSize(size)">{{ size }}</a>
+                            <a v-for="size in paging.availableSizes" :key="size" href="#" class="dropdown-item" @click.prevent="setPageSize(size)">{{ size }}</a>
                         </div>
                     </div>
                 </div>
@@ -142,4 +150,4 @@
             }
         }
     }
-});
+};

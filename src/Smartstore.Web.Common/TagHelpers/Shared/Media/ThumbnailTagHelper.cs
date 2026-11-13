@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Razor.TagHelpers;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Localization;
 using Smartstore.Web.Rendering;
+using Smartstore.IconKit;
 
 namespace Smartstore.Web.TagHelpers.Shared;
 
@@ -19,7 +20,7 @@ public class ThumbnailTagHelper : BaseImageTagHelper
 {
     const string ThumbnailTagName = "media-thumbnail";
 
-    protected override void ProcessMedia(TagHelperContext context, TagHelperOutput output)
+    protected override async Task ProcessMediaAsync(TagHelperContext context, TagHelperOutput output)
     {
         if (Src.IsEmpty())
         {
@@ -39,13 +40,13 @@ public class ThumbnailTagHelper : BaseImageTagHelper
             output.Attributes.Remove(figureAltAttr);
         }
 
-        // Build <i/>
+        // Build the icon
         var iconHint = GetIconHint(mediaType);
-        var ic = new TagBuilder("i");
-        ic.Attributes["class"] = "file-icon show fa-5x fa-fw " + iconHint.Name;
-        ic.Attributes["style"] = "color: " + iconHint.Color;
+        var ic = await HtmlHelper.IconAsync(
+            $"{iconHint.Name}?size=5x&fw&color={iconHint.Color}",
+            new IconOptions { CssClass = "file-icon show" });
 
-        // Append <i/> to root <figure/>
+        // Append the icon to the root <figure/>
         output.Content.AppendHtml(ic);
 
         // Build <picture/>
@@ -80,12 +81,12 @@ public class ThumbnailTagHelper : BaseImageTagHelper
     {
         return mediaType switch
         {
-            "image" => ("far fa-file-image", "#e77c00"),
-            "video" => ("far fa-file-video", "#ff5722"),
-            "audio" => ("far fa-file-audio", "#009688"),
-            "document" => ("fas fa-file-lines", "#2b579a"),
-            "text" => ("far fa-file-lines", "#607d8B"),
-            _ => ("far fa-file", "#bbb"),
+            "image" => ("file-image", "#e77c00"),
+            "video" => ("file-video", "#ff5722"),
+            "audio" => ("file-audio", "#009688"),
+            "document" => ("file-text", "#2b579a"),
+            "text" => ("file-text", "#607d8B"),
+            _ => ("file", "#bbb"),
         };
     }
 }

@@ -11,13 +11,15 @@ internal class AdminBundles : IBundleProvider
         /* Admin Main Sass theme --> /admin/theme[-rtl].scss
          * Also required during install.
         -----------------------------------------------------*/
-        bundles.Add(new StyleBundle("/bundle/css/admin-theme.css").Include("/admin/theme.scss"));
-        bundles.Add(new StyleBundle("/bundle/css/admin-theme-rtl.css").Include("/admin/theme-rtl.scss"));
+        bundles.Add(new StyleBundle("/bundle/css/admin-theme.css") { IconArea = "admin" }.Include("/admin/theme.scss"));
+        bundles.Add(new StyleBundle("/bundle/css/admin-theme-rtl.css") { IconArea = "admin" }.Include("/admin/theme-rtl.scss"));
 
         if (!appContext.IsInstalled)
         {
             return;
         }
+
+        bundles.Add(new StyleBundle("/bundle/css/dashboard-editor.css").Include("/admin/dashboard-editor.scss"));
 
         var lib = "/lib/";
         var js = "/js/";
@@ -27,8 +29,6 @@ internal class AdminBundles : IBundleProvider
         /* Admin Common CSS --> /bundle/css/admin-common.css
         -----------------------------------------------------*/
         bundles.Add(new StyleBundle("/bundle/css/admin-common.css").Include(
-            lib + "fontastic/fontastic.css",
-            lib + "fa7/css/all.css",
             lib + "pnotify/css/pnotify.css",
             lib + "pnotify/css/pnotify.mobile.css",
             lib + "pnotify/css/pnotify.buttons.css"));
@@ -51,9 +51,6 @@ internal class AdminBundles : IBundleProvider
             lib + "sortable/sortable.js",
             lib + "sortable/jquery-sortable.js",
             lib + "moment/moment.js",
-            lib + "datetimepicker/js/tempusdominus-bootstrap-4.js",
-            lib + "colorpicker/js/bootstrap-colorpicker.js",
-            lib + "colorpicker/js/bootstrap-colorpicker-globalinit.js",
             lib + "select2/js/select2.js",
             lib + "pnotify/js/pnotify.js",
             lib + "pnotify/js/pnotify.mobile.js",
@@ -74,6 +71,7 @@ internal class AdminBundles : IBundleProvider
             js + "smartstore.ajax.js",
             js + "smartstore.eventbroker.js",
             js + "smartstore.common.js",
+            js + "smartstore.datetimepicker.js",
             js + "smartstore.globalinit.js",
             js + "smartstore.tabs.js",
             js + "smartstore.dialogs.js",
@@ -85,10 +83,12 @@ internal class AdminBundles : IBundleProvider
             js + "smartstore.numberinput.js",
             js + "smartstore.tree.js",
             js + "smartstore.media.js",
+            js + "smartstore.colorpicker.js",
             js + "smartstore.editortemplates.js",
             js + "smartstore.offcanvas.js",
             // Admin
             adminJs + "admin.common.js",
+            adminJs + "admin.layout.js",
             adminJs + "admin.media.js",
             adminJs + "admin.globalinit.js",
             adminJs + "admin.ai.js"));
@@ -114,6 +114,9 @@ internal class AdminBundles : IBundleProvider
         var summernote = "/lib/editors/summernote/";
         bundles.Add(new ScriptBundle("/bundle/js/summernote.js").Include(
             summernote + "summernote-sm.js",
+            "/js/smartstore.icontools.js",
+            summernote + "plugins/smartstore.iconpicker.js",
+            summernote + "plugins/smartstore.iconpopover.js",
             lib + "beautify/beautify.min.js",
             lib + "beautify/beautify-css.min.js",
             lib + "beautify/beautify-html.min.js",
@@ -157,13 +160,13 @@ internal class AdminBundles : IBundleProvider
             cm + "mode/htmlmixed/htmlmixed.min.js",
             cm + "mode/liquid/liquid.js"));
         // CSS
-        bundles.Add(new StyleBundle("/bundle/css/codemirror.css").Include(
+        bundles.Add(new StyleBundle("/bundle/css/codemirror.css") { IconArea = "admin" }.Include(
             cm + "codemirror.min.css",
             cm + "codemirror.custom.css",
             cm + "addon/hint/show-hint.min.css",
             cm + "addon/display/fullscreen.css",
             cm + "theme/eclipse.min.css",
-            cm + "mode/liquid/liquid.css"));
+            cm + "mode/liquid/liquid.scss"));
 
 
         /* Roxy File Manager--> /bundle/js/filemanager.js
@@ -171,6 +174,7 @@ internal class AdminBundles : IBundleProvider
         var roxy = "/lib/roxyfm/js/";
         // Script
         bundles.Add(new ScriptBundle("/bundle/js/roxyfm.js").Include(
+            js + "smartstore.icons.js",
             roxy + "jquery-2.1.1.min.js",
             roxy + "jquery-ui-1.10.4.custom.min.js",
             roxy + "filetypes.js",

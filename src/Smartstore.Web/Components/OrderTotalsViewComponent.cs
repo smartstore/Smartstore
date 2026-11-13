@@ -87,7 +87,7 @@ public class OrderTotalsViewComponent : SmartViewComponent
         var batchContext = _productService.CreateProductBatchContext(cart.GetAllProducts(), null, customer, false);
 
         // Cart total
-        var cartTotal = await _orderCalculationService.GetShoppingCartTotalAsync(cart, batchContext: batchContext);
+        var cartTotal = await _orderCalculationService.GetShoppingCartTotalAsync(cart, ShoppingCartTotalOptions.Default, batchContext);
         model.CartTotal = cartTotal;
 
         if (cartTotal.ConvertedAmount.Total.HasValue)

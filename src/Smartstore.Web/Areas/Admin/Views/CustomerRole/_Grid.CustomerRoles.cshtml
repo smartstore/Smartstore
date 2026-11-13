@@ -15,14 +15,14 @@
     <toolbar>
         <toolbar-group>
             <a asp-action="Create" class="btn btn-primary btn-flat">
-                <i class="fa fa-plus"></i>
+                <icon name="plus"  />
                 <span>@T("Admin.Common.AddNew")…</span>
             </a>
-            <button datagrid-action="DataGridToolAction.SaveChanges" type="button" class="btn btn-warning no-anims btn-flat">
-                <i class="fa fa-check"></i>
+            <button datagrid-action="DataGridToolAction.SaveChanges" type="button" class="btn btn-primary no-anims btn-flat">
+                <icon name="check" />
                 <span>@T("Admin.Common.SaveChanges")</span>
             </button>
-            <button datagrid-action="DataGridToolAction.CancelEdit" type="button" class="btn btn-light btn-flat mr-auto">
+            <button datagrid-action="DataGridToolAction.CancelEdit" type="button" class="btn btn-plain mr-auto">
                 <span>@T("Common.Cancel")</span>
             </button>
         </toolbar-group>

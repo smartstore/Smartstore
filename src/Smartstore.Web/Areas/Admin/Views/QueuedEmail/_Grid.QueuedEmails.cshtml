@@ -15,8 +15,8 @@
     </sorting>
     <toolbar>
         <toolbar-group>
-            <button datagrid-action="DataGridToolAction.ToggleSearchPanel" class="btn btn-light btn-icon">
-                <i class="fa fa-fw fa-filter"></i>
+            <button datagrid-action="DataGridToolAction.ToggleSearchPanel" class="btn btn-plain btn-icon">
+                <icon name="filter" />
             </button>
         </toolbar-group>
         <zone name="datagrid_toolbar_alpha"></zone>
@@ -24,7 +24,7 @@
         <zone name="datagrid_toolbar_omega"></zone>
         <toolbar-group>
             <button datagrid-action="DataGridToolAction.DeleteSelectedRows" type="button" class="btn btn-danger btn-flat">
-                <i class="far fa-trash-can"></i>
+                <icon name="trash" />
                 <span>@T("Admin.Common.Delete.Selected")</span>
             </button>
         </toolbar-group>
@@ -36,14 +36,14 @@
         <column for="Id" visible="false" width="max-content" resizable="false" type="string" />
         <column for="Subject" hideable="false">
             <display-template>
-                <i v-if="item.row.SentOn" class="far fa-paper-plane mr-2"></i>
-                <i v-else class="far fa-envelope mr-2"></i>
+                <icon name="send" v-if="item.row.SentOn" class="mr-2" />
+                <icon name="mail" v-else class="mr-2" />
                 <a :href="item.row.ViewUrl" class="text-truncate">
                     {{ item.value }}
                 </a>
             </display-template>
         </column>
-        <column for="AttachmentsCount" halign="center" sortable="false" icon="fa fa-paperclip" width="max-content" resizable="false" title="" />
+        <column for="AttachmentsCount" halign="center" sortable="false" icon="paperclip" width="max-content" resizable="false" title="" />
         <column for="EmailAccountName" width="300px" title="@T("Admin.System.QueuedEmails.Fields.From")" entity-member="EmailAccount.DisplayName" />
         <column for="To" width="300px" />
         <column for="Priority" halign="center" />

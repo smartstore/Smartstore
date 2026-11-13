@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Smartstore.ComponentModel;
 using Smartstore.Core.AI;
+using Smartstore.IconKit;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Seo;
 using Smartstore.Web.Modelling;
@@ -58,7 +59,7 @@ public class DefaultAIToolHtmlGenerator : IAIToolHtmlGenerator
         }
     }
 
-    public virtual TagBuilder GenerateTranslationTool(ILocalizedModel model, string localizedEditorName)
+    public virtual async Task<TagBuilder> GenerateTranslationToolAsync(ILocalizedModel model, string localizedEditorName)
     {
         Guard.NotNull(model);
 
@@ -120,7 +121,7 @@ public class DefaultAIToolHtmlGenerator : IAIToolHtmlGenerator
 
         string[] additionalItemClasses = ["ai-translator"];
         var dialogUrl = GetDialogUrl(AIChatTopic.Translation);
-        var div = CreateDialogOpener(true, title: GetOpenerTitle(AIChatTopic.Translation));
+        var div = await CreateDialogOpenerAsync(true, title: GetOpenerTitle(AIChatTopic.Translation));
 
         var ul = new TagBuilder("ul");
         ul.Attributes["class"] = "dropdown-menu dropdown-menu-right ai-translator-menu";
@@ -139,7 +140,7 @@ public class DefaultAIToolHtmlGenerator : IAIToolHtmlGenerator
             //$"- id:{id} displayName:{displayName} hasValue:{info.HasValue}".Dump();
 
             var additionalClasses = info.HasValue ? additionalItemClasses : [.. additionalItemClasses, "disabled"];
-            var dropdownLi = CreateDropdownItem(displayName, true, string.Empty, null, true, additionalClasses);
+            var dropdownLi = CreateDropdownItem(displayName, true, string.Empty, null, true, null, additionalClasses);
 
             var attrs = dropdownLi.Attributes;
             attrs["data-modal-url"] = dialogUrl;
@@ -166,7 +167,7 @@ public class DefaultAIToolHtmlGenerator : IAIToolHtmlGenerator
         return div;
     }
 
-    public virtual TagBuilder GenerateTextTool(AttributeDictionary attributes, AICommandLocation location, bool enabled = true)
+    public virtual async Task<TagBuilder> GenerateTextToolAsync(AttributeDictionary attributes, AICommandLocation location, bool enabled = true)
     {
         CheckContextualized();
 
@@ -176,7 +177,7 @@ public class DefaultAIToolHtmlGenerator : IAIToolHtmlGenerator
             return null;
         }
 
-        var div = CreateDialogOpener(true, title: GetOpenerTitle(AIChatTopic.Text));
+        var div = await CreateDialogOpenerAsync(true, title: GetOpenerTitle(AIChatTopic.Text));
         div.Attributes["data-modal-url"] = GetDialogUrl(AIChatTopic.Text);
         div.MergeAttributes(attributes);
 
@@ -186,13 +187,13 @@ public class DefaultAIToolHtmlGenerator : IAIToolHtmlGenerator
 
         var forHtml = location >= AICommandLocation.HtmlPreview;
 
-        ul.InnerHtml.AppendHtml(GenerateCommandMenuItems(location, forHtml, enabled));
+        ul.InnerHtml.AppendHtml(await GenerateCommandMenuItemsAsync(location, forHtml, enabled));
         div.InnerHtml.AppendHtml(ul);
 
         return div;
     }
 
-    public virtual IHtmlContent GenerateCommandMenuItems(
+    public virtual async Task<IHtmlContent> GenerateCommandMenuItemsAsync(
         AICommandLocation location,
         bool forHtml = false,
         bool enabled = true)
@@ -201,11 +202,11 @@ public class DefaultAIToolHtmlGenerator : IAIToolHtmlGenerator
         var className = location == AICommandLocation.ChatDialog ? "ai-text-optimizer" : "ai-text-composer";
         var resRoot = "Admin.AI.TextCreation.";
 
-        var itemGenerate = CreateDropdownItem(
+        var itemGenerate = await CreateDropdownItemAsync(
             T($"{resRoot}CreateNew"),
             enabled: true,
             command: "generate",
-            iconName: "repeat",
+            iconName: "ai-auto-rotate",
             isProviderTool: false,
             configureLink: a =>
             {
@@ -217,8 +218,8 @@ public class DefaultAIToolHtmlGenerator : IAIToolHtmlGenerator
         builder.AppendHtml("<li class=\"dropdown-divider\"></li>");
 
         // Add "Change style" & "Change tone" options from module settings.
-        var styleDropdown = AddMenuItemsFromSetting(enabled, "change-style", className, "vector-pen");
-        var toneDropdown = AddMenuItemsFromSetting(enabled, "change-tone", className, "emoji-wink");
+        var styleDropdown = await AddMenuItemsFromSettingAsync(enabled, "change-style", className, "ai-editing");
+        var toneDropdown = await AddMenuItemsFromSettingAsync(enabled, "change-tone", className, "wink");
 
         if (styleDropdown != null || toneDropdown != null)
         {
@@ -227,14 +228,14 @@ public class DefaultAIToolHtmlGenerator : IAIToolHtmlGenerator
             builder.AppendHtml("<li class=\"dropdown-divider\"></li>");
         }
 
-        builder.AppendHtml(CreateDropdownItem(T($"{resRoot}Summarize"), enabled, "summarize", "highlighter", false, className));
-        builder.AppendHtml(CreateDropdownItem(T($"{resRoot}Improve"), enabled, "improve", "lightbulb", false, className));
-        builder.AppendHtml(CreateDropdownItem(T($"{resRoot}Simplify"), enabled, "simplify", "text-left", false, className));
-        builder.AppendHtml(CreateDropdownItem(T($"{resRoot}Extend"), enabled, "extend", "body-text", false, className));
+        builder.AppendHtml(await CreateDropdownItemAsync(T($"{resRoot}Summarize"), enabled, "summarize", "reduce-paragraph", false, className));
+        builder.AppendHtml(await CreateDropdownItemAsync(T($"{resRoot}Improve"), enabled, "improve", "ai-magic", false, className));
+        builder.AppendHtml(await CreateDropdownItemAsync(T($"{resRoot}Simplify"), enabled, "simplify", "menu-08", false, className));
+        builder.AppendHtml(await CreateDropdownItemAsync(T($"{resRoot}Extend"), enabled, "extend", "expand-paragraph", false, className));
 
         if (location >= AICommandLocation.HtmlPreview || (location == AICommandLocation.ChatDialog && forHtml))
         {
-            builder.AppendHtml(CreateDropdownItem(T($"{resRoot}Organize"), enabled, "organize", "card-heading", false, className));
+            builder.AppendHtml(await CreateDropdownItemAsync(T($"{resRoot}Organize"), enabled, "organize", "layout-list", false, className));
         }
 
         if (location == AICommandLocation.ChatDialog)
@@ -244,7 +245,7 @@ public class DefaultAIToolHtmlGenerator : IAIToolHtmlGenerator
 
         if (location == AICommandLocation.HtmlEditor)
         {
-            builder.AppendHtml(CreateDropdownItem(T($"{resRoot}Continue"), enabled, "continue", "three-dots", false, className));
+            builder.AppendHtml(await CreateDropdownItemAsync(T($"{resRoot}Continue"), enabled, "continue", "arrow-big-right-dash", false, className));
         }
 
         return builder;
@@ -254,7 +255,7 @@ public class DefaultAIToolHtmlGenerator : IAIToolHtmlGenerator
     /// Creates a sub-dropdown for text creation styles an tones.
     /// </summary>
     /// <param name="command">The command type choosen by the user. It can be "change-style" or "change-tone".</param>
-    private TagBuilder AddMenuItemsFromSetting(bool enabled, string command, string additionalClasses, string iconName = null)
+    private async Task<TagBuilder> AddMenuItemsFromSettingAsync(bool enabled, string command, string additionalClasses, string iconName = null)
     {
         const string keyGroup = "AISettings";
         var settingName = command == "change-style" ? "TextCreationStyles" : "TextCreationTones";
@@ -281,10 +282,10 @@ public class DefaultAIToolHtmlGenerator : IAIToolHtmlGenerator
 
         foreach (var option in options)
         {
-            ul.InnerHtml.AppendHtml(CreateDropdownItem(option, enabled, command, null, false, additionalClasses));
+            ul.InnerHtml.AppendHtml(await CreateDropdownItemAsync(option, enabled, command, null, false, additionalClasses));
         }
 
-        var subDropdown = CreateDropdownItem(
+        var subDropdown = await CreateDropdownItemAsync(
             T(command == "change-style" ? "Admin.AI.MenuItemTitle.ChangeStyle" : "Admin.AI.MenuItemTitle.ChangeTone"),
             true,
             string.Empty,
@@ -296,11 +297,11 @@ public class DefaultAIToolHtmlGenerator : IAIToolHtmlGenerator
         return subDropdown;
     }
 
-    public virtual TagBuilder GenerateSuggestionTool(AttributeDictionary attributes)
-        => GenerateOutput(attributes, AIProviderFeatures.TextGeneration, AIChatTopic.Suggestion);
+    public virtual Task<TagBuilder> GenerateSuggestionToolAsync(AttributeDictionary attributes)
+        => GenerateOutputAsync(attributes, AIProviderFeatures.TextGeneration, AIChatTopic.Suggestion);
 
-    public virtual TagBuilder GenerateImageCreationTool(AttributeDictionary attributes)
-        => GenerateOutput(attributes, AIProviderFeatures.ImageGeneration, AIChatTopic.Image);
+    public virtual Task<TagBuilder> GenerateImageCreationToolAsync(AttributeDictionary attributes)
+        => GenerateOutputAsync(attributes, AIProviderFeatures.ImageGeneration, AIChatTopic.Image);
 
     /// <summary>
     /// Generates the output for the AI dialog openers.
@@ -311,7 +312,7 @@ public class DefaultAIToolHtmlGenerator : IAIToolHtmlGenerator
     /// <returns>
     /// The TagBuilder for the AI dialog opener.
     /// </returns>
-    protected virtual TagBuilder GenerateOutput(AttributeDictionary attributes, AIProviderFeatures feature, AIChatTopic topic)
+    protected virtual async Task<TagBuilder> GenerateOutputAsync(AttributeDictionary attributes, AIProviderFeatures feature, AIChatTopic topic)
     {
         CheckContextualized();
 
@@ -321,7 +322,7 @@ public class DefaultAIToolHtmlGenerator : IAIToolHtmlGenerator
             return null;
         }
 
-        var openerDiv = CreateDialogOpener(false, GetDialogIdentifierClass(topic), GetOpenerTitle(topic));
+        var openerDiv = await CreateDialogOpenerAsync(false, GetDialogIdentifierClass(topic), GetOpenerTitle(topic));
         openerDiv.Attributes["data-modal-url"] = GetDialogUrl(topic);
         openerDiv.MergeAttributes(attributes);
 
@@ -335,7 +336,7 @@ public class DefaultAIToolHtmlGenerator : IAIToolHtmlGenerator
     /// <param name="additionalClasses">Additional CSS classes to add to the opener icon.</param>
     /// <param name="title">The title of the opener.</param>
     /// <returns>The dialog opener.</returns>
-    protected virtual TagBuilder CreateDialogOpener(bool isDropdown, string additionalClasses = "", string title = "")
+    protected virtual async Task<TagBuilder> CreateDialogOpenerAsync(bool isDropdown, string additionalClasses = "", string title = "")
     {
         var div = new TagBuilder("div");
         div.Attributes["class"] = "has-icon has-icon-right ai-dialog-opener-root";
@@ -346,7 +347,7 @@ public class DefaultAIToolHtmlGenerator : IAIToolHtmlGenerator
             div.AppendCssClass("dropdown");
         }
 
-        var iconA = GenerateOpenerIcon(isDropdown, additionalClasses, title);
+        var iconA = await GenerateOpenerIconAsync(isDropdown, additionalClasses, title);
         div.InnerHtml.AppendHtml(iconA);
 
         return div;
@@ -359,12 +360,11 @@ public class DefaultAIToolHtmlGenerator : IAIToolHtmlGenerator
     /// <param name="additionalClasses">Additional CSS classes to add to the opener icon.</param>
     /// <param name="title">The title of the opener.</param>
     /// <returns>The dialog opener icon.</returns>
-    protected virtual TagBuilder GenerateOpenerIcon(bool isDropdown, string additionalClasses = "", string title = "")
+    protected virtual async Task<TagBuilder> GenerateOpenerIconAsync(bool isDropdown, string additionalClasses = "", string title = "")
     {
-        var icon = (TagBuilder)HtmlHelper.BootstrapIcon("stars-tricolor", htmlAttributes: new Dictionary<string, object>
-        {
-            ["class"] = "dropdown-icon ai-icon-stars-tricolor bi-fw bi"
-        });
+        var icon = await HtmlHelper.IconAsync(
+            IconExpression.Parse("stars-tricolor?fw"),
+            new IconOptions { CssClass = "dropdown-icon ai-icon-stars-tricolor" });
 
         var btnTag = new TagBuilder("a");
         btnTag.Attributes["href"] = "javascript:;";
@@ -446,16 +446,16 @@ public class DefaultAIToolHtmlGenerator : IAIToolHtmlGenerator
     /// <param name="menuText">The text for the menu item.</param>
     /// <returns>A LI tag representing the menu item.</returns>
     protected virtual TagBuilder CreateDropdownItem(string menuText)
-        => CreateDropdownItem(menuText, true, string.Empty, null, false);
+        => CreateDropdownItem(menuText, true, string.Empty, null, false, null);
 
-    private TagBuilder CreateDropdownItem(
+    private Task<TagBuilder> CreateDropdownItemAsync(
         string menuText,
         bool enabled,
         string command,
         string iconName,
         bool isProviderTool,
         params string[] additionalClasses)
-        => CreateDropdownItem(menuText, enabled, command, iconName, isProviderTool, null, additionalClasses);
+        => CreateDropdownItemAsync(menuText, enabled, command, iconName, isProviderTool, null, additionalClasses);
 
     /// <summary>
     /// Creates a dropdown item.
@@ -463,16 +463,38 @@ public class DefaultAIToolHtmlGenerator : IAIToolHtmlGenerator
     /// <param name="menuText">The text for the menu item.</param>
     /// <param name="enabled">Defines whether the menu item is enabled.</param>
     /// <param name="command">The command of the menu item (needed for optimize commands for simple text creation)</param>
-    /// <param name="iconName">The optional name of a Bootstrap SVG icon. Can be null.</param>
+    /// <param name="iconName">The optional icon concept or address. Can be null.</param>
     /// <param name="isProviderTool">Defines whether the item is a provider tool container.</param>
     /// <param name="additionalClasses">Additional CSS classes to add to the menu item.</param>
     /// <param name="configureLink">An action to configure the anchor tag of the menu item.</param>
     /// <returns>An LI tag representing the menu item.</returns>
-    protected virtual TagBuilder CreateDropdownItem(
+    protected virtual async Task<TagBuilder> CreateDropdownItemAsync(
         string menuText,
         bool enabled,
         string command,
         string iconName,
+        bool isProviderTool,
+        Action<TagBuilder> configureLink,
+        params string[] additionalClasses)
+    {
+        IHtmlContent icon = null;
+        if (iconName.HasValue())
+        {
+            var expression = IconExpression.Parse(iconName);
+            icon = await HtmlHelper.IconAsync(expression with
+            {
+                Presentation = expression.Presentation with { FixedWidth = true }
+            });
+        }
+
+        return CreateDropdownItem(menuText, enabled, command, icon, isProviderTool, configureLink, additionalClasses);
+    }
+
+    private static TagBuilder CreateDropdownItem(
+        string menuText,
+        bool enabled,
+        string command,
+        IHtmlContent icon,
         bool isProviderTool,
         Action<TagBuilder> configureLink,
         params string[] additionalClasses)
@@ -499,10 +521,9 @@ public class DefaultAIToolHtmlGenerator : IAIToolHtmlGenerator
             a.Attributes["data-command"] = command;
         }
 
-        if (iconName.HasValue())
+        if (icon != null)
         {
-            var svg = HtmlHelper.BootstrapIcon(iconName, htmlAttributes: new { @class = "bi-fw" });
-            a.InnerHtml.AppendHtml(svg);
+            a.InnerHtml.AppendHtml(icon);
         }
 
         a.InnerHtml.AppendHtml(menuText);

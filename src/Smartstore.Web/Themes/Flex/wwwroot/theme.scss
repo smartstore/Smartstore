@@ -47,8 +47,6 @@
 // Vendor components (neutral)
 // --------------------------------------------------
 
-@import "/lib/bootstrap/scss/vendor/rfs";
-@import "/lib/photoswipe/photoswipe";
 @import "/lib/slick/slick";
 @import "/lib/select2/scss/core";
 @import "/lib/aos/scss/aos";
@@ -67,11 +65,9 @@
 // Global / Shared
 // --------------------------------------------------
 
-@import '/shared/mixins';
 @import '/shared/spacing';
 @import '/shared/accessibility';
 @import '/shared/typo';
-@import '/shared/fa'; 
 @import '/shared/alert';
 @import '/shared/badge';
 @import '/shared/buttons'; 
@@ -79,6 +75,7 @@
 @import '/shared/card';
 @import '/shared/forms';
 @import '/shared/numberinput';
+@import '/shared/datetimepicker';
 @import '/shared/breadcrumb';
 @import '/shared/pagination';
 @import '/shared/nav';
@@ -91,15 +88,20 @@
 @import '/shared/choice';
 @import '/shared/swatch';
 @import "/shared/offcanvas";
+@import "/shared/floating-toolbar";
 @import "/shared/sections";
 @import "/shared/bg";
 @import '/shared/custom-scrollbar';
+@import '/shared/scroll-fade';
 @import "/shared/box";
 @import "/shared/utils";
+@import "/shared/icons";
 //@import '/shared/switch'; // Deprecated
 @import '/shared/media';
 @import "/shared/text-expander";
 @import "/shared/entity-picker";
+@import "/shared/gallery";
+@import "/shared/lightbox";
 
 
 //
@@ -108,7 +110,6 @@
 
 @import "/skinning/select2";
 @import "/skinning/pnotify";
-@import "/skinning/photoswipe";
 @import "/skinning/slick";
 @import "/skinning/drift";
 @import "/skinning/fileupload";

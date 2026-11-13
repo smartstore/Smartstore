@@ -18,7 +18,7 @@ public class SettingFactory : ISettingFactory
 
     private static readonly ConcurrentDictionary<Type, Func<ISettings>> _activators = new();
     private static readonly ConcurrentDictionary<Type, (FastProperty FastProp, string Key)[]> _loadProps = new();
-    private static readonly ConcurrentDictionary<Type, (FastProperty FastProp, string Key)[]> _saveProps = new();
+    private static readonly ConcurrentDictionary<Type, (FastProperty FastProp, string Key, bool IsGlobal)[]> _saveProps = new();
 
     public SettingFactory(
         IHttpContextAccessor httpContextAccessor,
@@ -139,8 +139,14 @@ public class SettingFactory : ISettingFactory
 
         var rawSettings = await GetRawSettingsAsync(db, settingsType, storeId, doFallback: false, tracked: true);
 
-        foreach (var (fastProp, key) in _saveProps.GetOrAdd(settingsType, BuildSaveProps))
+        foreach (var (fastProp, key, isGlobal) in _saveProps.GetOrAdd(settingsType, BuildSaveProps))
         {
+            if (storeId != 0 && isGlobal)
+            {
+                // A store-scoped save must not create an override for a global property.
+                continue;
+            }
+
             var currentValue = fastProp.GetValue(settings).Convert<string>();
 
             if (rawSettings.TryGetValue(key, out var setting))
@@ -273,10 +279,10 @@ public class SettingFactory : ISettingFactory
         return [.. result];
     }
 
-    private static (FastProperty FastProp, string Key)[] BuildSaveProps(Type settingsType)
+    private static (FastProperty FastProp, string Key, bool IsGlobal)[] BuildSaveProps(Type settingsType)
     {
         var prefix = settingsType.Name;
-        var result = new List<(FastProperty, string)>();
+        var result = new List<(FastProperty, string, bool)>();
 
         foreach (var fastProp in FastProperty.GetProperties(settingsType).Values)
         {
@@ -286,7 +292,7 @@ public class SettingFactory : ISettingFactory
             if (!TypeConverterFactory.GetConverter(fastProp.Property.PropertyType).CanConvertFrom(typeof(string)))
                 continue;
 
-            result.Add((fastProp, prefix + '.' + fastProp.Name));
+            result.Add((fastProp, prefix + '.' + fastProp.Name, Attribute.IsDefined(fastProp.Property, typeof(GlobalSettingAttribute))));
         }
 
         return [.. result];

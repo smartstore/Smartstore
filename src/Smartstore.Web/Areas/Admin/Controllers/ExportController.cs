@@ -32,13 +32,13 @@ namespace Smartstore.Admin.Controllers;
 
 public class ExportController : AdminController
 {
-    private static readonly IReadOnlyDictionary<ExportDeploymentType, string> DeploymentTypeIconClasses = new Dictionary<ExportDeploymentType, string>()
+    private static readonly IReadOnlyDictionary<ExportDeploymentType, string> DeploymentTypeIcons = new Dictionary<ExportDeploymentType, string>()
     {
-        { ExportDeploymentType.FileSystem, "far fa-folder-open" },
-        { ExportDeploymentType.Email, "far fa-envelope" },
-        { ExportDeploymentType.Http, "fa fa-globe" },
-        { ExportDeploymentType.Ftp, "far fa-copy" },
-        { ExportDeploymentType.PublicFolder, "fa fa-unlock" },
+        { ExportDeploymentType.FileSystem, "folder-open" },
+        { ExportDeploymentType.Email, "mail" },
+        { ExportDeploymentType.Http, "hi:cloud-server!/sr" },
+        { ExportDeploymentType.Ftp, "database-export" },
+        { ExportDeploymentType.PublicFolder, "hi:folder-upload!/sr" },
     }.ToFrozenDictionary();
 
     private readonly SmartDbContext _db;
@@ -163,7 +163,7 @@ public class ExportController : AdminController
             {
                 Id = ++num,
                 SystemName = x.Metadata.SystemName,
-                ImageUrl = GetThumbnailUrl(x),
+                Icon = _moduleManager.GetIcon(x.Metadata),
                 FriendlyName = _moduleManager.GetLocalizedFriendlyName(x.Metadata),
                 Description = _moduleManager.GetLocalizedDescription(x.Metadata)
             })
@@ -175,7 +175,7 @@ public class ExportController : AdminController
                 Id = x.Id,
                 SystemName = x.ProviderSystemName,
                 FriendlyName = x.Name,
-                ImageUrl = GetThumbnailUrl(providers.Get(x.ProviderSystemName))
+                Icon = GetProviderIcon(providers.Get(x.ProviderSystemName))
             })
             .ToList();
 
@@ -417,7 +417,7 @@ public class ExportController : AdminController
     {
         if (PathUtility.HasInvalidFileNameChars(name))
         {
-            throw new BadHttpRequestException("Invalid file name: " + name.NaIfEmpty());
+            throw new BadHttpRequestException(T("Admin.Common.InvalidFileName", name.NaIfEmpty()));
         }
 
         string message = null;
@@ -502,9 +502,9 @@ public class ExportController : AdminController
             Id = profile.Id,
             Name = profile.Name,
             EntityType = provider.Value.EntityType,
-            ThumbnailUrl = GetThumbnailUrl(provider),
+            Icon = GetProviderIcon(provider),
             LogFileExists = logFile.Exists,
-            UsernamesEnabled = _customerSettings.CustomerLoginType != CustomerLoginType.Email
+            UsernamesEnabled = _customerSettings.SupportsUsernames()
         };
 
         return View(model);
@@ -849,7 +849,7 @@ public class ExportController : AdminController
             EntityType = provider.Value.EntityType,
             EntityTypeName = Services.Localization.GetLocalizedEnum(provider.Value.EntityType),
             FileExtension = provider.Value.FileExtension,
-            ThumbnailUrl = GetThumbnailUrl(provider),
+            Icon = GetProviderIcon(provider),
             FriendlyName = _moduleManager.GetLocalizedFriendlyName(provider.Metadata),
             Description = _moduleManager.GetLocalizedDescription(provider.Metadata),
             Url = moduleDescriptor?.ProjectUrl,
@@ -906,7 +906,7 @@ public class ExportController : AdminController
             .Select(y => new SelectListItem { Text = y.GetLocalized(x => x.Name), Value = y.Id.ToString() })
             .ToList();
 
-        ViewBag.DeploymentTypeIconClasses = DeploymentTypeIconClasses;
+        ViewBag.DeploymentTypeIcons = DeploymentTypeIcons;
 
         // Projection.
         model.Projection = await MapperFactory.MapAsync<ExportProjection, ExportProjectionModel>(projection);
@@ -956,17 +956,17 @@ public class ExportController : AdminController
                     .ApplyStandardFilter(true)
                     .ToListAsync();
 
-                var productTags = await _db.ProductTags
-                    .AsNoTracking()
-                    .ToListAsync();
-
                 ViewBag.Manufacturers = manufacturers
                     .Select(x => new SelectListItem { Text = x.Name, Value = x.Id.ToString() })
                     .ToList();
 
-                ViewBag.ProductTags = productTags
-                    .Select(x => new SelectListItem { Text = x.Name, Value = x.Id.ToString() })
-                    .ToList();
+                ViewBag.ProductTags = model.Filter.ProductTagId != null
+                    ? await _db.ProductTags
+                        .AsNoTracking()
+                        .Where(x => x.Id == model.Filter.ProductTagId.Value)
+                        .Select(x => new SelectListItem { Text = x.Name, Value = x.Id.ToString(), Selected = true })
+                        .ToListAsync()
+                    : [];
 
                 ViewBag.PriceTypes = PriceDisplayType.LowestPrice
                     .ToSelectList(false)
@@ -980,7 +980,7 @@ public class ExportController : AdminController
                     ? await _categoryService.GetCategoryTreeAsync(0, true)
                     : null;
 
-                ViewBag.SelectedCategoryId = CreateSelectedCategoriesList(new[] { model.Filter.CategoryId ?? 0 }, categoryTree);
+                ViewBag.SelectedCategoryId = CreateSelectedCategoriesList([model.Filter.CategoryId ?? 0], categoryTree);
                 ViewBag.SelectedCategoryIds = CreateSelectedCategoriesList(model.Filter.CategoryIds, categoryTree);
             }
             else if (model.Provider.EntityType == ExportEntityType.Customer)
@@ -1052,7 +1052,7 @@ public class ExportController : AdminController
         {
             model.CreateZip = profile.CreateZipArchive;
 
-            ViewBag.DeploymentTypeIconClasses = DeploymentTypeIconClasses;
+            ViewBag.DeploymentTypeIcons = DeploymentTypeIcons;
 
             if (ViewBag.EmailAccounts == null)
             {
@@ -1065,7 +1065,7 @@ public class ExportController : AdminController
 
             if (provider != null)
             {
-                model.ThumbnailUrl = GetThumbnailUrl(provider);
+                model.Icon = GetProviderIcon(provider);
             }
         }
         else
@@ -1263,20 +1263,10 @@ public class ExportController : AdminController
         return (null, null);
     }
 
-    private string GetThumbnailUrl(Provider<IExportProvider> provider)
-    {
-        string url = null;
-
-        if (provider != null)
-            url = _moduleManager.GetIconUrl(provider.Metadata);
-
-        if (url.IsEmpty())
-            url = _moduleManager.GetDefaultIconUrl(null);
-
-        url = Url.Content(url);
-
-        return url;
-    }
+    private ModuleIcon GetProviderIcon(Provider<IExportProvider> provider)
+        => provider == null
+            ? _moduleManager.GetDefaultIcon()
+            : _moduleManager.GetIcon(provider.Metadata);
 
     #endregion
 }

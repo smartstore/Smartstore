@@ -96,7 +96,7 @@ public class PasswordValidatorTagHelper(CustomerSettings customerSettings) : Sma
         title.InnerHtml.AppendHtml((IHtmlContent)T("Account.Register.Result.MeetPasswordRules", string.Empty));
 
         var ul = new TagBuilder("ul");
-        ul.AppendCssClass("fa-ul pwd-rules mb-0");
+        ul.AppendCssClass("icon-ul pwd-rules mb-0");
 
         if (policy.MinLength > 0)
         {
@@ -184,15 +184,16 @@ public class PasswordValidatorTagHelper(CustomerSettings customerSettings) : Sma
         li.Attributes["data-rule"] = key;
         li.Attributes["data-msg"] = message;
 
-        var faLi = new TagBuilder("span");
-        faLi.AddCssClass("fa-li");
+        var iconLi = new TagBuilder("span");
+        iconLi.AddCssClass("icon-li");
 
-        var icon = new TagBuilder("i");
-        icon.AppendCssClass("fa fa-ban rule-icon");
+        var icon = new TagBuilder("sm-icon");
+        icon.AddCssClass("rule-icon");
+        icon.Attributes["name"] = "ban";
         icon.Attributes["aria-hidden"] = "true";
 
-        faLi.InnerHtml.AppendHtml(icon);
-        li.InnerHtml.AppendHtml(faLi);
+        iconLi.InnerHtml.AppendHtml(icon);
+        li.InnerHtml.AppendHtml(iconLi);
         li.InnerHtml.AppendHtml((IHtmlContent)message);
 
         return li;

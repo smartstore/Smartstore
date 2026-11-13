@@ -138,6 +138,35 @@ The following table explains the schema.
 
 <table><thead><tr><th width="220">Name</th><th width="104.33333333333331">Type</th><th>Description</th></tr></thead><tbody><tr><td><strong>AssemblyName</strong></td><td>string</td><td>The assembly name. <strong>Default</strong>: '{SystemName}.dll'</td></tr><tr><td><strong>Author</strong></td><td>string</td><td>The author's name.</td></tr><tr><td><strong>FriendlyName *</strong></td><td>string</td><td>A readable, easy to understand, english name.</td></tr><tr><td><strong>Group</strong></td><td>enum</td><td><p>A conceptual group name. Used to visually categorize modules in listings.</p><p><strong>Possible values</strong>: <em>Admin</em>, <em>Marketing</em>, <em>Payment</em>, <em>Shipping</em>, <em>Tax</em>, <em>Analytics</em>, <em>CMS</em>, <em>Media</em>, <em>SEO</em>, <em>Data</em>, <em>Globalization</em>, <em>Api</em>, <em>Mobile</em>, <em>Social</em>, <em>Security</em>, <em>Developer</em>, <em>Sales</em>, <em>Design</em>, <em>Performance</em>, <em>B2B</em>, <em>Storefront</em>, <em>Law</em>.</p></td></tr><tr><td><strong>DependsOn</strong></td><td>array</td><td>Array of module system names the module depends on.</td></tr><tr><td><strong>Description</strong></td><td>string</td><td>A short english description of the module.</td></tr><tr><td><strong>MinAppVersion</strong></td><td>string</td><td><p>The minimum compatible application version, e.g. '5.0.2'.</p><p>The module will be unavailable, if the current app version is lower than this value.</p></td></tr><tr><td><strong>Order</strong></td><td>integer</td><td>The display order in the module manager group.</td></tr><tr><td><strong>PrivateReferences</strong></td><td>array</td><td><p>Optional array of private dependency package names that a module references.</p><p>By default referenced packages are not copied to the <code>OutputPath</code>. It is assumed, that the application core already references them. Any private module package should be listed here, including the complete dependency chain.</p></td></tr><tr><td><strong>ProjectUrl</strong></td><td>string</td><td>Link to the project's or author's homepage.</td></tr><tr><td><strong>ResourceRootKey</strong></td><td>string</td><td>Root key for language resources (see <a href="localizing-modules.md">Localizing modules</a>).</td></tr><tr><td><strong>SystemName *</strong></td><td>string</td><td>Module system name. Usually the assembly name without the extension.</td></tr><tr><td><strong>Tags</strong></td><td>string</td><td>Comma-separated tags</td></tr><tr><td><strong>Version *</strong></td><td>string</td><td>The current version of the module e.g. '5.1.0'</td></tr></tbody></table>
 
+### Module icons
+
+A module can declare an icon address and an optional CSS color in `module.json`:
+
+```json
+"Icon": "hi:puzzle/sr?color=#546e7a"
+```
+
+`Icon` accepts the same concepts, explicit library addresses and modifiers as the
+`icon` TagHelper. A kit entry is optional. The `color` modifier applies only to this rendered
+icon, not to image files.
+
+`ModuleManager.GetIcon()` resolves the representation in this order:
+
+1. Provider-specific `wwwroot/icon-{providerSystemName}.svg`, then `.png`.
+2. The manifest's `Icon`, including optional rendering modifiers.
+3. `wwwroot/icon.svg`, then `wwwroot/icon.png`.
+4. The default icon address `hi:plug-02`.
+
+SVG image files are loaded through `<img>`; define their colors inside the SVG.
+They do not inherit CSS colors from the surrounding page. Existing PNG files remain
+supported. `GetIconUrl()` still returns an image URL, with SVG preferred over PNG;
+it does not resolve manifest addresses and retains its legacy group/default image fallback.
+
+Render the resolved value with `<module-icon model="resolvedIcon" />`. The helper
+renders addresses server-side and image URLs as images. Set `alt` for an accessible
+name, or omit it for a decorative icon. Size the common wrapper with
+`--module-icon-size` (default: `32px`).
+
 ### Module entry class
 
 Every module needs an entry class containing the bare minimum of the un- and install methods. To be recognized as such the class must implement the `IModule` interface.

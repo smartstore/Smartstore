@@ -75,9 +75,7 @@
 
         function setBuyButtonState(disable) {
             buyButton.prop('disabled', disable);
-            buyButton.find('.fa')
-                .removeClass('fa-angle-right fa-spinner fa-spin')
-                .addClass(disable ? 'fa-spinner fa-spin' : 'fa-angle-right');
+            buyButton.find('sm-icon').attr({ name: disable ? 'spinner' : 'chevron-right', animation: disable ? 'spin' : null });
 
             const busyText = @T("Common.PleaseWait").JsValue;
             AccessKit.notifyStatus(disable ? busyText : null);

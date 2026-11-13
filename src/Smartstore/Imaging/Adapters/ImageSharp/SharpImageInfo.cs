@@ -25,7 +25,7 @@ internal sealed class SharpImageInfo : IImageInfo
         => _info.Height;
 
     public byte BitDepth
-        => (byte)(_info.PixelType?.BitsPerPixel);
+        => (byte)(_info.PixelType.BitsPerPixel);
 
     public IImageFormat Format
         => _format;

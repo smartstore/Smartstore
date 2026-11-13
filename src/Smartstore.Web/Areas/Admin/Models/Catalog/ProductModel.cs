@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Runtime.Serialization;
 using FluentValidation;
+using Smartstore.Admin.Models.Common;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Discounts;
@@ -201,8 +202,11 @@ public class ProductModel : ProductOverviewModel, ILocalizedModel<ProductLocaliz
     [LocalizedDisplay("*HideQuantityControl")]
     public bool HideQuantityControl { get; set; }
 
+    [UIHint("SelectList")]
+    [AdditionalMetadata("multiple", true)]
+    [AdditionalMetadata("data_tags", true)]
     [LocalizedDisplay("*AllowedQuantities")]
-    public string AllowedQuantities { get; set; }
+    public int[] AllowedQuantities { get; set; } = [];
 
     [LocalizedDisplay("*DisableBuyButton")]
     public bool DisableBuyButton { get; set; }
@@ -308,6 +312,9 @@ public class ProductModel : ProductOverviewModel, ILocalizedModel<ProductLocaliz
 
     [LocalizedDisplay("*WithdrawalPeriodDays")]
     public int? WithdrawalPeriodDays { get; set; }
+
+    [LocalizedDisplay("*AllowWithdrawalBeforeShipping")]
+    public bool? AllowWithdrawalBeforeShipping { get; set; }
 
     public string ProductSelectCheckboxClass { get; set; }
     public bool IsSystemProduct { get; set; }
@@ -536,10 +543,42 @@ public class ProductModel : ProductOverviewModel, ILocalizedModel<ProductLocaliz
         [LocalizedDisplay("Admin.Catalog.Attributes.AttributeControlType")]
         [UIHint("AttributeControlType")]
         public int AttributeControlTypeId { get; set; }
-        public string AttributeControlType { get; set; }
+        public string AttributeControlTypeStr { get; set; }
+
+        public bool IsSwatch =>
+            AttributeControlTypeId == (int)AttributeControlType.Boxes;
 
         [LocalizedDisplay("Common.DisplayOrder")]
         public int DisplayOrder { get; set; }
+
+        [UIHint("Range"), Range(0, 50)]
+        [AdditionalMetadata("min", 0)]
+        [AdditionalMetadata("max", 50)]
+        [AdditionalMetadata("step", 10)]
+        [AdditionalMetadata("format", "")]
+        [LocalizedDisplay("Admin.Catalog.Attributes.ProductAttributes.Fields.SwatchSize")]
+        public int? SwatchSize { get; set; }
+
+        [UIHint("AspectRatio"), Range(0.1, 3.0)]
+        [AdditionalMetadata("min", 0.1)]
+        [AdditionalMetadata("max", 3.0)]
+        [AdditionalMetadata("step", 0.01)]
+        [AdditionalMetadata("format", "{0:F2}")]
+        [AdditionalMetadata("ticks", "0.1|10:1, 1|1:1, 2|1:2, 3|1:3")]
+        [LocalizedDisplay("Admin.Catalog.Attributes.ProductAttributes.Fields.SwatchAspectRatio")]
+        public decimal? SwatchAspectRatio { get; set; }
+
+        [LocalizedDisplay("Admin.Catalog.Attributes.ProductAttributes.Fields.SwatchShape")]
+        public SwatchShape? SwatchShape { get; set; }
+        
+        [LocalizedDisplay("Admin.Catalog.Attributes.ProductAttributes.Fields.ShowValueNameInSwatch")]
+        public bool? ShowValueNameInSwatch { get; set; }
+
+        [LocalizedDisplay("Admin.Catalog.Attributes.ProductAttributes.Fields.SwatchPriceDisplay")]
+        public SwatchPriceDisplayMode? SwatchPriceDisplay { get; set; }
+
+        public bool HasSwatchOverrides { get; set; }
+        public string SwatchOverridesInfo { get; set; }
 
         [LocalizedDisplay("Admin.Catalog.Products.ProductVariantAttributes.Attributes.Values")]
         public string EditUrl { get; set; }
@@ -564,10 +603,12 @@ public class ProductModel : ProductOverviewModel, ILocalizedModel<ProductLocaliz
         public string Name { get; set; }
         public string NameString { get; set; }
 
-        [LocalizedDisplay("*ColorSquaresRgb")]
-        [UIHint("Color")]
-        public string Color { get; set; }
-        public bool HasColor { get; set; }
+        [UIHint("ColorPalette")]
+        [AdditionalMetadata("maxColors", ColorPaletteModel.DefaultMaxColors)]
+        [LocalizedDisplay("Admin.Common.ColorPalette.Color")]
+        public ColorPaletteModel Colors { get; set; } = new();
+        public string Color => Colors?.Color;
+        public bool HasColor => Color.HasValue();
         public bool IsListTypeAttribute { get; set; }
 
         [LocalizedDisplay("*Picture")]
@@ -598,7 +639,11 @@ public class ProductModel : ProductOverviewModel, ILocalizedModel<ProductLocaliz
 
         [LocalizedDisplay("*ValueTypeId")]
         public string TypeName { get; set; }
-        public string TypeNameClass { get; set; }
+        /// <summary>
+        /// Gets or sets the icon concept for the attribute value type.
+        /// </summary>
+        [LocalizedDisplay("*ValueTypeId")]
+        public string TypeNameIcon { get; set; }
 
         [LocalizedDisplay("*LinkedProduct")]
         public int LinkedProductId { get; set; }
@@ -697,6 +742,13 @@ public partial class ProductModelValidator : SmartValidator<ProductModel>
         {
             RuleFor(x => x.OrderMinimumQuantity).GreaterThan(0); // dont't remove "Admin.Validation.ValueGreaterZero" resource. It is used elsewhere.
             RuleFor(x => x.OrderMaximumQuantity).GreaterThan(0);
+            RuleFor(x => string.Join(',', x.AllowedQuantities ?? Array.Empty<int>()))
+                .MaximumLength(1000)
+                .OverridePropertyName(nameof(ProductModel.AllowedQuantities));
+            RuleForEach(x => x.AllowedQuantities)
+                // Associate item errors with the AllowedQuantities field.
+                .OverrideIndexer((_, _, _, _) => string.Empty)
+                .GreaterThan(0);
         });
 
         // validate PAnGV
@@ -730,12 +782,18 @@ public partial class ProductModelValidator : SmartValidator<ProductModel>
 
 public partial class ProductVariantAttributeValueModelValidator : SmartValidator<ProductModel.ProductVariantAttributeValueModel>
 {
-    public ProductVariantAttributeValueModelValidator(SmartDbContext db)
+    public ProductVariantAttributeValueModelValidator(SmartDbContext db, Localizer T)
     {
-        ApplyEntityRules<ProductVariantAttributeValue>(db);
+        ApplyEntityRules<ProductVariantAttributeValue>(db, nameof(ProductVariantAttributeValue.Color));
 
         RuleFor(x => x.Name).NotEmpty();
         RuleFor(x => x.Quantity).GreaterThanOrEqualTo(1).When(x => x.ValueTypeId == (int)ProductVariantAttributeValueType.ProductLinkage);
+        RuleFor(x => x.Colors)
+            .Must(x => x == null || (x.AdditionalColors?.Count(y => y.HasValue()) ?? 0) < ColorPaletteModel.DefaultMaxColors)
+            .WithMessage(T("Admin.Common.ColorPalette.TooManyColors", ColorPaletteModel.DefaultMaxColors));
+        RuleFor(x => x.Colors)
+            .Must(x => x?.AdditionalColors?.Any(y => y.HasValue()) != true || x.Color.HasValue())
+            .WithMessage(T("Admin.Common.ColorPalette.PrimaryColorRequired"));
     }
 }
 
@@ -753,6 +811,7 @@ public class ProductMapper : IMapper<Product, ProductModel>
     public async Task MapAsync(Product from, ProductModel to, dynamic parameters = null)
     {
         MiniMapper.Map(from, to);
+        to.AllowedQuantities ??= [];
         to.SeName = await from.GetActiveSlugAsync(0, true, false);
     }
 }

@@ -1,4 +1,4 @@
-﻿@using Smartstore.Web.Rendering.Menus
+@using Smartstore.Web.Rendering.Menus
 @using Smartstore.Collections
 @using Smartstore.Core.Content.Menus
 
@@ -26,8 +26,19 @@
     }
 }
 
-<div class="settings-menu list-group list-group-flush has-icons m-md-2 mr-md-0" data-menu-name="settings">
-    @{
+<div class="settings-menu nav-pills d-flex flex-column flex-md-fill m-0" data-menu-name="settings">
+    <div class="settings-menu-items custom-scrollbar scrollbar-thin d-flex flex-column flex-md-fill px-md-2">
+        @{ await RenderItems(false); }
+    </div>
+    <div sm-if='root.Children.Any(x => x.Value.Visible && x.Value.Id == "all")' class="settings-menu-footer d-flex flex-column flex-md-shrink-0 px-md-2">
+        <hr class="my-2 border-top opacity-100" />
+        @{ await RenderItems(true); }
+    </div>
+</div>
+
+@{
+    async Task RenderItems(bool footer)
+    {
         var isCurrent = false;
         var colorIndex = 0;
 
@@ -50,36 +61,37 @@
 
             var itemText = node.GetItemText(T);
             var itemUrl = GetNodeLink(node);
-            var icon = item.Icon.NullEmpty() ?? "fas fa-fw";
 
-            if (node.Next == null)
+            var iconColor = iconColors[colorIndex % iconColors.Length];
+            if (item.Icon.HasValue())
             {
-                <hr class="my-2 ml-md-n2" />
+                colorIndex++;
             }
 
-            <a class="list-group-item list-group-item-action rounded-pill" attr-class='(isSelected, "active")' href="@itemUrl">
-                <span class="list-group-item-icon">
-                    @if (item.IconLibrary == "bi")
+            if ((item.Id == "all") != footer)
+            {
+                continue;
+            }
+
+            <a class="nav-link hstack overflow-hidden position-relative flex-md-shrink-0" attr-class='(isSelected, "active")' href="@itemUrl">
+                <span class="settings-menu-icon icon-fw hstack-inline justify-content-center flex-shrink-0 align-self-center">
+                    @if (item.Icon.HasValue())
                     {
-                        if (colorIndex >= iconColors.Length)
+                        if (isSelected)
                         {
-                            colorIndex = 0;
+                            <icon-stack class="icon-stack-sm">
+                                <icon name="circle-fill" class="menu-color-dot" scale="2" color="@($"var(--{iconColor})")" />
+                                <icon name="@item.Icon" attr-class='@(item.IconClass.HasValue(), item.IconClass)' color="#fff" />
+                            </icon-stack>
                         }
-
-                        <bootstrap-iconstack>
-                            <bootstrap-icon name="circle-fill" class="bi-circle" scale="2" fill="@(isSelected ? $"var(--{iconColors[colorIndex]})" : "var(--gray-300)")" />
-                            <bootstrap-icon name="@icon" attr-class='@(item.IconClass.HasValue(), item.IconClass)' fill="@(isSelected ? "#fff" : "currentcolor")" />
-                        </bootstrap-iconstack>
-
-                        colorIndex++;
-                    }
-                    else
-                    {
-                        <i class="@icon" attr-class='@(item.IconClass.HasValue(), item.IconClass)'></i>
+                        else
+                        {
+                            <icon name="@item.Icon" attr-class='@(item.IconClass.HasValue(), item.IconClass)' />
+                        }
                     }
                 </span>
-                <span class="fwm">@itemText</span>
+                <span class="@(isSelected ? "font-weight-medium" : "font-weight-normal")">@itemText</span>
             </a>
         }
     }
-</div>
+}

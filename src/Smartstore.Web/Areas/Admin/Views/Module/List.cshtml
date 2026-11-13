@@ -19,24 +19,24 @@
 
     <div class="section-header">
         <div class="title">
-            <i class="fa fa-puzzle-piece"></i>
+            <icon name="puzzle" />
             @T("Admin.Configuration.Plugins")
         </div>
         <div class="options">
             <div class="has-icon">
                 <input type="text" id="filter-query" class="form-control my-0" style="width: 350px" placeholder="@T("Common.Search")" />
                 <span class="input-group-icon">
-                    <i class="fa fa-search text-muted"></i>
+                    <icon name="search" class="text-muted" />
                 </span>
             </div>
             <button id="btn-execute-tasks" type="submit" class="btn btn-secondary" disabled="disabled">
-                <i class="fa fa-cogs"></i>
+                <icon name="gears" />
                 <span>@T("Admin.Configuration.Plugins.ExecuteTasks")</span>
                 <span class="badge badge-dark label-uninstall-count hide">0</span>
                 <span class="badge badge-warning label-install-count hide">0</span>
             </button>
             <a id="uploadpackage" href="#uploadpackage-window" data-toggle="modal" class="btn btn-secondary" role="button">
-                <i class="fa fa-upload"></i>
+                <icon name="upload" />
                 <span>@T("Admin.Packaging.UploadPlugin")</span>
             </a>
             <div class="dropdown">
@@ -45,11 +45,11 @@
                 </a>
                 <div class="dropdown-menu dropdown-menu-right">
                     <a asp-action="ReloadList" class="dropdown-item">
-                        <i class="fa fa-fw fa-sync"></i>
+                        <icon name="refresh" fw="true" />
                         <span>@T("Admin.Configuration.Plugins.ReloadList")</span>
                     </a>
                     <a asp-action="UpdateAllStringResources" class="module-update-allresources dropdown-item">
-                        <i class="fa fa-fw fa-language"></i>
+                        <icon name="language" fw="true" />
                         <span>@T("Admin.Configuration.Plugins.Resources.UpdateAll")</span>
                     </a>
                 </div>
@@ -57,7 +57,7 @@
         </div>
     </div>
 
-    <div class="alert alert-info alert-dismissible">
+    <div class="alert alert-info alert-dismissible fade show">
         <button type="button" class="btn-close" data-dismiss="alert"></button>
         <h4>@T("Admin.Configuration.Plugins.Description")</h4>
         <ol>
@@ -135,8 +135,8 @@
                                 ${checkboxes.join("")}
                             </div>
                             <div class="col-auto editable-buttons">
-                                <button type="button" class="btn btn-warning btn-icon btn-sm editable-submit" data-module="${systemName}"><i class="fa fa-check"></i></button>
-                                <button type="button" class="btn btn-secondary btn-icon btn-sm editable-cancel"><i class="fa fa-times"></i></button>
+                                <button type="button" class="btn btn-primary btn-icon btn-sm editable-submit" data-module="${systemName}"><sm-icon name="check" ></sm-icon></button>
+                                <button type="button" class="btn btn-secondary btn-icon btn-sm editable-cancel"><sm-icon name="close" ></sm-icon></button>
                             </div>
                         </div>`;
                 }
@@ -476,7 +476,7 @@
                 <div class="card-body">
                     <!-- Icon -->
                     <div class="module-icon">
-                        <img class="icon img-responsive" src="@Url.Content(module.IconUrl)" />
+                        <module-icon model="module.Icon" />
                     </div>
 
                     <!-- Data -->
@@ -539,7 +539,7 @@
                             @T("Admin.Configuration.Plugins.Fields.Uninstall")
                         </a>
                         <a sm-if="!module.Installed" class="btn btn-primary btn-sm module-install" data-toggle="button" href="#">
-                            <bootstrap-icon name="database-add" />
+                            <icon name="database-add" />
                             <span>@T("Admin.Configuration.Plugins.Fields.Install")</span>
                         </a>
 
@@ -550,20 +550,20 @@
 
                         <!-- Actions dropdown -->
                         <div sm-if="module.Installed" class="module-actions dropdown">
-                            <button class="btn btn-light btn-flat btn-sm btn-icon dropdown-toggle" type="button" data-toggle="dropdown">
-                                <i class="fa fa-cog"></i>
+                            <button class="btn btn-light btn-flat btn-sm btn-icon dropdown-toggle no-chevron" type="button" data-toggle="dropdown">
+                                <icon name="ellipsis"  />
                             </button>
                             <div class="dropdown-menu dropdown-menu-right">
                                 <a asp-action="UpdateStringResources" class="dropdown-item module-update-resources" data-module="@module.SystemName">
-                                    <i class="fa fa-fw fa-language"></i>
+                                    <icon name="language" class="icon-fw" />
                                     <span>@T("Admin.Configuration.Plugins.Resources.Update")</span>
                                 </a>
                                 <a sm-if="module.LicenseLabel.LicenseUrl.HasValue()" class="dropdown-item module-licence" href="@module.LicenseLabel.LicenseUrl">
-                                    <i class="fa fa-fw fa-key"></i>
+                                    <icon name="key" class="icon-fw" />
                                     <span>@T("Admin.Common.License")</span>
                                 </a>
                                 <a sm-if="module.ConfigurationUrl.HasValue()" class="dropdown-item module-configure" href="@module.ConfigurationUrl">
-                                    <i class="fa fa-fw fa-cog"></i>
+                                    <icon name="gear" class="icon-fw" />
                                     <span>@T("Admin.Configuration.Plugins.Fields.Configure")</span>
                                 </a>
                             </div>

@@ -9,7 +9,6 @@ using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Orders;
-using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Checkout.Shipping;
 using Smartstore.Core.Checkout.Tax;
 using Smartstore.Core.Common;
@@ -710,7 +709,7 @@ public class PayPalHttpClient
         // INFO: We must execute the following code also for cart pages in case of customer backward navigation,
         // where shipping method might be set or discounts might be applied
 
-        var cartTotal = await _orderCalculationService.GetShoppingCartTotalAsync(cart);
+        var cartTotal = await _orderCalculationService.GetShoppingCartTotalAsync(cart, ShoppingCartTotalOptions.Default);
 
         // Discount
         var orderTotalDiscountAmount = new Money();

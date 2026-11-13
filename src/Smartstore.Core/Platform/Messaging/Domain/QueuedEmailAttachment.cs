@@ -54,6 +54,11 @@ public partial class QueuedEmailAttachment : BaseEntity, IMediaAware
     public EmailAttachmentStorageLocation StorageLocation { get; set; }
 
     /// <summary>
+    /// Gets or sets whether the attachment content is awaiting generation.
+    /// </summary>
+    public bool IsPending { get; set; }
+
+    /// <summary>
     /// A physical or virtual path to the file (only applicable if location is <c>Path</c>).
     /// </summary>
     [StringLength(1000)]

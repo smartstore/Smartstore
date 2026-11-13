@@ -20,23 +20,21 @@
 }
 
 <widget target-zone="admin_button_toolbar_before">
-    <button id="SaveConfigButton" type="submit" name="save" class="btn btn-warning" value="save">
-        <i class="fa fa-check"></i>
+    <button id="SaveConfigButton" type="submit" name="save" class="btn btn-primary" value="save">
+        <icon name="check"  />
         <span>@T("Admin.Common.Save")</span>
     </button>
 </widget>
 
-<div class="plugin-configuration">
-    <div>
-        <div class="alert alert-info alert-dismissible">
+<div class="alert alert-info alert-dismissible fade show">
+    <button type="button" class="btn-close" data-dismiss="alert"></button>
+    <a class="d-inline-block mb-3 mw-100" style="max-width: 268px" href="https://sellercentral-europe.amazon.com" target="_blank">
+        <img class="img-fluid alert-branding" src="@Url.Content("~/Modules/Smartstore.AmazonPay/branding.png")" alt="Amazon Pay" />
+    </a>
+    <div class="text-expander" data-max-height="130">
+        <div class="text-expander-content">
             @Html.Raw(T("Plugins.Payments.AmazonPay.AdminInstruction"))
-            <button type="button" class="btn-close" data-dismiss="alert"></button>
         </div>
-    </div>
-    <div>
-        <a href="https://sellercentral-europe.amazon.com" target="_blank">
-            <img src="@Url.Content("~/Modules/Smartstore.AmazonPay/branding.png")" alt="Amazon Pay" />
-        </a>
     </div>
 </div>
 
@@ -55,11 +53,11 @@
             <div class="adminTitle">&nbsp;</div>
             <div class="adminData">
                 <a href="javascript:;" class="btn btn-primary register-now">
-                    <i class="fa fa-right-to-bracket"></i>
+                    <icon name="login"  />
                     <span>@T("Plugins.Payments.AmazonPay.RegisterNow")</span>
                 </a>
                 <button type="button" class="btn btn-secondary paste-access-data">
-                    <i class="far fa-clipboard"></i>
+                    <icon name="clipboard"  />
                     <span>@T("Plugins.Payments.AmazonPay.PasteAccessData")</span>
                 </button>
             </div>
@@ -103,7 +101,7 @@
                     {
                         <span>*****************</span>
                         <button id="remove-private-key" type="button" class="btn btn-secondary btn-to-danger btn-sm ml-3" data-url="@Url.Action("RemovePrivateKey")">
-                            <i class="far fa-trash-can"></i>
+                            <icon name="trash" />
                             <span>@T("Admin.Common.Delete")</span>
                         </button>
                     }
@@ -158,10 +156,17 @@
             <div class="adminTitle">
                 <smart-label asp-for="CurrentMerchantLoginDomains" />
             </div>
-            <div class="adminData form-control-plaintext">
+            <div class="adminData">
                 @foreach (var item in Model.CurrentMerchantLoginDomains)
                 {
-                    <div>@Html.Raw(item)</div>
+                    <div class="input-group mb-1">
+                        <input type="text" class="form-control" value="@item" readonly />
+                        <div class="input-group-append">
+                            <button type="button" class="btn btn-light btn-icon btn-clipboard" data-copy="@item">
+                                <icon name="clipboard" />
+                            </button>
+                        </div>
+                    </div>
                 }
             </div>
         </div>
@@ -169,10 +174,17 @@
             <div class="adminTitle">
                 <smart-label asp-for="CurrentMerchantLoginRedirectUrls" />
             </div>
-            <div class="adminData form-control-plaintext">
+            <div class="adminData">
                 @foreach (var item in Model.CurrentMerchantLoginRedirectUrls)
                 {
-                    <div>@Html.Raw(item)</div>
+                    <div class="input-group mb-1">
+                        <input type="text" class="form-control" value="@item" readonly />
+                        <div class="input-group-append">
+                            <button type="button" class="btn btn-light btn-icon btn-clipboard" data-copy="@item">
+                                <icon name="clipboard" />
+                            </button>
+                        </div>
+                    </div>
                 }
             </div>
         </div>
@@ -226,43 +238,22 @@
                 <smart-label asp-for="IpnUrl" />
             </div>
             <div class="adminData">
-                <input asp-for="IpnUrl" class="form-control-plaintext" readonly />
+                <div class="input-group">
+                    <input asp-for="IpnUrl" readonly />
+                    <div class="input-group-append">
+                        <button type="button" class="btn btn-light btn-icon btn-clipboard" data-copy-from="#@(Html.IdFor(x => x.IpnUrl))">
+                            <icon name="clipboard" />
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
         <div class="adminRow">
             <div class="adminTitle">&nbsp;</div>
             <div class="adminData">
-                <div class="alert alert-warning">
+                <div class="alert alert-warning mb-0">
                     @Html.Raw(T("Plugins.Payments.AmazonPay.DataFetching.Warning"))
                 </div>
-            </div>
-        </div>
-
-        <div class="adminRow">
-            <div class="admin-config-group">
-                <div class="title">@T("Plugins.Payments.AmazonPay.Layout")</div>
-            </div>
-        </div>
-        <div class="adminRow">
-            <div class="adminTitle">
-                <smart-label asp-for="PayButtonColor" />
-            </div>
-            <div class="adminData">
-                <setting-editor asp-for="PayButtonColor">
-                    <select asp-for="PayButtonColor" asp-items="buttonColors"></select>
-                </setting-editor>
-                <span asp-validation-for="PayButtonColor"></span>
-            </div>
-        </div>
-        <div class="adminRow">
-            <div class="adminTitle">
-                <smart-label asp-for="AuthButtonColor" />
-            </div>
-            <div class="adminData">
-                <setting-editor asp-for="AuthButtonColor">
-                    <select asp-for="AuthButtonColor" asp-items="buttonColors"></select>
-                </setting-editor>
-                <span asp-validation-for="AuthButtonColor"></span>
             </div>
         </div>
 
@@ -273,11 +264,11 @@
         </div>
         <div class="adminRow">
             <div class="adminTitle">
-                <smart-label asp-for="ShowPayButtonForAdminOnly" />
+                <smart-label asp-for="ShowInPaymentMethodList" />
             </div>
             <div class="adminData">
-                <setting-editor asp-for="ShowPayButtonForAdminOnly"></setting-editor>
-                <span asp-validation-for="ShowPayButtonForAdminOnly"></span>
+                <setting-editor asp-for="ShowInPaymentMethodList"></setting-editor>
+                <span asp-validation-for="ShowInPaymentMethodList"></span>
             </div>
         </div>
         <div class="adminRow">
@@ -300,20 +291,45 @@
         </div>
         <div class="adminRow">
             <div class="adminTitle">
-                <smart-label asp-for="AdditionalFee" />
+                <smart-label asp-for="ShowPayButtonForAdminOnly" />
             </div>
             <div class="adminData">
-                <setting-editor asp-for="AdditionalFee" sm-postfix="@ViewBag.PrimaryStoreCurrencyCode"></setting-editor>
-                <span asp-validation-for="AdditionalFee"></span>
+                <setting-editor asp-for="ShowPayButtonForAdminOnly"></setting-editor>
+                <span asp-validation-for="ShowPayButtonForAdminOnly"></span>
+            </div>
+        </div>
+
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="PayButtonColor" />
+            </div>
+            <div class="adminData">
+                <setting-editor asp-for="PayButtonColor">
+                    <select asp-for="PayButtonColor" asp-items="buttonColors"></select>
+                </setting-editor>
+                <span asp-validation-for="PayButtonColor"></span>
             </div>
         </div>
         <div class="adminRow">
             <div class="adminTitle">
-                <smart-label asp-for="AdditionalFeePercentage" />
+                <smart-label asp-for="AuthButtonColor" />
             </div>
             <div class="adminData">
-                <setting-editor asp-for="AdditionalFeePercentage"></setting-editor>
-                <span asp-validation-for="AdditionalFeePercentage"></span>
+                <setting-editor asp-for="AuthButtonColor">
+                    <select asp-for="AuthButtonColor" asp-items="buttonColors"></select>
+                </setting-editor>
+                <span asp-validation-for="AuthButtonColor"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="AdditionalFee" />
+            </div>
+            <div class="adminData">
+                <setting-editor asp-for="AdditionalFee">
+                    <editor asp-for="AdditionalFee" asp-additional-viewdata='new { units = new[] { (string)ViewBag.PrimaryStoreCurrencyCode, "%" } }' />
+                </setting-editor>
+                <span asp-validation-for="AdditionalFee.Value"></span>
             </div>
         </div>
     </div>

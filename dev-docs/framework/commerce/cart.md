@@ -42,6 +42,22 @@ If you already constructed child items (for example for a bundle) use `AddItemTo
 
 Use `UpdateCartItemAsync` to change quantity or deactivate an item. `DeleteCartItemAsync` removes a single item including its children, while `DeleteCartAsync` clears an entire cart. All methods optionally reset checkout data to ensure consistency.
 
+## Checkout workflow
+
+`ICheckoutWorkflow` processes each checkout step through an `ICheckoutHandler`. Besides the synchronous `ProcessAsync` method, both interfaces expose `RefreshAsync` for AJAX requests that update parts of the current checkout page, such as order totals or payment information.
+
+Custom checkout handlers should derive from `CheckoutHandlerBase`. The base implementation of `RefreshAsync` returns an unsuccessful result without side effects, so handlers only need to override it when they support partial page updates. Classes that implement `ICheckoutHandler` directly must implement both methods.
+
+Checkout data can be cleared selectively with `ResetCheckoutData` and `CheckoutDataResetFlags`:
+
+```csharp
+customer.ResetCheckoutData(
+    storeId,
+    CheckoutDataResetFlags.ShippingMethod | CheckoutDataResetFlags.PaymentMethod);
+```
+
+The default is `CheckoutDataResetFlags.Default`, which clears the selected shipping and payment methods. Use `CheckoutDataResetFlags.All` after a successfully placed order. The caller remains responsible for committing the changes.
+
 ## Payment buttons
 
 Payment providers with `PaymentMethodType.Button` can render express checkout buttons directly on the cart page. The view invokes the `CartPaymentButtons` partial which asks active providers for button components. These buttons usually skip the standard checkout and redirect straight to the provider. Before redirecting, they should call `SaveCartDataAsync` to persist checkout attributes and the reward-point flag. See the [payment provider guide](creating-a-payment-provider.md#payment-method-types) for details on implementing button payment methods.

@@ -3,8 +3,6 @@
 @{
     Layout = "_AdminPopupLayout";
 
-    var successCssClasses = "fa-check text-success";
-    var errorCssClasses = "fa-exclamation-triangle text-danger";
 }
 
 <div class="section-header">
@@ -70,14 +68,14 @@ else
                 <td width="33%">@T("Plugins.Smartstore.PayPal.SupportTools.PrimaryEmailConfirmed")</td>
                 <td width="50%">@T("Plugins.Smartstore.PayPal.PrimaryEmailConfirmed." + Model.PrimaryEmailConfirmed.ToString())</td>
                 <td width="17%" align="right" class="pr-3">
-                    <i class="fa @(Model.PrimaryEmailConfirmed ? successCssClasses : errorCssClasses)"></i>
+                    <icon name="@(Model.PrimaryEmailConfirmed ? "check" : "warning")" class="@(Model.PrimaryEmailConfirmed ? "text-success" : "text-danger")" />
                 </td>
             </tr>
             <tr>
                 <td width="33%">@T("Plugins.Smartstore.PayPal.SupportTools.PaymentsReceivable")</td>
                 <td width="50%">@T("Plugins.Smartstore.PayPal.PaymentsReceivable." + Model.PaymentsReceivable.ToString())</td>
                 <td width="17%" align="right" class="pr-3">
-                    <i class="fa @(Model.PaymentsReceivable ? successCssClasses : errorCssClasses)"></i>
+                    <icon name="@(Model.PaymentsReceivable ? "check" : "warning")" class="@(Model.PaymentsReceivable ? "text-success" : "text-danger")" />
                 </td>
             </tr>
         </tbody>
@@ -101,7 +99,7 @@ else
                         <td width="33%">@product.Name</td>
                         <td width="50%">@(product.Capabilities != null && product.Capabilities.Any() ? string.Join(", ", product.Capabilities) : string.Empty)</td>
                         <td width="17%" align="right" title="@product.VettingStatus" class="pr-3">
-                            <i class="fa @(product.VettingStatus == "SUBSCRIBED" ? successCssClasses : errorCssClasses)"></i>
+                            <icon name="@(product.VettingStatus == "SUBSCRIBED" ? "check" : "warning")" class="@(product.VettingStatus == "SUBSCRIBED" ? "text-success" : "text-danger")" />
                         </td>
                     </tr>
                 }
@@ -127,7 +125,7 @@ else
                         <td width="33%">@capability.Name</td>
                         <td width="50%">@(capability.Limits != null && capability.Limits.Any() ? string.Join(", ", capability.Limits.Select(x => x.Type)) : string.Empty)</td>
                         <td width="17%" align="right" title="@capability.Status" class="pr-3">
-                            <i class="fa @(capability.Status == "ACTIVE" ? successCssClasses : errorCssClasses)"></i>
+                            <icon name="@(capability.Status == "ACTIVE" ? "check" : "warning")" class="@(capability.Status == "ACTIVE" ? "text-success" : "text-danger")" />
                         </td>
                     </tr>
                 }

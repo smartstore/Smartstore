@@ -810,6 +810,22 @@ Here is an excerpt from _Smartstore.Web/Areas/Admin/Views/ActivityLog\_Grid.Acti
 ```
 {% endcode %}
 
+Icon concepts or explicit addresses can be used in column headers:
+
+```cshtml
+<column for="AttachmentsCount" icon="paperclip" title="" />
+```
+
+For dynamic icons in a display template, bind the concept or address to the
+`sm-icon` custom element. Use an explicit closing tag so the browser preserves
+the surrounding template markup correctly:
+
+```cshtml
+<display-template>
+    <sm-icon :name="item.row.Icon"></sm-icon>
+</display-template>
+```
+
 </details>
 
 <details>
@@ -843,6 +859,36 @@ It also supports these attributes:
 * `sm-hint`: Custom label hint.
 
 </details>
+
+## Editable list editor template
+
+Use the `EditableList` editor template for a `string[]` property when entries need individual text fields. Enter a value in the add field and press Enter or leave the field to add an entry. Entries can be removed with a short collapse animation and optionally reordered by dragging the grip or using its Up/Down arrow keys.
+
+```csharp
+[LocalizedDisplay("*Reasons")]
+[UIHint("EditableList"), AdditionalMetadata("sortable", true)]
+public string[] Reasons { get; set; } = [];
+```
+
+```cshtml
+<editor asp-for="Reasons" />
+```
+
+Use `<setting-editor asp-for="Reasons"></setting-editor>` for shop-specific settings. The editor supports localized field prefixes and disables editing when the shop override is unchecked.
+
+Configure these optional values with `AdditionalMetadata` or editor view data:
+
+| Option | Default | Purpose |
+| --- | --- | --- |
+| `sortable` | `false` | Enable drag handles and keyboard reordering. |
+| `minItems` | `0` | Minimum number of fields in the editor. |
+| `maxItems` | No limit | Disable adding entries at this limit. Existing entries are retained. |
+| `maxLength` | No limit | Set the maximum input length per entry. |
+| `readOnly` | `false` | Allow viewing and copying without editing the list. |
+
+These options constrain the UI. Validate domain constraints on the server as well. New entries are trimmed and checked for duplicates without regard to case. Existing entries are retained, and entries are posted in their displayed order.
+
+Storage is independent of the editor. Store new list settings directly as JSON arrays using the existing JSON serialization APIs. Legacy comma-separated return request reasons and actions are migrated to JSON by `SmartDbContextDataSeeder`; storage conversion is not part of the editor.
 
 ## Further Reading
 

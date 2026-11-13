@@ -9,7 +9,7 @@ public interface INativeLibraryManager
     /// Gets file info for a given <paramref name="libraryName"/>.
     /// </summary>
     /// <param name="libraryName">
-    /// The extension-less file name of the library, e.g. "libsass". The extension will be
+    /// The extension-less file name of the library. The extension will be
     /// appended automatically depending on current OS and bitness (<c>.dll</c>, <c>.so</c> or <c>.dylib</c>). 
     /// 
     /// If the file was found in the designated runtime folder and <paramref name="minVersion"/> and/or <paramref name="maxVersion"/> are set,

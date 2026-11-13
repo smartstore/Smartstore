@@ -20,7 +20,7 @@
 // Badge icons
 // -----------------------------------------------------
 
-.badge > i {
+.badge > :is(.icon, .icon-stack) {
     position: relative;
     top: 1px;
     opacity: 0.6;
@@ -107,6 +107,17 @@
         outline: 2px solid #fff;
         outline-offset: -1px;
     }
+}
+
+
+//
+// Extra-small badge
+// -----------------------------------------------------
+
+.badge-xs {
+    --badge-font-size: 10px;
+    // Bypass the base badge rule's 12px minimum font size.
+    font-size: var(--badge-font-size);
 }
 
 

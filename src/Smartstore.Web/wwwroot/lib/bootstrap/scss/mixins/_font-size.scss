@@ -1,0 +1,72 @@
+@use "sass:list";
+@use "sass:math";
+@use "sass:meta";
+
+// Preserve the existing theme switch and Bootstrap utility hooks.
+$enable-rfs: true !default;
+$rfs-breakpoint: 1200 !default;
+$rfs-mq-value: 75rem;
+
+// Keep small control text and relative CSS values unchanged. Larger sizes scale
+// between 20rem and 75rem viewport width, using a 16px root for px conversion.
+@function font-size($value, $factor: .8) {
+    @if meta.type-of($value) == "list" {
+        $result: ();
+        @each $item in $value {
+            $result: list.append($result, font-size($item, $factor), list.separator($value));
+        }
+        @return $result;
+    }
+
+    @if meta.type-of($value) != "number" {
+        @return $value;
+    }
+    @if not list.index(px rem, math.unit($value)) {
+        @return $value;
+    }
+
+    $size: $value;
+    @if math.unit($size) == "px" {
+        $size: math.div($size, 16px) * 1rem;
+    }
+    @if not $enable-rfs or math.abs($size) <= 1.25rem {
+        @return $size;
+    }
+
+    $max: math.abs($size);
+    $min: math.max(1.25rem, $max * $factor);
+    @if $min == $max {
+        @return $size;
+    }
+    $slope: math.div($max - $min, 75rem - 20rem);
+    $intercept: $min - $slope * 20rem;
+
+    @if $size < 0rem {
+        @return clamp(#{-$max}, #{-$intercept} - #{$slope * 100}vw, #{-$min});
+    }
+    @return clamp($min, #{$intercept} + #{$slope * 100}vw, $max);
+}
+
+// An optional property also supports font-size custom properties and fluid spacing.
+@mixin font-size($value, $property: font-size) {
+    @if $value != null {
+        #{$property}: #{font-size($value)};
+    }
+}
+
+// Compatibility entry points keep existing Bootstrap and theme callers unchanged.
+@mixin rfs($value, $property: font-size) {
+    @include font-size($value, $property);
+}
+
+@function rfs-value($value) {
+    @return font-size($value, 1);
+}
+
+@function rfs-fluid-value($value) {
+    @return font-size($value);
+}
+
+@mixin margin-bottom($value) {
+    @include rfs($value, margin-bottom);
+}

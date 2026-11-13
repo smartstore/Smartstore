@@ -84,10 +84,10 @@ $border-style:                null !default;
 $border-color:                null !default;
 $border-color-translucent:    rgba($black, .125) !default;
 
-$border-radius:               .375rem !default;
-$border-radius-sm:            .25rem !default;
-$border-radius-lg:            .5rem !default;
-$border-radius-xl:            .75rem !default;
+$border-radius:               .5rem !default;
+$border-radius-sm:            .375rem !default;
+$border-radius-lg:            .75rem !default;
+$border-radius-xl:            1rem !default;
 $border-radius-xxl:           1.5rem !default;
 $border-radius-pill:          50rem !default;
 $rounded-pill:                50rem !default;
@@ -116,6 +116,14 @@ $focus-ring-blur:             0 !default;
 $focus-ring-box-shadow:       0 0 $focus-ring-blur $focus-ring-width $focus-ring-color, inset 0 0 0 $focus-ring-width hsla(0,0%,100%, 0.92) !default;
 
 $transition-base:             all 0.125s ease-in-out !default;
+$transition-fade:             opacity .15s ease-out, scale .15s ease-out, translate .15s ease-out !default;
+$fade-scale:                  .99 !default;
+$fade-translate:              0 8px !default;
+$transition-collapse:         height var(--collapse-duration, .2s) var(--collapse-easing, ease-out), 
+                              opacity var(--collapse-duration, .2s) var(--collapse-easing, ease-out), 
+                              transform var(--collapse-duration, .2s) var(--collapse-easing, ease-out) !default;
+$transition-collapse-width:   width var(--collapse-duration, .2s) var(--collapse-easing, ease-out), 
+                              opacity var(--collapse-duration, .2s) var(--collapse-easing, ease-out) !default;
 
 
 // Typo
@@ -147,6 +155,13 @@ $code-color:                  inherit !default;
 
 $hr-opacity:                  .12 !default;
 
+$kbd-padding-y:               .075em !default;
+$kbd-padding-x:               .5em !default;
+$kbd-color:                   inherit !default;
+$kbd-bg:                      rgba($black, 0.03) !default;
+$kbd-box-shadow:              none !default;
+
+
 
 // Tables
 
@@ -172,6 +187,8 @@ $input-btn-font-size-lg:      1rem !default; // --> 16px
 $input-box-shadow:            none !default;
 $input-focus-box-shadow:      none !default;
 
+$input-placeholder-color:     var(--muted) !default;
+
 $input-transition:            none !default;
 
 
@@ -194,10 +211,15 @@ $btn-active-border-tint-amount:   10% !default;
 
 // Form Check
 
+$form-check-input-checked-bg-image:     icon-url("check?color=#fff");
+$form-check-input-indeterminate-bg-image: icon-url("minus?color=#fff");
+
+$form-check-input-border-radius:        .25em;
 $form-check-input-border:               1px solid rgba($black, .15);
 $form-check-input-focus-border:         rgba(var(--form-check-checked-bg-rgb), 0.5);
 $form-check-input-focus-box-shadow:     0 0 0 0.2rem rgba(var(--form-check-checked-bg-rgb), 0.25);
 $form-check-transition:                 box-shadow 0.12s ease-in-out;
+$form-check-radio-checked-bg-image:             url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'><circle r='2' fill='#fff' opacity='0.9'/></svg>");
 
 
 // Form Switch
@@ -219,9 +241,10 @@ $form-switch-checked-bg-image:          $form-switch-bg-image;
 
 // Badge
 
-$badge-padding-y:               (1 / 6) * 1em !default;
+$badge-padding-y:               calc(1 / 6) * 1em !default;
 $badge-padding-x:               0.5em !default;
 $badge-pill-padding-x:          0.85em !default;
+$badge-pill-border-radius:      $border-radius-pill !default;
 $badge-content-shift:           0px !default;
 
 
@@ -231,6 +254,16 @@ $dropdown-min-width:            10rem !default;
 $dropdown-font-size:            14px !default;
 $dropdown-bg:                   $white !default;
 $dropdown-border-width:         1px !default;
+
+
+// Cards
+
+$card-border-radius:            $border-radius-lg !default;
+
+
+// Toasts
+
+$toast-border-radius:           $border-radius !default;
 
 
 // Placeholders
@@ -261,7 +294,7 @@ $modal-content-border-color:        rgba($black, .06) !default;
 $modal-backdrop-bg:                 $black !default;
 $modal-backdrop-opacity:            .6 !default;
 $modal-transition:                  all 0.2s ease-out !default;
-$modal-content-border-radius:       var(--border-radius-xl) !default;
+$modal-content-border-radius:       var(--border-radius-lg) !default;
 $modal-content-inner-border-radius: subtract($modal-content-border-radius, $modal-content-border-width) !default;
 $modal-content-box-shadow-xs:       var(--box-shadow-md) !default;
 $modal-content-box-shadow-sm-up:    var(--box-shadow-lg) !default;

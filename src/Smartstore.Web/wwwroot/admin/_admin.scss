@@ -1,8 +1,11 @@
 /// <reference path="references.scss" />
 
-$section-header-height: 70px;
-
 :root {
+    --iceblue: oklch(from color-mix(in srgb, var(--primary-bg-subtle) 35%, var(--white)) l calc(c * 0.7) h);
+    --surface-bg: var(--iceblue);
+    --section-header-spacing: 24px;
+    --section-header-padding-y: 10px;
+    --section-header-padding-bottom: 0px;
     --content-padding-x: #{$content-padding-x / 2};
     --content-padding-y: #{$content-padding-y};
     // Adjust to medium button height
@@ -21,7 +24,7 @@ $section-header-height: 70px;
     background-color: $gray-100;
     padding: 1rem;
     margin-bottom: $alert-margin-bottom;
-    border-radius: var(--border-radius-md);
+    border-radius: var(--border-radius-lg);
 }
 
 
@@ -41,6 +44,11 @@ b, strong {
 }
 
 
+.bg-surface {
+    background-color: var(--surface-bg) !important;
+}
+
+
 // Badges (lighter with shadow ring)
 // -----------------------------------------------------
 
@@ -56,484 +64,15 @@ b, strong {
 }
 
 
-//
-// Buttons
-// -----------------------------------------------------
-
-// Light button icons lighter (looks nice).
-.btn-secondary:not(.btn-flat-light),
-.btn-light:not(.btn-flat-light) {
-    --btn-icon-color: #{lighten($body-color, 16%)};
-    --btn-icon-hover-color: inherit;
+// Balance the visual spacing of dropdown items with a leading icon.
+.dropdown-item:has(> :is(.icon, .icon-stack)):not(.dropdown-group > .dropdown-item) {
+    padding-inline-end: calc(var(--dropdown-item-padding-x) + var(--dropdown-icon-item-gap, 10px));
 }
 
 
-//
-// Layout
-// -----------------------------------------------------
-
-html {
-    height: 100%;
-}
-
-body {
-    background-color: $gray-150;
-
-    &.popup {
-        background-color: #fff;
-    }
-
-    &.popup .dispensable {
-        display: none !important;
-    }
-}
-
-#page {
-    position: relative;
-    margin: 0;
-    padding: 0;
-}
-
-.page-main {
-    --sticky-header-left: 0;
-    --sticky-header-right: 0;
-    --header-height: 72px;
-    --device-height: 100vh; // for clients that do not support dvh
-    --device-height: 100dvh;
-    --content-top: calc(72px + var(--header-height));
-    --content-height: calc(var(--device-height) - var(--content-top) - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
-    --content-row: minmax(var(--content-height), auto);
-    position: relative;
-    display: grid;
-    grid-template-columns: 100%;
-    grid-template-rows: 72px var(--header-height) var(--content-row);
-
-    @include media-breakpoint-up(sm) {
-        --sticky-header-left: var(--content-padding-x);
-        --sticky-header-right: var(--content-padding-x);
-    }
-}
-
-#header {
-    @include gradient-bg($indigo);
-    grid-column: 1 / -1;
-    grid-row: 1 / span 2;
-}
-
-.sidebar-left {
-    grid-column: 1 / 2;
-}
-
-.popup {
-    // Larger padding-x in popups
-    --content-padding-x: #{$content-padding-x};
-}
-
-#content {
-    position: relative;
-    margin: 0;
-    padding-left: var(--content-padding-x);
-    padding-right: var(--content-padding-x);
-    padding-top: $section-header-height;
-    padding-bottom: var(--content-padding-x);
-    box-shadow: $box-shadow-sm;
-    border-radius: 0;
-    background-color: #fff;
-    grid-column: 1 / -1;
-    grid-row: 2 / -1;
-    z-index: 9;
-    //overflow-x: hidden; // observe and maybe uncomment later
-
-    @include media-breakpoint-up(sm) {
-        margin: 0 var(--content-padding-x);
-        border-radius: 0.75rem 0.75rem 0 0;
-    }
-
-    .popup & {
-        margin: 0;
-        border: 0;
-        box-shadow: none;
-        border-radius: 0;
-        grid-row: 1 / -1;
-    }
-}
-
-.cph {
-    display: flex;
-    flex-flow: column;
-}
-
-.popup.bare {
-    height: 100%;
-    //overflow-y: hidden;
-    overflow-y: auto;
-    overflow-x: hidden;
-
-    #page,
-    #content,
-    .cph {
-        height: 100%;
-        padding: 0;
-    }
-}
-
-.section-header {
-    position: absolute;
-    inset-inline-start: 0;
-    inset-inline-end: 0;
-    top: 0;
-    padding-inline: var(--content-padding-x);
-    padding-block: var(--content-padding-y);
-    transition: box-shadow 0.25s ease;
-
-    @include make-row();
-    flex-wrap: nowrap;
-    margin-inline: 0;
-
-    .title, .options {
-        @include make-col-ready();
-    }
-
-    .title {
-        font-family: $headings-font-family;
-        font-weight: $font-weight-medium;
-        color: $headings-color;
-        font-size: $h4-font-size;
-        line-height: var(--section-header-size);
-        min-height: var(--section-header-size);
-        vertical-align: middle;
-        @include text-truncate();
-        padding-inline: 0 5px;
-        color: inherit;
-        display: inline-flex;
-        align-items: center;
-        gap: 0.75rem;
-        // mimic .col
-        flex-basis: 0;
-        flex-grow: 1;
-        max-width: 100%;
-
-        > i {
-            display: none; // Turn off for now, seems to look nicer
-            font-size: 28px;
-            vertical-align: text-top;
-            margin-inline-end: 0.5rem;
-            color: $text-muted;
-        }
-
-        > img {
-            max-height: var(--section-header-size);
-            max-width: 120px;
-            vertical-align: top;
-        }
-
-        a:not(.btn):not(.dropdown-item) {
-            text-decoration: none;
-            font-family: $font-family-sans-serif;
-            font-size: 12px;
-            font-weight: normal;
-            padding-inline-start: 5px;
-        }
-    }
-    // .title
-    .options {
-        // mimic .col-auto
-        flex: 0 0 auto;
-        width: auto;
-        max-width: none; // Reset earlier grid tiers
-        padding-inline: 5px 0;
-        display: flex;
-        align-items: center;
-        gap: 0.4rem;
-
-        &.btn-toolbar {
-            margin: 0;
-        }
-
-        @media (max-width: 768px) {
-            // hide action button labels on small screens
-            .btn > span:not(:only-child) {
-                display: none;
-            }
-        }
-    }
-
-    &.sticky {
-        position: fixed;
-        z-index: $zindex-sticky;
-        inset-inline-start: var(--sticky-header-left);
-        inset-inline-end: var(--sticky-header-right);
-        padding: calc(var(--content-padding-y) / 2) var(--content-padding-x);
-        background: #fff;
-        box-shadow: 0 10px 30px 0 rgba($black, .05);
-
-        .modal-open & {
-            // add the killed scrollbar width
-            margin-inline-end: 17px !important;
-        }
-    }
-}
-
-.popup .section-header.sticky {
-    left: 0;
-    right: 0;
-    top: 0;
-}
-
-@include media-breakpoint-up(md) {
-    .has-left-sidebar {
-        .page-main {
-            grid-template-columns: 206px 1fr;
-            --sticky-header-left: 206px;
-            --sticky-header-right: 0;
-        }
-
-        #content {
-            grid-column: 2 / -1;
-            margin-inline: 0;
-            border-start-end-radius: 0;
-        }
-
-        .locale-editor {
-            max-width: calc(100dvw - var(--sticky-header-left) - (var(--content-padding-x) * 2));
-        }
-    }
-}
-
-.spa-layout {
-    height: 100%;
-    overflow: hidden;
-
-    #page {
-        height: 100%;
-    }
-
-    .page-main {
-        height: 100%;
-        grid-template-columns: 1fr minmax(380px, 20%);
-        --content-row: var(--content-height);
-    }
-
-    .cph {
-        height: 100%;
-    }
-
-    .spa-stretch {
-        overflow: hidden;
-        display: flex;
-        flex-flow: column;
-    }
-}
-
-@include media-breakpoint-up(md) {
-    .spa-layout.has-left-sidebar .page-main {
-        grid-template-columns: 206px minmax(100px, 1fr) !important;
-    }
-}
-
-//
-// Minimal admin layout
-// --------------------------------------------------------------
-
-.minimal-admin {
-    #content {
-        background-color: transparent;
-        box-shadow: none;
-        margin: 0;
-        padding-top: 0;
-
-        .section-header {
-            display: none;
-        }
-    }
-}
-
-
-//
-// Main Menu
-// --------------------------------------------------------------
-
-#navbar {
-    padding: 0 var(--content-padding-x);
-
-    .dropdown-toggle:after {
-        display: none;
-    }
-
-    .navbar-brand > .navbar-img {
-        // Edge cannot auto-scale SVGs. We need to provide both width and height.
-        height: 28px;
-        width: 33px;
-
-        @media (max-width: 390px) {
-            // Otherwise menu items do not fit horizontally
-            display: none;
-        }
-
-        @include media-breakpoint-up(lg) {
-            height: 28px;
-            width: 160px;
-        }
-    }
-
-    .dropdown-menu {
-      --dropdown-padding-x: 0.5rem;
-      --dropdown-padding-y: 0.5rem;
-      --dropdown-item-padding-x: 1rem;
-      --dropdown-item-padding-y: 0.5rem;
-      --dropdown-divider-margin-y: 0.5rem;
-      --dropdown-border-radius: 8px;
-      --shadow-intensity: 0.7;
-      --dropdown-box-shadow: #{$box-shadow-lg};
-        margin-top: -2px;
-    }
-
-    #navbar-menu .nav-item > .dropdown-menu {
-        @include bubble("top", "near", 8, var(--dropdown-bg), var(--dropdown-border-color), 10px);
-
-        @include media-breakpoint-only(xs) {
-            &:not(.show) {
-                left: -300px;
-            }
-        }
-
-        &.overflown {
-            --bubble-offset: calc(calc(var(--menu-offset) * -1) + 10px);
-            left: var(--menu-offset, 0px) !important;
-        }
-    }
-
-    [data-id="nav-modules"] li:not([data-id="modules-manage"]) .dropdown-item {
-        // Don't emphasize plugin entries
-        font-weight: $font-weight-normal;
-    }
-
-    .dropdown-item {
-        font-weight: $font-weight-medium;
-        gap: 1rem;
-    }
-
-    .dropdown-header {
-        font-size: $font-size-xs;
-        text-transform: uppercase;
-    }
-
-    .dropdown-divider {
-        margin-block: 0.5rem;
-    }
-
-    .nav-item {
-        .nav-link {
-            max-width: 100px;
-            padding: 14px 8px !important;
-            text-align: center;
-            color: #fff;
-            background: rgba(#fff, 0);
-            transition: color 0.1s linear, opacity 0.1s linear, background-color 0.1s linear;
-            color: mix($indigo, #fff, 22%);
-        }
-
-        .nav-link:hover,
-        &.show .nav-link {
-            background: rgba(#fff, .15);
-            color: #fff;
-        }
-
-        .navbar-icon {
-            position: relative;
-            text-align: center;
-            vertical-align: middle;
-            font-size: 20px;
-            height: 22px;
-            line-height: 22px;
-
-            @include media-breakpoint-only(xs) {
-                font-size: 16px;
-            }
-        }
-
-        .navbar-label {
-            @include text-truncate();
-            text-align: center;
-            font-size: 12px;
-            padding: 0;
-            padding-top: 0.25rem;
-        }
-
-        .navbar-tool {
-            padding-left: 0.625rem !important;
-            padding-right: 0.625rem !important;
-            height: 72px;
-            display: flex;
-
-            > * {
-                align-self: center;
-            }
-        }
-    }
-
-    .reddot {
-        position: absolute;
-        width: 10px;
-        height: 10px;
-        border-radius: 50%;
-        background-color: $red;
-        color: #fff;
-    }
-}
-
-
-//
-// Settings Menu
-// --------------------------------------------------------------
-
-.settings-menu {
-    --list-group-bg: transparent;
-    --list-group-border-width: 0;
-    --list-group-border-radius: 0;
-    --list-group-item-padding-x: 12px;
-    --list-group-item-padding-y: 10px;
-    --list-group-action-color: var(--gray-700);
-    --list-group-action-hover-color: var(--gray-900);
-    --list-group-action-hover-bg: #{rgba($black, 0.06)};
-    --list-group-action-hover-bg: var(--gray-300);
-    --list-group-action-active-color: var(--list-group-action-hover-color);
-    --list-group-action-active-bg: var(--gray-400);
-    --list-group-active-bg: var(--list-group-action-hover-bg);
-
-    gap: 1px;
-
-    .list-group-item {
-        @include rfs($font-size-sm);
-        align-items: center !important;
-        transition: background-color 0.12s ease;
-
-        @include media-breakpoint-up(md) {
-            @include border-right-radius(#{'0 !important'});
-        }
-
-        &:before {
-            display: none !important;
-        }
-
-        > .list-group-item-icon {
-            margin-inline-end: 1rem;
-
-             > .bi {
-                vertical-align: -3px;
-            }
-
-            > i {
-                max-width: 16px;
-            }
-        }
-
-        &:active:not(.active) {
-            .bi-circle {
-                fill: transparent;
-            }
-        }
-    }
+// Avoid doubled spacing between borderless modal headers and their bodies.
+.modal-header + .modal-body {
+    padding-top: 0;
 }
 
 
@@ -553,7 +92,7 @@ legend {
 
 .ctl-label {
     position: relative;
-    padding-right: 2.5rem;
+    padding-right: var(--field-gutter, 2.5rem);
     display: inline-block;
 
     > label {
@@ -568,7 +107,7 @@ legend {
         display: block;
         position: absolute;
         cursor: default;
-        width: 2.5rem;
+        width: var(--field-gutter, 2.5rem);
         right: 0;
         top: 0;
         text-decoration: none;
@@ -582,9 +121,6 @@ legend {
             color: $gray-700;
         }
 
-        > i {
-            font-size: 1rem;
-        }
     }
 
     &:hover > .hint {
@@ -598,9 +134,6 @@ legend {
         padding-top: calc(#{$input-padding-y-sm} + #{$input-border-width});
         padding-bottom: calc(#{$input-padding-y-sm} + #{$input-border-width});
 
-        > i {
-            font-size: inherit;
-        }
     }
 }
 
@@ -608,6 +141,11 @@ legend {
 //
 // Multi-store settings
 // --------------------------------------------------
+
+.multi-store-scope {
+    display: flow-root;
+    padding: 0;
+}
 
 .multi-store-setting-control > input[type=checkbox] {
     position: relative;
@@ -677,11 +215,6 @@ legend {
     background-color: #ffab40;
     transition: opacity .05s ease-in;
 
-    .sticky-header & {
-        left: var(--content-padding-x);
-        right: var(--content-padding-x);
-    }
-
     body.note-fullscreen-body & {
         z-index: $zindex-tooltip + 10;
     }
@@ -742,8 +275,8 @@ legend {
 
 .adminContent {
     --adminRow-width: 1000px;
-    --adminTitle-width: 0.4;
-    --adminContent-width: 0.6;
+    --adminTitle-width: 0.35;
+    --adminContent-width: 0.65;
     --adminRow-margin-y: 0.8rem;
 
     display: block;
@@ -774,6 +307,7 @@ legend {
 }
 
 .adminTitle {
+    --field-gutter: 2.5rem;
     margin-bottom: 0;
 }
 
@@ -795,7 +329,13 @@ legend {
         > .adminTitle {
             flex: 0 0 33.333333%;
             max-width: 33.333333%;
+            text-align: end;
             padding-inline-end: 0 !important;
+
+            .adminTitle-addon {
+                text-align: end;
+                margin-inline-end: var(--field-gutter);
+            }
 
             .ctl-label > :is(label, .hint) {
                 // actually is '.col-form-label', @extend is not possible here.
@@ -845,6 +385,8 @@ legend {
     }
 }
 
+// Remove leading row spacing in nested editors and modal forms.
+.modal-body :nth-child(1 of .adminContent) > .adminRow:first-child,
 .adminData .adminRow:first-child,
 .collapsible > .adminRow:first-child {
     margin-top: 0;
@@ -860,25 +402,65 @@ legend {
 // --------------------------------------------------
 
 .admin-table {
-    $tbcolor: darken($table-border-color, 5%);
-    border: 1px solid $tbcolor;
+    --table-border-radius: var(--border-radius-md);
+    border-collapse: separate;
+    border-spacing: 0;
+    border: 1px solid $table-border-color;
+    border-radius: var(--table-border-radius);
 
     .table-toolbar {
         caption-side: top;
         padding: 0.375rem;
         background-color: $table-head-bg;
-        border: 1px solid $tbcolor;
+        border: 1px solid $table-border-color;
         border-bottom: 0;
+        border-start-start-radius: var(--table-border-radius);
+        border-start-end-radius: var(--table-border-radius);
     }
 
-    thead {
+    > thead {
+        background-color: transparent;
+    }
+
+    > thead > tr > th {
+        padding-block: 0.5rem;
         background-color: $table-head-bg;
+        line-height: 1.75rem;
+        border-bottom: 2px solid $table-border-color;
+        border-top-color: $table-border-color;
     }
 
-    thead th {
-        line-height: 1.75rem;
-        border-bottom-width: 1px;
-        border-top-color: $tbcolor;
+    > thead + tbody > tr:first-child > :is(th, td) {
+        border-top: 0;
+    }
+
+    > :is(thead, tbody):first-child > tr:first-child > :is(th, td) {
+        border-top: 0;
+    }
+
+    > :is(thead, tbody):first-child > tr:first-child > :first-child {
+        border-start-start-radius: var(--table-border-radius);
+    }
+
+    > :is(thead, tbody):first-child > tr:first-child > :last-child {
+        border-start-end-radius: var(--table-border-radius);
+    }
+
+    > :is(tbody, tfoot):last-child > tr:last-child > :first-child {
+        border-end-start-radius: var(--table-border-radius);
+    }
+
+    > :is(tbody, tfoot):last-child > tr:last-child > :last-child {
+        border-end-end-radius: var(--table-border-radius);
+    }
+
+    &:has(> .table-toolbar) {
+        border-start-start-radius: 0;
+        border-start-end-radius: 0;
+
+        > thead > tr:first-child > th {
+            border-top: 0;
+        }
     }
 
     td, th {
@@ -1020,12 +602,15 @@ legend {
         }
 
         .nav-link {
-            > img { opacity: 0.8; }
+            > img.icon {
+                height: auto;
+                opacity: 0.8;
+            }
 
             &:hover,
             &.active {
                 color: inherit;
-                > img { opacity: 1; }
+                > img.icon { opacity: 1; }
             }
         }
     }
@@ -1148,16 +733,14 @@ legend {
     cursor: pointer;
 
     &:after {
-        @include fontawesome-font("\f078", regular); // chevron-down
+        @include icon-mask(var(--icon-mask-chevron-down), 1rem);
         display: block;
         position: absolute;
-        font-size: 0.85rem;
-        line-height: 1;
         color: $body-color;
         inset-inline-end: 0;
         top: 50%;
-        margin-top: -7px;
-        transition: transform 0.25s ease-in-out;
+        translate: 0 -50%;
+        transition: transform var(--collapse-duration, .2s) var(--collapse-easing, ease-out);
     }
 
     &.collapsed:after {
@@ -1170,9 +753,22 @@ legend {
 // Themes
 // --------------------------------------------------
 
-#theme-list {
+.theme-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(cssmin(100%, 300px), 1fr));
+    gap: 1.5rem;
+
+    .theme-item {
+        min-width: 0;
+
+        &.active {
+            background-color: rgba(var(--primary-rgb), 0.04);
+            border-color: var(--primary);
+        }
+    }
+
     .theme-thumbnail {
-        height: 220px;
+        aspect-ratio: 4 / 3;
         background-size: cover;
         background-repeat: no-repeat;
         border-bottom: 1px solid rgba(#000, 0.1);
@@ -1191,6 +787,8 @@ legend {
 
 .theme-editor {
     .themevar-chain-info {
+        display: inline-flex;
+        align-items: center;
         color: $gray-600;
         margin-left: 0.75rem;
         white-space: nowrap;
@@ -1203,7 +801,7 @@ legend {
 // --------------------------------------------------
 
 .datetimepicker-group {
-    .input-group-text {
+    > .input-group-append > .input-group-text {
         padding-left: 0 !important;
         padding-right: 0 !important;
         width: $input-height;
@@ -1213,11 +811,11 @@ legend {
         }
     }
 
-    &.input-group-sm .input-group-text {
+    &.input-group-sm > .input-group-append > .input-group-text {
         width: $input-height-sm;
     }
 
-    &.input-group-lg .input-group-text {
+    &.input-group-lg > .input-group-append > .input-group-text {
         width: $input-height-lg;
     }
 }
@@ -1240,6 +838,10 @@ legend {
 
     .module-group {
         display: contents;
+    }
+
+    .module-group:first-child > .module-group-header {
+        margin-top: 0;
     }
 
     .module-group-header {
@@ -1267,12 +869,30 @@ legend {
     }
 
     .btn.activate-provider {
-        > svg {
+        > .icon {
             margin-inline-end: 0.2rem;
         }
         > span {
             padding: 0 !important;
         }
+    }
+}
+
+// Shared presentation for module/provider SVG icons and legacy image logos.
+.module-icon-display {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: var(--module-icon-size, 32px);
+    height: var(--module-icon-size, 32px);
+    vertical-align: middle;
+    line-height: 1;
+
+    > :is(.icon, .icon-stack) {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
     }
 }
 
@@ -1283,8 +903,10 @@ legend {
     justify-content: center;
     flex: 0 0 auto;
     max-width: none;
+    --icon-size: 48px;
+    --module-icon-size: 48px;
 
-    > .icon, > i {
+    > :is(.icon, .icon-stack) {
         max-width: 48px;
     }
 }
@@ -1367,6 +989,11 @@ a.editable {
     display: none;
 }
 
+.alert-branding {
+    max-height: 50px;
+    width: auto;
+}
+
 .plugin-configuration {
     display: flex;
     flex-wrap: nowrap;
@@ -1399,8 +1026,8 @@ a.editable {
     color: $green;
     text-shadow: 0 -1px 0 #fff;
 
-    &::before {
-        content: '\f00c';
+    &:not(.icon)::before {
+        @include icon-mask(var(--icon-mask-check), 1rem);
     }
 }
 
@@ -1408,8 +1035,8 @@ a.editable {
     color: $gray-400;
     text-shadow: 0 -1px 0 #fff;
 
-    &::before {
-        content: '\f068';
+    &:not(.icon)::before {
+        @include icon-mask("minus", 1rem);
     }
 }
 
@@ -1516,7 +1143,7 @@ a.editable {
 // --------------------------------------------------------------
 
 .resizer,
-.is-resizing {
+.resizing {
     cursor: col-resize;
 }
 
@@ -1628,6 +1255,8 @@ a.editable {
 // --------------------------------------------------------------
 
 .search-expression-toggle {
+    display: inline-flex;
+    align-items: center;
     color: $text-muted;
     text-decoration: none;
     transition: color 0.12s ease;
@@ -1645,12 +1274,13 @@ a.editable {
     line-height: 1;
 
     .color {
-        width: $font-size-base;
-        height: $font-size-base;
+        width: 16px;
+        height: 16px;
         vertical-align: bottom;
         display: inline-block;
-        border-radius: var(--border-radius-sm);
-        border: 1px solid rgba($black, 0.06);
+        border-radius: 3px;
+        outline: 1px solid rgb(0 0 0 / 8%);
+        outline-offset: -1px;
     }
 }
 
@@ -1691,7 +1321,7 @@ a.editable {
 
 .stacktrace-header {
     position: sticky;
-    top: var(--content-offset, 0px);
+    top: var(--sticky-offset, 0px);
     background-color: var(--st-bg-color);
     border-bottom: 1px solid #fff;
     @include border-top-radius(var(--border-radius-lg));
@@ -1724,3 +1354,225 @@ a.editable {
 .st-param-name      { color: var(--st-param-name-color); }
 .st-file            { color: var(--st-file-color); }
 .st-line            { color: var(--st-line-color); font-weight: 600 !important; }
+
+
+// Shared icon option editors (Icon Browser and editor popovers).
+.icon-tool-arrow {
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    pointer-events: none;
+
+    &::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: $dropdown-bg;
+        border: $dropdown-border-width solid $dropdown-border-color;
+        transform: rotate(45deg);
+    }
+}
+
+[x-placement^="bottom"] > .icon-tool-arrow {
+    top: -6px;
+    &::before { border-right: 0; border-bottom: 0; }
+}
+
+[x-placement^="top"] > .icon-tool-arrow {
+    bottom: -6px;
+    &::before { border-left: 0; border-top: 0; }
+}
+
+[x-placement^="left"] > .icon-tool-arrow {
+    right: -6px;
+    &::before { border-left: 0; border-bottom: 0; }
+}
+
+[x-placement^="right"] > .icon-tool-arrow {
+    left: -6px;
+    &::before { border-right: 0; border-top: 0; }
+}
+.icon-tool-size-menu {
+    width: min(30rem, calc(100vw - 1rem));
+    z-index: $zindex-popover + 1;
+
+    .range-slider {
+        isolation: isolate;
+    }
+}
+
+.icon-tool-opacity-menu {
+    output {
+        font-variant-numeric: tabular-nums;
+    }
+
+    .range-slider {
+        height: 24px;
+
+        // A fixed alpha gradient over the same checkerboard used by the color picker.
+        &::before,
+        &::after {
+            content: '';
+            position: absolute;
+            inset: 7px 8px;
+            border-radius: 999px;
+            pointer-events: none;
+        }
+
+        &::before {
+            @include bg-checkerboard(5px, rgba($black, 0.1), $white);
+        }
+
+        &::after {
+            background: linear-gradient(to right, transparent, var(--icon-tool-opacity-color, currentColor));
+        }
+    }
+
+    .range-ticks,
+    .range-value {
+        display: none;
+    }
+
+    .form-control-range {
+        position: relative;
+        z-index: 1;
+        height: 24px;
+        direction: ltr;
+        background: transparent;
+
+        &::-webkit-slider-runnable-track {
+            height: 10px;
+            background: transparent;
+            border: 0;
+        }
+
+        &::-moz-range-track {
+            height: 10px;
+            background: transparent;
+            border: 0;
+        }
+
+        &::-webkit-slider-thumb {
+            width: 16px;
+            height: 16px;
+            margin-top: -3px;
+            border: 2px solid $white;
+            border-radius: 50%;
+            background: var(--icon-tool-opacity-color, currentColor);
+            box-shadow: 0 0 0 1px rgba($black, 0.15), 0 1px 3px rgba($black, 0.25);
+        }
+
+        &::-moz-range-thumb {
+            box-sizing: border-box;
+            width: 16px;
+            height: 16px;
+            border: 2px solid $white;
+            border-radius: 50%;
+            background: var(--icon-tool-opacity-color, currentColor);
+            box-shadow: 0 0 0 1px rgba($black, 0.15), 0 1px 3px rgba($black, 0.25);
+        }
+    }
+}
+
+.icon-tool-color-menu {
+    z-index: $zindex-popover + 1;
+}
+
+.icon-tool-color-swatch {
+    width: 16px;
+    height: 16px;
+    border-radius: 3px;
+    background-color: #fff;
+    border: 1px solid rgba(0, 0, 0, .15);
+}
+
+.icon-tool-animation-menu {
+    width: min(17rem, calc(100vw - 1rem));
+    z-index: $zindex-popover + 1;
+
+    // Only the choices scroll; the outer popover must not clip its arrow.
+    .icon-tool-animation-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        max-height: calc(100vh - 3rem);
+        overflow-y: auto;
+        gap: 0.125rem;
+    }
+
+    .icon-tool-animation-grid > .btn {
+        min-height: 3.75rem;
+    }
+
+    // Size only the preview host; preserve the stack layers' 2x/1x ratio.
+    .icon-tool-animation-grid > .btn > .icon {
+        --icon-size: 24px;
+        --icon-size-factor: 1;
+    }
+
+    .icon-tool-animation-grid > .btn > .icon-stack {
+        font-size: 12px;
+    }
+}
+
+// Icon browser
+// --------------------------------------------------------------
+
+.icon-browser-selection {
+    min-width: 0;
+    container-type: inline-size;
+}
+
+.icon-browser-selection .select2-selection-toolbar [data-more] {
+    display: none;
+}
+
+@container (max-width: 360px) {
+    .select2-selection-toolbar {
+        [data-overflow] { display: none; }
+        [data-more] { display: inline-flex; }
+    }
+}
+
+.icon-browser-source-menu {
+    max-height: min(36rem, 75vh);
+}
+
+.icon-grid,
+.icon-browser-dropdown .select2-results > .select2-results__options {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(72px, 100%), 1fr));
+    gap: 0.25rem;
+}
+
+// Only dropdown results use the grid; the selection uses the standard Select2 styles.
+.icon-browser-dropdown {
+    .select2-results > .select2-results__options {
+        max-height: min(24rem, 60vh);
+    }
+
+    .select2-results__option {
+        min-width: 0;
+
+        &[aria-selected] {
+            min-height: 64px;
+            padding: 0.5rem 0.25rem;
+        }
+
+        // Search feedback and the infinite-scroll sentinel must span the whole grid.
+        &:not([aria-selected]) {
+            grid-column: 1 / -1;
+        }
+    }
+
+    .icon-browser-choice > .icon {
+        --icon-size: var(--icon-browser-size, 24px);
+    }
+}
+
+.color-palette-remove {
+    position: absolute;
+    inset-block-start: 50%;
+    inset-inline-end: 3rem;
+    transform: translateY(-50%);
+    z-index: 4;
+}

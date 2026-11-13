@@ -1,0 +1,159 @@
+// Key field: alias
+[
+  {
+    "name": "Sale",
+    "badgeText": "%",
+    "badgeStyle": "danger",
+    "alias": "Sale",
+    "metaTitle": "Sale",
+    "icon": "discount",
+    "published": true,
+    "displayOrder": 99,
+    "ruleSets": [
+      "sale"
+    ]
+  },
+  {
+    "name": "Food & Delicacies",
+    "alias": "Delicacies",
+    "description": "<p>Olive oil, coffee and spices from a fictional Mediterranean pantry. Here you can see unit prices (price per litre or kilogram), subscriptions and gift boxes in action.</p>",
+    "icon": "cheese",
+    "mediaFile": { "file": "category/food-and-delicacies.jpg", "name": "food-and-delicacies" },
+    "showOnHomePage": true,
+    "published": true,
+    "displayOrder": 1
+  },
+  {
+    "name": "Golf & Sports",
+    "alias": "Golf and Sports",
+    "description": "<p>Golf balls, gloves and accessories. Shows quantity discounts, pack sizes, bundles and products with a price on request.</p>",
+    "icon": "golf-ball",
+    "mediaFile": { "file": "category/golf-and-sports.jpg", "name": "golf-and-sports" },
+    "showOnHomePage": true,
+    "published": true,
+    "displayOrder": 2
+  },
+  {
+    "name": "Apparel",
+    "badgeText": "NEW",
+    "badgeStyle": "primary outline",
+    "alias": "Apparel",
+    "description": "<p>Jackets, knitwear and shoes with colour swatches, sizes and stock levels. Includes a T-shirt that you can personalise with your own print.</p>",
+    "icon": "t-shirt",
+    "mediaFile": { "file": "category/apparel.jpg", "name": "apparel" },
+    "showOnHomePage": true,
+    "published": true,
+    "displayOrder": 3
+  },
+  {
+    "name": "Furniture & Design",
+    "alias": "Furniture and Design",
+    "description": "<p>Armchairs, lamps and a living room collection. Shows configurable products with surcharges, delivery times and grouped products.</p>",
+    "icon": "sofa",
+    "mediaFile": { "file": "category/furniture-and-design.jpg", "name": "furniture-and-design" },
+    "showOnHomePage": true,
+    "published": true,
+    "displayOrder": 4
+  },
+  {
+    "name": "Digital",
+    "alias": "Digital",
+    "description": "<p>E-books and software for immediate download. Shows download previews and licence agreements.</p>",
+    "icon": "download",
+    "mediaFile": { "file": "category/digital.jpg", "name": "digital" },
+    "showOnHomePage": true,
+    "published": true,
+    "displayOrder": 5
+  },
+  {
+    "name": "Vouchers",
+    "alias": "Vouchers",
+    "description": "<p>Gift vouchers with a fixed value or an amount of the customer's choice, plus a donation product.</p>",
+    "icon": "gift-card",
+    "mediaFile": { "file": "category/vouchers.jpg", "name": "vouchers" },
+    "showOnHomePage": true,
+    "published": true,
+    "displayOrder": 6
+  },
+  {
+    "parent": "Delicacies",
+    "name": "Oil & Vinegar",
+    "alias": "Oil and Vinegar",
+    "mediaFile": { "file": "category/oil-and-vinegar.jpg", "name": "oil-and-vinegar" },
+    "published": true,
+    "displayOrder": 1
+  },
+  {
+    "parent": "Delicacies",
+    "name": "Coffee & Tea",
+    "alias": "Coffee and Tea",
+    "mediaFile": { "file": "category/coffee-and-tea.jpg", "name": "coffee-and-tea" },
+    "published": true,
+    "displayOrder": 2
+  },
+  {
+    "parent": "Golf and Sports",
+    "name": "Golf Balls",
+    "alias": "Golf Balls",
+    "mediaFile": { "file": "category/golf-balls.jpg", "name": "golf-balls" },
+    "published": true,
+    "displayOrder": 1
+  },
+  {
+    "parent": "Golf and Sports",
+    "name": "Golf Accessories",
+    "alias": "Golf Accessories",
+    "mediaFile": { "file": "category/golf-accessories.jpg", "name": "golf-accessories" },
+    "published": true,
+    "displayOrder": 2
+  },
+  {
+    "parent": "Apparel",
+    "name": "Jackets & Coats",
+    "alias": "Jackets and Coats",
+    "discounts": [ "jackets-20" ],
+    "mediaFile": { "file": "category/jackets-and-coats.jpg", "name": "jackets-and-coats" },
+    "published": true,
+    "displayOrder": 1
+  },
+  {
+    "parent": "Apparel",
+    "name": "Footwear",
+    "alias": "Footwear",
+    "mediaFile": { "file": "category/footwear.jpg", "name": "footwear" },
+    "published": true,
+    "displayOrder": 2
+  },
+  {
+    "parent": "Furniture and Design",
+    "name": "Armchairs",
+    "alias": "Armchairs",
+    "mediaFile": { "file": "category/armchairs.jpg", "name": "armchairs" },
+    "published": true,
+    "displayOrder": 1
+  },
+  {
+    "parent": "Furniture and Design",
+    "name": "Lighting",
+    "alias": "Lighting",
+    "mediaFile": { "file": "category/lighting.jpg", "name": "lighting" },
+    "published": true,
+    "displayOrder": 2
+  },
+  {
+    "parent": "Digital",
+    "name": "E-Books",
+    "alias": "E-Books",
+    "mediaFile": { "file": "category/e-books.jpg", "name": "e-books" },
+    "published": true,
+    "displayOrder": 1
+  },
+  {
+    "parent": "Digital",
+    "name": "Software",
+    "alias": "Software",
+    "mediaFile": { "file": "category/software.jpg", "name": "software" },
+    "published": true,
+    "displayOrder": 3
+  }
+]

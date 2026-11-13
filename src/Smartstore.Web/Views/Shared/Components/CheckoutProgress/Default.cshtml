@@ -20,6 +20,15 @@
             var isNavigatable = step.Visited || step.Active;
             var stateLabel = step.Visited ? visitedLabel : (step.Active ? currentStepLabel : pendingStepLabel);
             var itemLabel = $"{step.Label} {stateLabel}";
+            var iconName = step.Name switch
+            {
+                "billingaddress" => "home",
+                "shippingmethod" => "truck",
+                "paymentmethod" => "creditcard",
+                "confirm" => "thumbs-up",
+                "complete" => "check",
+                _ => "cart"
+            };
 
             <div class="costep col-@cols @step.StateClass" data-step="@step.Name" role="listitem" aria-label="@itemLabel">
                 <a class="costep-link"
@@ -29,7 +38,9 @@
                    attr-aria-current='(step.Active, "step")'
                    href="@(step.Visited || step.Active ? step.Url : "#")"
                    aria-label="@itemLabel">
-                    <i class="costep-icon" aria-hidden="true"></i>
+                    <span class="costep-icon" aria-hidden="true">
+                        <icon name="@iconName" class="d-none d-sm-inline-flex" />
+                    </span>
                     <span class="costep-label">@step.Label</span>
                 </a>
             </div>

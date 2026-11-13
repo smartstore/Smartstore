@@ -1,4 +1,4 @@
-﻿@* Please keep in mind that this layout view is also referenced and used by modules! *@
+@* Please keep in mind that this layout view is also referenced and used by modules! *@
 
 @{
     Layout = "_AdminRoot";
@@ -35,6 +35,13 @@
     </script>
 }
 
+<script data-origin="admin-sidebar-state">
+    try {
+        document.body.classList.toggle('sidebar-expanded', localStorage.getItem('smartstore.admin.sidebar') === 'expanded');
+    }
+    catch { /* Keep the compact default when storage is unavailable. */ }
+</script>
+
 <div id="page">
     <div class="canvas-blocker canvas-slidable"></div>
     <div class="page-main canvas-slidable">
@@ -52,15 +59,19 @@
 
         <aside sm-suppress-if-empty-zone="sidebar_left" sm-preview-disabled="true" class="sidebar-left custom-scrollbar d-none d-md-block">
             @{ 
-                Assets.BodyAttributes.AppendCssClass("has-left-sidebar");
+                Assets.BodyAttributes.AppendCssClass("left-sidebar");
             }
             <zone name="sidebar_left" preview-disabled="true"></zone>
         </aside>
 
         <zone name="beforemaincontent"></zone>
 
-        <div id="content">
+        <div id="content" tabindex="-1">
             <div class="cph">
+                <button id="navbar-mobile-toggle" type="button" class="navbar-mobile-toggle btn btn-outline-secondary btn-sm btn-icon"
+                        aria-controls="navbar" aria-expanded="false" aria-label="@T("Common.Menu")">
+                    <icon name="bars" />
+                </button>
                 <zone name="admin_content_before"></zone>
                 @RenderBody()
             </div>

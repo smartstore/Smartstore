@@ -21,13 +21,13 @@
         <toolbar-group>
             <fragment>
                 <button type="button" class="add-new-combination btn btn-primary btn-flat no-anims mr-auto">
-                    <i class="fa fa-plus"></i>
+                    <icon name="plus"  />
                     <span>@T("Admin.Catalog.Products.ProductVariantAttributes.AttributeCombinations.AddNew")</span>
                 </button>
                 <button type="button" id="btnCreateAllCombinations" class="btn btn-warning no-anims btn-flat"
                         data-url='@Url.Action("CreateAllAttributeCombinations", new { productId = parentModel.Id })'
                         data-ask="@T("Admin.Catalog.Products.ProductVariantAttributes.AttributeCombinations.AskToCombineAll")">
-                    <i class="fa fa-tasks"></i>
+                    <icon name="tasks" />
                     <span>@T("Admin.Catalog.Products.ProductVariantAttributes.AttributeCombinations.CreateAllCombinations")</span>
                 </button>
             </fragment>
@@ -36,14 +36,14 @@
         <toolbar-group class="omega"></toolbar-group>
         <zone name="datagrid_toolbar_omega"></zone>
         <toolbar-group>
-            <button datagrid-action="DataGridToolAction.Custom" type="button" id="btnDeleteAllCombinations" class="btn btn-light btn-flat mr-auto" v-if="grid.rows.length > 0"
+            <button datagrid-action="DataGridToolAction.Custom" type="button" id="btnDeleteAllCombinations" class="btn btn-plain mr-auto" v-if="grid.rows.length > 0"
                     data-url='@Url.Action("DeleteAllAttributeCombinations", new { productId = parentModel.Id })'
                     data-ask="@T("Admin.Catalog.Products.ProductVariantAttributes.AttributeCombinations.AskToDeleteAll")">
-                <i class="far fa-trash-can"></i>
+                <icon name="trash" />
                 <span>@T("Admin.Catalog.Products.ProductVariantAttributes.AttributeCombinations.DeleteAllCombinations")</span>
             </button>
             <button datagrid-action="DataGridToolAction.DeleteSelectedRows" type="button" class="btn btn-danger no-anims btn-flat">
-                <i class="far fa-trash-can"></i>
+                <icon name="trash" />
                 <span>@T("Admin.Common.Delete.Selected")</span>
             </button>
         </toolbar-group>

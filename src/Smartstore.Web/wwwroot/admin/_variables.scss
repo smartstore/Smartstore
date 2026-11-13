@@ -21,7 +21,7 @@ $sm-bluegreen:                  #2c8d8a;
 $sm-red1:                       #ee1111;
 $sm-red2:                       #dc3000;
 $sm-red3:                       #db004f;
-$sm-blue:                       #307abe;
+$sm-blue:                       #1f63c9;
 $sm-blue2:                      #18509f;
 $sm-violet:                     #55237d;
 $sm-gray1:                      #dadada;
@@ -34,7 +34,7 @@ $sm-gray4:                      #4a4a49;
 // Backend specific variables
 // --------------------------------------------------
 
-$content-padding-x:             30px;
+$content-padding-x:             1.5rem;
 $content-padding-y:             15px;
 
 
@@ -147,8 +147,8 @@ $input-btn-focus-color:         rgba($sm-blue2, .25);
 $input-btn-font-size-sm:        $font-size-sm; // --> 14px
 $input-btn-border-width:        $border-width;
 $input-border-radius:           $border-radius;
-$input-border-radius-lg:        $border-radius;
-$input-border-radius-sm:        $border-radius;
+$input-border-radius-lg:        $border-radius-lg;
+$input-border-radius-sm:        $border-radius-sm;
 $input-focus-border-color:      lighten($sm-blue2, 30%);
 $input-group-addon-bg:		    $gray-100;
 $input-border-color:            $gray-300;
@@ -161,7 +161,7 @@ $btn-font-weight:               $font-weight-medium;
 $btn-focus-width:               $input-btn-focus-width;
 $btn-box-shadow:                0 1px 0 rgba($gray-900, 0.04), inset 0 1px 0 rgba($white, 0.25);
 $btn-border-radius:             $input-border-radius;
-$btn-border-radius-lg:          $input-border-radius-lg;
+$btn-border-radius-lg:          $input-border-radius;
 $btn-border-radius-sm:          $input-border-radius-sm;
 
 
@@ -174,6 +174,7 @@ $dropdown-link-disabled-color:  $gray-500;
 $dropdown-divider-margin-y:     $dropdown-padding-y;
 $dropdown-box-shadow:           $box-shadow;
 
+$dropdown-icon-color:           $gray-700;
 $dropdown-link-color:           $gray-700;
 $dropdown-link-hover-color:     darken($dropdown-link-color, 5%);
 $dropdown-link-hover-bg:        $gray-150;
@@ -193,6 +194,11 @@ $alert-link-font-weight:        $font-weight-medium;
 //$alert-border-radius:			0;
 
 //$nav-link-font-weight:          $font-weight-medium;    
+$mtab-color:                    $gray-650;
+$mtab-font-weight:              $font-weight-normal;
+$mtab-active-font-weight:       $font-weight-medium;
+$mtab-padding-y:                0.65rem;
+$mtab-transition-duration:      0.1s;
 $nav-tabs-border-color:         $gray-300;
 $nav-tabs-link-active-color:    $gray-900;
 
@@ -240,4 +246,5 @@ $chart-color-primary-light:     lighten($primary, 50%);
 
 // Misc
 
+$card-border-radius:            $border-radius-lg;
 $card-border-color:             rgba($black, 0.1);

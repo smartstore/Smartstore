@@ -13,7 +13,7 @@
     <div sm-if="Model.InvalidDataStoreId != 0" class="alert alert-warning">
         <p>@T("Admin.Configuration.Plugins.LicensingInvalidStoreUrl")</p>
         <div>
-            <a asp-action="Edit" asp-controller="Store" asp-route-id="@Model.InvalidDataStoreId" class="btn btn-warning">
+            <a asp-action="Edit" asp-controller="Store" asp-route-id="@Model.InvalidDataStoreId" class="btn btn-primary">
                 <span>@T("Admin.Common.Change")</span>
             </a>
         </div>

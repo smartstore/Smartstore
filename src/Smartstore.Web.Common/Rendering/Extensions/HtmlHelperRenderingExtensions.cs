@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 using Smartstore.Core.Content.Blocks;
+using Smartstore.IconKit;
 using Smartstore.Core.Localization;
 using Smartstore.Utilities;
 using Smartstore.Web.Modelling;
@@ -313,7 +314,7 @@ public static class HtmlHelperRenderingExtensions
             $"<div class='input-group colorpicker-component edit-control' data-swatches='{swatches.ToString().ToLower()}' data-fallback-color='{defaultColor}' data-editor='color'>");
 
         builder.AppendHtml(helper.TextBox(name, isDefault ? string.Empty : color, new { @class = "form-control", placeholder = defaultColor }));
-        builder.AppendFormat("<div class='input-group-append'><button type='button' class='input-group-text colorpicker-input-addon btn btn-light'><i class='thecolor' style='{0}'>&nbsp;</i></button></div>", defaultColor.HasValue() ? "background-color: " + defaultColor : string.Empty);
+        builder.AppendFormat("<div class='input-group-append'><button type='button' class='input-group-text colorpicker-input-addon btn btn-light'><span class='bg-checkerboard' style='--checkerboard-size: 10px'><i class='thecolor' style='{0}'>&nbsp;</i></span></button></div>", defaultColor.HasValue() ? "background-color: " + defaultColor : string.Empty);
 
         builder.AppendHtml("</div>");
 
@@ -399,8 +400,8 @@ public static class HtmlHelperRenderingExtensions
         a.Attributes.Add("class", "hint");
 
         // Create symbol
-        var img = new TagBuilder("i");
-        img.Attributes.Add("class", "fa fa-question-circle");
+        var img = new TagBuilder("sm-icon");
+        img.Attributes.Add("name", "question-circle");
 
         a.InnerHtml.SetHtmlContent(img);
 
@@ -566,7 +567,7 @@ public static class HtmlHelperRenderingExtensions
                     Selected = true,
                     Text = localizationService.GetResource("Admin.Common.Standard"),
                     Content = masterTemplate(helper.ViewData.Model).ToHtmlString(),
-                    Icon = "fa fa-globe"
+                    Icon = "globe"
                 };
 
                 tabItem.HtmlAttributes.Merge("class", "nav-item-master");
@@ -647,7 +648,9 @@ public static class HtmlHelperRenderingExtensions
             var aiHtmlGenerator = services.GetRequiredService<IAIToolHtmlGenerator>();
             aiHtmlGenerator.Contextualize(helper.ViewContext);
 
-            var translationTool = aiHtmlGenerator.GenerateTranslationTool(helper.ViewData.Model, name);
+            // Deliberate sync bridge: keep LocalizedEditor and its many Razor callers synchronous
+            // while rendering the translation icon server-side. This blocks if the task is incomplete.
+            var translationTool = aiHtmlGenerator.GenerateTranslationToolAsync(helper.ViewData.Model, name).Await();
             if (translationTool != null)
             {
                 wrapper.InnerHtml.AppendHtml(translationTool);
@@ -669,133 +672,32 @@ public static class HtmlHelperRenderingExtensions
     #region Icon
 
     /// <summary>
-    /// Generates HTML for a <c>FontAwesome (fa)</c> or a <c>Bootstrap (bi)</c> icon.
+    /// Renders an SVG icon through the shared renderer, which selects inline or kit output.
     /// </summary>
-    /// <param name="name">
-    /// If <c>fa</c>: the fully qualified CSS class, e.g. "far fa-envelope fa-fw".
-    /// If <c>bi</c>: The icon name prefixed with <c>bi:</c>, e.g. "bi:envelope".
-    /// </param>
-    public static IHtmlContent Icon(this IHtmlHelper helper, string name, object htmlAttributes = null)
+    /// <param name="name">The icon or conceptual address, including optional selectors, mapping bypass and modifiers.</param>
+    /// <param name="options">Optional rendering context and HTML attributes.</param>
+    /// <returns>The rendered SVG, or empty content when the icon cannot be resolved or rendered.</returns>
+    public static Task<IHtmlContent> IconAsync(this IHtmlHelper helper, string name, IconOptions options = null)
     {
-        Guard.NotNull(name);
+        Guard.NotNull(helper);
+        Guard.NotEmpty(name);
 
-        if (name.StartsWith("bi:"))
-        {
-            return helper.BootstrapIcon(
-                name[3..],
-                fill: "currentColor",
-                fontScale: null,
-                animation: null,
-                transforms: null,
-                htmlAttributes: htmlAttributes);
-        }
-
-        var i = new TagBuilder("i");
-        i.Attributes["class"] = name;
-
-        if (htmlAttributes != null)
-        {
-            i.Attributes.Merge(ConvertUtility.ObjectToStringDictionary(htmlAttributes));
-        }
-
-        return i;
+        return helper.IconAsync(IconExpression.Parse(name), options);
     }
 
-    public static IHtmlContent BootstrapIcon(this IHtmlHelper helper,
-        string name,
-        string fill = "currentColor",
-        float? fontScale = null,
-        CssAnimation? animation = null,
-        string transforms = null,
-        object htmlAttributes = null)
+    /// <summary>
+    /// Renders a parsed expression in the current request context.
+    /// </summary>
+    /// <param name="helper">The current HTML helper.</param>
+    /// <param name="expression">The unresolved icon identity and presentation.</param>
+    /// <param name="options">Optional rendering context and HTML attributes.</param>
+    public static async Task<IHtmlContent> IconAsync(this IHtmlHelper helper, IconExpression expression, IconOptions options = null)
     {
-        return helper.BootstrapIconInternal(
-            name,
-            false,
-            fill,
-            fontScale,
-            animation,
-            transforms,
-            htmlAttributes);
-    }
-
-    internal static IHtmlContent BootstrapIconInternal(this IHtmlHelper helper,
-        string name,
-        bool isStackItem = false,
-        string fill = null,
-        float? fontScale = null,
-        CssAnimation? animation = null,
-        string transforms = null,
-        object htmlAttributes = null)
-    {
-        Guard.NotNull(name);
-
-        var svg = new TagBuilder("svg");
-
-        // Root attributes
-        svg.Attributes["fill"] = fill.NullEmpty() ?? "currentColor";
-
-        if (!isStackItem)
-        {
-            if (fontScale > 0)
-            {
-                svg.AddCssStyle("font-size", $"{fontScale.Value * 100}%");
-            }
-
-            svg.Attributes["width"] = "1em";
-            svg.Attributes["height"] = "1em";
-            svg.Attributes["role"] = "img";
-            svg.Attributes["focusable"] = "false";
-        }
+        Guard.NotNull(helper);
 
         var httpContext = helper.ViewContext.HttpContext;
-        var urlHelper = httpContext.RequestServices.GetService<IUrlHelper>();
-        var fileVersionProvider = httpContext.RequestServices.GetRequiredService<IFileVersionProvider>();
-
-        // Use tag (with file version appended)
-        var filePath = urlHelper.Content("~/lib/bi/bootstrap-icons.svg");
-        var href = fileVersionProvider.AddFileVersionToPath(httpContext.Request.PathBase, filePath) + "#" + name;
-        var symbol = new TagBuilder("use");
-        symbol.Attributes["xlink:href"] = href;
-
-        var el = symbol;
-
-        if (htmlAttributes != null)
-        {
-            svg.Attributes.Merge(ConvertUtility.ObjectToStringDictionary(htmlAttributes));
-        }
-
-        svg.AppendCssClass("bi");
-
-        // Animation
-        if (animation != null)
-        {
-            var animClass = $"animate-{animation.Value.ToString().Kebaberize()}";
-            if (isStackItem)
-            {
-                el.AppendCssClass(animClass);
-            }
-            else
-            {
-                svg.AppendCssClass(animClass);
-            }
-        }
-
-        if (transforms.HasValue())
-        {
-            if (isStackItem)
-            {
-                // Apply transforms to inner <g> when stacked item.
-                el = new TagBuilder("g");
-                el.InnerHtml.AppendHtml(symbol);
-            }
-
-            el.Attributes["transform"] = string.Join(' ', transforms);
-        }
-
-        svg.InnerHtml.AppendHtml(el);
-
-        return svg;
+        var renderer = httpContext.RequestServices.GetRequiredService<IIconRenderer>();
+        return (IHtmlContent)await renderer.RenderAsync(expression, options) ?? HtmlString.Empty;
     }
 
     #endregion

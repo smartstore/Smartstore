@@ -24,8 +24,8 @@ internal sealed class AIStarter : StarterBase
             })
             .ConfigureHttpClient(client =>
             {
-                client.BaseAddress = new Uri("http://localhost:59318/");
-                //client.BaseAddress = new Uri("http://localhost:5000/");
+                //client.BaseAddress = new Uri("http://localhost:59318/");
+                client.BaseAddress = new Uri("https://smartstore.com/");
                 client.Timeout = TimeSpan.FromSeconds(2);
             });
     }
@@ -40,8 +40,7 @@ internal sealed class AIStarter : StarterBase
         }
 
         builder.RegisterType<RemoteAIMetadataLoader>().As<IRemoteAIMetadataLoader>().SingleInstance();
-        //builder.RegisterType<DefaultAIMetadataLoader>().As<IAIMetadataLoader>().SingleInstance();
-        builder.RegisterType<JsonAIMetadataLoader>().As<IAIMetadataLoader>().SingleInstance();
+        builder.RegisterType<DefaultAIMetadataLoader>().As<IAIMetadataLoader>().SingleInstance();
         builder.RegisterType<DefaultAIChatCache>().As<IAIChatCache>().SingleInstance();
         builder.RegisterType<AIMessageBuilder>().AsSelf().InstancePerLifetimeScope();
         builder.RegisterType<AIMessageResources>().AsSelf().InstancePerLifetimeScope();

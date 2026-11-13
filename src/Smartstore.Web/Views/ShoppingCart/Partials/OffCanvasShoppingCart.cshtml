@@ -18,15 +18,15 @@
             @T("ShoppingCart.Mini.EmptyCart.Title")
         </h4>
         <p class="no-item-icon">
-            <i class="fa fa-shopping-basket fa-4x" aria-hidden="true"></i>
+            <icon name="cart" class="icon-4x" aria-hidden="true" />
         </p>
         <p class="no-item-info text-muted">
-            @Html.Raw(T("ShoppingCart.Mini.EmptyCart.Info", "fa fa-lg fa-cart-arrow-down"))
+            @Html.Raw(T("ShoppingCart.Mini.EmptyCart.Info", (await Html.IconAsync("cart-add?size=lg")).ToHtmlString()))
         </p>
     </div>
     @if (hasItems)
     {
-        <div sm-if="currentItem != null" class="alert alert-success alert-dismissible rounded-0 fade show" role="alert">
+        <div sm-if="currentItem != null" class="alert alert-success alert-iconic alert-dismissible rounded-0 fade show" role="alert">
             <button type="button" class="btn-close" data-dismiss="alert" aria-label="@T("Common.Close")"></button>
             <span sm-language-attributes-for="currentItem.ProductName">
                 @Html.Raw(T("ShoppingCart.Mini.AddedItemToCart", $"<strong>{currentItem.ProductName.Value.Truncate(50, "…")}</strong>"))
@@ -62,8 +62,8 @@
                         </a>
                     </div>
                     <div class="col">
-                        <a class="btn btn-clear btn-block btn-action" href="@checkoutUrl">
-                            <i class="fa fa-check" aria-hidden="true"></i>
+                        <a class="btn btn-clear btn-block btn-action" href="@checkoutUrl" rel="nofollow">
+                            <icon name="check"  aria-hidden="true" />
                             <span>@T("Checkout.Button")</span>
                         </a>
                     </div>
@@ -72,7 +72,7 @@
                 {
                     <div class="col">
                         <a class="btn btn-clear btn-block btn-action" asp-route="ShoppingCart">
-                            <i class="fa fa-check" aria-hidden="true"></i>
+                            <icon name="check"  aria-hidden="true" />
                             <span>@T("ShoppingCart.Mini.ViewCart")</span>
                         </a>
                     </div>
@@ -82,7 +82,7 @@
         else if (Model.DisplayShoppingCartButton)
         {
             <a class="btn btn-clear btn-block btn-action" asp-route="ShoppingCart">
-                <i class="fa fa-check" aria-hidden="true"></i>
+                <icon name="check"  aria-hidden="true" />
                 <span>@T("ShoppingCart.Mini.ViewCart")</span>
             </a>
         }

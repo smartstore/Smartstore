@@ -32,14 +32,13 @@ public interface IEmailSender
 * Enable nullable reference types in every file: `#nullable enable`.
 
 ```csharp
-namespace Smartstore.Shipping
-{
-    public class RateRequest
-    {
-        #nullable enable
+namespace Smartstore.Shipping;
 
-        public Address? Destination { get; set; }
-    }
+public class RateRequest
+{
+    #nullable enable
+
+    public Address? Destination { get; set; }
 }
 ```
 

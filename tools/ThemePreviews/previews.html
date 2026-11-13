@@ -1,0 +1,921 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+    @font-face { font-family: "Barlow SC"; font-weight: 300; src: url("../../src/Smartstore.Web/Themes/FlexBlack/wwwroot/fonts/BarlowSemiCondensed-300-normal.woff2") format("woff2"); }
+    @font-face { font-family: "Barlow SC"; font-weight: 400; src: url("../../src/Smartstore.Web/Themes/FlexBlack/wwwroot/fonts/BarlowSemiCondensed-400-normal.woff2") format("woff2"); }
+    @font-face { font-family: "Barlow SC"; font-weight: 500; src: url("../../src/Smartstore.Web/Themes/FlexBlack/wwwroot/fonts/BarlowSemiCondensed-500-normal.woff2") format("woff2"); }
+    @font-face { font-family: "Barlow SC"; font-weight: 600; src: url("../../src/Smartstore.Web/Themes/FlexBlack/wwwroot/fonts/BarlowSemiCondensed-600-normal.woff2") format("woff2"); }
+    @font-face { font-family: "Barlow SC"; font-weight: 700; src: url("../../src/Smartstore.Web/Themes/FlexBlack/wwwroot/fonts/BarlowSemiCondensed-700-normal.woff2") format("woff2"); }
+    html, body { margin: 0; padding: 0; overflow: hidden; background: #fff; }
+    svg { display: block; }
+    /* Used by the Riso scene. */
+    .din { font-family: Bahnschrift, "DIN Alternate", sans-serif; }
+    .mul { mix-blend-mode: multiply; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script>
+// Preview images for the Flex theme family (Themes/*/wwwroot/images/preview.png).
+// Open with ?theme=<ThemeFolder>, e.g. previews.html?theme=FlexTidal, or run render.ps1.
+// Each theme maps its theme.config colours onto a shared storefront skeleton and adds
+// its own hero art and product illustrations. The canvas is 1280 x 960.
+
+// ---------------------------------------------------------------------------
+// Primitives
+// ---------------------------------------------------------------------------
+const R = (x, y, w, h, f, rx = 0, a = '') => `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${rx}" fill="${f}" ${a}/>`;
+const C = (cx, cy, r, f, a = '') => `<circle cx="${cx}" cy="${cy}" r="${r}" fill="${f}" ${a}/>`;
+const E = (cx, cy, rx, ry, f, a = '') => `<ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}" fill="${f}" ${a}/>`;
+const P = (d, f, a = '') => `<path d="${d}" fill="${f}" ${a}/>`;
+const S = (d, stroke, w, a = '') => `<path d="${d}" fill="none" stroke="${stroke}" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round" ${a}/>`;
+const T = (x, y, txt, a) => `<text x="${x}" y="${y}" ${a}>${txt}</text>`;
+const lin = (id, stops, x2 = 0, y2 = 1) => `<linearGradient id="${id}" x1="0" y1="0" x2="${x2}" y2="${y2}">${stops.map((s, i) => `<stop offset="${i / (stops.length - 1)}" stop-color="${s}"/>`).join('')}</linearGradient>`;
+const rad = (id, stops, cx = 0.35, cy = 0.3) => `<radialGradient id="${id}" cx="${cx}" cy="${cy}" r="0.75">${stops.map((s, i) => `<stop offset="${i / (stops.length - 1)}" stop-color="${s}"/>`).join('')}</radialGradient>`;
+const shadow = (cx, y, rx, op = 0.1) => E(cx, y, rx, 7, '#000', `opacity="${op}" filter="url(#soft)"`);
+
+function wave(y, amp, len, x0, x1, bottom, phase = 0) {
+    let d = `M${x0 - phase} ${bottom} L${x0 - phase} ${y}`;
+    for (let x = x0 - phase; x < x1 + len; x += len) {
+        d += ` q${len / 4} ${-amp} ${len / 2} 0 t${len / 2} 0`;
+    }
+    return d + ` L${x1 + len} ${bottom} Z`;
+}
+
+function waveLine(y, amp, len, x0, x1, phase = 0) {
+    let d = `M${x0 - phase} ${y}`;
+    for (let x = x0 - phase; x < x1; x += len) {
+        d += ` q${len / 4} ${-amp} ${len / 2} 0 t${len / 2} 0`;
+    }
+    return d;
+}
+
+function icons(color, cy) {
+    const y = cy - 66;
+    return `<g transform="translate(0 ${y})" fill="none" stroke="${color}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="1090" cy="59" r="7"/>
+        <path d="M1077 79 a13 11 0 0 1 26 0"/>
+        <path d="M1140 79 l-10.5 -10.5 a6.2 6.2 0 0 1 10.5 -8.2 a6.2 6.2 0 0 1 10.5 8.2 z"/>
+        <rect x="1179" y="59" width="22" height="20" rx="2.5"/>
+        <path d="M1184 59 v-3 a6 6 0 0 1 12 0 v3"/>
+    </g>`;
+}
+
+// ---------------------------------------------------------------------------
+// Themes
+// ---------------------------------------------------------------------------
+const SEGOE = '"Segoe UI", "Helvetica Neue", Arial, sans-serif';
+
+const themes = {
+
+    // Clean studio: soft 3D primitives on a light podium.
+    Flex: {
+        font: SEGOE, headFont: SEGOE,
+        siteBg: '#ffffff', bodyBg: '#ffffff',
+        menubar: { bg: '#ffffff', fg: '#8d9ba9', line: '#ececec' },
+        shopbar: { bg: '#ffffff', fg: '#393f46', logo: '#22262a' },
+        search: { bg: '#ffffff', border: '#dcdcdc', pill: true },
+        badge: { bg: '#ee9b00', fg: '#22262a' },
+        nav: { bg: '#ffffff', fg: '#393f46', weight: 600, size: 15, items: ['Fashion', 'Living', 'Electronics', 'Sports', 'Sale'], selected: '#ee9b00', line: '#dddddd' },
+        hero: {
+            panel: { fill: '#f7f7f9', rx: 12 },
+            kicker: { text: 'New season', color: '#3f51b5', font: SEGOE, size: 16, weight: 600 },
+            title: { text: 'Flex', size: 112, weight: 600, color: '#22262a', spacing: -2 },
+            lines: '#dee2e6',
+            btn1: { bg: '#3f51b5', label: '#ffffff', rx: 8 }, btn2: { bg: '#ffffff', stroke: '#d5d9de', label: '#596167', rx: 8 },
+            art: () => `
+                ${shadow(930, 474, 170, 0.12)}
+                ${R(780, 400, 300, 70, 'url(#fxIndigo)')}
+                ${E(930, 470, 150, 34, '#2c3a8c')}
+                ${E(930, 400, 150, 34, '#6474d0')}
+                ${shadow(1110, 474, 80, 0.1)}
+                ${R(1040, 432, 140, 38, 'url(#fxBlue)')}
+                ${E(1110, 470, 70, 16, '#2a87c8')}
+                ${E(1110, 432, 70, 16, '#7cc2f0')}
+                ${E(900, 398, 62, 12, '#000', 'opacity="0.12" filter="url(#soft)"')}
+                ${C(900, 330, 72, 'url(#fxOrange)')}
+                ${P('M1110 352 l46 22 v46 l-46 22 l-46 -22 v-46 z', '#ff5b77')}
+                ${P('M1110 352 l46 22 l-46 22 l-46 -22 z', '#ff8ba0')}
+                ${P('M1110 396 l46 -22 v46 l-46 22 z', '#e0435f')}
+                <circle cx="1010" cy="250" r="40" fill="none" stroke="url(#fxPurple)" stroke-width="16"/>
+                ${C(760, 260, 16, '#37a0e6', 'opacity="0.9"')}
+                ${C(1170, 230, 9, '#ee9b00')}
+            `
+        },
+        tile: null,
+        items: [
+            (x, y) => `${shadow(x, y + 84, 50)}
+                ${R(x - 30, y - 50, 60, 132, 'url(#fxTeal)', 20)}
+                ${R(x - 12, y - 72, 24, 26, '#00796b', 4)}
+                ${R(x - 16, y - 84, 32, 16, '#22262a', 5)}
+                ${R(x - 30, y - 4, 60, 42, '#ffffff', 2, 'opacity="0.9"')}
+                ${R(x - 18, y + 10, 36, 5, '#009688', 2.5)}${R(x - 12, y + 21, 24, 4, '#b0bac3', 2)}`,
+            (x, y) => `${shadow(x - 6, y + 84, 58)}
+                ${S(`M${x + 34} ${y - 4} a26 26 0 0 1 0 52`, '#2c3a8c', 13)}
+                ${R(x - 50, y - 34, 86, 112, 'url(#fxIndigo)', 14)}
+                ${E(x - 7, y - 34, 43, 9, '#6474d0')}
+                ${S(`M${x - 24} ${y - 48} q-8 -12 0 -22 t0 -22`, '#ced4da', 4)}
+                ${S(`M${x + 8} ${y - 48} q-8 -12 0 -22 t0 -22`, '#ced4da', 4)}`,
+            (x, y) => `${shadow(x, y + 84, 58)}
+                ${S(`M${x - 22} ${y - 58} v-10 a22 22 0 0 1 44 0 v10`, '#c47d00', 8)}
+                ${R(x - 54, y - 62, 108, 142, 'url(#fxOrange2)', 32)}
+                ${R(x - 38, y + 6, 76, 56, '#d98a00', 16)}
+                ${S(`M${x - 26} ${y + 20} h52`, '#ffd27a', 3)}
+                ${R(x - 54, y - 22, 108, 6, '#c47d00', 3, 'opacity="0.5"')}`,
+            (x, y) => `${shadow(x, y + 84, 52)}
+                ${E(x - 26, y - 34, 18, 44, '#4caf50', `transform="rotate(-28 ${x - 26} ${y - 34})"`)}
+                ${E(x + 26, y - 40, 18, 48, '#2e7d32', `transform="rotate(24 ${x + 26} ${y - 40})"`)}
+                ${E(x, y - 54, 16, 50, '#66bb6a')}
+                ${P(`M${x - 46} ${y + 14} h92 l-12 70 h-68 z`, 'url(#fxPink)')}
+                ${R(x - 52, y + 6, 104, 18, '#ff5b77', 6)}`
+        ],
+        caption: ['#dee2e6', '#e9ecef'],
+        price: { color: '#393f46', font: SEGOE, size: 22, weight: 600, values: ['24.90', '19.00', '79.00', '34.50'], old: '42.00', oldColor: '#b0bac3' },
+        sale: { bg: '#ff5b77', fg: '#ffffff', rx: 8 },
+        footer: { bg: '#f7f7f9', title: '#393f46', link: '#b0bac3', social: '#8d9ba9', bottom: '#efeff3', line: '#e9ecef' },
+        defs: [
+            lin('fxIndigo', ['#4d5fc7', '#3f51b5', '#2c3a8c'], 1, 0),
+            lin('fxBlue', ['#5ab3ee', '#37a0e6', '#2079b8'], 1, 0),
+            rad('fxOrange', ['#ffd38a', '#ee9b00', '#b87400']),
+            lin('fxOrange2', ['#ffb94a', '#ee9b00', '#c47d00'], 1, 0),
+            lin('fxTeal', ['#3dbbad', '#009688', '#00695f'], 1, 0),
+            lin('fxPink', ['#ff8ba0', '#ff5b77', '#d93f5b'], 1, 0),
+            lin('fxPurple', ['#b47be6', '#9340d5', '#6a2aa0'], 1, 1)
+        ]
+    },
+
+    // Graphite night with luminous neon objects.
+    FlexAfterglow: {
+        font: SEGOE, headFont: SEGOE,
+        siteBg: '#0e1420', bodyBg: '#111824',
+        menubar: { bg: '#222033', fg: '#c9a7ff' },
+        shopbar: { bg: '#0e1420', fg: '#f2f6fc', logo: '#f2f6fc' },
+        search: { bg: '#222d3d', border: '#354359', pill: true, placeholder: '#354359' },
+        badge: { bg: '#6cf0c2', fg: '#0e1420' },
+        nav: { bg: '#171e2b', fg: '#dce4ef', weight: 600, size: 15, items: ['Audio', 'Wearables', 'Lighting', 'Studio', 'Outlet'], selected: '#6cf0c2' },
+        hero: {
+            panel: { fill: '#171e2b', rx: 16 },
+            kicker: { text: 'After dark', color: '#6cf0c2', font: SEGOE, size: 16, weight: 600 },
+            title: { text: 'Afterglow', size: 92, weight: 600, color: '#f2f6fc', spacing: -2 },
+            lines: '#354359',
+            btn1: { bg: '#6cf0c2', label: '#0e1420', rx: 10 }, btn2: { bg: '#222d3d', stroke: '#354359', label: '#a6b3c7', rx: 10 },
+            art: () => `
+                <g clip-path="url(#heroClip)">
+                    ${C(1010, 290, 140, '#c9a7ff', 'opacity="0.42" filter="url(#blur)"')}
+                    ${C(760, 430, 120, '#6cf0c2', 'opacity="0.28" filter="url(#blur)"')}
+                    ${C(1170, 450, 100, '#ffc482', 'opacity="0.35" filter="url(#blur)"')}
+                    <g clip-path="url(#agSun)">
+                        ${C(940, 430, 128, 'url(#agSunFill)')}
+                        <g clip-path="url(#agSunDisc)">${R(780, 372, 320, 5, '#171e2b')}${R(780, 390, 320, 6, '#171e2b')}${R(780, 406, 320, 7, '#171e2b')}${R(780, 420, 320, 8, '#171e2b')}</g>
+                    </g>
+                    ${R(860, 442, 160, 3, '#c9a7ff', 'opacity="0.45"')}${R(885, 456, 110, 3, '#c9a7ff', 'opacity="0.3"')}${R(910, 470, 60, 3, '#c9a7ff', 'opacity="0.2"')}
+                    ${R(640, 429, 576, 2, '#6cf0c2', 'filter="url(#glow)"')}
+                    <circle cx="1120" cy="250" r="34" fill="none" stroke="#85d5ff" stroke-width="3" filter="url(#glow)"/>
+                    ${[[700, 220], [760, 260], [840, 205], [1060, 205], [1180, 300], [1150, 210], [690, 330], [1000, 240]].map(([x, y]) => C(x, y, 1.8, '#f2f6fc', 'opacity="0.7"')).join('')}
+                </g>`
+        },
+        tile: { fill: '#171e2b', rx: 16, stroke: '#222d3d' },
+        items: [
+            (x, y) => `<g filter="url(#glow)" fill="none" stroke="#6cf0c2" stroke-width="5" stroke-linecap="round">
+                <path d="M${x - 50} ${y + 12} v-12 a50 50 0 0 1 100 0 v12"/>
+                <rect x="${x - 64}" y="${y + 4}" width="26" height="54" rx="11"/>
+                <rect x="${x + 38}" y="${y + 4}" width="26" height="54" rx="11"/></g>`,
+            (x, y) => `<g filter="url(#glow)" fill="none" stroke="#c9a7ff" stroke-width="5" stroke-linecap="round">
+                <rect x="${x - 18}" y="${y - 72}" width="36" height="144" rx="10"/></g>
+                ${R(x - 38, y - 38, 76, 76, '#171e2b', 20)}
+                <g filter="url(#glow)" fill="none" stroke="#c9a7ff" stroke-width="5" stroke-linecap="round">
+                <rect x="${x - 38}" y="${y - 38}" width="76" height="76" rx="20"/>
+                <path d="M${x} ${y} v-18 M${x} ${y} h14"/></g>`,
+            (x, y) => `${E(x, y + 18, 46, 40, '#ffc482', 'opacity="0.35" filter="url(#blurSm)"')}
+                <g filter="url(#glow)" fill="none" stroke="#ffc482" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M${x - 50} ${y - 8} L${x - 28} ${y - 58} H${x + 28} L${x + 50} ${y - 8} Z"/>
+                <path d="M${x} ${y - 8} V${y + 66} M${x - 34} ${y + 68} h68"/></g>`,
+            (x, y) => `<g filter="url(#glow)" fill="none" stroke="#85d5ff" stroke-width="5">
+                <rect x="${x - 42}" y="${y - 68}" width="84" height="136" rx="18"/>
+                <circle cx="${x}" cy="${y + 22}" r="26"/><circle cx="${x}" cy="${y + 22}" r="8"/>
+                <circle cx="${x}" cy="${y - 36}" r="11"/></g>`
+        ],
+        caption: ['#354359', '#222d3d'],
+        price: { color: '#f2f6fc', font: SEGOE, size: 22, weight: 600, values: ['189.00', '249.00', '89.00', '139.00'], old: '179.00', oldColor: '#6c7a90' },
+        sale: { bg: '#ffc482', fg: '#0e1420', rx: 10 },
+        footer: { bg: '#0b101a', title: '#6cf0c2', link: '#a6b3c7', social: '#a6b3c7', bottom: '#080c14', linkOpacity: 0.55 },
+        defs: [
+            lin('agSunFill', ['#ffc482', '#ff9fb2', '#c9a7ff']),
+            rad('agLamp', ['#ffc482', '#171e2b'], 0.5, 0.35),
+            `<clipPath id="agSun"><rect x="640" y="176" width="576" height="253"/></clipPath>`,
+            `<clipPath id="agSunDisc"><circle cx="940" cy="430" r="128"/></clipPath>`
+        ]
+    },
+
+    // Monochrome editorial in a boxed page, set in Barlow Semi Condensed.
+    FlexBlack: {
+        font: '"Barlow SC", sans-serif', headFont: '"Barlow SC", sans-serif',
+        boxed: true, siteBg: '#e9e9e7', bodyBg: '#ffffff',
+        menubar: { bg: '#111111', fg: '#8a8a86' },
+        shopbar: { bg: '#292929', fg: '#ffffff', logo: '#ffffff' },
+        search: { bg: '#4a4a4a', border: '#4a4a4a', pill: false, rx: 4, placeholder: '#6b6b6b', icon: '#e5e5e5' },
+        badge: { bg: '#f4f4f4', fg: '#111111' },
+        nav: { bg: '#363636', fg: '#f4f4f4', weight: 500, size: 15, spacing: 2.4, upper: true, items: ['Women', 'Men', 'Bags', 'Shoes', 'Journal'], selected: '#f4f4f4' },
+        hero: {
+            panel: null,
+            kicker: { text: 'SPRING / SUMMER 26', color: '#64615c', size: 14, weight: 500, spacing: 4 },
+            title: { text: 'BLACK', size: 128, weight: 300, color: '#202020', spacing: 10 },
+            lines: '#e2e2df',
+            btn1: { bg: '#353535', label: '#ffffff', rx: 4 }, btn2: { bg: '#ffffff', stroke: '#353535', label: '#353535', rx: 4 },
+            art: () => `
+                ${R(680, 176, 536, 324, 'url(#bkPhoto)')}
+                ${P('M800 500 V330 A110 110 0 0 1 1020 330 V500 Z', '#202020')}
+                <path d="M780 500 V330 A130 130 0 0 1 1040 330 V500" fill="none" stroke="#f5f5f3" stroke-width="1.5" opacity="0.6"/>
+                ${C(1110, 258, 46, '#f5f5f3')}
+                ${R(1060, 380, 110, 120, '#64615c')}
+                ${R(680, 176, 536, 324, '#000', 'opacity="0.07" filter="url(#grain)"')}
+                ${S('M700 196 h40 M700 196 v40', '#f5f5f3', 1.5)}
+                ${T(1200, 480, 'COLLECTION 26', `font-family='"Barlow SC"' font-size="12" font-weight="500" letter-spacing="4" fill="#f5f5f3" transform="rotate(-90 1200 480)"`)}
+            `
+        },
+        tile: null,
+        items: [
+            (x, y) => `${shadow(x, y + 84, 62, 0.12)}
+                ${S(`M${x - 32} ${y - 12} v-22 a32 32 0 0 1 64 0 v22`, '#202020', 7)}
+                ${P(`M${x - 62} ${y - 12} H${x + 62} L${x + 52} ${y + 80} H${x - 52} Z`, '#202020')}
+                ${R(x - 10, y + 6, 20, 12, '#bdbdb8', 2)}
+                ${P(`M${x - 62} ${y - 12} H${x + 62} L${x + 60} ${y + 4} H${x - 60} Z`, '#3a3a3a')}`,
+            (x, y) => `${R(x - 78, y - 22, 64, 46, '#353535', 20)}${R(x + 14, y - 22, 64, 46, '#353535', 20)}
+                ${S(`M${x - 14} ${y - 8} q14 -12 28 0`, '#202020', 5)}
+                ${S(`M${x - 78} ${y - 14} l-18 -6 M${x + 78} ${y - 14} l18 -6`, '#202020', 4)}
+                ${S(`M${x - 66} ${y - 10} l16 -6 M${x + 26} ${y - 10} l16 -6`, '#ffffff', 3, 'opacity="0.35"')}`,
+            (x, y) => `${shadow(x, y + 84, 48, 0.12)}
+                ${R(x - 16, y - 56, 32, 20, '#9a9a95', 2)}
+                ${R(x - 24, y - 84, 48, 32, '#202020', 3)}
+                ${R(x - 42, y - 38, 84, 118, 'url(#bkGlass)', 8)}
+                ${R(x - 30, y + 2, 60, 34, '#f5f5f3', 1)}
+                ${R(x - 18, y + 14, 36, 3, '#202020', 1)}${R(x - 12, y + 22, 24, 2, '#64615c', 1)}`,
+            (x, y) => `${R(x - 20, y - 84, 40, 168, '#64615c', 8)}
+                ${C(x, y, 48, '#202020')}${C(x, y, 40, '#f5f5f3')}
+                ${[0, 90, 180, 270].map(a => `<rect x="${x - 1.5}" y="${y - 36}" width="3" height="8" fill="#202020" transform="rotate(${a} ${x} ${y})"/>`).join('')}
+                ${S(`M${x} ${y} v-24 M${x} ${y} l16 10`, '#202020', 3)}`
+        ],
+        caption: ['#e2e2df', '#efefed'],
+        price: { color: '#202020', font: '"Barlow SC"', size: 24, weight: 600, values: ['290.00', '145.00', '98.00', '199.00'], old: '249.00', oldColor: '#9a9a95' },
+        sale: { bg: '#202020', fg: '#ffffff', rx: 4 },
+        footer: { bg: '#222222', title: '#f5f5f3', link: '#bdbdb8', social: '#bdbdb8', bottom: '#1a1a1a', linkOpacity: 0.5 },
+        defs: [
+            lin('bkPhoto', ['#d9d9d6', '#b9b9b5', '#8f8f8a'], 1, 1),
+            lin('bkGlass', ['#e4e4e1', '#bdbdb8', '#8f8f8a'], 1, 0)
+        ]
+    },
+
+    // Classic retail: the signature blue header, orange actions, devices.
+    FlexBlue: {
+        font: SEGOE, headFont: SEGOE,
+        siteBg: '#ffffff', bodyBg: '#ffffff',
+        menubar: { bg: '#1459ad', fg: '#a9c6ec', line: 'rgba(255,255,255,0.14)' },
+        shopbar: { bg: '#1459ad', fg: '#ffffff', logo: '#ffffff' },
+        search: { bg: '#f4f8ff', border: '#f4f8ff', pill: true, placeholder: '#c9d8ee', icon: '#172f4e' },
+        badge: { bg: '#b94b0b', fg: '#ffffff' },
+        nav: { bg: '#1459ad', fg: '#ffffff', weight: 600, size: 15, items: ['Computers', 'Phones', 'Audio', 'Cameras', 'Deals'], selected: '#ffbd8c', line: 'rgba(255,255,255,0.14)', lineTop: true },
+        hero: {
+            panel: { fill: '#edf3fb', rx: 12 },
+            kicker: { text: 'Tech week', color: '#b94b0b', font: SEGOE, size: 16, weight: 600 },
+            title: { text: 'Blue', size: 112, weight: 600, color: '#172f4e', spacing: -2 },
+            lines: '#d3e0f1',
+            btn1: { bg: '#b94b0b', label: '#ffffff', rx: 8 }, btn2: { bg: '#ffffff', stroke: '#c9d8ee', label: '#24558b', rx: 8 },
+            art: () => `
+                ${C(960, 330, 150, '#dbe7f8')}
+                ${R(800, 236, 300, 196, '#172f4e', 12)}
+                ${R(812, 248, 276, 172, 'url(#blScreen)', 4)}
+                ${R(832, 270, 110, 10, '#ffffff', 5, 'opacity="0.85"')}${R(832, 290, 80, 8, '#ffffff', 4, 'opacity="0.5"')}
+                ${R(832, 330, 72, 66, '#ffffff', 6, 'opacity="0.18"')}${R(914, 330, 72, 66, '#ffffff', 6, 'opacity="0.18"')}${R(996, 330, 72, 66, '#f08a3c', 6, 'opacity="0.9"')}
+                ${P('M770 432 H1130 L1110 456 H790 Z', '#9fb4cf')}${R(905, 432, 90, 6, '#7f97b6', 3)}
+                ${R(1100, 300, 76, 152, '#172f4e', 14)}${R(1106, 312, 64, 124, 'url(#blScreen)', 6)}
+                <g transform="rotate(-14 760 290)">
+                    ${P('M712 262 h76 l24 28 l-24 28 h-76 z', '#b94b0b')}
+                    ${C(790, 290, 6, '#edf3fb')}
+                    ${T(746, 298, '−30%', `font-family='${SEGOE}' font-size="20" font-weight="700" fill="#ffffff" text-anchor="middle"`)}
+                </g>
+                ${S('M796 290 q40 -30 70 -14', '#172f4e', 2)}
+                ${P('M1200 230 l6 14 l14 6 l-14 6 l-6 14 l-6 -14 l-14 -6 l14 -6 z', '#f08a3c')}
+                ${P('M690 410 l4 9 l9 4 l-9 4 l-4 9 l-4 -9 l-9 -4 l9 -4 z', '#1459ad')}`
+        },
+        tile: null,
+        items: [
+            (x, y) => `${shadow(x, y + 84, 56)}
+                ${S(`M${x - 52} ${y + 14} v-14 a52 52 0 0 1 104 0 v14`, '#1459ad', 12)}
+                ${R(x - 70, y + 2, 34, 66, '#1459ad', 14)}${R(x + 36, y + 2, 34, 66, '#1459ad', 14)}
+                ${R(x - 62, y + 12, 18, 46, '#24558b', 8)}${R(x + 44, y + 12, 18, 46, '#24558b', 8)}
+                ${C(x + 53, y + 35, 4, '#f08a3c')}`,
+            (x, y) => `${shadow(x, y + 84, 42)}
+                ${R(x - 38, y - 76, 76, 156, '#172f4e', 14)}
+                ${R(x - 32, y - 66, 64, 134, 'url(#blScreen)', 6)}
+                ${[0, 1, 2].map(r => [0, 1, 2].map(c => R(x - 24 + c * 18, y - 50 + r * 18, 12, 12, (r + c) % 3 ? '#ffffff' : '#f08a3c', 3, 'opacity="0.85"')).join('')).join('')}
+                ${R(x - 12, y + 70, 24, 4, '#3d5a80', 2)}`,
+            (x, y) => `${shadow(x, y + 84, 74)}
+                ${R(x - 30, y - 50, 60, 26, '#24558b', 6)}
+                ${R(x - 72, y - 32, 144, 104, '#172f4e', 14)}
+                ${C(x, y + 20, 40, '#24558b')}${C(x, y + 20, 28, '#0d2340')}${C(x, y + 20, 14, '#4f8fe0')}${C(x - 5, y + 14, 4, '#ffffff', 'opacity="0.8"')}
+                ${R(x + 44, y - 22, 18, 10, '#f08a3c', 3)}`,
+            (x, y) => `${R(x - 22, y - 84, 44, 168, '#1459ad', 10)}
+                ${R(x - 40, y - 46, 80, 92, '#172f4e', 22)}
+                ${R(x - 32, y - 38, 64, 76, 'url(#blScreen)', 16)}
+                <circle cx="${x}" cy="${y}" r="22" fill="none" stroke="#ffffff" stroke-width="5" opacity="0.3"/>
+                <path d="M${x} ${y - 22} a22 22 0 0 1 21 28" fill="none" stroke="#f08a3c" stroke-width="5" stroke-linecap="round"/>`
+        ],
+        caption: ['#d3e0f1', '#e8eff9'],
+        price: { color: '#172f4e', font: SEGOE, size: 22, weight: 700, values: ['129.00', '699.00', '549.00', '199.00'], old: '249.00', oldColor: '#9fb4cf' },
+        sale: { bg: '#b94b0b', fg: '#ffffff', rx: 8 },
+        footer: { bg: '#102c50', title: '#ffffff', link: '#bdcee3', social: '#bdcee3', bottom: '#0c2242', linkOpacity: 0.6 },
+        defs: [lin('blScreen', ['#4f8fe0', '#1459ad', '#0f4a92'], 1, 1)]
+    },
+
+    // Airy white with an iris aurora and a frosted glass card.
+    FlexLumen: {
+        font: SEGOE, headFont: SEGOE,
+        siteBg: '#ffffff', bodyBg: '#ffffff',
+        menubar: { bg: '#f0f0fc', fg: '#9b9fd6' },
+        shopbar: { bg: '#ffffff', fg: '#18243a', logo: '#18243a' },
+        search: { bg: '#f6f7fb', border: '#e9ecf3', pill: true },
+        badge: { bg: '#4b50c8', fg: '#ffffff' },
+        nav: { bg: '#ffffff', fg: '#2e3b51', weight: 600, size: 15, items: ['Home', 'Ceramics', 'Textiles', 'Plants', 'Gifts'], selected: '#4b50c8', line: '#e9ecf3' },
+        hero: {
+            panel: { fill: '#f6f7fb', rx: 18 },
+            kicker: { text: 'Light living', color: '#176b70', font: SEGOE, size: 16, weight: 600 },
+            title: { text: 'Lumen', size: 112, weight: 600, color: '#18243a', spacing: -2 },
+            lines: '#d6dce8',
+            btn1: { bg: '#4b50c8', label: '#ffffff', rx: 10 }, btn2: { bg: '#edf1fa', stroke: '#edf1fa', label: '#4b50c8', rx: 10 },
+            art: () => `
+                <g clip-path="url(#heroClip)">
+                    ${C(900, 270, 150, '#4b50c8', 'opacity="0.42" filter="url(#blur)"')}
+                    ${C(1110, 400, 140, '#176b70', 'opacity="0.3" filter="url(#blur)"')}
+                    ${C(760, 430, 130, '#b9b4f5', 'opacity="0.7" filter="url(#blur)"')}
+                    ${C(1080, 220, 100, '#f3c4e8', 'opacity="0.7" filter="url(#blur)"')}
+                </g>
+                ${C(1150, 262, 26, 'url(#lmSphere)')}
+                ${C(786, 290, 15, 'url(#lmSphere2)')}
+                <g filter="url(#lift)">
+                    ${R(830, 250, 290, 190, '#ffffff', 22, 'opacity="0.6"')}
+                </g>
+                ${R(830, 250, 290, 190, 'none', 22, 'stroke="#ffffff" stroke-width="1.5"')}
+                ${C(878, 298, 24, 'url(#lmSphere)')}
+                ${R(916, 286, 120, 10, '#18243a', 5, 'opacity="0.75"')}${R(916, 304, 80, 8, '#606f87', 4, 'opacity="0.45"')}
+                ${R(856, 344, 236, 8, '#606f87', 4, 'opacity="0.25"')}${R(856, 362, 190, 8, '#606f87', 4, 'opacity="0.25"')}
+                ${R(856, 396, 110, 26, '#4b50c8', 13)}${R(880, 406, 62, 6, '#ffffff', 3)}`
+        },
+        tile: null,
+        items: [
+            (x, y) => `${shadow(x, y + 84, 50, 0.08)}
+                ${P(`M${x - 18} ${y - 82} h36 c0 18 -8 24 -8 34 c42 14 54 62 32 100 c-12 18 -72 18 -84 0 c-22 -38 -10 -86 32 -100 c0 -10 -8 -16 -8 -34 z`, 'url(#lmLavender)')}
+                ${R(x - 20, y - 86, 40, 8, '#a9a6ee', 4)}`,
+            (x, y) => `${shadow(x, y + 84, 48, 0.08)}
+                ${E(x, y - 64, 18, 26, '#ffcf7a', 'opacity="0.5" filter="url(#blurSm)"')}
+                ${P(`M${x} ${y - 88} c10 14 14 22 8 32 c-4 6 -12 6 -16 0 c-6 -10 -2 -18 8 -32 z`, 'url(#lmFlame)')}
+                ${S(`M${x} ${y - 56} v10`, '#18243a', 2)}
+                ${R(x - 40, y - 46, 80, 128, '#e9ecf3', 18, 'opacity="0.95"')}
+                ${R(x - 32, y - 30, 64, 104, '#fbf6ee', 12)}
+                ${R(x - 40, y - 46, 80, 128, 'none', 18, 'stroke="#d6dce8" stroke-width="2"')}`,
+            (x, y) => `${shadow(x, y + 84, 62, 0.08)}
+                ${P(`M${x - 66} ${y - 54} q66 -18 132 0 q-14 62 0 124 q-66 18 -132 0 q14 -62 0 -124 z`, 'url(#lmIris)')}
+                ${S(`M${x - 50} ${y - 38} q50 -12 100 0 q-10 46 0 92 q-50 12 -100 0 q10 -46 0 -92 z`, '#ffffff', 1.5, 'stroke-dasharray="5 6" opacity="0.5"')}
+                ${C(x, y + 8, 6, '#3a3fa8')}`,
+            (x, y) => `${shadow(x, y + 84, 50, 0.08)}
+                ${E(x - 34, y - 30, 22, 50, '#2f9a8f', `transform="rotate(-34 ${x - 34} ${y - 30})"`)}
+                ${E(x + 34, y - 36, 22, 54, '#1f7a72', `transform="rotate(30 ${x + 34} ${y - 36})"`)}
+                ${E(x, y - 58, 20, 54, '#3fb3a6')}
+                ${R(x - 44, y + 8, 88, 76, 'url(#lmPetrol)', 16)}`
+        ],
+        caption: ['#d6dce8', '#e9ecf3'],
+        price: { color: '#18243a', font: SEGOE, size: 22, weight: 600, values: ['64.00', '28.00', '45.00', '39.00'], old: '52.00', oldColor: '#9aa5b8' },
+        sale: { bg: '#4b50c8', fg: '#ffffff', rx: 12 },
+        footer: { bg: '#f6f7fb', title: '#18243a', link: '#adb7c9', social: '#606f87', bottom: '#eef0f6', socialFill: '#e9ecf3', line: '#e9ecf3' },
+        defs: [
+            rad('lmSphere', ['#a7aaf5', '#4b50c8', '#2f338f']),
+            rad('lmSphere2', ['#7fd0c9', '#176b70', '#0e4a4e']),
+            lin('lmLavender', ['#e6e4fd', '#c4c1f6', '#a9a6ee'], 1, 0),
+            lin('lmIris', ['#8a8ee6', '#4b50c8', '#3a3fa8'], 1, 1),
+            lin('lmPetrol', ['#2a8a8f', '#176b70', '#0e4a4e'], 1, 0),
+            lin('lmFlame', ['#fff1c2', '#ffbe55', '#ff8a3d'])
+        ]
+    },
+
+    // Porcelain studio: sculpted white objects, graphite and a precise blue accent.
+    FlexPorcelain: {
+        font: SEGOE, headFont: SEGOE,
+        siteBg: '#ffffff', bodyBg: '#ffffff',
+        menubar: { bg: '#f5f5f7', fg: '#86868b', line: '#e8e8ed' },
+        shopbar: { bg: '#ffffff', fg: '#1d1d1f', logo: '#1d1d1f' },
+        search: { bg: '#f5f5f7', border: '#f5f5f7', pill: true, placeholder: '#d2d2d7', icon: '#6e6e73' },
+        badge: { bg: '#0066cc', fg: '#ffffff' },
+        nav: { bg: '#ffffff', fg: '#333336', weight: 400, size: 14, items: ['Discover', 'Objects', 'Audio', 'Workspace', 'Accessories'], selected: '#0066cc', line: '#e8e8ed' },
+        hero: {
+            panel: { fill: '#f5f5f7', rx: 24 },
+            kicker: { text: 'Less, beautifully.', color: '#6e6e73', size: 16, weight: 400 },
+            title: { text: 'Porcelain', size: 94, weight: 600, color: '#1d1d1f', spacing: -4 },
+            lines: '#d2d2d7',
+            btn1: { bg: '#0066cc', label: '#ffffff', rx: 24 },
+            btn2: { bg: '#f5f5f7', stroke: '#0066cc', label: '#0066cc', rx: 24 },
+            art: () => `
+                ${shadow(950, 466, 180, 0.09)}
+                ${R(778, 409, 350, 52, 'url(#pcSilver)', 26)}
+                ${E(953, 410, 175, 30, '#ffffff')}
+                <g transform="rotate(-15 930 324)">
+                    ${R(835, 210, 190, 208, 'url(#pcWhite)', 56, 'stroke="#d2d2d7" stroke-width="1"')}
+                    ${R(855, 230, 150, 168, 'url(#pcFace)', 42)}
+                    ${C(930, 314, 47, 'none', 'stroke="#e8e8ed" stroke-width="2"')}
+                    ${S('M930 281 v33 l25 15', '#1d1d1f', 4)}
+                    ${C(930, 314, 4, '#0066cc')}
+                </g>
+                ${C(1092, 370, 64, 'url(#pcBlue)')}
+                ${E(1074, 345, 22, 11, '#ffffff', 'opacity="0.18" transform="rotate(-30 1074 345)"')}
+                ${C(778, 356, 27, 'url(#pcWhite)', 'stroke="#e8e8ed"')}
+            `
+        },
+        tile: { fill: '#f5f5f7', rx: 20 },
+        items: [
+            (x, y) => `${shadow(x, y + 74, 52, 0.07)}
+                ${S(`M${x - 45} ${y + 4} v-16 a45 45 0 0 1 90 0 v16`, '#d2d2d7', 14)}
+                ${S(`M${x - 45} ${y} v-12 a45 45 0 0 1 90 0 v12`, '#ffffff', 8)}
+                ${R(x - 58, y - 4, 27, 68, 'url(#pcWhite)', 13, 'stroke="#d2d2d7"')}
+                ${R(x + 31, y - 4, 27, 68, 'url(#pcWhite)', 13, 'stroke="#d2d2d7"')}`,
+            (x, y) => `${shadow(x, y + 74, 45, 0.07)}
+                ${R(x - 48, y - 59, 96, 130, 'url(#pcGraphite)', 30)}
+                ${Array.from({length: 15}, (_, i) => S(`M${x - 34} ${y - 38 + i * 6} h68`, '#6e6e73', 1, 'opacity="0.45"')).join('')}
+                ${R(x - 8, y - 50, 16, 3, '#0066cc', 1.5)}`,
+            (x, y) => `${shadow(x, y + 74, 57, 0.07)}
+                ${R(x - 5, y - 30, 10, 92, 'url(#pcSilver)', 5)}
+                ${E(x, y + 65, 45, 9, 'url(#pcSilver)')}
+                ${P(`M${x - 65} ${y - 24} a65 55 0 0 1 130 0 z`, 'url(#pcWhite)', 'stroke="#d2d2d7"')}
+                ${E(x, y - 24, 65, 9, '#e8e8ed')}`,
+            (x, y) => `${shadow(x, y + 74, 50, 0.07)}
+                ${R(x - 48, y - 54, 96, 123, 'url(#pcBlue)', 24)}
+                ${R(x - 40, y - 46, 80, 107, 'none', 18, 'stroke="#ffffff" opacity="0.25"')}
+                ${C(x, y + 6, 25, 'none', 'stroke="#ffffff" stroke-width="2" opacity="0.6"')}
+                ${R(x - 10, y + 39, 20, 3, '#ffffff', 1.5, 'opacity="0.6"')}`
+        ],
+        caption: ['#d2d2d7', '#e8e8ed'],
+        price: { color: '#1d1d1f', font: SEGOE, size: 22, weight: 600, values: ['149.00', '89.00', '129.00', '39.20'], old: '49.00', oldColor: '#86868b' },
+        sale: { bg: '#0066cc', fg: '#ffffff', rx: 15 },
+        footer: { bg: '#f5f5f7', title: '#515154', link: '#b5b5bd', social: '#86868b', bottom: '#e8e8ed', line: '#e8e8ed' },
+        defs: [
+            lin('pcWhite', ['#ffffff', '#f5f5f7', '#d2d2d7'], 1, 1),
+            lin('pcSilver', ['#e8e8ed', '#b5b5bd', '#e8e8ed'], 1, 0),
+            rad('pcFace', ['#ffffff', '#f5f5f7', '#e8e8ed']),
+            rad('pcBlue', ['#69b7ff', '#0066cc', '#003d85']),
+            lin('pcGraphite', ['#515154', '#333336', '#1d1d1f'], 1, 0)
+        ]
+    },
+
+    // Editorial botanics: aubergine, lime and mint with serif headlines.
+    FlexSorbet: {
+        font: '"Trebuchet MS", "Segoe UI", sans-serif', headFont: 'Georgia, "Times New Roman", serif',
+        siteBg: '#faf8f4', bodyBg: '#faf8f4',
+        menubar: { bg: '#d8f36a', fg: '#7f8f3a' },
+        shopbar: { bg: '#faf8f4', fg: '#542448', logo: '#542448' },
+        search: { bg: '#e3f2eb', border: '#b8d7c9', pill: true, placeholder: '#b8d7c9' },
+        badge: { bg: '#542448', fg: '#ffffff' },
+        nav: { bg: '#542448', fg: '#faf8f4', weight: 600, size: 15, items: ['Pantry', 'Kitchen', 'Garden', 'Table', 'Gifts'], selected: '#d8f36a', font: '"Trebuchet MS", sans-serif' },
+        hero: {
+            panel: { fill: '#e3f2eb', rx: 16 },
+            kicker: { text: 'The summer menu', color: '#29685f', font: 'Georgia, serif', size: 18, weight: 400, italic: true },
+            title: { text: 'Sorbet', size: 108, weight: 400, color: '#542448', spacing: -1 },
+            lines: '#b8d7c9',
+            btn1: { bg: '#542448', label: '#ffffff', rx: 10 }, btn2: { bg: '#faf8f4', stroke: '#b8d7c9', label: '#29685f', rx: 10 },
+            art: () => `
+                <g clip-path="url(#heroClip)">
+                    ${P('M960 196 C1070 168 1196 226 1200 330 C1204 430 1112 486 1006 476 C896 466 818 412 828 322 C836 252 890 212 960 196 Z', '#542448')}
+                    ${P('M690 386 C730 330 830 338 852 402 C872 462 800 506 736 494 C684 484 662 424 690 386 Z', '#d8f36a')}
+                    ${P('M1150 420 c30 -10 60 10 56 40 c-4 30 -50 40 -70 20 c-14 -16 -4 -52 14 -60 z', '#f4a6b8')}
+                </g>
+                ${C(924, 320, 36, '#f4a6b8')}${C(998, 320, 36, '#d8f36a')}${C(960, 286, 34, '#c99ab8')}
+                ${C(914, 306, 5, '#ffffff', 'opacity="0.6"')}${C(986, 306, 5, '#ffffff', 'opacity="0.6"')}${C(950, 272, 5, '#ffffff', 'opacity="0.6"')}
+                ${P('M872 336 C880 404 1040 404 1048 336 Z', '#faf8f4', 'stroke="#291a28" stroke-width="2.5"')}
+                ${R(957, 392, 6, 58, '#291a28')}${E(960, 452, 46, 8, '#291a28')}
+                ${P('M985 252 c18 -30 50 -34 62 -30 c-6 20 -30 44 -62 30 z', '#29685f')}
+                ${S('M985 252 c18 -10 36 -20 62 -30', '#e3f2eb', 1.5)}
+                ${[[720, 230], [740, 262], [1180, 230], [700, 300], [1165, 260]].map(([x, y]) => E(x, y, 5, 3, '#291a28', `transform="rotate(30 ${x} ${y})"`)).join('')}`
+        },
+        tile: null,
+        items: [
+            (x, y) => `${shadow(x, y + 84, 52, 0.08)}
+                ${R(x - 46, y - 40, 92, 120, '#e58aa1', 20)}
+                ${R(x - 46, y - 40, 92, 120, 'none', 20, 'stroke="#ffffff" stroke-width="3" opacity="0.4"')}
+                ${R(x - 50, y - 62, 100, 28, '#542448', 6)}
+                ${R(x - 34, y + 2, 68, 44, '#faf8f4', 4)}
+                ${P(`M${x - 8} ${y + 26} c6 -14 18 -16 22 -14 c-2 8 -10 18 -22 14 z`, '#29685f')}
+                ${R(x - 18, y + 34, 36, 3, '#542448', 1.5)}`,
+            (x, y) => `${P(`M${x - 36} ${y - 8} H${x + 36} L${x} ${y + 84} Z`, '#e8b56a')}
+                ${S(`M${x - 26} ${y + 4} L${x + 14} ${y + 46} M${x - 4} ${y - 4} L${x + 26} ${y + 30} M${x + 26} ${y + 4} L${x - 14} ${y + 46}`, '#c99347', 2.5)}
+                ${C(x, y - 18, 40, '#d8f36a')}${C(x + 14, y - 54, 30, '#f4a6b8')}
+                ${P(`M${x - 34} ${y - 4} q8 14 16 0 q8 18 18 0 q8 12 16 0 q8 16 18 0 Z`, '#d8f36a')}
+                ${C(x + 4, y - 64, 5, '#ffffff', 'opacity="0.6"')}`,
+            (x, y) => `${shadow(x, y + 84, 50, 0.08)}
+                ${[-50, -25, 0, 25, 50].map((a, i) => E(x, y - 44, 13, 52, i % 2 ? '#29685f' : '#8fd3b6', `transform="rotate(${a} ${x} ${y + 6})"`)).join('')}
+                ${P(`M${x - 46} ${y + 6} h92 l-10 78 h-72 z`, '#542448')}
+                ${R(x - 50, y, 100, 16, '#6e3560', 4)}`,
+            (x, y) => `${shadow(x - 10, y + 84, 56, 0.08)}
+                ${R(x - 40, y - 88, 22, 18, '#c99347', 3)}
+                ${P(`M${x - 44} ${y - 72} h30 v26 c22 10 24 24 24 40 v86 h-78 v-86 c0 -16 2 -30 24 -40 z`, '#29685f')}
+                ${R(x - 56, y + 4, 78, 40, '#d8f36a', 2)}
+                ${R(x - 46, y + 18, 58, 3, '#291a28', 1.5)}
+                ${C(x + 42, y + 52, 30, '#d8f36a', 'stroke="#b6d24a" stroke-width="5"')}
+                ${[0, 60, 120].map(a => `<line x1="${x + 42}" y1="${y + 26}" x2="${x + 42}" y2="${y + 78}" stroke="#f4fbd0" stroke-width="2.5" transform="rotate(${a} ${x + 42} ${y + 52})"/>`).join('')}`
+        ],
+        caption: ['#d8cecf', '#ebe5e4'],
+        price: { color: '#542448', font: 'Georgia', size: 24, weight: 400, values: ['8.90', '4.50', '32.00', '14.90'], old: '18.90', oldColor: '#96858e' },
+        sale: { bg: '#d8f36a', fg: '#291a28', rx: 10 },
+        footer: { bg: '#291a28', title: '#d8f36a', link: '#d4c7d0', social: '#d4c7d0', bottom: '#20131f', linkOpacity: 0.55 },
+        defs: []
+    },
+
+    // Atlantic horizon: ink waves, a coral sun and a sail.
+    FlexTidal: {
+        font: SEGOE, headFont: 'Arial, "Helvetica Neue", sans-serif',
+        siteBg: '#ffffff', bodyBg: '#ffffff',
+        menubar: { bg: '#dceef5', fg: '#7e98a8' },
+        shopbar: { bg: '#102c40', fg: '#ffffff', logo: '#ffffff' },
+        search: { bg: '#edf6fa', border: '#edf6fa', pill: false, rx: 4, placeholder: '#c8d7df', icon: '#102c40' },
+        badge: { bg: '#c64432', fg: '#ffffff' },
+        nav: { bg: '#ffffff', fg: '#102c40', weight: 700, size: 15, items: ['Coast', 'Sailing', 'Apparel', 'Home', 'Sale'], selected: '#c64432', line: '#e1eaee', font: 'Arial, sans-serif' },
+        hero: {
+            panel: { fill: '#edf6fa', rx: 8 },
+            kicker: { text: 'NEW TIDES', color: '#c64432', size: 14, weight: 700, spacing: 3, font: 'Arial, sans-serif' },
+            title: { text: 'Tidal', size: 112, weight: 700, color: '#102c40', spacing: -3 },
+            lines: '#c8d7df',
+            btn1: { bg: '#c64432', label: '#ffffff', rx: 4 }, btn2: { bg: '#ffffff', stroke: '#c8d7df', label: '#164b65', rx: 4 },
+            art: () => `
+                ${C(930, 338, 160, '#dceef5')}
+                <g clip-path="url(#tdPort)">
+                    ${R(760, 170, 340, 340, 'url(#tdSky)')}
+                    ${C(1000, 356, 56, '#c64432')}
+                    ${P(wave(356, 9, 84, 740, 1120, 520), '#287696')}
+                    ${P(wave(388, 11, 104, 740, 1120, 520, 30), '#164b65')}
+                    ${P(wave(426, 11, 124, 740, 1120, 520, 60), '#102c40')}
+                    ${S(waveLine(374, 5, 70, 740, 1120, 20), '#c8d7df', 1.5, 'opacity="0.55"')}
+                    ${S(waveLine(448, 5, 80, 740, 1120, 10), '#c8d7df', 1.5, 'opacity="0.35"')}
+                    <g transform="translate(18 -26)">
+                        ${P('M806 386 h104 l-14 20 h-80 z', '#102c40')}
+                        ${S('M858 386 V262', '#102c40', 3)}
+                        ${P('M862 268 L862 380 L928 380 Z', '#ffffff')}
+                        ${P('M854 276 L854 380 L806 380 Z', '#c64432')}
+                    </g>
+                    ${S('M940 250 q7 -7 14 0 q7 -7 14 0', '#102c40', 2.5)}${S('M982 228 q5 -5 10 0 q5 -5 10 0', '#102c40', 2.5)}
+                </g>
+                ${C(930, 338, 146, 'none', 'stroke="#102c40" stroke-width="16"')}
+                ${C(930, 338, 136, 'none', 'stroke="#ffffff" stroke-width="2" opacity="0.5"')}
+                ${[0, 45, 90, 135, 180, 225, 270, 315].map(a => `<circle cx="930" cy="${338 - 158}" r="5" fill="#102c40" transform="rotate(${a} 930 338)"/>`).join('')}
+                ${S('M1100 470 h80 M1120 486 h60', '#c64432', 4)}${S('M680 220 h60 M680 236 h40', '#c8d7df', 4)}`
+        },
+        tile: null,
+        items: [
+            (x, y) => `${shadow(x, y + 84, 56, 0.08)}
+                ${P(`M${x - 30} ${y - 64} L${x - 70} ${y - 46} L${x - 88} ${y - 4} L${x - 62} ${y + 8} L${x - 52} ${y - 14} L${x - 52} ${y + 80} L${x + 52} ${y + 80} L${x + 52} ${y - 14} L${x + 62} ${y + 8} L${x + 88} ${y - 4} L${x + 70} ${y - 46} L${x + 30} ${y - 64} Q${x} ${y - 44} ${x - 30} ${y - 64} Z`, 'url(#tdStripes)', 'stroke="#102c40" stroke-width="3" stroke-linejoin="round"')}`,
+            (x, y) => `<circle cx="${x}" cy="${y}" r="58" fill="none" stroke="#ffffff" stroke-width="28"/>
+                <circle cx="${x}" cy="${y}" r="58" fill="none" stroke="#c64432" stroke-width="28" stroke-dasharray="45.55 45.55" transform="rotate(-22 ${x} ${y})"/>
+                ${C(x, y, 72, 'none', 'stroke="#102c40" stroke-width="2.5"')}${C(x, y, 44, 'none', 'stroke="#102c40" stroke-width="2.5"')}
+                ${S(`M${x - 76} ${y - 18} q-10 18 0 36 M${x + 76} ${y - 18} q10 18 0 36 M${x - 18} ${y - 76} q18 -10 36 0 M${x - 18} ${y + 76} q18 10 36 0`, '#a56612', 4)}`,
+            (x, y) => `${shadow(x - 6, y + 84, 54, 0.08)}
+                ${S(`M${x + 36} ${y - 10} a24 24 0 0 1 0 48`, '#102c40', 9)}
+                ${R(x - 50, y - 38, 88, 116, '#ffffff', 8, 'stroke="#102c40" stroke-width="3"')}
+                ${R(x - 50, y - 38, 88, 12, '#164b65', 4)}
+                ${S(waveLine(y + 22, 6, 30, x - 44, x + 14), '#c64432', 3)}`,
+            (x, y) => `${P(`M${x - 34} ${y - 50} L${x} ${y - 98} L${x + 34} ${y - 50} Z`, '#ffd8a8', 'opacity="0.6"')}
+                ${P(`M${x - 26} ${y + 82} L${x - 16} ${y - 34} L${x + 16} ${y - 34} L${x + 26} ${y + 82} Z`, 'url(#tdTower)', 'stroke="#102c40" stroke-width="2.5"')}
+                ${R(x - 14, y - 58, 28, 24, '#102c40', 2)}${R(x - 9, y - 54, 18, 14, '#ffd8a8', 1)}
+                ${P(`M${x - 18} ${y - 58} L${x} ${y - 76} L${x + 18} ${y - 58} Z`, '#c64432')}
+                ${R(x - 40, y + 78, 80, 8, '#102c40', 3)}`
+        ],
+        caption: ['#c8d7df', '#e1eaee'],
+        price: { color: '#102c40', font: 'Arial', size: 22, weight: 700, values: ['49.00', '35.00', '18.00', '27.20'], old: '34.00', oldColor: '#7e98a8' },
+        sale: { bg: '#c64432', fg: '#ffffff', rx: 4 },
+        footer: { bg: '#102c40', title: '#ffad99', link: '#c8d7df', social: '#c8d7df', bottom: '#0b2133', linkOpacity: 0.55 },
+        defs: [
+            lin('tdSky', ['#edf6fa', '#dceef5']),
+            `<linearGradient id="tdFadeGrad" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset="0.22" stop-color="#fff"/></linearGradient>`,
+            `<clipPath id="tdPort"><circle cx="930" cy="338" r="146"/></clipPath>`,
+            `<pattern id="tdStripes" width="14" height="14" patternUnits="userSpaceOnUse"><rect width="14" height="14" fill="#ffffff"/><rect y="7" width="14" height="7" fill="#164b65"/></pattern>`,
+            `<pattern id="tdTower" width="20" height="24" patternUnits="userSpaceOnUse"><rect width="20" height="24" fill="#ffffff"/><rect y="12" width="20" height="12" fill="#c64432"/></pattern>`
+        ]
+    },
+
+    // Risograph print: three spot inks overprinted on white paper.
+    // Riso deviates from the shared skeleton, so it supplies the whole scene.
+    FlexRiso: {
+        siteBg: '#ffffff',
+        scene: () => `<svg width="1280" height="960" viewBox="0 0 1280 960" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+                <!-- Riso ink texture: sparse paper specks punched out of every inked shape. -->
+                <filter id="ink" x="-5%" y="-5%" width="110%" height="110%">
+                    <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="2" seed="7" result="noise"/>
+                    <feColorMatrix in="noise" type="matrix" result="specks"
+                        values="0 0 0 0 0
+                                0 0 0 0 0
+                                0 0 0 0 0
+                                -8 0 0 0 6.1"/>
+                    <feComposite in="SourceGraphic" in2="specks" operator="in"/>
+                </filter>
+        
+                <pattern id="dotsPink" width="11" height="11" patternUnits="userSpaceOnUse" patternTransform="rotate(15)">
+                    <circle cx="5.5" cy="5.5" r="3" fill="#ff48b0"/>
+                </pattern>
+                <pattern id="dotsYellow" width="9" height="9" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+                    <circle cx="4.5" cy="4.5" r="2.6" fill="#ffd23f"/>
+                </pattern>
+                <pattern id="dotsBlue" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(-15)">
+                    <circle cx="4" cy="4" r="1.8" fill="#1f4ed8"/>
+                </pattern>
+        
+                <linearGradient id="fadeDown" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0" stop-color="#fff"/>
+                    <stop offset="1" stop-color="#fff" stop-opacity="0"/>
+                </linearGradient>
+                <radialGradient id="fadeOut">
+                    <stop offset="0.35" stop-color="#fff"/>
+                    <stop offset="1" stop-color="#fff" stop-opacity="0"/>
+                </radialGradient>
+                <mask id="maskFadeDown"><circle cx="1140" cy="240" r="92" fill="url(#fadeOut)"/></mask>
+                <mask id="maskGlow"><circle cx="788" cy="604" r="72" fill="url(#fadeOut)"/></mask>
+            </defs>
+        
+            <rect width="1280" height="960" fill="#fff"/>
+        
+            <!-- Registration strip -->
+            <rect x="0" y="0" width="427" height="10" fill="#1f4ed8"/>
+            <rect x="427" y="0" width="426" height="10" fill="#ff48b0"/>
+            <rect x="853" y="0" width="427" height="10" fill="#ffd23f"/>
+        
+            <!-- Header: misregistered logo, squared search, line icons -->
+            <text x="67" y="79" class="din mul" font-size="32" font-weight="700" fill="#ff48b0" letter-spacing="1">FLEX</text>
+            <text x="64" y="76" class="din" font-size="32" font-weight="700" fill="#16182f" letter-spacing="1">FLEX</text>
+        
+            <rect x="410" y="46" width="430" height="40" rx="4" fill="#f5f6fb" stroke="#eaecf5" stroke-width="1.5"/>
+            <rect x="430" y="63" width="150" height="6" rx="3" fill="#d9dcea"/>
+            <circle cx="810" cy="63" r="7.5" fill="none" stroke="#16182f" stroke-width="2.5"/>
+            <line x1="815.5" y1="68.5" x2="822" y2="75" stroke="#16182f" stroke-width="2.5" stroke-linecap="round"/>
+        
+            <g fill="none" stroke="#16182f" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="1090" cy="59" r="7"/>
+                <path d="M1077 79 a13 11 0 0 1 26 0"/>
+                <path d="M1140 79 l-10.5 -10.5 a6.2 6.2 0 0 1 10.5 -8.2 a6.2 6.2 0 0 1 10.5 8.2 z"/>
+                <rect x="1179" y="59" width="22" height="20" rx="2.5"/>
+                <path d="M1184 59 v-3 a6 6 0 0 1 12 0 v3"/>
+            </g>
+            <circle cx="1205" cy="53" r="10" fill="#d1157a"/>
+            <text x="1205" y="57.5" class="din" font-size="13" font-weight="700" fill="#fff" text-anchor="middle">3</text>
+        
+            <!-- Navigation: DIN capitals, pink selection, ink rule -->
+            <g class="din" font-size="15" font-weight="600" fill="#16182f" letter-spacing="0.9">
+                <text x="64" y="125">NEW</text>
+                <text x="142" y="125">PRINTS</text>
+                <text x="243" y="125">PAPER</text>
+                <text x="334" y="125">STUDIO</text>
+                <text x="434" y="125">SALE</text>
+            </g>
+            <rect x="138" y="133" width="72" height="4" fill="#ff48b0"/>
+            <rect x="0" y="137" width="1280" height="3" fill="#16182f"/>
+        
+            <!-- Crop marks around the hero -->
+            <g stroke="#b8bcd2" stroke-width="1.5">
+                <path d="M64 168 v-14 M56 176 h-14"/>
+                <path d="M1216 168 v-14 M1224 176 h14"/>
+                <path d="M64 508 v14 M56 500 h-14"/>
+                <path d="M1216 508 v14 M1224 500 h14"/>
+            </g>
+        
+            <!-- Hero copy -->
+            <text x="100" y="236" class="din" font-size="16" font-weight="700" fill="#d1157a" letter-spacing="3">N° 07</text>
+            <rect x="160" y="225" width="64" height="2.5" fill="#d1157a"/>
+            <rect id="marker" x="0" y="0" width="0" height="0" fill="#ffd23f" class="mul"/>
+            <text id="title" x="94" y="352" class="din" font-size="124" font-weight="700" fill="#16182f" letter-spacing="-2">Riso</text>
+            <rect x="100" y="386" width="300" height="8" rx="4" fill="#d9dcea"/>
+            <rect x="100" y="406" width="230" height="8" rx="4" fill="#d9dcea"/>
+        
+            <rect x="106" y="446" width="176" height="48" rx="4" fill="#ff48b0"/>
+            <rect x="100" y="440" width="176" height="48" rx="4" fill="#1f4ed8"/>
+            <rect x="136" y="461" width="104" height="6" rx="3" fill="#fff"/>
+            <rect x="298" y="440" width="140" height="48" rx="4" fill="#fff" stroke="#16182f" stroke-width="2"/>
+            <rect x="333" y="461" width="70" height="6" rx="3" fill="#16182f"/>
+        
+            <!-- Hero composition: three spot inks overprinted -->
+            <g filter="url(#ink)">
+                <circle cx="900" cy="326" r="142" fill="#1f4ed8" class="mul"/>
+                <path d="M962 470 V292 A98 98 0 0 1 1158 292 V470 Z" fill="#ff48b0" class="mul"/>
+                <path d="M652 470 A112 112 0 0 1 876 470 Z" fill="#ffd23f" class="mul"/>
+            </g>
+            <circle cx="1140" cy="240" r="92" fill="url(#dotsPink)" mask="url(#maskFadeDown)" class="mul"/>
+            <circle cx="912" cy="316" r="142" fill="none" stroke="#16182f" stroke-width="2"/>
+            <rect x="640" y="470" width="576" height="3" fill="#16182f"/>
+            <!-- Registration target -->
+            <g stroke="#16182f" stroke-width="1.5" fill="none">
+                <circle cx="690" cy="214" r="13"/>
+                <path d="M670 214 h40 M690 194 v40"/>
+            </g>
+        
+            <!-- Products on bare white paper -->
+            <!-- 1: vase -->
+            <ellipse cx="196" cy="704" rx="74" ry="6" fill="#eaecf5"/>
+            <g filter="url(#ink)">
+                <ellipse cx="196" cy="652" rx="60" ry="50" fill="#ff48b0" class="mul"/>
+                <rect x="178" y="566" width="36" height="86" rx="5" fill="#1f4ed8" class="mul"/>
+                <circle cx="210" cy="560" r="20" fill="#ffd23f" class="mul"/>
+            </g>
+        
+            <!-- 2: framed print -->
+            <rect x="430" y="548" width="124" height="154" fill="#fff" stroke="#16182f" stroke-width="3"/>
+            <g filter="url(#ink)">
+                <circle cx="492" cy="616" r="32" fill="#ffd23f" class="mul"/>
+                <rect x="440" y="632" width="104" height="60" fill="#1f4ed8" class="mul"/>
+                <path d="M440 632 q13 -10 26 0 t26 0 t26 0 t26 0 v8 h-104 z" fill="#ff48b0" class="mul"/>
+            </g>
+            <circle cx="500" cy="606" r="34" fill="url(#dotsPink)" class="mul"/>
+        
+            <!-- 3: lamp -->
+            <circle cx="788" cy="604" r="72" fill="url(#dotsYellow)" mask="url(#maskGlow)" class="mul"/>
+            <ellipse cx="788" cy="704" rx="58" ry="6" fill="#eaecf5"/>
+            <g filter="url(#ink)">
+                <path d="M744 604 A44 44 0 0 1 832 604 Z" fill="#1f4ed8" class="mul"/>
+                <rect x="784" y="598" width="8" height="96" fill="#ff48b0" class="mul"/>
+                <rect x="756" y="690" width="64" height="11" rx="5.5" fill="#ff48b0" class="mul"/>
+            </g>
+        
+            <!-- 4: book stack, on sale -->
+            <ellipse cx="1084" cy="704" rx="80" ry="6" fill="#eaecf5"/>
+            <g filter="url(#ink)">
+                <rect x="1014" y="668" width="144" height="32" rx="2" fill="#1f4ed8" class="mul"/>
+                <rect x="1024" y="638" width="124" height="30" rx="2" fill="#ffd23f" class="mul" transform="rotate(-4 1086 653)"/>
+                <rect x="1034" y="606" width="106" height="28" rx="2" fill="#ff48b0" class="mul" transform="rotate(3 1087 620)"/>
+            </g>
+            <rect x="1018" y="676" width="136" height="16" fill="url(#dotsBlue)" opacity="0.5"/>
+            <circle cx="1182" cy="566" r="31" fill="#d1157a"/>
+            <text x="1182" y="572" class="din" font-size="17" font-weight="700" fill="#fff" text-anchor="middle">−20%</text>
+        
+            <!-- Product captions -->
+            <g fill="#d9dcea">
+                <rect x="64" y="726" width="160" height="8" rx="4"/>
+                <rect x="360" y="726" width="140" height="8" rx="4"/>
+                <rect x="656" y="726" width="170" height="8" rx="4"/>
+                <rect x="952" y="726" width="150" height="8" rx="4"/>
+            </g>
+            <g fill="#eaecf5">
+                <rect x="64" y="744" width="100" height="8" rx="4"/>
+                <rect x="360" y="744" width="120" height="8" rx="4"/>
+                <rect x="656" y="744" width="90" height="8" rx="4"/>
+                <rect x="952" y="744" width="110" height="8" rx="4"/>
+            </g>
+            <g class="din" font-size="24" font-weight="700" fill="#d1157a">
+                <text x="64" y="786">24.90</text>
+                <text x="360" y="786">39.00</text>
+                <text x="656" y="786">89.00</text>
+                <text x="952" y="786">31.20</text>
+            </g>
+            <text x="1028" y="786" class="din" font-size="16" fill="#868aa6" text-decoration="line-through">39.00</text>
+        
+            <!-- Cobalt poster footer -->
+            <rect x="0" y="820" width="1280" height="140" fill="#1f4ed8"/>
+            <g fill="#ffd23f">
+                <rect x="64" y="852" width="96" height="8" rx="4"/>
+                <rect x="360" y="852" width="80" height="8" rx="4"/>
+                <rect x="656" y="852" width="110" height="8" rx="4"/>
+            </g>
+            <g fill="#d4ddff" opacity="0.75">
+                <rect x="64" y="876" width="150" height="6" rx="3"/>
+                <rect x="64" y="894" width="118" height="6" rx="3"/>
+                <rect x="360" y="876" width="132" height="6" rx="3"/>
+                <rect x="360" y="894" width="96" height="6" rx="3"/>
+                <rect x="656" y="876" width="140" height="6" rx="3"/>
+                <rect x="656" y="894" width="104" height="6" rx="3"/>
+            </g>
+            <g fill="none" stroke="#fff" stroke-width="2">
+                <circle cx="1112" cy="876" r="15"/>
+                <circle cx="1152" cy="876" r="15"/>
+                <circle cx="1192" cy="876" r="15"/>
+            </g>
+            <rect x="0" y="928" width="1280" height="32" fill="#16182f" opacity="0.2"/>
+            <rect x="64" y="941" width="180" height="6" rx="3" fill="#d4ddff" opacity="0.6"/>
+        </svg>`,
+        after: () => {
+            // Size the highlighter stroke to the rendered title.
+            const box = document.getElementById('title').getBBox();
+            const marker = document.getElementById('marker');
+            marker.setAttribute('x', box.x - 6);
+            marker.setAttribute('y', box.y + box.height * 0.56);
+            marker.setAttribute('width', box.width + 12);
+            marker.setAttribute('height', box.height * 0.26);
+        }
+    }
+};
+
+// ---------------------------------------------------------------------------
+// Storefront skeleton, driven by the theme's own variables
+// ---------------------------------------------------------------------------
+function render(t) {
+    const X0 = t.boxed ? 32 : 0, W = t.boxed ? 1216 : 1280;
+    const h = t.hero;
+    let s = '';
+
+    s += R(0, 0, 1280, 960, t.siteBg);
+    s += R(X0, 0, W, 960, t.bodyBg);
+
+    // Menubar
+    s += R(X0, 0, W, 32, t.menubar.bg);
+    s += [64, 140].map((x, i) => R(x, 13, [56, 70][i], 6, t.menubar.fg, 3, 'opacity="0.8"')).join('');
+    s += [960, 1040, 1130].map((x, i) => R(x, 13, [60, 70, 86][i], 6, t.menubar.fg, 3, 'opacity="0.8"')).join('');
+    if (t.menubar.line) s += R(X0, 31, W, 1, t.menubar.line);
+
+    // Shopbar
+    s += R(X0, 32, W, 76, t.shopbar.bg);
+    s += T(64, 84, 'FLEX', `font-family='${t.headFont}' font-size="30" font-weight="700" letter-spacing="1" fill="${t.shopbar.logo}"`);
+    const sr = t.search.pill ? 20 : (t.search.rx || 4);
+    s += R(410, 50, 430, 40, t.search.bg, sr, `stroke="${t.search.border}" stroke-width="1.5"`);
+    s += R(434, 67, 150, 6, t.search.placeholder || '#d9dcea', 3);
+    const ic = t.search.icon || t.shopbar.fg;
+    s += `<circle cx="810" cy="67" r="7.5" fill="none" stroke="${ic}" stroke-width="2.5"/><line x1="815.5" y1="72.5" x2="822" y2="79" stroke="${ic}" stroke-width="2.5" stroke-linecap="round"/>`;
+    s += icons(t.shopbar.fg, 70);
+    s += C(1205, 57, 10, t.badge.bg) + T(1205, 61.5, '3', `font-family='${t.font}' font-size="13" font-weight="700" fill="${t.badge.fg}" text-anchor="middle"`);
+
+    // Navigation (laid out after mount)
+    s += R(X0, 108, W, 44, t.nav.bg);
+    if (t.nav.line) s += R(X0, t.nav.lineTop ? 108 : 151, W, 1, t.nav.line);
+    s += `<g id="nav" font-family='${t.nav.font || t.font}' font-size="${t.nav.size}" font-weight="${t.nav.weight}" letter-spacing="${t.nav.spacing || 0.2}" fill="${t.nav.fg}">` +
+        t.nav.items.map(n => T(64, 136, t.nav.upper ? n.toUpperCase() : n, '')).join('') + '</g>';
+    s += `<rect id="navSel" x="0" y="147" width="0" height="3" fill="${t.nav.selected}"/>`;
+
+    // Hero
+    if (h.panel) s += R(64, 176, 1152, 324, h.panel.fill, h.panel.rx);
+    const k = h.kicker;
+    s += T(100, 238, k.text, `font-family='${k.font || t.headFont}' font-size="${k.size}" font-weight="${k.weight}" letter-spacing="${k.spacing || 0.5}" fill="${k.color}" ${k.italic ? 'font-style="italic"' : ''}`);
+    const ti = h.title;
+    s += T(94, 350, ti.text, `font-family='${t.headFont}' font-size="${ti.size}" font-weight="${ti.weight}" letter-spacing="${ti.spacing}" fill="${ti.color}"`);
+    s += R(100, 386, 300, 8, h.lines, 4) + R(100, 406, 230, 8, h.lines, 4);
+    s += R(100, 440, 176, 48, h.btn1.bg, h.btn1.rx) + R(136, 461, 104, 6, h.btn1.label, 3);
+    s += R(296, 440, 140, 48, h.btn2.bg, h.btn2.rx, `stroke="${h.btn2.stroke}" stroke-width="2"`) + R(331, 461, 70, 6, h.btn2.label, 3);
+    s += h.art();
+
+    // Products
+    for (let i = 0; i < 4; i++) {
+        const x = 64 + i * 296, cx = x + 132, cy = 620;
+        if (t.tile) s += R(x, 528, 264, 184, t.tile.fill, t.tile.rx, t.tile.stroke ? `stroke="${t.tile.stroke}" stroke-width="1.5"` : '');
+        s += t.items[i](cx, cy);
+        s += R(x, 728, [160, 140, 170, 150][i], 8, t.caption[0], 4);
+        s += R(x, 746, [100, 120, 90, 110][i], 8, t.caption[1], 4);
+        s += T(x, 788, t.price.values[i], `font-family='${t.price.font}' font-size="${t.price.size}" font-weight="${t.price.weight}" fill="${t.price.color}"`);
+    }
+    s += `<text id="oldPrice" x="0" y="788" font-family='${t.price.font}' font-size="16" fill="${t.price.oldColor}" text-decoration="line-through">${t.price.old}</text>`;
+    s += R(1146, 540, 58, 30, t.sale.bg, t.sale.rx) + T(1175, 561, '−20%', `font-family='${t.font}' font-size="15" font-weight="700" fill="${t.sale.fg}" text-anchor="middle"`);
+
+    // Footer
+    const f = t.footer;
+    s += R(X0, 820, W, 140, f.bg);
+    if (f.line) s += R(X0, 820, W, 1, f.line);
+    s += [[64, 96], [360, 80], [656, 110]].map(([x, w]) => R(x, 852, w, 8, f.title, 4)).join('');
+    s += `<g fill="${f.link}" opacity="${f.linkOpacity || 0.9}">` +
+        [[64, 150, 118], [360, 132, 96], [656, 140, 104]].map(([x, a, b]) => R(x, 876, a, 6, f.link, 3) + R(x, 894, b, 6, f.link, 3)).join('') + '</g>';
+    s += [1112, 1152, 1192].map(x => C(x, 878, 15, f.socialFill || 'none', `stroke="${f.social}" stroke-width="2"`)).join('');
+    s += R(X0, 928, W, 32, f.bottom) + R(64, 941, 180, 6, f.link, 3, `opacity="${(f.linkOpacity || 0.9) * 0.8}"`);
+
+    const defs = `
+        <filter id="soft" x="-50%" y="-200%" width="200%" height="500%"><feGaussianBlur stdDeviation="5"/></filter>
+        <filter id="blur" x="-100%" y="-100%" width="300%" height="300%"><feGaussianBlur stdDeviation="46"/></filter>
+        <filter id="blurSm" x="-100%" y="-100%" width="300%" height="300%"><feGaussianBlur stdDeviation="8"/></filter>
+        <filter id="glow" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+        <filter id="lift" x="-20%" y="-20%" width="140%" height="160%"><feDropShadow dx="0" dy="14" stdDeviation="16" flood-color="#18243a" flood-opacity="0.14"/></filter>
+        <filter id="grain" x="0" y="0" width="1" height="1"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="4"/><feColorMatrix type="saturate" values="0"/><feComponentTransfer><feFuncA type="table" tableValues="0 0.9"/></feComponentTransfer></filter>
+        <clipPath id="heroClip"><rect x="64" y="176" width="1152" height="324" rx="${h.panel ? h.panel.rx : 0}"/></clipPath>
+        ${(t.defs || []).join('')}`;
+
+    return `<svg id="svg" width="1280" height="960" viewBox="0 0 1280 960" xmlns="http://www.w3.org/2000/svg"><defs>${defs}</defs>${s}</svg>`;
+}
+
+function layout(t) {
+    if (t.after) t.after();
+    if (t.scene) return;
+
+    // Navigation items flow by their measured width; the second one is selected.
+    const items = [...document.querySelectorAll('#nav text')];
+    let x = 64;
+    items.forEach((el, i) => {
+        el.setAttribute('x', x);
+        const w = el.getComputedTextLength();
+        if (i === 1) {
+            const sel = document.getElementById('navSel');
+            sel.setAttribute('x', x - 2);
+            sel.setAttribute('width', w + 4);
+        }
+        x += w + 38;
+    });
+
+    // Old price sits right after the last price.
+    const prices = [...document.querySelectorAll('svg > text')].filter(el => el.getAttribute('y') === '788' && el.id !== 'oldPrice');
+    const last = prices[prices.length - 1];
+    document.getElementById('oldPrice').setAttribute('x', 952 + last.getComputedTextLength() + 12);
+}
+
+const name = new URLSearchParams(location.search).get('theme') || 'Flex';
+const theme = themes[name];
+document.title = name;
+document.body.style.background = theme.siteBg;
+document.getElementById('root').innerHTML = theme.scene ? theme.scene() : render(theme);
+layout(theme);
+document.fonts.ready.then(() => layout(theme));
+</script>
+</body>
+</html>

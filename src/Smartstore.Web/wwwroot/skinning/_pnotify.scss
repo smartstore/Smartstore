@@ -14,6 +14,8 @@
 }
 
 .alert.ui-pnotify-container {
+    @include alert-iconic;
+
     padding-inline-start: 70px !important;
     padding-inline-end: 2rem;
     box-shadow: 0 6px 12px rgba($black, 0.175) !important;
@@ -26,13 +28,8 @@
     border-color: rgba($white, 0.12) !important;
     overflow: hidden;
 
-    @if ($enable-alert-icons == false) {
-        @include alert-icon-box;
-    }
-
     &:after {
         visibility: initial;
-        height: auto;
         clear: none;
     }
 }
@@ -107,10 +104,28 @@
 	top: var(--action-offset);
 	inset-inline-end: var(--action-offset);
     transform: translateY(2px);
+
+    > span {
+        @include icon-mask(var(--pnotify-action-mask), 1rem);
+        position: absolute;
+        inset: 0;
+        margin: auto;
+    }
+
+    > .pnotify-icon-close {
+        --pnotify-action-mask: #{icon-url("close")};
+    }
+
+    > .pnotify-icon-pin {
+        --pnotify-action-mask: #{icon-url("pause")};
+    }
+
+    > .pnotify-icon-unpin {
+        --pnotify-action-mask: #{icon-url("play")};
+    }
 }
 
 .ui-pnotify-sticker {
-    font-size: 10px;
     top: calc(var(--trailing-action-size) + var(--action-offset));
 }
 

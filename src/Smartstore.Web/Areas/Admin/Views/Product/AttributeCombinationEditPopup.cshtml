@@ -17,7 +17,7 @@
                         class="btn btn-secondary btn-icon"
                         title="@T("Admin.Catalog.Products.ProductVariantAttributes.AttributeCombinations.OpenPreviousCombination")"
                         data-url="@Url.Action("EditSiblingAttributeCombination", new { productId = Model.ProductId, next = false })">
-                    <i class="fa fa fa-angle-left"></i>
+                    <icon name="chevron-left" />
                 </button>
                 <button type="button" id="SaveAttributeCombination" class="btn btn-secondary disabled" disabled title="@T("Admin.Common.SaveContinue")">
                     <span>@T("Admin.Common.Save")</span>
@@ -27,12 +27,12 @@
                         class="btn btn-secondary btn-icon"
                         title="@T("Admin.Catalog.Products.ProductVariantAttributes.AttributeCombinations.OpenNextCombination")"
                         data-url="@Url.Action("EditSiblingAttributeCombination", new { productId = Model.ProductId, next = true })">
-                    <i class="fa fa fa-angle-right"></i>
+                    <icon name="chevron-right" />
                 </button>
             </div>
 
             <button type="submit" id="save" name="save" value="save" class="btn btn-secondary btn-to-primary">
-                <i class="fa fa-check"></i>
+                <icon name="check" />
                 <span>@T("Admin.Common.SaveClose")</span>
             </button>
 

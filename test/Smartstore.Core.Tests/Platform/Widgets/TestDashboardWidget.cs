@@ -43,10 +43,10 @@ internal sealed class TestDashboardWidget : IDashboardWidget
         => new HtmlWidget("test") { Key = instance.Id };
 
     /// <inheritdoc />
-    public Widget? CreateConfigurationWidget(
+    public Task<Widget?> CreateConfigurationWidgetAsync(
         DashboardWidgetContext context,
         DashboardWidgetInstance instance)
-        => null;
+        => Task.FromResult<Widget?>(null);
 
     /// <inheritdoc />
     public JsonObject CreateDefaultSettings()

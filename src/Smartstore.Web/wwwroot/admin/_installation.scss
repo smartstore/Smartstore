@@ -1,0 +1,63 @@
+/// <reference path="references.scss" />
+
+// The standalone installer has a top navbar and does not use the admin navigation shell.
+.installation {
+    height: auto;
+    overflow: auto;
+    background-color: var(--gray-150);
+
+    #page {
+        height: auto;
+    }
+
+    .page-main {
+        height: auto;
+        margin: 0;
+        background: transparent;
+        grid-template-rows: 72px 72px minmax(calc(100dvh - 144px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)), auto);
+    }
+
+    #header {
+        @include gradient-bg($indigo);
+        grid-row: 1 / span 2;
+    }
+
+    #content {
+        grid-row: 2 / -1;
+        overflow-y: visible;
+
+        @include media-breakpoint-up(sm) {
+            border-radius: 0.75rem 0.75rem 0 0;
+        }
+    }
+
+    .cph {
+        padding-inline: 0;
+    }
+
+    #navbar {
+        .navbar-brand > .navbar-img {
+            width: 33px;
+            height: 28px;
+            object-fit: contain;
+
+            @include media-breakpoint-up(lg) {
+                width: 160px;
+            }
+        }
+
+        .navbar-tool {
+            display: flex;
+            align-items: center;
+            padding: 0.625rem;
+        }
+
+        .navbar-icon {
+            --icon-size: 24px;
+        }
+
+        .dropdown-toggle::after {
+            display: none;
+        }
+    }
+}

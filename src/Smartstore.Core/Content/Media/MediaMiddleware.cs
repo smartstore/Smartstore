@@ -100,7 +100,16 @@ public class MediaMiddleware
 
         if (mediaFileId == 0)
         {
-            // This is most likely a request for a default placeholder image
+            // This is most likely a request for a default placeholder image.
+            // Security: "path" is unvalidated user input, and the placeholder image is resolved against
+            // the web root. Serve the configured fallback image only, anything else is a 404. Without this
+            // check the route can be abused to read arbitrary files (directory traversal).
+            if (!MediaUrlGenerator.IsFallbackImagePath(path, mediaSettings.DefaultImageName))
+            {
+                await NotFound(null);
+                return;
+            }
+
             pathData = new MediaPathData(path);
         }
         else if (!mediaHelper.Value.TokenizePath(path, false, out pathData))

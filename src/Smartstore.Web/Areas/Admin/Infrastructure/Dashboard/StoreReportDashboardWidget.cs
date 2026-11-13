@@ -2,6 +2,7 @@
 
 using System.Text.Json.Nodes;
 using Smartstore.Core.Localization;
+using Smartstore.Core.Security;
 using Smartstore.Core.Widgets;
 using Smartstore.Core.Widgets.Dashboard;
 using Smartstore.Engine.Modularity;
@@ -12,7 +13,7 @@ namespace Smartstore.Admin.Infrastructure.Dashboard;
 /// Describes and creates the dashboard widget that renders the store statistics partial view.
 /// </summary>
 [SystemName(SystemName)]
-public sealed class StoreReportDashboardWidget : IDashboardWidget
+public sealed class StoreReportDashboardWidget(IPermissionService permissions) : IDashboardWidget
 {
     /// <summary>
     /// Identifies the store report dashboard widget type.
@@ -26,20 +27,13 @@ public sealed class StoreReportDashboardWidget : IDashboardWidget
 
     private static readonly DashboardWidgetDescriptor _descriptor = new(SystemName, ResolvableText.Resource("Admin.Report.StoreStatistics"))
     {
-        Description = ResolvableText.Resource("Admin.Report.StoreStatistics"),
         Group = KnownDashboardWidgetGroups.System,
-        IconName = "bar-chart",
+        IconName = "chart-bar",
         CssClass = "report-store-statistics",
         Order = 700,
         DefaultSize = new DashboardWidgetSize(4, 1),
-        MinSize = new DashboardWidgetSize(4, 1),
-        MaxSize = new DashboardWidgetSize(12, 1),
-        AllowedSizes =
-        [
-            new DashboardWidgetSize(4, 1),
-            new DashboardWidgetSize(10, 1),
-            new DashboardWidgetSize(12, 1)
-        ]
+        MinSize = new DashboardWidgetSize(3, 1),
+        MaxSize = new DashboardWidgetSize(12)
     };
 
     /// <inheritdoc />
@@ -49,17 +43,17 @@ public sealed class StoreReportDashboardWidget : IDashboardWidget
     public ValueTask<bool> IsAvailableAsync(
         DashboardWidgetContext context,
         CancellationToken cancelToken = default)
-        => ValueTask.FromResult(true);
+        => new(permissions.AuthorizeAsync(Permissions.Dashboard.Widgets.System.StoreReport, context.Customer));
 
     /// <inheritdoc />
     public Widget CreateWidget(DashboardWidgetContext context, DashboardWidgetInstance instance)
         => new PartialViewWidget(ViewPath) { Key = instance.Id };
 
     /// <inheritdoc />
-    public Widget? CreateConfigurationWidget(
+    public Task<Widget?> CreateConfigurationWidgetAsync(
         DashboardWidgetContext context,
         DashboardWidgetInstance instance)
-        => null;
+        => Task.FromResult<Widget?>(null);
 
     /// <inheritdoc />
     public JsonObject CreateDefaultSettings()

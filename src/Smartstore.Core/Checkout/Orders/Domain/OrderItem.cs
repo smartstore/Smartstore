@@ -101,6 +101,12 @@ public partial class OrderItem : BaseEntity, IAttributeAware
     public string AttributeDescription { get; set; }
 
     /// <summary>
+    /// Gets or sets the localized, formatted information of essential specification attributes.
+    /// </summary>
+    [MaxLength]
+    public string EssentialSpecificationAttributesInfo { get; set; }
+
+    /// <summary>
     /// Gets or sets the product variant attributes in XML or JSON format
     /// </summary>
     [Column("AttributesXml"), MaxLength]
@@ -132,6 +138,11 @@ public partial class OrderItem : BaseEntity, IAttributeAware
     /// Gets or sets a license download identifier (in case this is a downloadable product)
     /// </summary>
     public int? LicenseDownloadId { get; set; }
+
+    /// <summary>
+    /// Gets or sets the date and time (UTC) when the customer accepted the withdrawal waiver.
+    /// </summary>
+    public DateTime? WithdrawalWaiverAcceptedOn { get; set; }
 
     /// <summary>
     /// Gets or sets the total weight of one item

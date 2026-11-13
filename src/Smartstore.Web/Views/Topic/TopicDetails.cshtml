@@ -56,7 +56,7 @@
                             <input type="password" sm-enable-visibility-toggle="false" id="password" name="password" class="form-control" autocomplete="current-password" />
                             <div class="input-group-append">
                                 <button id="password-button" type="submit" class="btn btn-primary topic-password-button">
-                                    <i class="fa fa-check" aria-hidden="true"></i>
+                                    <sm-icon name="check" aria-hidden="true"></sm-icon>
                                     <span>@T("Common.OK")</span>
                                 </button>
                             </div>
@@ -105,9 +105,7 @@
 
         function setPasswordButtonState(disable) {
             passwordButton.prop('disabled', disable);
-            passwordButton.find('.fa')
-                .removeClass('fa-check fa-spinner fa-spin')
-                .addClass(disable ? 'fa-spinner fa-spin' : 'fa-check');
+            passwordButton.find('sm-icon').attr({ name: disable ? 'spinner' : 'check', animation: disable ? 'spin' : null });
         }
     });
 </script>

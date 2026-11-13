@@ -234,3 +234,24 @@ public enum ProductSortingEnum
     /// </summary>
     CreatedOnAsc = 16
 }
+
+/// <summary>
+/// This represents the legal information about a product.
+/// </summary>
+[Flags]
+public enum ProductLegalInfo
+{
+    None = 0,
+
+    /// <summary>
+    /// Indicates whether prices include or exclude tax and, if applicable, the tax rate.
+    /// </summary>
+    Tax = 1 << 0,
+
+    /// <summary>
+    /// Indicates whether to display the shipping page link and, if applicable, a shipping surcharge.
+    /// </summary>
+    Shipping = 1 << 1,
+
+    All = Tax | Shipping
+}

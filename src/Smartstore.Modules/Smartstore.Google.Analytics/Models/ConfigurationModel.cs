@@ -33,5 +33,8 @@ public class ConfigurationModel : ModelBase
     [LocalizedDisplay("*MinifyScripts")]
     public bool MinifyScripts { get; set; }
 
+    [LocalizedDisplay("*ItemIdentifier")]
+    public AnalyticsItemIdentifier ItemIdentifier { get; set; }
+
     public bool ScriptUpdateRecommended { get; set; }
 }

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Concurrent;
+using System.Reflection;
 using Smartstore.ComponentModel.TypeConverters;
 
 namespace Smartstore.ComponentModel;
@@ -7,6 +8,7 @@ public static class TypeConverterFactory
 {
     private static readonly List<ITypeConverterProvider> _providers = [];
     private static readonly ConcurrentDictionary<Type, ITypeConverter> _typeConverters = new();
+    private static readonly ConcurrentDictionary<PropertyInfo, ITypeConverter> _propertyConverters = new();
 
     static TypeConverterFactory()
     {
@@ -36,6 +38,17 @@ public static class TypeConverterFactory
         Guard.NotNull(component);
 
         return GetConverter(component.GetType());
+    }
+
+    /// <summary>
+    /// Gets the converter declared on a property, or null if no converter is declared.
+    /// Supports both Smartstore and System.ComponentModel converters.
+    /// </summary>
+    public static ITypeConverter GetConverter(PropertyInfo property)
+    {
+        Guard.NotNull(property);
+
+        return _propertyConverters.GetOrAdd(property, AttributedTypeConverterProvider.GetAttributedConverter);
     }
 
     public static ITypeConverter GetConverter(Type type)

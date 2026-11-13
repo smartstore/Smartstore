@@ -1,5 +1,7 @@
 /// <reference path="references.scss" />
 
+@use 'sass:color';
+
 $file-thumbnail-min-size:           150px;
 $file-thumbnail-max-width:          calc(#{$file-thumbnail-min-size} / 9 * 16);
 
@@ -10,8 +12,8 @@ $file-thumbnail-max-width:          calc(#{$file-thumbnail-min-size} / 9 * 16);
 
     &.dz-highlight .dropzone-container,
     &.dz-drag-hover .dropzone-container {
-        border-color: $primary !important;
-        background-color: lighten($primary, 50%) !important;
+        --fu-border-color: #{$primary};
+        background-color: color.adjust($primary, $lightness: 45%, $space: hsl) !important;
         pointer-events: none;
     }
 
@@ -78,9 +80,22 @@ $file-thumbnail-max-width:          calc(#{$file-thumbnail-min-size} / 9 * 16);
         display: block;
     }
 
+    .fu-upload-icon,
+    .fu-message.empty {
+        color: rgba($primary-text-emphasis, 0.4);
+    }
+
+    .fu-upload-icon {
+        flex-shrink: 0;
+        margin-inline-end: 0.5rem;
+    }
+
+    .dropzone-file-info:not(:has(.fu-message.empty)) .fu-upload-icon {
+        display: none;
+    }
+
     .empty {
         font-weight: $font-weight-normal !important;
-        color: $gray-600 !important;
         font-size: 1rem;
     }
 }
@@ -88,13 +103,16 @@ $file-thumbnail-max-width:          calc(#{$file-thumbnail-min-size} / 9 * 16);
 // Dropzone skinning
 .dropzone-container {
     pointer-events: initial !important;
-    transition: all .2s;
+    transition: background-color .15s, outline-color .15s;
     align-items: center;
     display: flex;
     position: relative;
-    border: 2px dashed $gray-400 !important;
-    background: $gray-100 !important;
-    border-radius: 5px;
+    --fu-border-color: #{rgba($primary, 0.4)};
+    border: 0;
+    outline: 2px dashed var(--fu-border-color);
+    outline-offset: -2px;
+    background: color.adjust($primary, $lightness: 50%, $space: hsl) !important;
+    border-radius: var(--border-radius-md);
 
     &.fullscreen {
         position: relative;
@@ -152,10 +170,11 @@ $file-thumbnail-max-width:          calc(#{$file-thumbnail-min-size} / 9 * 16);
         }
 
         &.empty {
-            border: 2px dashed $gray-400;
+            border: 1px dashed var(--fu-border-color);
 
             .file-icon {
-                color: rgba($black, 0.12);
+                color: $primary-text-emphasis;
+                opacity: 0.25;
             }
         }
 
@@ -187,10 +206,6 @@ $file-thumbnail-max-width:          calc(#{$file-thumbnail-min-size} / 9 * 16);
     .fu-remove {
         display: none;
         --btn-height: 24px;
-
-        .fu-remove-icon {
-            margin-top: -2px;
-        }
     }
 }
 
@@ -209,8 +224,6 @@ $file-thumbnail-max-width:          calc(#{$file-thumbnail-min-size} / 9 * 16);
         position: absolute;
         z-index: 1000;
         right: 0;
-        border-top-left-radius: 0;
-        border-bottom-right-radius: 0;
     }
 
     #product-edit &:first-child .main-pic-badge {
@@ -266,12 +279,6 @@ $file-thumbnail-max-width:          calc(#{$file-thumbnail-min-size} / 9 * 16);
             width: fit-content;
             cursor: move;
             z-index: 10;
-
-            .drag-icon {
-                width: 2.75rem;
-                height: 2.75rem;
-                line-height: 2.75rem;
-            }
         }
 
         .fu-file-info-name {

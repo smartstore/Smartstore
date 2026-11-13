@@ -10,15 +10,18 @@ public class EmailFilePublisher : IFilePublisher
     private readonly SmartDbContext _db;
     private readonly DatabaseMediaStorageProvider _dbMediaStorageProvider;
     private readonly IExportProfileService _exportProfileService;
+    private readonly IQueuedEmailService _queuedEmailService;
 
     public EmailFilePublisher(
         SmartDbContext db,
         DatabaseMediaStorageProvider dbMediaStorageProvider,
-        IExportProfileService exportProfileService)
+        IExportProfileService exportProfileService,
+        IQueuedEmailService queuedEmailService)
     {
         _db = db;
         _dbMediaStorageProvider = dbMediaStorageProvider;
         _exportProfileService = exportProfileService;
+        _queuedEmailService = queuedEmailService;
     }
 
     public async Task PublishAsync(ExportDeployment deployment, ExportDeploymentContext context, CancellationToken cancelToken)
@@ -71,10 +74,8 @@ public class EmailFilePublisher : IFilePublisher
                 queuedEmail.Attachments.Add(attachment);
             }
 
-            _db.QueuedEmails.Add(queuedEmail);
-
             // Blob data could be large, so better not bulk commit here.
-            await _db.SaveChangesAsync(cancelToken);
+            await _queuedEmailService.QueueEmailAsync(queuedEmail, cancelToken: cancelToken);
             num++;
         }
 

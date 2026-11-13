@@ -101,6 +101,12 @@ public abstract class ChoiceModel : EntityModelBase
     public decimal EffectiveSwatchAspectRatio
         => SwatchAspectRatio > 0 ? SwatchAspectRatio : 1m;
 
+    /// <summary>
+    /// Gets the multicolor gradient angle whose color boundaries follow the swatch diagonal.
+    /// </summary>
+    public double MulticolorGradientAngle
+        => 180d - Math.Atan((double)EffectiveSwatchAspectRatio) * 180d / Math.PI;
+
     public abstract string BuildControlId();
 
     public virtual string GetLabel()

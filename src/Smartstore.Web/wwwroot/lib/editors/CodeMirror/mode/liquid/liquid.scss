@@ -1,0 +1,122 @@
+/* Everything Liquid */
+.CodeMirror .cm-liquid {
+	color: #000;
+	background-color: #eee;
+	background-color: rgba(0,0,0, 0.07); /* for newer browsers, use transparent background, so selection is visible behind it */
+}
+
+.cm-liquid.CodeMirror-searching {
+	background: #ffa;
+	background: rgba(255, 255, 0, .4);
+}
+/* Every whitespace inside Liquid markup (except inside string constants) */
+.CodeMirror .cm-liquid-whitespace {
+}
+/* Number constants */
+.CodeMirror .cm-liquid-atom {
+	color: #AA00BB;
+}
+/* Variables, keywords and operators. Assigned by the Tokenizer which cannot differentiate between these */
+.CodeMirror .cm-liquid-word {
+}
+/* String constants */
+.CodeMirror .cm-liquid-string {
+	color: #228811;
+}
+/* {{, }}, {%, %} */
+.CodeMirror .cm-liquid-markup-delimiter {
+	color: #555;
+}
+/* The name of a Liquid tag (if, assign, for, ...) */
+.CodeMirror .cm-liquid-tag-name {
+	font-weight: bold;
+}
+/* The closing name of a Liquid block tag (endif, endfor) */
+.CodeMirror .cm-liquid-endtag-name {
+	font-weight: bold;
+}
+/* Keywords (in, reversed, with, ...) */
+.CodeMirror .cm-liquid-keyword {
+	font-weight: bold;
+}
+/* Operators */
+.CodeMirror .cm-liquid-operator {
+}
+/* The name of a Tag attribute (limit, offset) */
+.CodeMirror .cm-liquid-tag-attribute-name {
+	font-style: italic;
+}
+/* A Variable */
+.CodeMirror .cm-liquid-variable {
+}
+/* A method of a drop */
+.CodeMirror .cm-liquid-method {
+	font-style: italic;
+}
+/* The name one can give to a cycle tag */
+.CodeMirror .cm-liquid-tag-cycle-name {
+	font-style: italic;
+}
+/* A filter in output markdown */
+.CodeMirror .cm-liquid-filter {
+	font-style: italic;
+}
+/* Every output markup, including the {{ and }} */
+.CodeMirror .cm-liquid-output-markup {
+}
+/* Every tag markup, including the {% and %} */
+.CodeMirror .cm-liquid-tag-markup {
+}
+
+/* Code hint styling */
+.CodeMirror-hints {
+    scrollbar-width: thin;
+    scrollbar-color: lightgray #fff;
+}
+
+:is(
+.cm-hint-kind-Primitive,
+.cm-hint-kind-Complex,
+.cm-hint-kind-Collection,
+.cm-hint-kind-tag,
+.cm-hint-kind-filter)::before {
+    content: "";
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    margin-inline-end: 6px;
+    vertical-align: -0.125em;
+    background-color: var(--gray-600);
+    mask: var(--cm-hint-icon) center / contain no-repeat;
+    mask-mode: alpha;
+}
+
+.CodeMirror-hint-active::before,
+.CodeMirror-hint:hover::before {
+    background-color: currentColor;
+}
+
+.cm-hint-kind-Primitive {
+    /* Primitive */
+    --cm-hint-icon: #{icon-url("wrench")};
+}
+
+.cm-hint-kind-Complex {
+    /* Complex */
+    --cm-hint-icon: #{icon-url("hi:box!")};
+}
+
+.cm-hint-kind-Collection {
+    /* Collection */
+    --cm-hint-icon: #{icon-url("second-bracket")};
+}
+
+.cm-hint-kind-tag {
+    /* Liquid Tags */
+    --cm-hint-icon: #{icon-url("code")};
+}
+
+.cm-hint-kind-filter {
+    /* Liquid Filters */
+    --cm-hint-icon: #{icon-url("filter")};
+}

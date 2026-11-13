@@ -250,7 +250,7 @@ public class GridTagHelper : SmartTagHelper
         }
 
         // Root wrapper div .datagrid-root
-        output.PreElement.AppendHtml($"<div class='{cssClass}'>");
+        output.PreElement.AppendHtml($"<div id='{Id}-root' class='{cssClass}'>");
 
         // Append .datagrid-loader
         output.PostElement.AppendHtml(LoaderHtml);
@@ -259,6 +259,7 @@ public class GridTagHelper : SmartTagHelper
         output.PostElement.AppendHtml("</div>");
 
         output.TagName = "sm-datagrid";
+        output.Attributes.Add("ref", "grid");
         output.Attributes.Add(":options", "options");
         output.Attributes.Add(":data-source", "dataSource");
         output.Attributes.Add(":columns", "columns");
@@ -288,7 +289,7 @@ public class GridTagHelper : SmartTagHelper
                 else
                 {
                     // No custom edit template specified
-                    editorSlot.InnerHtml.AppendHtml(HtmlHelper.EditorFor(column.For));
+                    editorSlot.InnerHtml.AppendHtml(HtmlHelper.EditorFor(column.For, new { size = "sm", htmlAttributes = new { @class = "form-control-sm" } }));
                     //editorSlot.InnerHtml.AppendHtml(HtmlHelper.ValidationMessageFor(column.For));
                 }
 
@@ -310,7 +311,9 @@ public class GridTagHelper : SmartTagHelper
 <script>
     $(function() {{ 
         window.Res.DataGrid = {GenerateClientRes()};
-        window['{Id}'] = new Vue({GenerateVueJson(preservedCommandState)}); 
+        window['{Id}'] = Smartstore.Admin.DataGridVue.mount(
+            document.getElementById('{Id}-root'),
+            {GenerateVueData(preservedCommandState)});
     }})
 </script>");
     }
@@ -345,10 +348,11 @@ public class GridTagHelper : SmartTagHelper
         return SerializeObject(clientRes);
     }
 
-    private string GenerateVueJson(GridCommand command)
+    private string GenerateVueData(GridCommand command)
     {
         var modelType = Columns.FirstOrDefault()?.For?.Metadata?.ContainerType;
-        var defaultDataRow = modelType != null && modelType.HasDefaultConstructor()
+        var canInsertRows = AllowEdit && DataSource?.Insert.HasValue() == true;
+        var defaultDataRow = canInsertRows && modelType != null && modelType.HasDefaultConstructor()
             ? Activator.CreateInstance(modelType)
             : null;
 
@@ -357,11 +361,6 @@ public class GridTagHelper : SmartTagHelper
         {
             command = null;
         }
-
-        var dict = new Dictionary<string, object>
-        {
-            { "el", "#" + Id }
-        };
 
         string antiforgeryToken = null;
         var isAjax = ViewContext.HttpContext.Request.IsAjax();
@@ -412,10 +411,7 @@ public class GridTagHelper : SmartTagHelper
             editing = new { active = false }
         };
 
-        dict["data"] = data;
-
-        var json = SerializeObject(dict);
-        return json;
+        return SerializeObject(data);
     }
 
     private static string SerializeObject(object obj)

@@ -1,0 +1,21 @@
+// Keep accent-button labels legible and stable across background shades.
+$min-contrast-ratio: 4.5;
+
+// Emphasized body links must brighten on the dark canvas.
+$body-emphasis-color: $gray-900;
+
+// Dark defaults for components that otherwise retain Bootstrap's white surfaces.
+$input-bg: $gray-200;
+$input-color: $body-color;
+$input-disabled-bg: $gray-100;
+$input-placeholder-color: $body-secondary-color;
+$input-group-addon-bg: $gray-100;
+$input-group-addon-color: $body-color;
+$custom-select-bg: $input-bg;
+$custom-select-color: $input-color;
+$custom-file-bg: $input-bg;
+$custom-file-color: $input-color;
+$popover-bg: $gray-100;
+$popover-body-color: $body-color;
+$modal-content-bg: $gray-100;
+$modal-content-border-color: $gray-300;

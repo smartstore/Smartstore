@@ -1,65 +1,47 @@
 /// <reference path="references.scss" />
 
-.more-less {
+.text-expander {
     display: block;
     position: relative;
-    max-height: 260px;
-    overflow: hidden;
     margin-bottom: 1.5rem;
 
-    $c: $body-bg;
-    @if alpha($body-bg) == 0 {
-        $c: $site-bg;
-    }
+    // TODO: Remove these legacy variable fallbacks after external themes have
+    // migrated to the canonical custom properties.
+    --text-expander-collapsed-height: var(--text-expander-max-height, 230px);
+    --text-expander-fade-size: var(--text-expander-fade-height, var(--text-expander-height, #{($font-size-base * $line-height-base) * 3}));
 
-    --tebg-start: rgba(var(--bg-color-rgb, #{to-rgb($c)}), 0);
-    --tebg-end: var(--bg-color, #{$c});
-
-    .btn-text-expander {
+    .text-expander-toggle {
         display: none;
-		align-items: center;
-        justify-content: var(--text-expander-justify-content, initial);
-        position: absolute;
-        color: inherit;
-        font-size: $font-size-base;
-        font-weight: $font-weight-medium;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        z-index: 2;
-        text-decoration: none !important;
+        margin-inline: auto;
     }
 
-    .btn-text-expander--expand {
-        &:before {
-            content: '';
-            position: absolute;
-            z-index: -1;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            height: var(--text-expander-height, #{($font-size-base * $line-height-base) * 3});
-            background: linear-gradient(to bottom, var(--tebg-start), var(--tebg-end) 70%, var(--tebg-end) 100%);
-        }
-
-        &:focus-visible {
-            box-shadow: none;
-            outline: $focus-ring-width solid $focus-ring-color;
-            outline-offset: -$focus-ring-width;
-        }
+    .text-expander-viewport {
+        display: flow-root;
     }
 
-    .btn-text-expander--collapse {
-        position: relative;
-        font-weight: normal;
+    .text-expander-label-less {
+        display: none;
     }
 
-    &.collapsed {
-        .btn-text-expander--expand { display: flex; }
+    .text-expander-toggle[aria-expanded=true] {
+        .text-expander-label-more { display: none; }
+        .text-expander-label-less { display: inline; }
     }
 
-    &.expanded {
-        max-height: none !important;
-        .btn-text-expander--collapse { display: flex; }
+    &.collapsed > .text-expander-viewport {
+        max-height: var(--text-expander-collapsed-height);
+        overflow: hidden;
+        mask-image: linear-gradient(
+            to bottom,
+            #000 calc(100% - var(--text-expander-fade-size)),
+            transparent 100%
+        );
+        mask-repeat: no-repeat;
+        mask-size: 100% 100%;
+    }
+
+    &.is-collapsible > .text-expander-toggle {
+        display: flex;
+        margin-block-start: $spacer * .5;
     }
 }

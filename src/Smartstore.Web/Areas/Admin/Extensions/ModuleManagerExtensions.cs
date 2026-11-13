@@ -78,7 +78,7 @@ public static class ModuleManagerExtensions
             Description = forEdit ? metadata.Description : manager.GetLocalizedDescription(metadata),
             DisplayOrder = metadata.DisplayOrder,
             IsEditable = metadata.IsEditable,
-            IconUrl = manager.GetIconUrl(metadata),
+            Icon = manager.GetIcon(metadata),
             ModuleDescriptor = metadata.ModuleDescriptor,
             IsConfigurable = metadata.IsConfigurable
         };

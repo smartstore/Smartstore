@@ -9,7 +9,7 @@
 }
 
 .login-box {
-    background-color: $white;
+    background-color: $card-bg;
 
     hr {
 		width: 100%;
@@ -20,7 +20,7 @@
 		margin-bottom: 0;
 	}
 
-	.input-group-icon > i {
+	.input-group-icon > .icon {
 		line-height: inherit;
 	}
 }
@@ -40,8 +40,6 @@
 }
 
 .pwd-rules {
-    --fa-li-margin: 2em;
-    --fa-li-width: 2.5em;
     color: var(--gray-600);
 }
 

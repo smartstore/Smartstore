@@ -1,0 +1,45 @@
+﻿using NUnit.Framework;
+using Smartstore.Core.Identity;
+using Smartstore.Test.Common;
+
+namespace Smartstore.Core.Tests.Platform.Identity;
+
+[TestFixture]
+public class CustomerSettingsTests
+{
+    [TestCase(CustomerLoginType.Username, CustomerNameFormat.ShowFirstName, true)]
+    [TestCase(CustomerLoginType.UsernameOrEmail, CustomerNameFormat.ShowFirstName, true)]
+    [TestCase(CustomerLoginType.Email, CustomerNameFormat.ShowFirstName, false)]
+    [TestCase(CustomerLoginType.Email, CustomerNameFormat.ShowUsernames, true)]
+    public void Supports_usernames(CustomerLoginType loginType, CustomerNameFormat nameFormat, bool expected)
+    {
+        var settings = new CustomerSettings
+        {
+            CustomerLoginType = loginType,
+            CustomerNameFormat = nameFormat
+        };
+
+        settings.SupportsUsernames().ShouldEqual(expected);
+    }
+
+    [TestCase(CustomerLoginType.Username, CustomerNameFormat.ShowFirstName, true, true)]
+    [TestCase(CustomerLoginType.Username, CustomerNameFormat.ShowFirstName, false, false)]
+    [TestCase(CustomerLoginType.Email, CustomerNameFormat.ShowUsernames, true, true)]
+    [TestCase(CustomerLoginType.Email, CustomerNameFormat.ShowUsernames, false, false)]
+    [TestCase(CustomerLoginType.Email, CustomerNameFormat.ShowFirstName, true, false)]
+    public void Can_edit_usernames(
+        CustomerLoginType loginType,
+        CustomerNameFormat nameFormat,
+        bool allowUsersToChangeUsernames,
+        bool expected)
+    {
+        var settings = new CustomerSettings
+        {
+            CustomerLoginType = loginType,
+            CustomerNameFormat = nameFormat,
+            AllowUsersToChangeUsernames = allowUsersToChangeUsernames
+        };
+
+        settings.CanEditUsernames().ShouldEqual(expected);
+    }
+}

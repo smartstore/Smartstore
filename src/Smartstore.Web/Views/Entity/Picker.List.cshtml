@@ -1,19 +1,5 @@
 ﻿@model EntityPickerModel
 
-@{
-    async Task HighlightSearchTermInTitle(EntityPickerModel.SearchResultModel item)
-    {
-        if (Model.HighlightSearchTerm && Model.SearchTerm.HasValue() && item.Title.HasValue())
-        {
-            @Html.Raw(item.Title.Replace(Model.SearchTerm, $"<span class='highlight'>{Model.SearchTerm}</span>", StringComparison.OrdinalIgnoreCase))
-        }
-        else
-        {
-            @item.Title
-        }
-    }
-}
-
 @foreach (var item in Model.SearchResult ?? Enumerable.Empty<EntityPickerModel.SearchResultModel>())
 {
     <div class="col-xl-3 col-lg-4 col-sm-6">
@@ -36,14 +22,14 @@
                         {
                             <span class="badge @item.LabelClassName">@item.LabelText</span>
                         }
-                        <span>@{ await HighlightSearchTermInTitle(item); }</span>
+                        <span>@Model.HighlightTitle(item.Title)</span>
                     </div>
-                    <div class="text-truncate">
+                    <div class="hstack text-truncate">
                         @if (item.Published.HasValue)
                         {
-                            <i class="published @(item.Published.Value ? "fa fa-globe" : "far fa-eye-slash")" title="@T(item.Published.Value ? "Common.Published" : "Common.Unpublished")"></i>
+                            <icon name="@(item.Published.Value ? "globe" : "eye-slash")" class="published flex-shrink-0 @(item.Published.Value ? "is-published" : "is-unpublished")" title="@T(item.Published.Value ? "Common.Published" : "Common.Unpublished")" />
                         }
-                        <span class="summary" title="@item.SummaryTitle">@item.Summary</span>
+                        <span class="summary text-truncate" title="@item.SummaryTitle">@item.Summary</span>
                     </div>
                 </div>
             </div>

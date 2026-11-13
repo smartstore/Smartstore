@@ -10,7 +10,7 @@
 <form method="post" asp-action="List">
     <div class="section-header">
         <div class="title">
-            <i class="fa fa-cube"></i>
+            <icon name="cube" />
             @T("Admin.Catalog.Products.Manage")
         </div>
         <div class="options">
@@ -20,7 +20,7 @@
                 <input asp-for="ProductCode" placeholder="@T("Admin.Catalog.Products.List.GoDirectlyToSku")" />
                 <div class="input-group-append">
                     <button type="submit" class="btn btn-secondary" id="go-to-product" name="go-to-product" value="go-to-product" title="@T("Admin.Catalog.Products.List.GoDirectlyToSku.Hint")">
-                        <i class="fa fa-search"></i>
+                        <icon name="search" />
                     </button>
                 </div>
             </div>

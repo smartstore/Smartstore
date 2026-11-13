@@ -9,6 +9,11 @@ namespace Smartstore.Admin.Components;
 
 public class DashboardIncompleteOrdersViewComponent : DashboardWidgetViewComponentBase
 {
+    /// <summary>
+    /// Gets the widget permission required to display this report.
+    /// </summary>
+    public const string RequiredPermission = Permissions.Dashboard.Widgets.Sales.IncompleteOrders;
+
     private readonly SmartDbContext _db;
 
     public DashboardIncompleteOrdersViewComponent(SmartDbContext db)
@@ -18,7 +23,7 @@ public class DashboardIncompleteOrdersViewComponent : DashboardWidgetViewCompone
 
     public override async Task<IViewComponentResult> InvokeAsync()
     {
-        if (!await Services.Permissions.AuthorizeAsync(Permissions.Order.Read))
+        if (!await Services.Permissions.AuthorizeAsync(RequiredPermission))
         {
             return Empty();
         }
@@ -64,11 +69,13 @@ public class DashboardIncompleteOrdersViewComponent : DashboardWidgetViewCompone
                 // Index 0: not Shipped.
                 IncompleteOrdersReportAddData(dataPoint, model, 0);
             }
+
             if (dataPoint.PaymentStatusId == (int)PaymentStatus.Pending)
             {
                 // Index 1: not paid.
                 IncompleteOrdersReportAddData(dataPoint, model, 1);
             }
+
             if (dataPoint.OrderStatusId == (int)OrderStatus.Pending)
             {
                 // Index 2: new order.

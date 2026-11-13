@@ -3,6 +3,10 @@
 (function ($, window, document, undefined) {
 
     var _commonPluginFactories = [
+        // Text expanders, including dynamically loaded admin content.
+        function (ctx) {
+            ctx.find('.text-expander, .more-less').textExpander();
+        },
         // panel toggling
         function (ctx) {
             ctx.find('input[type=checkbox][data-toggler-for]').each((i, el) => {
@@ -59,17 +63,6 @@
         function (ctx) {
             connectCopyToClipboard(ctx.find(".btn-clipboard"));
         },
-        //// Lazy summernote
-        //function (ctx) {
-        //    ctx.find(".html-editor-root").each(function (i, el) {
-        //        var $el = $(el);
-        //        summernote_image_upload_url = $el.data("summernote-image-upload-url");
-
-        //        if (!$el.data("lazy")) {
-        //            $el.find("> .summernote-editor").summernote($.extend(true, {}, summernote_global_config, { lang: $el.data("lang") }));
-        //        }
-        //    });
-        //},
         // Edit controls (select2, range, colorpicker, numberinput etc.)
         function (ctx) {
             initializeEditControls(ctx);
@@ -119,7 +112,7 @@
                     }
 
                     signal.toggleClass("d-none", !activate);
-                    $el.find("> .bi").toggleClass("d-none", activate);
+                    $el.find("> :is(.icon, sm-icon)").toggleClass("d-none", activate);
 
                     $el.attr("data-activate", !activate);
                 }
@@ -172,142 +165,6 @@
                     id: el.data('commit-id')
                 });
             }
-        });
-
-        // Sticky section-header
-        var navbar = $("#navbar");
-        var navbarHeight = navbar.height() || 1;
-        var sectionHeader = $('.section-header');
-        var sectionHeaderHasButtons = undefined;
-
-        navbar.find('.dropdown').on('show.bs.dropdown hidden.bs.dropdown', function (e) {
-            const toggle = e.relatedTarget;
-            const menu = toggle.nextElementSibling;
-
-            if (menu && !menu.classList.contains('dropdown-menu-right')) {
-                if (e.type == 'hidden') {
-                    menu.classList.remove('overflown');
-                    menu.style.removeProperty('--menu-offset');
-                    menu.style.removeProperty("left");
-                }
-                else {
-                    // Reset any previous adjustment before measuring
-                    menu.classList.remove('overflown');
-                    menu.style.left = "0px";
-                    menu.style.removeProperty('--menu-offset');
-
-                    requestAnimationFrame(() => {
-                        const rect = menu.getBoundingClientRect();
-                        const overflow = rect.right - document.documentElement.clientWidth;
-
-                        if (overflow > 0) {
-                            menu.classList.add('overflown');
-                            menu.style.setProperty('--menu-offset', `-${overflow + 4}px`);
-                            menu.style.removeProperty("left");
-                        }
-                    });
-                }
-            }
-        });
-
-        if (!sectionHeader.hasClass('nofix')) {
-            $(window).on("scroll resize", function (e) {
-                if (sectionHeaderHasButtons === undefined) {
-                    sectionHeaderHasButtons = sectionHeader.find(".options").children().length > 0;
-                }
-                if (sectionHeaderHasButtons === true) {
-                    var y = $(this).scrollTop();
-                    if (y >= navbarHeight) {
-                        sectionHeader.addClass("sticky");
-                        $(document.body).addClass("sticky-header");
-                        $(document.body).css('--content-offset', sectionHeader.outerHeight() + 'px');
-                    }
-                    else {
-                        sectionHeader.removeClass("sticky");
-                        $(document.body).removeClass("sticky-header");
-                        $(document.body).css('--content-offset', '');
-                    }
-                }
-            }).trigger('resize');
-        }
-
-        // Pane resizer
-        $(document).on('mousedown', '.resizer', function (e) {
-            var resizer = this;
-            var resizeNext = resizer.classList.contains('resize-next');
-            var initialPageX = e.pageX;
-            var pane = resizeNext ? resizer.nextElementSibling : resizer.previousElementSibling;
-
-            if (!pane)
-                return;
-
-            var container = resizer.parentNode;
-            var initialPaneWidth = pane.offsetWidth;
-
-            var usePercentage = !!(pane.style.width + '').match('%');
-
-            var addEventListener = document.addEventListener;
-            var removeEventListener = document.removeEventListener;
-
-            var resize = function (initialSize, offset) {
-                if (offset === void 0) offset = 0;
-
-                if (resizeNext)
-                    offset = offset * -1;
-
-                var containerWidth = container.clientWidth;
-                var paneWidth = initialSize + offset;
-
-                return (pane.style.width = usePercentage
-                    ? paneWidth / containerWidth * 100 + '%'
-                    : paneWidth + 'px');
-            };
-
-            resizer.classList.add('is-resizing');
-
-            // Resize once to get current computed size
-            var size = resize();
-
-            var onMouseMove = function (ref) {
-                var pageX = ref.pageX;
-                size = resize(initialPaneWidth, pageX - initialPageX);
-            };
-
-            var onMouseUp = function () {
-                // Run resize one more time to set computed width/height.
-                size = resize(pane.clientWidth);
-
-                resizer.classList.remove('is-resizing');
-
-                removeEventListener('mousemove', onMouseMove);
-                removeEventListener('mouseup', onMouseUp);
-
-                // Create resized event
-                var data = { "pane": pane, "resizer": resizer, "width": pane.style.width, "initialWidth": initialPaneWidth };
-                var event = new CustomEvent("resized", { "detail": data });
-
-                // Trigger the event
-                resizer.dispatchEvent(event);
-            };
-
-            addEventListener('mousemove', onMouseMove);
-            addEventListener('mouseup', onMouseUp);
-        });
-
-        // Popup toggle
-        $(document).on('click', '.popup-toggle', function (e) {
-            e.preventDefault();
-            openPopup({
-                url: this.href,
-                large: false,
-                flex: true,
-                closer: false,
-                keyboard: true,
-                backdrop: 'invisible',
-                centered: true,
-                scrollable: true
-            });
-            return false;
         });
 
         // Dropdown container

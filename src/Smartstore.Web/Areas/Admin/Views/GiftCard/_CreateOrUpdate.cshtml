@@ -69,7 +69,7 @@
                         <input asp-for="GiftCardCouponCode" />
                         <span class="input-group-append">
                             <button type="button" name="generateCouponCode" id="generateCouponCode" class="btn btn-secondary">
-                                <i class="fa fa-cog"></i>
+                                <icon name="gear"  />
                                 <span>@T("Admin.GiftCards.Fields.GiftCardCouponCode.Generate")</span>
                             </button>
                         </span>
@@ -129,7 +129,7 @@
                 <div class="adminData">
                     <span class="pr-3">@T(Model.IsRecipientNotified ? "Admin.Common.Yes" : "Admin.Common.No")</span>
                     <a href="#notify-recipient-popup" data-toggle="modal" class="btn btn-secondary">
-                        <i class="fa fa-envelope"></i>
+                        <icon name="mail"  />
                         <span>@T("Admin.GiftCards.Fields.IsRecipientNotified.Notify")…</span>
                     </a>
                 </div>

@@ -5,6 +5,7 @@ using System.Runtime.Serialization;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Smartstore.Core.Catalog.Discounts;
+using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
@@ -151,16 +152,23 @@ public partial class Category :
     public string ExternalLink { get; set; }
 
     /// <summary>
-		/// Gets or sets a text displayed in a badge next to the category within menus.
-		/// </summary>
+	/// Gets or sets a text displayed in a badge next to the category within menus.
+	/// </summary>
     [StringLength(400)]
     [LocalizedProperty]
     public string BadgeText { get; set; }
 
     /// <summary>
-		/// Gets or sets the type of the badge within menus.
-		/// </summary>
-    public int BadgeStyle { get; set; }
+	/// Gets or sets the type of the badge within menus.
+	/// </summary>
+    [StringLength(100)]
+    public string BadgeStyle { get; set; }
+
+    /// <summary>
+    /// Gets or sets the icon expression, including optional presentation modifiers.
+    /// </summary>
+    [StringLength(512)]
+    public string Icon { get; set; }
 
     /// <summary>
     /// Gets or sets the category alias.
@@ -254,6 +262,16 @@ public partial class Category :
     /// </summary>
     /// <remarks>Only effective in accordance with Withdrawal module.</remarks>
     public int? WithdrawalPeriodDays { get; set; }
+
+    /// <summary>
+    /// Gets or sets a value indicating whether products in the category can be withdrawn before shipping,
+    /// even if they are otherwise not eligible for withdrawal.
+    /// </summary>
+    /// <remarks>
+    /// Only effective in accordance with the Withdrawal module if the effective withdrawal period is 0
+    /// and <see cref="Product.IsShippingEnabled"/> is <c>true</c>.
+    /// </remarks>
+    public bool? AllowWithdrawalBeforeShipping { get; set; }
 
     /// <summary>
     /// Gets or sets a value indicating whether the entity has been deleted.

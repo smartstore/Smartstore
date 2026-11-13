@@ -64,7 +64,7 @@ public class HelloWorldBlockHandler : BlockHandlerBase<HelloWorldBlock>
 Place the following attribute on top of your `BlockHandler` definition.
 
 ```csharp
-[Block("helloworld", FriendlyName = "Hello World", Icon = "fa fa-eye")]
+[Block("helloworld", FriendlyName = "Hello World", Icon = "eye")]
 ```
 
 The input for this attribute represents the metadata of your block. Three things are accomplished here:
@@ -112,7 +112,7 @@ using Smartstore.Web.Modelling;
 
 namespace MyOrg.HelloWorld.Blocks
 {
-    [Block("helloworld", Icon = "fa fa-eye", FriendlyName = "Hello World")]
+    [Block("helloworld", Icon = "eye", FriendlyName = "Hello World")]
     public class HelloWorldBlockHandler : BlockHandlerBase<HelloWorldBlock>
     {
         // Doing nothing means default behavior.
@@ -319,7 +319,7 @@ Your complete code should look something like this:
 ```csharp
 namespace MyOrg.HelloWorld.Blocks
 {
-    [Block("helloworld", Icon = "fa fa-eye", FriendlyName = "Hello World")]
+    [Block("helloworld", Icon = "eye", FriendlyName = "Hello World")]
     public class HelloWorldBlockHandler : BlockHandlerBase<HelloWorldBlock>
     {
         protected override HelloWorldBlock Load(

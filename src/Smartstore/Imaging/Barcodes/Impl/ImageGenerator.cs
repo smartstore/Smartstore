@@ -1,5 +1,4 @@
-﻿using System.Numerics;
-using SixLabors.Fonts;
+﻿using SixLabors.Fonts;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Drawing.Processing;
 using SixLabors.ImageSharp.PixelFormats;
@@ -55,22 +54,18 @@ internal class ImageGenerator
         // Create bitmap.
         var image = new Image<Rgba32>(width, height);
 
-        image.Mutate(ctx =>
+        image.Mutate(ctx => ctx.Paint(canvas =>
         {
-            ctx.Fill(o.BackColor);
+            canvas.Fill(new SolidBrush(o.BackColor));
+            var foreground = new SolidBrush(o.ForeColor);
 
             for (var x = 0; x < barcode.Bounds.X; x++)
             {
                 if (!barcode.At(x, 0))
                     continue;
-                ctx.FillPolygon(
-                    o.ForeColor,
-                    new Vector2((o.Margin + x) * o.Scale, o.Margin * o.Scale),
-                    new Vector2((o.Margin + x + 1) * o.Scale, o.Margin * o.Scale),
-                    new Vector2((o.Margin + x + 1) * o.Scale, (o.BarHeightFor1DCode + o.Margin) * o.Scale),
-                    new Vector2((o.Margin + x) * o.Scale, (o.BarHeightFor1DCode + o.Margin) * o.Scale));
+                canvas.Fill(foreground, new Rectangle((o.Margin + x) * o.Scale, o.Margin * o.Scale, o.Scale, o.BarHeightFor1DCode * o.Scale));
             }
-        });
+        }));
 
         if (o.IncludeEanAsText && barcode.IsEanBarcode())
         {
@@ -88,9 +83,10 @@ internal class ImageGenerator
         // Create bitmap.
         var image = new Image<Rgba32>(width, height);
 
-        image.Mutate(ctx =>
+        image.Mutate(ctx => ctx.Paint(canvas =>
         {
-            ctx.Fill(o.BackColor);
+            canvas.Fill(new SolidBrush(o.BackColor));
+            var foreground = new SolidBrush(o.ForeColor);
 
             for (var y = 0; y < barcode.Bounds.Y; y++)
             {
@@ -98,15 +94,10 @@ internal class ImageGenerator
                 {
                     if (!barcode.At(x, y))
                         continue;
-                    ctx.FillPolygon(
-                        o.ForeColor,
-                        new Vector2((o.Margin + x) * o.Scale, (o.Margin + y) * o.Scale),
-                        new Vector2((o.Margin + x + 1) * o.Scale, (o.Margin + y) * o.Scale),
-                        new Vector2((o.Margin + x + 1) * o.Scale, (o.Margin + y + 1) * o.Scale),
-                        new Vector2((o.Margin + x) * o.Scale, (o.Margin + y + 1) * o.Scale));
+                    canvas.Fill(foreground, new Rectangle((o.Margin + x) * o.Scale, (o.Margin + y) * o.Scale, o.Scale, o.Scale));
                 }
             }
-        });
+        }));
 
         return new SharpImage(image);
     }
@@ -197,12 +188,7 @@ internal class ImageGenerator
 
         private static void RenderTextBack(Image<Rgba32> image, int x, int y, int width, int height, Color color)
         {
-            image.Mutate(ctx => ctx.FillPolygon(
-                color,
-                new Vector2(x, y),
-                new Vector2(x + width, y),
-                new Vector2(x + width, y + height),
-                new Vector2(x, y + height)));
+            image.Mutate(ctx => ctx.Paint(canvas => canvas.Fill(new SolidBrush(color), new Rectangle(x, y, width, height))));
         }
 
         private static void RenderText(Image<Rgba32> image, string text, float x, float y, Font font, Color color)
@@ -214,7 +200,7 @@ internal class ImageGenerator
                 Origin = new PointF(x, y),
             };
 
-            image.Mutate(ctx => ctx.DrawText(options, text, color));
+            image.Mutate(ctx => ctx.Paint(canvas => canvas.DrawText(options, text, new SolidBrush(color), null)));
         }
     }
 

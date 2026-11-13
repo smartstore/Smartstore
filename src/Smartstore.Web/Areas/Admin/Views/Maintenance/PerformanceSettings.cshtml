@@ -12,8 +12,8 @@
             @T("Admin.Configuration.Settings.Performance")
         </div>
         <div class="options">
-            <button type="submit" name="save" value="save" class="btn btn-warning">
-                <i class="fa fa-check"></i>
+            <button type="submit" name="save" value="save" class="btn btn-primary">
+                <icon name="check" />
                 <span>@T("Admin.Common.Save")</span>
             </button>
         </div>
@@ -228,6 +228,15 @@
                     <div class="adminData">
                         <editor asp-for="PerformanceSettings.MaxUnavailableAttributeCombinations" />
                         <span asp-validation-for="PerformanceSettings.MaxUnavailableAttributeCombinations"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="PerformanceSettings.MaxVariantPriceCalculations" />
+                    </div>
+                    <div class="adminData">
+                        <editor asp-for="PerformanceSettings.MaxVariantPriceCalculations" />
+                        <span asp-validation-for="PerformanceSettings.MaxVariantPriceCalculations"></span>
                     </div>
                 </div>
             </div>

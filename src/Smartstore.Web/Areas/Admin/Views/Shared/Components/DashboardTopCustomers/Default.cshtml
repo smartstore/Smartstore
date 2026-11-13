@@ -1,14 +1,31 @@
-﻿@using Smartstore.Admin.Models.Customers 
+﻿@using Smartstore.Core.Security
+@using Smartstore.Admin.Models.Customers
 
 @model DashboardTopCustomersModel
+
+@{
+    bool canReadCustomers = await CommonServices.Permissions.AuthorizeAsync(Permissions.Customer.Read);
+}
 
 <div class="report">
     <div class="report-title-row flex-wrap">
         <div class="report-title flex-grow-1 mr-3">@T("Admin.SalesReport.TopCustomers")</div>
         <nav>
             <div class="nav btn-group" role="tablist">
-                <a class="btn btn-secondary btn-dashboard nav-item active" id="customers-quantity-tab" data-toggle="tab" href="#customers-quantity" role="tab" aria-controls="customers-quantity" aria-selected="true">@T("Admin.SalesReport.ByQuantity")</a>
-                <a class="btn btn-secondary btn-dashboard nav-item" id="customers-amount-tab" data-toggle="tab" href="#customers-amount" role="tab" aria-controls="customers-amount" aria-selected="false">@T("Admin.SalesReport.ByAmount")</a>
+                <a class="btn btn-secondary btn-dashboard nav-item active"
+                   id="customers-quantity-tab"
+                   data-toggle="tab"
+                   href="#customers-quantity"
+                   role="tab"
+                   aria-controls="customers-quantity"
+                   aria-selected="true">@T("Admin.Dashboard.Labels.ByQuantity")</a>
+                <a class="btn btn-secondary btn-dashboard nav-item"
+                   id="customers-amount-tab"
+                   data-toggle="tab"
+                   href="#customers-amount"
+                   role="tab"
+                   aria-controls="customers-amount"
+                   aria-selected="false">@T("Admin.Dashboard.Labels.ByAmount")</a>
             </div>
         </nav>
     </div>
@@ -18,8 +35,8 @@
                 <table class="table table-3 small">
                     <thead>
                         <tr>
-                            <th class="display-row">@T("Admin.Customers.Reports.BestBy.Fields.Customer")</th>
-                            <th class="display-row text-center">@T("Account.CustomerOrders")</th>
+                            <th class="display-row">@T("Admin.Dashboard.Labels.Customer")</th>
+                            <th class="display-row text-center">@T("Admin.Dashboard.Labels.OrderCount")</th>
                             <th class="display-row text-right">@T("Common.Amount")</th>
                         </tr>
                     </thead>
@@ -28,7 +45,11 @@
                         {
                             <tr>
                                 <td class="display-row" title="@customer.CustomerDisplayName">
-                                    <a asp-action="Edit" asp-controller="Customer" asp-route-id="@customer.CustomerId">@customer.CustomerDisplayName</a>
+                                    <a sm-if="canReadCustomers"
+                                       asp-action="Edit"
+                                       asp-controller="Customer"
+                                       asp-route-id="@customer.CustomerId">@customer.CustomerDisplayName</a>
+                                    <span sm-if="!canReadCustomers">@customer.CustomerDisplayName</span>
                                 </td>
                                 <td class="display-row text-center font-weight-medium" title="@customer.OrderCount">@customer.OrderCount</td>
                                 <td class="display-row text-right" title="@customer.OrderTotal @T("Tax.InclVAT")">@customer.OrderTotal</td>
@@ -43,8 +64,8 @@
                 <table class="table table-3 small">
                     <thead>
                         <tr>
-                            <th class="display-row">@T("Admin.Customers.Reports.BestBy.Fields.Customer")</th>
-                            <th class="display-row text-center">@T("Account.CustomerOrders")</th>
+                            <th class="display-row">@T("Admin.Dashboard.Labels.Customer")</th>
+                            <th class="display-row text-center">@T("Admin.Dashboard.Labels.OrderCount")</th>
                             <th class="display-row text-right">@T("Common.Amount")</th>
                         </tr>
                     </thead>
@@ -53,7 +74,11 @@
                         {
                             <tr>
                                 <td class="display-row" title="@customer.CustomerDisplayName">
-                                    <a asp-action="Edit" asp-controller="Customer" asp-route-id="@customer.CustomerId">@customer.CustomerDisplayName</a>
+                                    <a sm-if="canReadCustomers"
+                                       asp-action="Edit"
+                                       asp-controller="Customer"
+                                       asp-route-id="@customer.CustomerId">@customer.CustomerDisplayName</a>
+                                    <span sm-if="!canReadCustomers">@customer.CustomerDisplayName</span>
                                 </td>
                                 <td class="display-row text-center" title="@customer.OrderCount">@customer.OrderCount</td>
                                 <td class="display-row text-right font-weight-medium" title="@customer.OrderTotal @T("Tax.InclVAT")">@customer.OrderTotal</td>

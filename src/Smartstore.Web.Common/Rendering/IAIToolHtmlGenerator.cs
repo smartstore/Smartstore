@@ -23,7 +23,7 @@ public partial interface IAIToolHtmlGenerator : IViewContextAware
     /// The icon button with a drop-down list to select the target property to be translated.
     /// <c>null</c> if there is no active <see cref="IAIProvider"/>.
     /// </returns>
-    TagBuilder? GenerateTranslationTool(ILocalizedModel model, string localizedEditorName);
+    Task<TagBuilder?> GenerateTranslationToolAsync(ILocalizedModel model, string localizedEditorName);
 
     /// <summary>
     /// Creates the button and the commands dropdown menu to open the text generation/optimize dialog.
@@ -35,7 +35,7 @@ public partial interface IAIToolHtmlGenerator : IViewContextAware
     /// The icon button inclusive dropdown to choose a rewrite command from.
     /// <c>null</c> if there is no active <see cref="IAIProvider"/>.
     /// </returns>
-    TagBuilder? GenerateTextTool(AttributeDictionary? attributes, AICommandLocation location, bool enabled = true);
+    Task<TagBuilder?> GenerateTextToolAsync(AttributeDictionary? attributes, AICommandLocation location, bool enabled = true);
 
     /// <summary>
     /// Creates the icon button to open the suggestion dialog.
@@ -45,7 +45,7 @@ public partial interface IAIToolHtmlGenerator : IViewContextAware
     /// The icon button to open the suggestion dialog.
     /// <c>null</c> if there is no active <see cref="IAIProvider"/>.
     /// </returns>
-    TagBuilder? GenerateSuggestionTool(AttributeDictionary? attributes);
+    Task<TagBuilder?> GenerateSuggestionToolAsync(AttributeDictionary? attributes);
 
     /// <summary>
     /// Creates the icon button to open the image creation dialog.
@@ -55,7 +55,7 @@ public partial interface IAIToolHtmlGenerator : IViewContextAware
     /// The icon button to open the image creation dialog.
     /// <c>null</c> if there is no active <see cref="IAIProvider"/>.
     /// </returns>
-    TagBuilder? GenerateImageCreationTool(AttributeDictionary? attributes);
+    Task<TagBuilder?> GenerateImageCreationToolAsync(AttributeDictionary? attributes);
 
     /// <summary>
     /// Generates the command dropdown items for the AI tool dropdown menu.
@@ -64,7 +64,7 @@ public partial interface IAIToolHtmlGenerator : IViewContextAware
     /// <param name="forHtml">Whether the text input is HTML formatted.</param>
     /// <param name="enabled">Whether to initially enable the command dropdown items.</param>
     /// <returns>The dropdown menu as HTML content.</returns>
-    IHtmlContent GenerateCommandMenuItems(AICommandLocation location, bool forHtml = false, bool enabled = true);
+    Task<IHtmlContent> GenerateCommandMenuItemsAsync(AICommandLocation location, bool forHtml = false, bool enabled = true);
 
     /// <summary>
     /// Gets the URL of the dialog.

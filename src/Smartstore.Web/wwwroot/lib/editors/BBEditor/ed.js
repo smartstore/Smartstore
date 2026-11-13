@@ -12,15 +12,13 @@ var content;
 var webRoot;
 
 function edToolbar(obj) {
-    document.write("<div class=\"bb-toolbar btn-toolbar\">");
-    document.write("<div class='btn-group mb-1'>");
-    document.write("<button type='button' class='btn btn-secondary btn-sm' name='btnBold' aria-label='Bold' onClick=\"doAddTags('[b]','[/b]','" + obj + "')\"><i class='fa fa-bold' aria-hidden='true'></i></button>");
-    document.write("<button type='button' class='btn btn-secondary btn-sm' name='btnItalic' aria-label='Italic' onClick=\"doAddTags('[i]','[/i]','" + obj + "')\"><i class='fa fa-italic' aria-hidden='true'></i></button>");
-    document.write("<button type='button' class='btn btn-secondary btn-sm' name='btnUnderline' aria-label='Underline' onClick=\"doAddTags('[u]','[/u]','" + obj + "')\"><i class='fa fa-underline' aria-hidden='true'></i></button>");
-    document.write("<button type='button' class='btn btn-secondary btn-sm' name='btnLink' aria-label='Link' onClick=\"doURL('" + obj + "')\"><i class='fa fa-link' aria-hidden='true'></i></button>");
-    document.write("<button type='button' class='btn btn-secondary btn-sm' name='btnCode' aria-label='Code' onClick=\"doAddTags('[code]','[/code]','" + obj + "')\"><i class='fa fa-code' aria-hidden='true'></i></button>");
-    document.write("<button type='button' class='btn btn-secondary btn-sm' name='btnQuote' aria-label='Quote' onClick=\"doAddTags('[quote]','[/quote]','" + obj + "')\"><i class='fa fa-quote-left' aria-hidden='true'></i></button>");
-    document.write("</div>");
+    document.write("<div class=\"bb-toolbar btn-toolbar mb-1\">");
+    document.write("<button type='button' class='btn btn-plain btn-icon btn-sm' name='btnBold' aria-label='Bold' onClick=\"doAddTags('[b]','[/b]','" + obj + "')\"><sm-icon name='bold' aria-hidden='true'></sm-icon></button>");
+    document.write("<button type='button' class='btn btn-plain btn-icon btn-sm' name='btnItalic' aria-label='Italic' onClick=\"doAddTags('[i]','[/i]','" + obj + "')\"><sm-icon name='italic' aria-hidden='true'></sm-icon></button>");
+    document.write("<button type='button' class='btn btn-plain btn-icon btn-sm' name='btnUnderline' aria-label='Underline' onClick=\"doAddTags('[u]','[/u]','" + obj + "')\"><sm-icon name='underline' aria-hidden='true'></sm-icon></button>");
+    document.write("<button type='button' class='btn btn-plain btn-icon btn-sm' name='btnLink' aria-label='Link' onClick=\"doURL('" + obj + "')\"><sm-icon name='link' aria-hidden='true'></sm-icon></button>");
+    document.write("<button type='button' class='btn btn-plain btn-icon btn-sm' name='btnCode' aria-label='Code' onClick=\"doAddTags('[code]','[/code]','" + obj + "')\"><sm-icon name='code' aria-hidden='true'></sm-icon></button>");
+    document.write("<button type='button' class='btn btn-plain btn-icon btn-sm' name='btnQuote' aria-label='Quote' onClick=\"doAddTags('[quote]','[/quote]','" + obj + "')\"><sm-icon name='quotes' aria-hidden='true'></sm-icon></button>");
     document.write("</div>");
 }
 

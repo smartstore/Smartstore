@@ -10,8 +10,7 @@
                 productRotatorAjaxUrl: ""
             };
 
-            var rtl = Smartstore.globalization.culture.isRTL,
-                marginX = 'margin-inline-start';
+            var rtl = Smartstore.globalization.culture.isRTL;
 
             settings = $.extend(defaults, settings);
 
@@ -132,21 +131,16 @@
                 }
 
                 function alignDrop(popper, drop, container) {
-                    var nav = $(".navbar-nav", container),
-                        left,
+                    var left,
                         right,
-                        popperWidth = popper.width(),
+                        popperRect = popper[0].getBoundingClientRect(),
+                        containerRect = container[0].getBoundingClientRect(),
+                        popperWidth = popperRect.width,
                         dropWidth = drop.width(),
-                        containerWidth = container.width();
+                        containerWidth = containerRect.width;
 
                     if (!rtl) {
-                        if (!window.touchable) {
-                            left = Math.ceil(popper.position().left + parseInt(nav.css('margin-inline-start')));
-                        }
-                        else {
-                            left = Math.ceil(popper.position().left + nav.position().left);
-                        }
-
+                        left = Math.ceil(popperRect.left - containerRect.left);
                         right = "auto";
 
                         if (left < 0) {
@@ -159,13 +153,7 @@
                     }
                     else {
                         left = "auto";
-
-                        if (!window.touchable) {
-                            right = Math.ceil(containerWidth - (popper.position().left + popperWidth));
-                        }
-                        else {
-                            right = Math.ceil(popper.position().right + nav.position().left);
-                        }
+                        right = Math.ceil(containerRect.right - popperRect.right);
 
                         if (right < 0) {
                             right = 0;
@@ -210,11 +198,11 @@
                 }
 
                 megamenuContainer.evenIfHidden(function (el) {
-
-                    megamenuContainer.find('ul').wrap('<div class="nav-slider position-relative" style="overflow-x: hidden" />');
-
                     var navSlider = $(".nav-slider", megamenu);
-                    var nav = $(".navbar-nav", navSlider);
+
+                    if ($.fn.scrollFade) {
+                        navSlider.scrollFade();
+                    }
 
                     if (!window.touchable) {
                         megamenuNext.on('click', function (e) {
@@ -229,109 +217,23 @@
                     }
 
                     function scrollToNextInvisibleNavItem(backwards) {
-                        // determine the first completely visible nav item (either from left or right side, depending on 'backwards')
-                        var firstVisible = findFirstVisibleNavItem(backwards);
+                        var sliderRect = navSlider[0].getBoundingClientRect();
+                        var visibleItems = navElems.filter(function () {
+                            var itemRect = this.getBoundingClientRect();
+                            return itemRect.left >= sliderRect.left - 1 && itemRect.right <= sliderRect.right + 1;
+                        });
 
-                        // depending on 'backwards': take next or previous nav item (it's not visible yet and should scroll into the visible area now)  
-                        var nextItem = backwards
-                            ? firstVisible.prev()
-                            : firstVisible.next();
-
-                        if (nextItem.length === 0)
+                        if (visibleItems.length === 0) {
                             return;
-
-                        // determine left pos of the item 
-                        var leftPos = nextItem.position().left;
-                        var offset = Math.abs(parseFloat(nav.css(marginX)));
-
-                        // 30 = offset for arrows
-                        // if 'backwards': scroll to the left position of the current item 
-                        var newMarginStart = rtl
-                            ? leftPos - offset - 31
-                            : (leftPos * -1) + 31;
-
-                        if ((!rtl && !backwards) || (rtl && backwards)) {
-                            // if 'forward': scroll to the right position of the current item 
-                            var rightPos = leftPos + nextItem.outerWidth(true) + 1;
-                            newMarginStart = rtl
-                                ? (nav.width() - rightPos - (nextItem[0].previousElementSibling ? 30 : 0)) * -1
-                                : navSlider.width() - rightPos - (nextItem[0].nextElementSibling ? 30 : 0);
                         }
 
-                        newMarginStart = Math.min(0, newMarginStart);
+                        var edgeItem = backwards ? visibleItems.first() : visibleItems.last();
+                        var edgeIndex = navElems.index(edgeItem);
+                        var nextIndex = backwards ? edgeIndex - 1 : edgeIndex + 1;
+                        var nextItem = navElems.get(nextIndex);
 
-                        nav.css(marginX, Math.ceil(newMarginStart) + 'px').one('transitionend', function (e) {
-                            // performs UI update after end of animation (.one(trans...))
-                            updateNavState();
-                        });
-                    }
-
-                    function findFirstVisibleNavItem(fromStart) {
-                        var navItems = navElems;
-                        if (!fromStart) {
-                            // turn nav items around as we start iteration from the right side
-                            navItems = $($.makeArray(navElems).reverse());
-                        }
-
-                        var result;
-                        var cntWidth = navSlider.width();
-                        var curMarginStart = rtl ? 0 : parseFloat(nav.css(marginX));
-
-                        function isInView(pos) {
-                            var realPos = pos + curMarginStart;
-                            return realPos >= 0 && realPos < cntWidth;
-                        }
-
-                        navItems.each(function (i, el) {
-                            // iterates all nav items from the left OR the right side and breaks loop once the left AND the right edges fall into the viewport
-                            var navItem = $(el);
-                            var leftPos = navItem.position().left;
-                            var leftIn = isInView(leftPos);
-                            if (leftIn) {
-                                var rightIn = isInView(leftPos + navItem.outerWidth(true));
-                                if (rightIn) {
-                                    result = navItem;
-                                    return false;
-                                }
-                            }
-                        });
-
-                        return result;
-                    }
-
-                    function updateNavState() {
-                        // updates megamenu status: arrows etc.
-                        var navWidth = 0;
-                        var realNavWidth = 0;
-                        var curMarginStart = 0;
-
-                        navElems.each(function (i, el) { realNavWidth += parseFloat($(this).outerWidth(true)); });
-                        realNavWidth = Math.floor(realNavWidth);
-
-                        if (window.touchable) {
-                            navWidth = nav.width();
-                            var offset = nav.position().left;
-                            curMarginStart = rtl ? (offset - 1) * -1 : offset;
-                        }
-                        else {
-                            navWidth = megamenu.width();
-                            curMarginStart = parseFloat(nav.css(marginX));
-                        }
-
-                        // If nav items don't fit in the megamenu container: display next arrow, otherwise hide it. 
-                        megamenu.toggleClass('megamenu-blend--next', realNavWidth > megamenu.width());
-
-                        if (curMarginStart < 0) {
-                            // user has scrolled: show prev arrow 
-                            megamenu.addClass('megamenu-blend--prev');
-
-                            // determine whether we reached the end
-                            var endReached = navWidth + Math.abs(curMarginStart) >= realNavWidth;
-                            megamenu.toggleClass('megamenu-blend--next', !endReached);
-                        }
-                        else {
-                            // we're at the beginning: fade out prev arrow
-                            megamenu.removeClass('megamenu-blend--prev');
+                        if (nextItem) {
+                            nextItem.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' });
                         }
                     }
 
@@ -339,23 +241,10 @@
                     if (window.touchable) {
                         megamenu.tapmove(function () {
                             closeNow($(".nav-item.active .nav-link"));
-                            updateNavState();
                         });
                     }
 
                     function onPageResized() {
-                        updateNavState();
-
-                        var liWidth = 0;
-                        navElems.each(function () { liWidth += $(this).width(); });
-
-                        if (liWidth > megamenuContainer.width()) {
-                            megamenuContainer.addClass("show-scroll-buttons");
-                        }
-                        else {
-                            megamenuContainer.removeClass("show-scroll-buttons");
-                        }
-
                         megamenuDropdownContainer.find('.megamenu-product-rotator > .artlist-grid').each(function (i, el) {
                             try {
                                 $(this).slick('unslick');
@@ -366,7 +255,6 @@
                         });
                     }
 
-                    // show scroll buttons when menu items don't fit into screen
                     EventBroker.subscribe("page.resized", function (msg, viewport) {
                         onPageResized();
                     });

@@ -33,12 +33,12 @@
     });
 
     var iconHints = {
-        check: { name: 'fa fa-check', color: 'success' },
-        question: { name: 'far fa-question-circle', color: 'warning' },
-        danger: { name: 'fa fa-exclamation-triangle', color: 'danger' },
-        info: { name: 'fa fa-info', color: 'info' },
-        warning: { name: 'fa fa-exclamation-circle', color: 'warning' },
-        delete: { name: 'fa fa-trash-can', color: 'danger' }
+        check: { name: 'check', color: 'success' },
+        question: { name: 'question-circle', color: 'warning' },
+        danger: { name: 'alert-danger', color: 'danger' },
+        info: { name: 'info', color: 'info' },
+        warning: { name: 'alert-warning', color: 'warning' },
+        delete: { name: 'trash', color: 'danger' }
     };
 
     function createBoxModal(type, opts) {
@@ -51,7 +51,7 @@
 				centerContent: true,
 				size: 'md', // sm | md | lg
 				message: message,
-				icon: null, // { type: 'check | question | warning | danger | info', name: <FaIconClass>, color: <BrandColor> }
+				icon: null, // { type: 'check | question | warning | danger | info | delete', name: <IconAddress>, color: <BrandColor> }
 				prompt: null, // { value: <string>, onInit: <fn>, invalidChars: <string> }
                 confirmId: null, // Id of "Do not ask again" checkbox
 				callback: callback,
@@ -120,10 +120,11 @@
         if (opts.icon && (opts.icon.type)) {
             var hint = iconHints[opts.icon.type];
             if (hint) {
-                if (opts.icon.name) hint.name = opts.icon.name;
                 color = opts.icon.color || hint.color;
                 if (type === 'confirm' && color === 'danger') modal.find('.btn-accept').addClass('btn-to-danger');
-                var icon = $('<i class="{0} text-{1} fa-fw fa-3x"></i>'.format(hint.name, opts.icon.color || hint.color));
+                var icon = $(document.createElement('sm-icon'))
+                    .attr('name', opts.icon.name || hint.name)
+                    .addClass('icon-fw icon-3x text-' + color);
                 icon.addClass('m{0}-3'.format(centerContent ? 'b' : 'r'));
                 boxBody.prepend(icon.wrap('<div class="modal-box-icon"></div>').parent());
             }

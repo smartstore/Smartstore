@@ -4,7 +4,6 @@ using SixLabors.ImageSharp.Processing.Processors.Dithering;
 using Size = System.Drawing.Size;
 using SharpSize = SixLabors.ImageSharp.Size;
 using Color = System.Drawing.Color;
-using SharpColor = SixLabors.ImageSharp.Color;
 using Rectangle = System.Drawing.Rectangle;
 using SharpRectangle = SixLabors.ImageSharp.Rectangle;
 using Point = System.Drawing.Point;
@@ -125,7 +124,7 @@ internal sealed class SharpImageTransformer : IImageTransformer
 
     public IImageTransformer BackgroundColor(Color color)
     {
-        _context.BackgroundColor(SharpColor.FromRgba(color.R, color.G, color.B, color.A));
+        _context.BackgroundColor(ImagingHelper.ConvertColor(color));
         return this;
     }
 
@@ -275,7 +274,7 @@ internal sealed class SharpImageTransformer : IImageTransformer
         }
         else
         {
-            _context.Vignette(SharpColor.FromRgba(color.Value.R, color.Value.G, color.Value.B, color.Value.A));
+            _context.Vignette(ImagingHelper.ConvertColor(color.Value));
         }
 
         return this;
@@ -284,7 +283,7 @@ internal sealed class SharpImageTransformer : IImageTransformer
     public IImageTransformer Vignette(Color color, float radiusX, float radiusY, Rectangle rect)
     {
         _context.Vignette(
-            SharpColor.FromRgba(color.R, color.G, color.B, color.A),
+            ImagingHelper.ConvertColor(color),
             radiusX,
             radiusY,
             new SharpRectangle(rect.X, rect.Y, rect.Width, rect.Height));

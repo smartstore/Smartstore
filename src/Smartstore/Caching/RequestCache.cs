@@ -22,7 +22,7 @@ public class RequestCache : Disposable, IRequestCache
 
     protected IDictionary<object, object> GetItemsDictionary()
     {
-        var httpItems = _httpContextAccessor.HttpContext?.Items;
+        var httpItems = _httpContextAccessor?.HttpContext?.Items;
 
         if (httpItems != null)
         {

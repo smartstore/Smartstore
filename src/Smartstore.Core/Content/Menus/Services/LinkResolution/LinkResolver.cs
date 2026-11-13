@@ -71,8 +71,8 @@ public partial class LinkResolver : ILinkResolver
                     .SelectMany(x => x.GetBuilderMetadata())
                     .Concat(
                     [
-                        new LinkBuilderMetadata { Schema = SchemaFile, Icon = "far fa-folder-open", ResKey = "Common.File", Order = 100 },
-                        new LinkBuilderMetadata { Schema = SchemaUrl, Icon = "fa fa-link", ResKey = "Common.Url", Order = 200 }
+                        new LinkBuilderMetadata { Schema = SchemaFile, Icon = "folder-open", ResKey = "Common.File", Order = 100 },
+                        new LinkBuilderMetadata { Schema = SchemaUrl, Icon = "link", ResKey = "Common.Url", Order = 200 }
                     ])
                     .OrderBy(x => x.Order)
                     .ToArray();

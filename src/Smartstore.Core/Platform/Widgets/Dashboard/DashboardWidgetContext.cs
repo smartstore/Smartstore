@@ -23,4 +23,15 @@ public sealed class DashboardWidgetContext
     /// Gets a value indicating whether the dashboard is rendered in edit mode.
     /// </summary>
     public bool IsEditMode { get; init; }
+
+    /// <summary>
+    /// Gets whether this load explicitly requests fresh data from the widget's data source.
+    /// </summary>
+    public bool Refresh { get; init; }
+
+    /// <summary>
+    /// Gets transient display parameters. Widgets must validate their own supported parameters.
+    /// These values never replace persisted instance settings.
+    /// </summary>
+    public IReadOnlyDictionary<string, string> Parameters { get; init; } = new Dictionary<string, string>();
 }

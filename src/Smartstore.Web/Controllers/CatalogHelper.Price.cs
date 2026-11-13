@@ -1,4 +1,6 @@
 ﻿using System.Runtime.CompilerServices;
+using Smartstore.Collections;
+using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Catalog.Search;
@@ -54,15 +56,15 @@ public partial class CatalogHelper
         };
 
         // Apply price adjustments of attributes.
-        if (ctx.SelectedAttributes != null)
+        if (ctx.VariantEvaluation?.HasSelection == true)
         {
             // Apply price adjustments of selected attributes.
-            calculationContext.AddSelectedAttributes(ctx.SelectedAttributes, product.Id, bundleItem?.Id);
+            calculationContext.AddSelectedAttributes(ctx.VariantEvaluation.Selection, product.Id, bundleItem?.Id);
         }
         else if (isBundle && product.BundlePerItemPricing && ctx.VariantQuery.Variants.Count > 0)
         {
             // Apply price adjustments of selected bundle items attributes.
-            // INFO: bundles themselves don't have attributes, that's why ctx.SelectedAttributes is null.
+            // INFO: bundles themselves don't have attributes, that's why ctx.VariantEvaluation is null.
             calculationContext.BundleItems = await ctx.BatchContext.ProductBundleItems.GetOrLoadAsync(product.Id);
 
             ctx.BatchContext.Collect(calculationContext.BundleItems.Select(x => x.ProductId).ToArray());
@@ -187,13 +189,13 @@ public partial class CatalogHelper
         _services.DisplayControl.AnnounceRange(product.ProductCategories.Select(x => x.Category));
     }
 
-    private async Task PrepareTierPriceModelAsync(ProductDetailsPriceModel model, ProductDetailsModelContext modelContext)
+    private async Task PrepareTierPriceModelAsync(ProductDetailsPriceModel model, ProductDetailsModelContext ctx)
     {
-        var product = modelContext.Product;
+        var product = ctx.Product;
 
         var tierPrices = product.TierPrices
-            .FilterByStore(modelContext.Store.Id)
-            .FilterForCustomer(modelContext.Customer)
+            .FilterByStore(ctx.Store.Id)
+            .FilterForCustomer(ctx.Customer)
             .OrderBy(x => x.Quantity)
             .ToList()
             .RemoveDuplicatedQuantities();
@@ -202,16 +204,16 @@ public partial class CatalogHelper
             return;
         }
 
-        var calculationOptions = _priceCalculationService.CreateDefaultOptions(false, modelContext.Customer, modelContext.Currency, modelContext.BatchContext);
+        var calculationOptions = _priceCalculationService.CreateDefaultOptions(false, ctx.Customer, ctx.Currency, ctx.BatchContext);
         calculationOptions.TaxFormat = null;
 
         var calculationContext = new PriceCalculationContext(product, 1, calculationOptions)
         {
-            AssociatedProducts = modelContext.AssociatedProducts,
-            BundleItem = modelContext.ProductBundleItem
+            AssociatedProducts = ctx.AssociatedProducts,
+            BundleItem = ctx.ProductBundleItem
         };
 
-        calculationContext.AddSelectedAttributes(modelContext.SelectedAttributes, product.Id, modelContext.ProductBundleItem?.Id);
+        calculationContext.AddSelectedAttributes(ctx.VariantEvaluation?.Selection, product.Id, ctx.ProductBundleItem?.Id);
 
         var tierPriceModels = await tierPrices
             .SelectAwait(async (tierPrice) =>
@@ -234,6 +236,68 @@ public partial class CatalogHelper
         {
             model.TierPrices.AddRange(tierPriceModels);
         }
+    }
+
+    protected internal virtual async Task<IReadOnlyDictionary<int, CalculatedPrice>> CalculateProductVariantPricesAsync(
+        ProductDetailsModelContext ctx,
+        IReadOnlyCollection<ProductVariantCandidate> candidates,
+        int selectedQuantity)
+    {
+        // A disabled calculation needs no grouping; the caller still retains the complete candidate collection.
+        var maxCalculations = _performanceSettings.MaxVariantPriceCalculations;
+        if (candidates.Count == 0 || maxCalculations <= 0)
+        {
+            return new Dictionary<int, CalculatedPrice>();
+        }
+
+        var candidatesBySelection = new Multimap<ProductVariantAttributeSelection, ProductVariantCandidate>();
+        foreach (var candidate in candidates)
+        {
+            candidatesBySelection.Add(candidate.Selection, candidate);
+
+            // Distinct selections cannot decrease as more candidates arrive. Stop hashing and allocating groups
+            // once the existing all-or-nothing price limit is exceeded, without modifying the input candidates.
+            if (candidatesBySelection.Count > maxCalculations)
+            {
+                return new Dictionary<int, CalculatedPrice>();
+            }
+        }
+
+        var product = ctx.Product;
+        var pricingOptions = _priceCalculationService.CreateDefaultOptions(false, ctx.Customer, null, ctx.BatchContext);
+        pricingOptions.TaxFormat = null;
+
+        var calculationContexts = new List<PriceCalculationContext>(candidatesBySelection.Count);
+
+        foreach (var group in candidatesBySelection)
+        {
+            var candidate = group.Value.First();
+            var calculationContext = new PriceCalculationContext(product, selectedQuantity, pricingOptions)
+            {
+                AssociatedProducts = ctx.AssociatedProducts,
+                BundleItem = ctx.ProductBundleItem,
+                AttributeCombination = candidate.Combination
+            };
+
+            calculationContext.AddSelectedAttributes(group.Key, product.Id, ctx.ProductBundleItem?.Id);
+            calculationContexts.Add(calculationContext);
+        }
+
+        var calculatedPrices = await _priceCalculationService.CalculatePricesAsync(calculationContexts, _db);
+        var prices = new Dictionary<int, CalculatedPrice>();
+        var index = 0;
+
+        foreach (var group in candidatesBySelection)
+        {
+            var price = calculatedPrices[index++];
+
+            foreach (var candidate in group.Value)
+            {
+                prices[candidate.AttributeValue.Id] = price;
+            }
+        }
+
+        return prices;
     }
 
     #endregion
@@ -447,10 +511,14 @@ public partial class CatalogHelper
 
         if (label.HasValue())
         {
+            var normalizedStyle = Enum.TryParse<ThemeColor>(style, true, out var legacyStyle)
+                ? legacyStyle.ToString().ToLowerInvariant()
+                : style;
+
             badges.Add(new ProductBadgeModel
             {
                 Label = label,
-                Style = (style.IsNumeric() ? Enum.Parse<BadgeStyle>(style).ToString().ToLower() : style) ?? "dark",
+                Style = normalizedStyle ?? "dark",
                 DisplayOrder = 10
             });
         }

@@ -1,4 +1,5 @@
-﻿@model ConfigurationModel
+﻿@using Smartstore.Web.Models.Media
+@model ConfigurationModel
 
 @{
     Layout = "_ConfigureModule"; 
@@ -8,8 +9,8 @@
 
 <form asp-action="Configure"> 
     <widget target-zone="admin_button_toolbar_before">
-        <button id="SaveConfigButton" type="submit" name="save" class="btn btn-warning" value="save">
-            <i class="fa fa-check"></i>
+        <button id="SaveConfigButton" type="submit" name="save" class="btn btn-primary" value="save">
+            <icon name="check"  />
             <span>@T("Admin.Common.Save")</span> 
         </button>
     </widget>
@@ -51,6 +52,105 @@
             <div class="adminData">
                 <setting-editor asp-for="DisplayMachineName"></setting-editor>
                 <span asp-validation-for="DisplayMachineName"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="admin-config-group">
+                <div class="title">@T("Common.Icons")</div>
+                <div class="info adminContainer">
+                    <p class="mb-0">@T("Plugins.Developer.DevTools.IconBrowser.Hint")</p>
+                </div>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminData wide">
+                <div class="adminContainer">
+                    @{
+                        var browserModel = new Smartstore.Web.Models.Media.IconBrowserModel
+                        {
+                            VisibleOptions = Smartstore.Web.Models.Media.IconOptionFields.All,
+                            ShowHiddenKits = true,
+                            ShowProviderIndicators = true
+                        };
+                    }
+                    <div class="devtools-icon-code">
+                        @Html.EditorFor(_ => browserModel, "IconBrowser", "BrowserIcon")
+                        <div class="row gx-2 mt-3">
+                            <div class="col-3 dropdown">
+                                <button type="button" class="btn btn-outline-secondary dropdown-toggle btn-block" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    <span class="text-truncate" data-code-format-label>Tag Helper</span>
+                                </button>
+                                <div class="dropdown-menu">
+                                    <button type="button" class="dropdown-item active" data-code-format="tag-helper">Tag Helper</button>
+                                    <button type="button" class="dropdown-item" data-code-format="component">Web Component</button>
+                                    <button type="button" class="dropdown-item" data-code-format="expression">Icon Expression</button>
+                                </div>
+                            </div>
+                            <div class="col-9">
+                                <div class="has-icon has-icon-right">
+                                    <button type="button" class="btn btn-plain btn-icon btn-clipboard input-group-icon pe-auto bg-transparent border-0 shadow-none" data-copy-from="#icon-code-output" style="min-height: 0" disabled
+                                            aria-label="@T("Common.CopyToClipboard")">
+                                        <icon name="copy" />
+                                    </button>
+                                    <input id="icon-code-output" type="text" class="form-control text-monospace" readonly spellcheck="false"
+                                           aria-label="@T("Plugins.Developer.DevTools.IconCode")" placeholder="@T("Plugins.Developer.DevTools.IconCode.Empty")" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <script src="~/Modules/Smartstore.DevTools/js/smartstore.iconcode.js" sm-target-zone="scripts" sm-key="devtools-icon-code"></script>
+                </div>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="admin-config-group">
+                <div class="title">@T("Plugins.Developer.DevTools.KitFiles")</div>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminData wide">
+                <div class="adminContainer">
+                    <div class="table-responsive">
+                        <table class="table admin-table">
+                            <thead>
+                                <tr>
+                                    <th>@T("Plugins.Developer.DevTools.KitFiles.Name")</th>
+                                    <th>@T("Plugins.Developer.DevTools.KitFiles.FileName")</th>
+                                    <th class="text-right">@T("Plugins.Developer.DevTools.KitFiles.Size")</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var kit in Model.KitFiles)
+                                {
+                                    <tr>
+                                        <td>@kit.Name</td>
+                                        <td>@kit.FileName</td>
+                                        <td class="text-right text-nowrap">@Smartstore.Utilities.Prettifier.HumanizeBytes(kit.Size)</td>
+                                    </tr>
+                                }
+                                @if (Model.KitFiles.Count == 0)
+                                {
+                                    <tr><td colspan="3" class="text-muted">@T("Plugins.Developer.DevTools.KitFiles.Empty")</td></tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="admin-config-group">
+                <div class="title">@T("Plugins.Developer.DevTools.CachedIcons") <span class="badge badge-secondary ml-2">@Model.CachedIcons.Count</span></div>
+                <div class="info adminContainer">
+                    <p>@T("Plugins.Developer.DevTools.CachedIcons.Hint")</p>
+                </div>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminData wide">
+                <div class="adminContainer">
+                    <partial name="_CachedIcons" model="Model.CachedIcons" />
+                </div>
             </div>
         </div>
     </div>

@@ -8,14 +8,14 @@
     <div class="section-header">
         <div class="title">
             <a sm-backto asp-action="List"></a>
-            <i class="far fa-user-edit"></i>
+            <icon name="user-edit" />
             <span>@ViewBag.Title - @(Model.FullName.NullEmpty() ?? (Model.IsGuest ? T("Admin.Customers.Guest") : string.Empty))</span>
         </div>
         <div class="options">
             <zone name="admin_button_toolbar_before" />
 
             <a sm-if="Model.DisplayProfileLink" asp-route="CustomerProfile" asp-route-id="@Model.Id" class="btn btn-outline-secondary" target="user-profile">
-                <i class="fa fa-up-right-from-square"></i>
+                <icon name="external-link" />
                 <span>@T("Common.UserProfile")</span>
             </a>
 
@@ -23,7 +23,7 @@
             {
                 <div class="btn-group">
                     <button type="button" class="btn btn-outline-secondary dropdown-toggle" data-toggle="dropdown">
-                        <i class="fa fa-envelope"></i>
+                        <icon name="mail" />
                         <span>@T("Common.Send")</span>
                     </button>
                     <div class="dropdown-menu">
@@ -35,28 +35,28 @@
             else
             {
                 <a href="#sendemail-window" data-toggle="modal" class="btn btn-outline-secondary">
-                    <i class="far fa-paper-plane"></i>
+                    <icon name="send" />
                     <span>@T("Admin.Customers.Customers.SendEmail")</span>
                 </a>
             }
 
             <a asp-action="Export" asp-route-id="@Model.Id" class="btn btn-outline-secondary">
-                <i class="fa fa-arrow-up-from-bracket"></i>
+                <icon name="upload" />
                 <span>@T("Common.Export")</span>
             </a>
 
             <span class="vr"></span>
 
-            <button type="submit" name="save" value="save" class="btn btn-warning" attr-formnovalidate='(Model.IsGuest, "formnovalidate")'>
-                <i class="fa fa-check"></i>
+            <button type="submit" name="save" value="save" class="btn btn-primary" attr-formnovalidate='(Model.IsGuest, "formnovalidate")'>
+                <icon name="check" />
                 <span>@T("Admin.Common.Save")</span>
             </button>
             <button type="submit" name="save" value="save-continue" class="btn btn-secondary" attr-formnovalidate='(Model.IsGuest, "formnovalidate")'>
                 <span>@T("Admin.Common.SaveContinue")</span>
             </button>
 
-            <button sm-if="!Model.Deleted" type="button" id="delete-customer" class="btn btn-danger">
-                <i class="far fa-trash-can"></i>
+            <button sm-if="!Model.Deleted" type="button" id="delete-customer" class="btn btn-secondary btn-destructive">
+                <icon name="trash" />
                 <span>@T("Admin.Customers.DeleteCustomer")</span>
             </button>
 

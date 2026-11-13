@@ -13,9 +13,11 @@ public class BundlingOptions
 
     public bool? EnableMinification { get; set; }
 
-    public bool? EnableAutoprefixer { get; set; }
+    /// <summary>Enables browser-targeted CSS transpilation independently of minification.</summary>
+    public bool? EnableCssTranspilation { get; set; }
 
-    public AutoprefixerOptions Autoprefixer { get; set; } = new AutoprefixerOptions();
+    /// <summary>Options for transpiling style bundles.</summary>
+    public CssTranspilerOptions CssTranspiler { get; set; } = new();
 
     public IFileProvider FileProvider { get; set; }
 
@@ -29,15 +31,11 @@ public class BundlingOptions
     public HttpsCompressionMode HttpsCompression { get; set; } = HttpsCompressionMode.Default;
 }
 
-public class AutoprefixerOptions
+public class CssTranspilerOptions
 {
+    /// <summary>Disables CSS transpilation by default in development unless explicitly enabled.</summary>
     public bool AlwaysDisableInDevMode { get; set; } = true;
-    public IList<string> Browsers { get; set; }
-    public bool Cascade { get; set; }
-    public bool Add { get; set; } = true;
-    public bool Remove { get; set; } = true;
-    public bool Supports { get; set; } = true;
-    public bool IgnoreUnknownVersions { get; set; }
-    public bool Flexbox { get; set; }
-    public bool Grid { get; set; }
+
+    /// <summary>Browserslist query that determines which CSS compatibility transforms are needed.</summary>
+    public string Targets { get; set; } = string.Empty;
 }

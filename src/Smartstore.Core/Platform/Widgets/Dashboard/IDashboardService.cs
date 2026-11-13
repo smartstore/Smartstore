@@ -21,6 +21,70 @@ public sealed class DashboardMetadata
 public interface IDashboardService
 {
     /// <summary>
+    /// Gets the personal view selection, defaulting to the user layer.
+    /// </summary>
+    DashboardLayoutLayer GetSelectedLayer(string dashboardId, Customer? customer);
+
+    /// <summary>
+    /// Persists only the current customer's view selection.
+    /// </summary>
+    Task SelectLayerAsync(string dashboardId, Customer customer, DashboardLayoutLayer layer, CancellationToken cancelToken = default);
+
+    /// <summary>
+    /// Loads a detached layer or, for reset previews, its fallback without changing storage.
+    /// </summary>
+    ValueTask<DashboardLayoutState> GetLayoutStateAsync(
+        string dashboardId,
+        Customer? customer,
+        DashboardLayoutLayer layer,
+        bool reset = false,
+        CancellationToken cancelToken = default);
+
+    /// <summary>
+    /// Applies trusted grid and ownership metadata from a server-loaded layout state to a draft.
+    /// </summary>
+    /// <param name="draft">The untrusted draft whose metadata is replaced.</param>
+    /// <param name="state">The trusted state loaded by the dashboard service.</param>
+    /// <param name="customer">The customer editing the draft.</param>
+    void ApplyDraftMetadata(DashboardLayout draft, DashboardLayoutState state, Customer customer);
+
+    /// <summary>
+    /// Validates a draft against the saved layer and its widget restrictions.
+    /// </summary>
+    Task ValidateDraftAsync(DashboardLayout layout, Customer customer, DashboardLayoutLayer layer, CancellationToken cancelToken = default);
+
+    /// <summary>
+    /// Saves or resets one mutable layer after validating its widget restrictions.
+    /// </summary>
+    Task SaveLayoutAsync(
+        DashboardLayout layout,
+        Customer customer,
+        DashboardLayoutLayer layer,
+        bool reset = false,
+        CancellationToken cancelToken = default);
+
+    /// <summary>
+    /// Prepares an explicitly supplied, validated layout for rendering without changing the selected view.
+    /// </summary>
+    ValueTask<DashboardRenderModel> PrepareDashboardAsync(
+        DashboardLayout layout,
+        Customer? customer,
+        bool isEditMode = false,
+        CancellationToken cancelToken = default);
+
+    /// <summary>
+    /// Prepares one available widget from a server-resolved layout, including its saved settings.
+    /// Returns null when the instance is missing or unavailable to the customer.
+    /// </summary>
+    ValueTask<DashboardRenderItem?> PrepareWidgetAsync(
+        DashboardLayout layout,
+        string instanceId,
+        Customer? customer,
+        bool refresh = false,
+        IReadOnlyDictionary<string, string>? parameters = null,
+        CancellationToken cancelToken = default);
+
+    /// <summary>
     /// Gets the descriptors of all registered dashboard widget types.
     /// </summary>
     /// <returns>The widget descriptors in their declared display order.</returns>

@@ -25,7 +25,7 @@ public class AIImageTagHelper() : AITagHelperBase()
     [HtmlAttributeName(MediaFolderAttributeName)]
     public string MediaFolder { get; set; }
 
-    protected override void ProcessCore(TagHelperContext context, TagHelperOutput output)
+    protected override async Task ProcessCoreAsync(TagHelperContext context, TagHelperOutput output)
     {
         output.TagMode = TagMode.StartTagAndEndTag;
         output.TagName = null;
@@ -36,7 +36,7 @@ public class AIImageTagHelper() : AITagHelperBase()
         }
 
         var attributes = GetTagHelperAttributes();
-        var tool = AIToolHtmlGenerator.GenerateImageCreationTool(attributes);
+        var tool = await AIToolHtmlGenerator.GenerateImageCreationToolAsync(attributes);
         if (tool == null)
         {
             return;

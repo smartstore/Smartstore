@@ -283,7 +283,12 @@ public partial class ProductCloner : IProductCloner
                 TextPrompt = attribute.TextPrompt,
                 IsRequired = attribute.IsRequired,
                 AttributeControlTypeId = attribute.AttributeControlTypeId,
-                DisplayOrder = attribute.DisplayOrder
+                DisplayOrder = attribute.DisplayOrder,
+                SwatchSize = attribute.SwatchSize,
+                SwatchAspectRatio = attribute.SwatchAspectRatio,
+                SwatchShape = attribute.SwatchShape,
+                ShowValueNameInSwatch = attribute.ShowValueNameInSwatch,
+                SwatchPriceDisplay = attribute.SwatchPriceDisplay
             };
         }
 
@@ -305,6 +310,7 @@ public partial class ProductCloner : IProductCloner
                     ProductVariantAttributeId = attributeClone.Id,
                     Name = value.Name,
                     Color = value.Color,
+                    AdditionalColors = value.AdditionalColors,
                     PriceAdjustment = value.PriceAdjustment,
                     WeightAdjustment = value.WeightAdjustment,
                     IsPreSelected = value.IsPreSelected,

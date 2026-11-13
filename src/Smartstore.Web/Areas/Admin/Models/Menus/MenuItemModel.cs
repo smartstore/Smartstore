@@ -1,8 +1,11 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.AspNetCore.Mvc.ModelBinding;
+using System.Text.Json.Serialization;
+using Smartstore.Web.Models.Media;
+using System.ComponentModel.DataAnnotations;
+using Smartstore.IconKit;
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Smartstore.Collections;
-using Smartstore.Core.Content.Media.Icons;
 using Smartstore.Core.Content.Menus;
 using Smartstore.Core.Localization;
 
@@ -55,12 +58,14 @@ public class MenuItemModel : TabbableModel, IIcon, ILocalizedModel<MenuItemLocal
     public bool NewWindow { get; set; }
 
     [LocalizedDisplay("*Icon")]
-    public string Icon { get; set; }
+    [UIHint("IconBrowser")]
+    public IconBrowserModel IconModel { get; set; } = new()
+    {
+        Area = "public",
+        VisibleOptions = IconOptionFields.All
+    };
 
-    public string Style { get; set; }
-
-    [LocalizedDisplay("*IconColor")]
-    public string IconColor { get; set; }
+    IconExpression? IIcon.Icon => IconModel.Icon;
 
     [LocalizedDisplay("*HtmlId")]
     public string HtmlId { get; set; }

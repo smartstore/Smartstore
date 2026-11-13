@@ -20,7 +20,7 @@
                 @Html.Raw(T("Account.CustomerSince", customerSince))
             </span>
             <span sm-if="Model.RewardPoints > 0" class="badge badge-pill badge-success pl-1">
-                <i class="far fa-certificate" aria-hidden="true"></i>
+                <icon name="certificate"  aria-hidden="true" />
                 @T("ShoppingCart.Totals.RewardPoints", ConvertUtility.ToHtmlDisplayString(Model.RewardPoints))
             </span>
         </div>

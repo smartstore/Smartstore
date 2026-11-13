@@ -125,14 +125,14 @@
                 <div class="card-header p-2">
                     <div class="dropdown">
                         <button type="button" class="btn btn-primary btn-flat dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            <i class="fa fa-plus"></i>
+                            <icon name="plus"  />
                             <span>@T("Admin.ContentManagement.AddMenuItem")</span>
                         </button>
                         <div class="dropdown-menu">
                             @foreach (var provider in Model.AllProviders)
                             {
                                 <a class="dropdown-item" asp-action="CreateItem" asp-route-providerName="@provider.Value" asp-route-menuId="@Model.Id" asp-route-parentItemId="0">
-                                    <i class="fa fa-plus"></i>
+                                    <icon name="plus"  />
                                     <span>@provider.Text</span>
                                 </a>
                             }

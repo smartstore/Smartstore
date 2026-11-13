@@ -1,6 +1,4 @@
-﻿@addTagHelper Smartstore.Web.TagHelpers.Admin.BootstrapIconTagHelper, Smartstore.Web.Common
-
-@using Smartstore.Utilities
+﻿@using Smartstore.Utilities
 
 @functions
 {
@@ -37,14 +35,14 @@
         @* 1. prepend type selector. *@
         <div class="link-type-container col-auto">
             <button type="button" class="btn btn-secondary btn-linktype btn-icon dropdown-toggle" attr-class='(size.HasValue(), "btn-" + size)' data-toggle="dropdown" title="">
-                <i class="fa fa-link"></i>
+                <icon name="link"  />
             </button>
             <div class="dropdown-menu">
                 @foreach (var schema in allowedSchemas)
                 {
                     var info = metadata[schema];
                     <a class="dropdown-item link-type" href="#" data-type="@schema">
-                        <i class="fa-fw @info.Icon"></i>
+                        <icon sm-if="info.Icon.HasValue()" name="@info.Icon" class="icon-fw" />
                         <span>@T(info.ResKey)</span>
                     </a>
                 }
@@ -73,9 +71,9 @@
                             <entity-picker max-items="1"
                                            onselectioncompleted="lbPickerSelectionCompleted@(rnd.ToString())"
                                            append-mode="false"
-                                           icon-css-class=""
+                                           icon="ellipsis"
                                            dialog-title="@T("Common.Entity.SelectProduct").Value"
-                                           caption="&hellip;" />
+                                           aria-label="@T("Common.Entity.SelectProduct").Value" />
                         </div>
                     </div>
                 }
@@ -117,7 +115,7 @@
                                data-file-manager-url="@Display.GetFileManagerUrl()"
                                data-field-id="lb-file-url-@rnd"
                                title="@(T("Common.BrowseFiles"))&hellip;">
-                                <i class="fa fa-upload"></i>
+                                <icon name="upload"  />
                                 <span sm-if='size != "sm"'>@(T("Common.BrowseFiles"))&hellip;</span>
                             </a>
                         </div>
@@ -130,17 +128,17 @@
         <div class="col-auto">
             <div class="btn-group">
                 <button type="button" class="btn btn-secondary btn-icon btn-to-danger btn-reset" attr-class='(size.HasValue(), "btn-" + size)' title="@T("Common.Remove")">
-                    <i class="fa fa-unlink"></i>
+                    <icon name="unlink"  />
                 </button>
                 <div sm-if="!hideLinkTarget" class="btn-group">
                     <button type="button"
-                            class="btn btn-secondary btn-icon btn-link-target dropdown-toggle"
+                            class="btn btn-secondary btn-icon btn-link-target dropdown-toggle@(linkTarget.HasValue() ? " btn-flagged" : "")"
                             attr-class='(size.HasValue(), "btn-" + size)'
                             title="@T("LinkBuilder.LinkTarget")"
                             data-toggle="dropdown"
                             aria-haspopup="true"
                             aria-expanded="false">
-                        <i class="far fa-window-restore @(linkTarget.HasValue() ? "text-success" : "text-muted")"></i>
+                        <icon name="browser" />
                     </button>
                     <div class="dropdown-menu dropdown-menu-check dropdown-menu-right dropdown-link-target">
                         <a class="dropdown-item" href="#" data-value="" attr-class='(linkTarget.IsNullOrEmpty(), "checked")'>@T("Common.Unspecified")</a>
@@ -151,16 +149,15 @@
                     </div>
                 </div>
 
-                <div sm-if="!hideQueryString" class="btn-group dropdown-container dropdown-focus">
+                <div sm-if="!hideQueryString" class="btn-group dropdown-container dropdown-focus link-query-string-container" attr-class='(expression.Schema == "url", "hide")'>
                     <button type="button"
-                            class="btn btn-secondary btn-icon btn-query-string dropdown-toggle@(size.HasValue() ? " btn-" + size : "")"
-                            attr-class='(expression.Schema == "url", "hide")'
+                            class="btn btn-secondary btn-icon btn-query-string dropdown-toggle@(expression.Query.HasValue() ? " btn-flagged" : "")@(size.HasValue() ? " btn-" + size : "")"
                             title="@T("Common.QueryString")"
                             data-toggle="dropdown"
                             aria-haspopup="true"
                             aria-expanded="false"
                             data-boundary="window">
-                        <i class="far fa-circle-question @(expression.Query.HasValue() ? "text-success" : "text-muted")"></i>
+                        <icon name="question-mark" />
                     </button>
                     <div class="dropdown-menu dropdown-menu-right">
                         <div class="px-2">

@@ -42,7 +42,10 @@ public class SmartLabelTagHelper : BaseFormTagHelper
         // Generate main <label/>
         output.TagName = "label";
         output.TagMode = TagMode.StartTagAndEndTag;
-        output.MergeAttribute("for", HtmlHelper.Id(For.Name), true);
+        if (!output.Attributes.ContainsName("for"))
+        {
+            output.Attributes.SetAttribute("for", HtmlHelper.Id(For.Name));
+        }
         output.Content.SetContent(labelText);
 
         if (!IgnoreHint)

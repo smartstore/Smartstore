@@ -1,0 +1,43 @@
+@using System.Text.Json
+@using Smartstore.Core.Catalog.Attributes
+@using Smartstore.Utilities
+
+@model object
+
+@{
+    var attributes = new AttributeDictionary().Merge(ConvertUtility.ObjectToDictionary(ViewData["htmlAttributes"] ?? new object()));
+    var propertyName = ViewData.ModelMetadata.PropertyName ?? ViewData.TemplateInfo.GetFullHtmlFieldName(string.Empty);
+    var shapes = Html.GetLocalizedEnumSelectList(typeof(SwatchShape)).Select(item => new
+    {
+        item.Value,
+        item.Text,
+        Icon = ((SwatchShape)item.Value.ToInt()) switch
+        {
+            SwatchShape.Rect => "rect-sharp",
+            SwatchShape.Rounded => "square",
+            SwatchShape.Circle => "circle",
+            _ => null
+        }
+    }).ToArray();
+
+    // Follow the same typed DefaultValue convention as Range; an empty selection still means inheritance.
+    var defaultShape = ViewData.TryGetAndConvertValue<SwatchShape>(propertyName + "DefaultValue", out var inheritedShape)
+        ? inheritedShape : SwatchShape.Rounded;
+    var placeholder = ViewData.ModelMetadata.IsNullableValueType
+        ? shapes.FirstOrDefault(x => x.Value == ((int)defaultShape).ToStringInvariant())
+            ?? shapes.First(x => x.Value == ((int)SwatchShape.Rounded).ToStringInvariant())
+        : null;
+    var placeholderData = placeholder == null ? null : JsonSerializer.Serialize(new
+    {
+        id = "",
+        text = placeholder.Text,
+        icon = placeholder.Icon
+    });
+}
+
+<select asp-for="@Model" asp-placeholder="@(placeholder?.Text)" data-placeholder="@placeholderData" attrs="attributes">
+    @foreach (var item in shapes)
+    {
+        <option value="@item.Value" data-icon="@item.Icon">@item.Text</option>
+    }
+</select>
