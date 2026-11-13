@@ -1567,3 +1567,11 @@ a.editable {
         --icon-size: var(--icon-browser-size, 24px);
     }
 }
+
+.color-palette-remove {
+    position: absolute;
+    inset-block-start: 50%;
+    inset-inline-end: 3rem;
+    transform: translateY(-50%);
+    z-index: 4;
+}

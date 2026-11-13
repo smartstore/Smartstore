@@ -36,7 +36,7 @@ public class CheckoutAttributeValueModel : EntityModelBase, ILocalizedModel<Chec
 
     [UIHint("ColorPalette")]
     [AdditionalMetadata("maxColors", ColorPaletteModel.DefaultMaxColors)]
-    [LocalizedDisplay("*Color")]
+    [LocalizedDisplay("Admin.Common.ColorPalette.Color")]
     public ColorPaletteModel Colors { get; set; } = new();
     public string Color => Colors?.Color;
     public bool HasColor => Color.HasValue();

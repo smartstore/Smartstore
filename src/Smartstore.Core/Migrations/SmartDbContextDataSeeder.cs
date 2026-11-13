@@ -548,6 +548,19 @@ public class SmartDbContextDataSeeder : IDataSeeder<SmartDbContext>
 
     private static void MigrateCatalogResources(LocaleResourcesBuilder builder)
     {
+        builder.AddOrUpdate("Admin.Common.ColorPalette.Color",
+            "Color",
+            "Farbe",
+            "Define up to four colors for this attribute value. The colors are only displayed when the attribute's control type is set to swatches.",
+            "Legen Sie bis zu vier Farben für diesen Attributwert fest. Die Farben werden nur angezeigt, wenn das Attribut als Swatches (Farb- und Bildmuster) dargestellt wird.");
+        builder.Delete(
+            "Admin.Catalog.Products.ProductVariantAttributes.Attributes.Values.Fields.ColorSquaresRgb",
+            "Admin.Catalog.Products.ProductVariantAttributes.Attributes.Values.Fields.ColorSquaresRgb.Hint",
+            "Admin.Catalog.Attributes.CheckoutAttributes.Values.Fields.Color",
+            "Admin.Catalog.Attributes.CheckoutAttributes.Values.Fields.Color.Hint");
+        builder.AddOrUpdate("Admin.Common.ColorPalette.AddColor", "Add color", "Farbe hinzufügen");
+        builder.AddOrUpdate("Admin.Common.ColorPalette.RemoveColor", "Remove this color field", "Dieses Farbfeld entfernen");
+
         string prefix = "Admin.Catalog.Products.";
 
         builder.Delete(

@@ -24,7 +24,7 @@ public class ProductAttributeOptionModel : EntityModelBase, ILocalizedModel<Prod
 
     [UIHint("ColorPalette")]
     [AdditionalMetadata("maxColors", ColorPaletteModel.DefaultMaxColors)]
-    [LocalizedDisplay("*ColorSquaresRgb")]
+    [LocalizedDisplay("Admin.Common.ColorPalette.Color")]
     public ColorPaletteModel Colors { get; set; } = new();
     public string Color => Colors?.Color;
     public bool HasColor => Color.HasValue();

@@ -555,11 +555,77 @@
         }
     }
 
+    const palettes = new WeakSet();
+
+    function initColorPalette(editor) {
+        if (palettes.has(editor)) return;
+        palettes.add(editor);
+
+        const maxColors = Math.max(1, parseInt(editor.dataset.maxColors) || 1);
+        const additionalName = editor.dataset.additionalName;
+        const addContainer = editor.querySelector(':scope > .color-palette-add-container');
+        const addButton = addContainer.querySelector('.color-palette-add');
+        const template = editor.querySelector(':scope > .color-palette-template');
+
+        function update() {
+            const items = editor.querySelectorAll(':scope > .color-palette-item');
+            const inputs = editor.querySelectorAll('.colorpicker-component > input');
+
+            items.forEach((item, index) => {
+                const input = item.querySelector('input');
+                input.name = `${additionalName}[${index}]`;
+                input.id = `${editor.id}_AdditionalColors_${index}_`;
+            });
+
+            inputs.forEach(input => {
+                input.title = input.value;
+            });
+            addContainer.classList.toggle('d-none', items.length >= maxColors - 1);
+            addButton.disabled = !inputs[inputs.length - 1]?.value.trim();
+        }
+
+        addButton.addEventListener('click', () => {
+            const index = editor.querySelectorAll(':scope > .color-palette-item').length;
+            if (addButton.disabled || index >= maxColors - 1) return;
+
+            const item = template.content.firstElementChild.cloneNode(true);
+            addContainer.before(item);
+            update();
+            initializeEditControls(item);
+            item.querySelector('input').focus();
+        });
+
+        editor.addEventListener('click', event => {
+            const removeButton = event.target.closest('.color-palette-remove');
+            if (!removeButton) return;
+
+            const item = removeButton.closest('.color-palette-item');
+            ColorPicker.getInstance(item.querySelector('[data-editor="color"]'))?.destroy();
+            item.remove();
+            update();
+        });
+
+        for (const type of ['input', 'change']) {
+            editor.addEventListener(type, event => {
+                if (event.target.matches('.colorpicker-component > input')) update();
+            });
+        }
+
+        update();
+    }
+
     namespace.ColorPicker = ColorPicker;
+    namespace.initColorPalette = initColorPalette;
 
     // Optional jQuery adapter for editor initialization and existing jQuery consumers.
     if (window.jQuery) {
         const $ = window.jQuery;
+        $.fn.colorPalette = function () {
+            return this.each(function () {
+                initColorPalette(this);
+            });
+        };
+
         $.fn.colorpicker = function (option, ...args) {
             if (option === 'getValue') return instances.get(this[0])?.getValue(...args);
             return this.each(function () {

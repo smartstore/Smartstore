@@ -25,7 +25,7 @@ SVG content, discovery and metadata conventions.
 
 | Icon | Why it is here |
 | --- | --- |
-| `cancel-01.svg` | Replaces the original strokes with one closed, rounded shape for cleaner rendering at small sizes. |
+| `cancel-01.svg` | Uses separate round-capped paths to paint the crossing independently with the original stroke width; thickness is controlled by the existing stroke scaling. |
 | `column-insert.svg` | Adds the required column-insertion depiction: existing column dashed, inserted column solid. |
 | `row-insert.svg` | Adds the required row-insertion depiction: existing row dashed, inserted row solid. |
 | `question-mark.svg` | Adds a standalone question mark without a surrounding circle. |
