@@ -34,6 +34,12 @@ public class SmartDbContextDataSeeder : IDataSeeder<SmartDbContext>
             "Admin.Orders.Fields.OrderSubTotalDiscountExclTax.Hint",
             "Admin.Orders.Fields.OrderSubtotalExclTax.Hint");
 
+        builder.AddOrUpdate("Admin.Configuration.Stores.Fields.StoreLogo",
+            "Store logo",
+            "Shop-Logo",
+            "Specifies the logo to be displayed in the store's header.",
+            "Legt das Logo fest, das im Kopfbereich des Shops angezeigt werden soll.");
+
         builder.AddOrUpdate("Admin.Orders.Products.AddNew.UnitPriceInclTax", "Unit price", "Einzelpreis");
         builder.AddOrUpdate("Admin.Orders.Products.AddNew.UnitPriceExclTax", "Unit price", "Einzelpreis");
         builder.AddOrUpdate("Admin.Orders.Products.AddNew.SubTotalInclTax", "Total", "Gesamt");

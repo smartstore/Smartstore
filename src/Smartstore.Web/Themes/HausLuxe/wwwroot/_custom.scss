@@ -165,7 +165,7 @@ h1, h2, h3, h4, h5, h6 {
     }
 
     .hero-card {
-        width: min(100%, 24rem);
+        width: #{"min(100%, 24rem)"};
         padding: 2rem;
         border-radius: 1.75rem;
         background: linear-gradient(160deg, #2b2725 0%, #423a36 100%);
@@ -279,4 +279,8 @@ h1, h2, h3, h4, h5, h6 {
             grid-template-columns: 1fr 1fr;
         }
     }
+}
+
+.shop-logo{
+    /*width: 90px;*/
 }

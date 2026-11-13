@@ -1,3 +1,4 @@
+@using Smartstore.Core.Theming
 @using Smartstore.Web.Theming
 
 @model IDictionary<string, object>
@@ -6,6 +7,39 @@
 
 @{
     Layout = null;
+}
+
+@functions {
+    void ThemeVarEditor(string name, string group = null, string hint = null)
+    {
+        var themeContext = Resolve<IThemeContext>();
+        var descriptor = themeContext?.CurrentTheme;
+        if (descriptor == null || !descriptor.Variables.TryGetValue(name, out var info))
+        {
+            return;
+        }
+
+        object value = Model.TryGetValue(name, out var v) ? v : info.DefaultValue;
+
+        if (group.HasValue())
+        {
+            <div class="adminRow">
+                <div class="admin-config-group">
+                    <div class="title">@group</div>
+                </div>
+            </div>
+        }
+
+        <div class="adminRow">
+            <div class="adminTitle">
+                @Html.ThemeVarLabel(info, hint)
+            </div>
+            <div class="adminData">
+                @Html.ThemeVarEditor(info, value)
+                @Html.ThemeVarChainInfo(info)
+            </div>
+        </div>
+    }
 }
 
 <tabstrip id="theme-hausluxe-edit" sm-nav-style="Material" class="theme-edit">

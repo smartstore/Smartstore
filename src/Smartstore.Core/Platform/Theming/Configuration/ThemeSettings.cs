@@ -29,7 +29,7 @@ public class ThemeSettings : ISettings
     /// <summary>
     /// Gets or sets a default store theme for desktops
     /// </summary>
-    public string DefaultTheme { get; set; } = "Flex";
+    public string DefaultTheme { get; set; } = "HausLuxe";
 
     /// <summary>
     /// Gets or sets a value indicating whether customers are allowed to select a theme
