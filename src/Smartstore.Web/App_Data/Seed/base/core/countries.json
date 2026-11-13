@@ -433,7 +433,7 @@
     "numericIsoCode": 124,
     "published": true,
     "displayOrder": 2,
-    "addressFormat": "{{ Salutation }} {{ FirstName }} {{ LastName }}\n{{ Company }}\n{{ City }}, {{ State }} {{ ZipCode }}\n{{ Country | Upcase }}",
+    "addressFormat": "{{ Salutation }} {{ FirstName }} {{ LastName }}\n{{ Company }}\n{{ Street1 }}\n{{ Street2 }}\n{{ City }}, {{ State }} {{ ZipCode }}\n{{ Country | Upcase }}",
     "diallingCode": 1,
     "stateProvinces": [
       {
