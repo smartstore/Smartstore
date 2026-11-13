@@ -80,7 +80,6 @@
                value="@value" />
 
         <div sm-if="format.HasValue()" class="range-value" data-placement="left">
-            <div class="arrow"></div>
             <div class="range-value-inner text-nowrap"></div>
         </div>
 
@@ -117,20 +116,22 @@
                     await RenderRangeControl();
                 }
             </div>
-            <div class="ml-2 hstack" style="min-width: 64px; height: 24px;">
-                @* Clickable badge for default state *@
-                <span role="button"
-                      class="badge badge-secondary range-badge"
-                      attr-class='(hasValue, "d-none")'
-                      title="@T(hasDefaultValue ? "Admin.Common.ClickToSetDifferentValue" : "Admin.Common.ClickToSetValue")">
-                    @T("Admin.Common.Standard")
-                </span>
-                @* Button to reset to default state *@
+            <div class="ml-2 hstack flex-shrink-0" style="height: 24px;">
+                @* Use equally sized icon buttons for inherited and explicit values. *@
                 <button type="button"
-                        class="btn btn-sm btn-light btn-flat btn-no-border btn-icon range-reset"
+                        class="btn btn-sm btn-plain btn-icon range-badge"
+                        style="--btn-icon-color: var(--gray-600); --btn-icon-hover-color: currentcolor;"
+                        attr-class='(hasValue, "d-none")'
+                        title="@T("Admin.Common.Standard") — @T(hasDefaultValue ? "Admin.Common.ClickToSetDifferentValue" : "Admin.Common.ClickToSetValue")"
+                        aria-label="@T("Admin.Common.Standard") — @T(hasDefaultValue ? "Admin.Common.ClickToSetDifferentValue" : "Admin.Common.ClickToSetValue")">
+                    <icon name="layers-plus" />
+                </button>
+                <button type="button"
+                        class="btn btn-sm btn-plain btn-icon range-reset"
                         attr-class='(!hasValue, "d-none")'
-                        title="@T("Admin.Common.ResetToDefault")">
-                    <icon name="close" />
+                        title="@T("Admin.Common.ResetToDefault")"
+                        aria-label="@T("Admin.Common.ResetToDefault")">
+                    <icon name="undo" />
                 </button>
             </div>
         </div>

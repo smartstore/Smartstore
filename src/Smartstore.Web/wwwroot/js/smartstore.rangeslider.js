@@ -45,12 +45,10 @@
                 return;
             }
 
-            if (!ready) {
-                // calc Y position only once (when visible but not ready yet)
-                const labelTop = Math.floor((slider.position().top + (slider.height() / 2)) - (currentBubble.height() / 2));
-                currentBubble.css('top', labelTop + 'px');
-                el.addClass('ready');
-            }
+            // Anchor at the track center; CSS centers tooltips of any height.
+            const labelTop = slider.position().top + (slider.height() / 2);
+            currentBubble.css('top', labelTop + 'px');
+            el.addClass('ready');
 
             // Always refresh X position
             const min = parseFloat(slider.prop('min'));
