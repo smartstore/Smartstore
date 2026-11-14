@@ -2,6 +2,7 @@
 using Smartstore.Core.Catalog.Discounts;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Common;
+using Smartstore.Core.Common.Services;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Stores;
@@ -94,6 +95,9 @@ public class PriceCalculationOptions : ICloneable<PriceCalculationOptions>
     /// or DataExporterContext.ContextCurrency (for exports).
     /// </summary>
     public Currency RoundingCurrency { get; init; }
+
+    /// <summary>Currency service propagated to nested calculation pipelines for store-local price conversion.</summary>
+    public ICurrencyService CurrencyService { get; set; }
 
     /// <summary>
     /// Gets or sets product batch context for nested pipelines (grouped or bundled products).

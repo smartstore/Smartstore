@@ -195,6 +195,32 @@
         </div>
     </div>
 
+    @if (Model.Id > 0 && Model.StorePrices.Count > 0)
+    {
+        <div id="pnlStorePrices" class="mt-4">
+            <h5 class="mb-3 text-muted">@T("Admin.Catalog.Products.StorePrices")</h5>
+            <div class="alert alert-info">@T("Admin.Catalog.Products.StorePrices.Hint")</div>
+            @for (int i = 0; i < Model.StorePrices.Count; i++)
+            {
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <label asp-for="StorePrices[i].Price">@Model.StorePrices[i].StoreName</label>
+                    </div>
+                    <div class="adminData">
+                        <input type="hidden" asp-for="StorePrices[i].StoreId" />
+                        <input type="hidden" asp-for="StorePrices[i].CurrencyId" />
+                        <editor asp-for="StorePrices[i].Price" sm-postfix="@Model.StorePrices[i].CurrencyCode" />
+                        <span asp-validation-for="StorePrices[i].Price"></span>
+                        @if (Model.StorePrices[i].CurrencyChanged)
+                        {
+                            <div class="text-warning">@T("Admin.Catalog.Products.StorePrices.CurrencyChanged")</div>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+    }
+
     <div id="pnlTierPrices" class="mt-3" attr-class='(Model.IsBundleWithItemPricing, "d-none")'>
         <h5 class="mb-4 text-muted">@T("Admin.Catalog.Products.TierPrices")</h5>
 

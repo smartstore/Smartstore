@@ -5,6 +5,8 @@ using Smartstore.Core.Catalog.Brands;
 using Smartstore.Core.Catalog.Categories;
 using Smartstore.Core.Catalog.Discounts;
 using Smartstore.Core.Catalog.Pricing;
+using Smartstore.Core.Common;
+using Smartstore.Core.Common.Services;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Data;
 using Smartstore.Core.Identity;
@@ -36,6 +38,7 @@ public class ProductBatchContext
     private LazyMultimap<ProductVariantAttribute> _attributes;
     private LazyMultimap<ProductVariantAttributeCombination> _attributeCombinations;
     private LazyMultimap<TierPrice> _tierPrices;
+    private LazyMultimap<ProductStorePrice> _storePrices;
     private LazyMultimap<ProductCategory> _productCategories;
     private LazyMultimap<ProductManufacturer> _productManufacturers;
     private LazyMultimap<Discount> _appliedDiscounts;
@@ -122,6 +125,34 @@ public class ProductBatchContext
         get => _tierPrices ??= new LazyMultimap<TierPrice>(LoadTierPrices, _productIdsTierPrices);
     }
 
+    /// <summary>Store-specific native-currency price overrides, batched by product.</summary>
+    public LazyMultimap<ProductStorePrice> StorePrices
+    {
+        get => _storePrices ??= new LazyMultimap<ProductStorePrice>(LoadStorePrices, _productIds);
+    }
+
+    /// <summary>
+    /// Resolves the effective base price in the global primary currency. Existing products
+    /// and stores with no override retain the original price without modification.
+    /// </summary>
+    public virtual async Task<decimal> GetEffectiveBasePriceAsync(Product product, ICurrencyService currencyService)
+    {
+        if (product.Id == 0 || Store == null)
+        {
+            return product.Price;
+        }
+
+        var prices = await StorePrices.GetOrLoadAsync(product.Id);
+        var storePrice = prices.FirstOrDefault(x => x.StoreId == Store.Id && x.CurrencyId == Store.DefaultCurrencyId);
+        if (storePrice == null)
+        {
+            return product.Price;
+        }
+
+        Guard.NotNull(currencyService);
+        return currencyService.ConvertToPrimaryCurrency(new Money(storePrice.Price, storePrice.Currency)).Amount;
+    }
+
     public LazyMultimap<ProductCategory> ProductCategories
     {
         get => _productCategories ??= new LazyMultimap<ProductCategory>(LoadProductCategories, _productIds);
@@ -190,6 +221,7 @@ public class ProductBatchContext
         Attributes.Collect(productIds);
         AttributeCombinations.Collect(productIds);
         TierPrices.Collect(productIds);
+        StorePrices.Collect(productIds);
         ProductCategories.Collect(productIds);
         ProductManufacturers.Collect(productIds);
         AppliedDiscounts.Collect(productIds);
@@ -211,6 +243,7 @@ public class ProductBatchContext
         _attributes?.Clear();
         _attributeCombinations?.Clear();
         _tierPrices?.Clear();
+        _storePrices?.Clear();
         _productIdsTierPrices?.Clear();
         _productCategories?.Clear();
         _productManufacturers?.Clear();
@@ -255,6 +288,22 @@ public class ProductBatchContext
                 .AsQueryable();
         var attributeCombinations = await query.ToListAsync();
         return attributeCombinations.ToMultimap(x => x.ProductId, x => x);
+    }
+
+    protected virtual async Task<Multimap<int, ProductStorePrice>> LoadStorePrices(int[] ids)
+    {
+        if (Store == null || ids.Length == 0)
+        {
+            return new Multimap<int, ProductStorePrice>();
+        }
+
+        var prices = await _db.ProductStorePrices
+            .AsNoTracking()
+            .Include(x => x.Currency)
+            .Where(x => ids.Contains(x.ProductId) && x.StoreId == Store.Id)
+            .ToListAsync();
+
+        return prices.ToMultimap(x => x.ProductId, x => x);
     }
 
     protected virtual async Task<Multimap<int, TierPrice>> LoadTierPrices(int[] ids)

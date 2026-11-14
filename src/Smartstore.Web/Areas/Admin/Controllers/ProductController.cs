@@ -315,6 +315,7 @@ public partial class ProductController : AdminController
         }
 
         await UpdateDataOfProductDownloadsAsync(model);
+        await ValidateStorePricesAsync(model);
 
         if (ModelState.IsValid)
         {
@@ -1751,6 +1752,11 @@ public partial class ProductController : AdminController
             await PrepareProductFileModelAsync(model);
             model.AddPictureModel.PictureId = product.MainPictureId ?? 0;
 
+            if (!excludeProperties)
+            {
+                await PrepareStorePricesAsync(model, product.Id);
+            }
+
             model.ProductTagNames = product.ProductTags.Select(x => x.Name).ToArray();
 
             ViewBag.SelectedProductTags = model.ProductTagNames
@@ -2366,6 +2372,10 @@ public partial class ProductController : AdminController
 
         await _storeMappingService.ApplyStoreMappingsAsync(p, model.SelectedStoreIds);
         await _aclService.ApplyAclMappingsAsync(p, model.SelectedCustomerRoleIds);
+        if (editMode && model.IsTabLoaded("Price"))
+        {
+            await UpdateStorePricesAsync(product, model);
+        }
 
         await _db.SaveChangesAsync();
 
