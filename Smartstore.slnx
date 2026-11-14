@@ -1,0 +1,64 @@
+<Solution>
+  <Configurations>
+    <BuildType Name="Debug" />
+    <BuildType Name="DebugNoRazorCompile" />
+    <BuildType Name="Release" />
+  </Configurations>
+  <Folder Name="/Build/">
+    <File Path="src/Smartstore.Build/Smartstore.Common.props" />
+    <File Path="src/Smartstore.Build/Smartstore.Common.targets" />
+    <File Path="src/Smartstore.Build/Smartstore.Data.props" />
+    <File Path="src/Smartstore.Build/Smartstore.Data.targets" />
+    <File Path="src/Smartstore.Build/Smartstore.Module.props" />
+    <File Path="src/Smartstore.Build/Smartstore.Module.targets" />
+    <File Path="src/Smartstore.Build/Smartstore.Razor.props" />
+    <Project Path="src/Smartstore.Build/Smartstore.Build/Smartstore.Build.csproj">
+      <BuildType Solution="DebugNoRazorCompile|*" Project="Debug" />
+    </Project>
+    <Project Path="src/Smartstore.Build/Smartstore.ModuleBuilder/src/Smartstore.ModuleBuilder.csproj">
+      <BuildType Solution="DebugNoRazorCompile|*" Project="Debug" />
+    </Project>
+  </Folder>
+  <Folder Name="/Data/">
+    <Project Path="src/Smartstore.Data/Smartstore.Data.MySql/Smartstore.Data.MySql.csproj" />
+    <Project Path="src/Smartstore.Data/Smartstore.Data.PostgreSql/Smartstore.Data.PostgreSql.csproj" />
+    <Project Path="src/Smartstore.Data/Smartstore.Data.Sqlite/Smartstore.Data.Sqlite.csproj" />
+    <Project Path="src/Smartstore.Data/Smartstore.Data.SqlServer/Smartstore.Data.SqlServer.csproj" />
+  </Folder>
+  <Folder Name="/Modules/">
+    <File Path="src/Smartstore.Modules/module.schema.json" />
+    <Project Path="src/Smartstore.Modules/Smartstore.AmazonPay/Smartstore.AmazonPay.csproj" />
+    <Project Path="src/Smartstore.Modules/Smartstore.Apple.Auth/Smartstore.Apple.Auth.csproj" />
+    <Project Path="src/Smartstore.Modules/Smartstore.Clickatell/Smartstore.Clickatell.csproj" />
+    <Project Path="src/Smartstore.Modules/Smartstore.DevTools/Smartstore.DevTools.csproj" />
+    <Project Path="src/Smartstore.Modules/Smartstore.Facebook.Auth/Smartstore.Facebook.Auth.csproj" />
+    <Project Path="src/Smartstore.Modules/Smartstore.Google.Analytics/Smartstore.Google.Analytics.csproj" />
+    <Project Path="src/Smartstore.Modules/Smartstore.Google.Auth/Smartstore.Google.Auth.csproj" />
+    <Project Path="src/Smartstore.Modules/Smartstore.Google.MerchantCenter/Smartstore.Google.MerchantCenter.csproj" />
+    <Project Path="src/Smartstore.Modules/Smartstore.Microsoft.Auth/Smartstore.Microsoft.Auth.csproj" />
+    <Project Path="src/Smartstore.Modules/Smartstore.OfflinePayment/Smartstore.OfflinePayment.csproj" />
+    <Project Path="src/Smartstore.Modules/Smartstore.PayPal/Smartstore.PayPal.csproj" />
+    <Project Path="src/Smartstore.Modules/Smartstore.Shipping/Smartstore.Shipping.csproj" />
+    <Project Path="src/Smartstore.Modules/Smartstore.ShippingByWeight/Smartstore.ShippingByWeight.csproj" />
+    <Project Path="src/Smartstore.Modules/Smartstore.Stripe/Smartstore.Stripe.csproj" />
+    <Project Path="src/Smartstore.Modules/Smartstore.Tax/Smartstore.Tax.csproj" />
+    <Project Path="src/Smartstore.Modules/Smartstore.Twitter.Auth/Smartstore.Twitter.Auth.csproj" />
+    <Project Path="src/Smartstore.Modules/Smartstore.WebApi/Smartstore.WebApi.csproj" />
+  </Folder>
+  <Folder Name="/Tests/">
+    <Project Path="test/Smartstore.Core.Tests/Smartstore.Core.Tests.csproj" />
+    <Project Path="test/Smartstore.Test.Common/Smartstore.Test.Common.csproj">
+      <BuildType Solution="DebugNoRazorCompile|*" Project="Debug" />
+    </Project>
+    <Project Path="test/Smartstore.Tests/Smartstore.Tests.csproj">
+      <BuildType Solution="DebugNoRazorCompile|*" Project="Debug" />
+    </Project>
+    <Project Path="test/Smartstore.Web.Tests/Smartstore.Web.Tests.csproj">
+      <BuildType Solution="DebugNoRazorCompile|*" Project="Debug" />
+    </Project>
+  </Folder>
+  <Project Path="src/Smartstore.Core/Smartstore.Core.csproj" />
+  <Project Path="src/Smartstore.Web.Common/Smartstore.Web.Common.csproj" />
+  <Project Path="src/Smartstore.Web/Smartstore.Web.csproj" />
+  <Project Path="src/Smartstore/Smartstore.csproj" />
+</Solution>
