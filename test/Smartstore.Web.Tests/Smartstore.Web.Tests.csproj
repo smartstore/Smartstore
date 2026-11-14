@@ -23,6 +23,7 @@
 		<ProjectReference Include="..\..\src\Smartstore.Data\Smartstore.Data.Sqlite\Smartstore.Data.Sqlite.csproj" />
 		<ProjectReference Include="..\..\src\Smartstore.Web.Common\Smartstore.Web.Common.csproj" />
 		<ProjectReference Include="..\..\src\Smartstore.Web\Smartstore.Web.csproj" />
+		<ProjectReference Include="..\..\src\Smartstore.Modules\Smartstore.PayPal\Smartstore.PayPal.csproj" />
 		<ProjectReference Include="..\..\src\Smartstore\Smartstore.csproj" />
 		<ProjectReference Include="..\Smartstore.Test.Common\Smartstore.Test.Common.csproj" />
 	</ItemGroup>
