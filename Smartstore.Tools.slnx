@@ -1,0 +1,40 @@
+<Solution>
+  <Configurations>
+    <BuildType Name="Debug" />
+    <BuildType Name="DebugNoRazorCompile" />
+    <BuildType Name="Release" />
+  </Configurations>
+  <Folder Name="/Solution Items/">
+    <File Path="src/Smartstore.Modules/module.schema.json" />
+  </Folder>
+  <Folder Name="/Solution Items/Build/">
+    <File Path="src/Smartstore.Build/Smartstore.Common.props" />
+    <File Path="src/Smartstore.Build/Smartstore.Common.targets" />
+    <File Path="src/Smartstore.Build/Smartstore.Module.props" />
+    <File Path="src/Smartstore.Build/Smartstore.Module.targets" />
+    <File Path="src/Smartstore.Build/Smartstore.Razor.props" />
+  </Folder>
+  <Folder Name="/Tools/">
+    <Project Path="tools/Smartstore.Packager.Cli/Smartstore.Packager.Cli.csproj">
+      <BuildType Solution="DebugNoRazorCompile|*" Project="Debug" />
+    </Project>
+    <Project Path="tools/Smartstore.Packager.Common/Smartstore.Packager.Common.csproj">
+      <BuildType Solution="DebugNoRazorCompile|*" Project="Debug" />
+    </Project>
+    <Project Path="tools/Smartstore.Packager.Tests/Smartstore.Packager.Tests.csproj">
+      <BuildType Solution="DebugNoRazorCompile|*" Project="Debug" />
+    </Project>
+    <Project Path="tools/Smartstore.Packager/Smartstore.Packager.csproj">
+      <BuildType Solution="DebugNoRazorCompile|*" Project="Debug" />
+    </Project>
+    <Project Path="tools/Smartstore.WebApi.Client/Smartstore.WebApi.Client.csproj">
+      <BuildType Solution="DebugNoRazorCompile|*" Project="Debug" />
+    </Project>
+  </Folder>
+  <Project Path="src/Smartstore.Core/Smartstore.Core.csproj">
+    <BuildType Solution="DebugNoRazorCompile|*" Project="Debug" />
+  </Project>
+  <Project Path="src/Smartstore/Smartstore.csproj">
+    <BuildType Solution="DebugNoRazorCompile|*" Project="Debug" />
+  </Project>
+</Solution>

@@ -7,10 +7,10 @@
     <ItemGroup>
         <PackageReference Include="Npgsql" Version="10.0.3" GeneratePathProperty="true" />
         <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.2" GeneratePathProperty="true" />
-        <None Include="$(PkgNpgsql)\lib\net8.0\*.dll" CopyToOutputDirectory="PreserveNewest">
+        <None Include="$(PkgNpgsql)\lib\net11.0\*.dll" CopyToOutputDirectory="PreserveNewest">
             <Visible>false</Visible>
         </None>
-        <None Include="$(PkgNpgsql_EntityFrameworkCore_PostgreSQL)\lib\net10.0\*.dll" CopyToOutputDirectory="PreserveNewest">
+        <None Include="$(PkgNpgsql_EntityFrameworkCore_PostgreSQL)\lib\net11.0\*.dll" CopyToOutputDirectory="PreserveNewest">
             <Visible>false</Visible>
         </None>
     </ItemGroup>

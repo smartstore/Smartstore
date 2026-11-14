@@ -45,7 +45,7 @@ Architecture follows Domain-Driven Design. See
 
 ## Tech stack
 
-- **.NET 10 / C#**, **ASP.NET Core 10**, **EF Core 10** (`net10.0`, set centrally in
+- **.NET 10 / C#**, **ASP.NET Core 10**, **EF Core 10** (`net11.0`, set centrally in
   `src/Smartstore.Build/Smartstore.Common.props`)
 - **Nuke** for build automation (`build.cmd` / `build.ps1` / `build.sh`)
 - Bootstrap (4/5 hybrid), native embedded Dart Sass, jQuery, Select2, Vue.js

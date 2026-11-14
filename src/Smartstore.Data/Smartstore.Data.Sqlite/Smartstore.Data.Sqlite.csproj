@@ -16,19 +16,19 @@
         <None Include="$(PkgSourceGear_sqlite3)\runtimes\**\*" CopyToOutputDirectory="PreserveNewest" LinkBase="runtimes">
             <Visible>true</Visible>
         </None>
-        <None Include="$(PkgSQLitePCLRaw_config_e_sqlite3)\lib\net8.0\*.dll" CopyToOutputDirectory="PreserveNewest">
+        <None Include="$(PkgSQLitePCLRaw_config_e_sqlite3)\lib\net11.0\*.dll" CopyToOutputDirectory="PreserveNewest">
             <Visible>false</Visible>
         </None>
-        <None Include="$(PkgSQLitePCLRaw_provider_e_sqlite3)\lib\net8.0\*.dll" CopyToOutputDirectory="PreserveNewest">
+        <None Include="$(PkgSQLitePCLRaw_provider_e_sqlite3)\lib\net11.0\*.dll" CopyToOutputDirectory="PreserveNewest">
             <Visible>false</Visible>
         </None>
         <None Include="$(PkgSQLitePCLRaw_core)\lib\netstandard2.0\*.dll" CopyToOutputDirectory="PreserveNewest">
             <Visible>false</Visible>
         </None>
-        <None Include="$(PkgMicrosoft_Data_Sqlite_Core)\lib\net8.0\*.dll" CopyToOutputDirectory="PreserveNewest">
+        <None Include="$(PkgMicrosoft_Data_Sqlite_Core)\lib\net11.0\*.dll" CopyToOutputDirectory="PreserveNewest">
             <Visible>false</Visible>
         </None>
-        <None Include="$(PkgMicrosoft_EntityFrameworkCore_Sqlite_Core)\lib\net10.0\*.dll" CopyToOutputDirectory="PreserveNewest">
+        <None Include="$(PkgMicrosoft_EntityFrameworkCore_Sqlite_Core)\lib\net11.0\*.dll" CopyToOutputDirectory="PreserveNewest">
             <Visible>false</Visible>
         </None>
     </ItemGroup>
