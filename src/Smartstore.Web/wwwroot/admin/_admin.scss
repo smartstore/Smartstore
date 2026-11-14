@@ -1356,6 +1356,79 @@ a.editable {
 .st-line            { color: var(--st-line-color); font-weight: 600 !important; }
 
 
+// Range editor decorations (PageBuilder opacity and aspect ratio)
+// ------------------------------------------------------
+
+.form-range.color-opacity-slider {
+    &:before,
+    &:after {
+        position: absolute;
+        content: '';
+        inset: 0;
+        z-index: -1;
+        pointer-events: none;
+    }
+
+    &:after {
+        border: $input-border-width solid $input-border-color;
+        border-radius: $input-border-radius;
+    }
+
+    &:before {
+        inset: 1px;
+        overflow: hidden;
+        @include bg-checkerboard(5px, #cacacc, #fdfdfd);
+        opacity: calc(1 - var(--slider-value, 0));
+    }
+}
+
+.aspect-ratio-editor {
+    .range-value {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        pointer-events: none;
+    }
+
+    .form-range-tick[data-value="1:1"] {
+        --range-tick-bg: var(--gray-800);
+
+        .form-range-tick-label {
+            color: var(--gray-800);
+            font-weight: $font-weight-bold;
+        }
+    }
+
+    &.is-adjusting {
+        .range-value {
+            padding: 0.5rem;
+            opacity: 1;
+        }
+
+        .aspect-ratio-editor-preview-frame {
+            display: grid;
+        }
+    }
+
+    .aspect-ratio-editor-preview-frame {
+        display: none;
+        place-items: center;
+        width: 40px;
+        height: 40px;
+    }
+
+    .aspect-ratio-editor-preview {
+        // Include the border in the ratio and keep the longer side at 40px.
+        box-sizing: border-box;
+        width: calc(40px / max(1, var(--preview-ratio, 1)));
+        border: 2px solid rgb(255 255 255 / 15%);
+        background-color: rgb(255 255 255 / 9%);
+        background-clip: padding-box;
+        border-radius: 5px;
+        aspect-ratio: 1 / var(--preview-ratio, 1);
+    }
+}
+
 // Shared icon option editors (Icon Browser and editor popovers).
 .icon-tool-arrow {
     position: absolute;
@@ -1396,18 +1469,31 @@ a.editable {
     width: min(30rem, calc(100vw - 1rem));
     z-index: $zindex-popover + 1;
 
-    .range-slider {
+    .form-range {
         isolation: isolate;
     }
 }
 
 .icon-tool-opacity-menu {
     output {
+        flex: 0 0 6ch;
         font-variant-numeric: tabular-nums;
     }
 
-    .range-slider {
-        height: 24px;
+    .form-range {
+        --range-height: 24px;
+        --range-track-height: 10px;
+        --range-track-bg: transparent;
+        --range-fill-bg: transparent;
+        --range-track-shadow: none;
+        --range-thumb-width: 16px;
+        --range-thumb-height: 16px;
+        --range-thumb-color: var(--body-color);
+        --range-thumb-bg: var(--icon-tool-opacity-color, currentColor);
+        --range-thumb-active-bg: var(--icon-tool-opacity-color, currentColor);
+        direction: ltr;
+
+        .form-range-input { position: relative; z-index: 1; height: var(--range-height); }
 
         // A fixed alpha gradient over the same checkerboard used by the color picker.
         &::before,
@@ -1428,49 +1514,9 @@ a.editable {
         }
     }
 
-    .range-ticks,
+    .form-range-ticks,
     .range-value {
         display: none;
-    }
-
-    .form-control-range {
-        position: relative;
-        z-index: 1;
-        height: 24px;
-        direction: ltr;
-        background: transparent;
-
-        &::-webkit-slider-runnable-track {
-            height: 10px;
-            background: transparent;
-            border: 0;
-        }
-
-        &::-moz-range-track {
-            height: 10px;
-            background: transparent;
-            border: 0;
-        }
-
-        &::-webkit-slider-thumb {
-            width: 16px;
-            height: 16px;
-            margin-top: -3px;
-            border: 2px solid $white;
-            border-radius: 50%;
-            background: var(--icon-tool-opacity-color, currentColor);
-            box-shadow: 0 0 0 1px rgba($black, 0.15), 0 1px 3px rgba($black, 0.25);
-        }
-
-        &::-moz-range-thumb {
-            box-sizing: border-box;
-            width: 16px;
-            height: 16px;
-            border: 2px solid $white;
-            border-radius: 50%;
-            background: var(--icon-tool-opacity-color, currentColor);
-            box-shadow: 0 0 0 1px rgba($black, 0.15), 0 1px 3px rgba($black, 0.25);
-        }
     }
 }
 

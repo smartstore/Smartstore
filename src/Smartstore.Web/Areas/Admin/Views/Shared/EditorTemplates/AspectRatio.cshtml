@@ -36,11 +36,8 @@
     $(function() {
         const $container = $('#aspect-ratio-@id');
         const $rangeContainer = $container.find('[data-editor="aspect-ratio"]');
-        const $range = $rangeContainer.find('.form-control-range');
+        const $range = $rangeContainer.find('.form-range-input');
         const $preview = $container.find('.aspect-ratio-editor-preview');
-        $container.find('.aspect-ratio-editor-preview-frame')
-            .appendTo($rangeContainer.find('.range-value'))
-            .removeClass('d-none');
         const ratios = [1 / 3, 0.5, 9 / 16, 2 / 3, 0.75, 1, 4 / 3, 1.5, 16 / 9, 2, 3];
         const labels = ['3:1', '2:1', '16:9', '3:2', '4:3', '1:1', '3:4', '2:3', '9:16', '1:2', '1:3'];
         const round = value => Number(value.toFixed(4));
@@ -81,7 +78,10 @@
             })
             .on('pointerup pointercancel lostpointercapture keyup blur', () => setAdjusting(false));
 
-        // Range still owns binding and nullable reset; snapping uses its existing track-coordinate mechanism.
-        $rangeContainer.rangeSlider({ toPosition, fromPosition, snapValues: ratios.map(toPosition), snapTolerance: 0.03 });
+        // Range owns binding and nullable reset; its datalist uses native track coordinates.
+        $rangeContainer.rangeSlider({ toPosition, fromPosition });
+        $container.find('.aspect-ratio-editor-preview-frame')
+            .appendTo($rangeContainer.find('.range-value'))
+            .removeClass('d-none');
     });
 </script>

@@ -5,26 +5,18 @@
 
         this.element = element;
         const el = this.el = $(element);
-        const slider = this.slider = el.find('.form-control-range[data-target]').first();
+        const slider = this.slider = el.find('.form-range-input[data-target]').first();
         const hiddenInput = $(slider.data('target'));
         const resetBtn = el.find('.range-reset');
         const badge = el.find('.range-badge');
         const isNullable = el.data('nullable') === true;
-        this.options = $.extend({}, { snapValues: hiddenInput.data('snap-values'), snapTolerance: hiddenInput.data('snap-tolerance') }, options);
-        const snapValues = (this.options.snapValues || []).map(Number).filter(Number.isFinite);
-        const snapTolerance = this.options.snapTolerance
-            ?? (Number(slider.prop('max')) - Number(slider.prop('min'))) * 0.015;
-        // Optional conversion separates track coordinates from stored values without changing ordinary ranges.
+        this.options = $.extend({}, options);
+        // Conversion separates native track coordinates from stored model values.
         const toPosition = this.options.toPosition || (value => value);
         const fromPosition = this.options.fromPosition || (value => value);
-        let dragging = false;
-
-        function snapToTick() {
-            if (!dragging || !snapValues.length) return;
-            const value = Number(slider.val());
-            const nearest = snapValues.reduce((best, tick) => Math.abs(tick - value) < Math.abs(best - value) ? tick : best);
-            if (Math.abs(nearest - value) <= snapTolerance) slider.val(nearest);
-        }
+        const fmt = el.attr('data-format') ?? '{0}';
+        const valueDecoder = document.createElement('textarea');
+        let bubble;
 
         function setUnspecified(reset) {
             el.toggleClass('unspecified', reset);
@@ -32,51 +24,22 @@
             badge.toggleClass('d-none', !reset);
         }
 
-        function refreshBubblePosition(e, bubble) {
-            const currentBubble = bubble || el.find('.range-value').first();
-            const ready = el.hasClass('ready');
-
-            if (currentBubble.length === 0 || el.length === 0) {
-                el.addClass('ready');
-                return;
-            }
-
-            if (!ready && !el.is(':visible')) {
-                return;
-            }
-
-            // Anchor at the track center; CSS centers tooltips of any height.
-            const labelTop = slider.position().top + (slider.height() / 2);
-            currentBubble.css('top', labelTop + 'px');
-            el.addClass('ready');
-
-            // Always refresh X position
-            const min = parseFloat(slider.prop('min'));
-            const max = parseFloat(slider.prop('max'));
-            const range = max - min;
-            const ratio = slider.width() / range;
-            const n = parseFloat(slider.val()) - min;
-
-            if (Smartstore.globalization.culture.isRTL) {
-                currentBubble.css('right', (n * ratio) + 'px').attr('data-placement', n > range / 2 ? 'right' : 'left');
-            }
-            else {
-                currentBubble.css('left', (n * ratio) + 'px').attr('data-placement', n > range / 2 ? 'left' : 'right');
-            }
-
-        }
-
         function updateSlider(e, syncInput) {
             // Move invariant value from slider to an associated hidden field
             // as formatted value. Client validation will fail otherwise.
             const val = String(fromPosition(slider.val()));
-            const bubble = el.find('.range-value').first();
-            const fmt = el.data('format');
-
-            el
-                .css('--slider-value', slider.val())
-                .find('.range-value-inner')
-                .text(fmt === '{0}' ? fmt.format(val) : eval(fmt.format(val)));
+            const min = Number(slider.prop('min'));
+            const max = Number(slider.prop('max'));
+            const fill = max > min ? Math.max(0, Math.min(1, (Number(slider.val()) - min) / (max - min))) : 0;
+            el.css({ '--slider-value': slider.val(), '--range-fill': fill });
+            if (fmt) {
+                const text = fmt === '{0}' ? val : eval(fmt.format(val));
+                // Existing expression formats can contain HTML entities, but never render markup.
+                valueDecoder.innerHTML = String(text);
+                const decoded = valueDecoder.value;
+                bubble?.find('.range-value-inner').text(decoded);
+                slider.attr('aria-valuetext', decoded);
+            }
 
             if (self.initialized && syncInput !== false) {
                 const g = Smartstore.globalization;
@@ -85,7 +48,6 @@
                 hiddenInput.val(formatted).trigger('change');
             }
 
-            refreshBubblePosition(e, bubble);
             el.trigger('rangeslider:change', [val, el.hasClass('unspecified')]);
         }
 
@@ -120,16 +82,51 @@
                 }
             }
 
-            if (snapValues.length) {
-                slider.on('pointerdown', (e) => {
-                    dragging = true;
-                    slider[0].setPointerCapture(e.originalEvent.pointerId);
-                }).on('pointerup pointercancel lostpointercapture keydown', () => dragging = false);
+            // Labels generated for the model field should focus the visible, uniquely identified input.
+            if (slider[0].id && hiddenInput[0]?.id) {
+                document.querySelectorAll('label[for="' + CSS.escape(hiddenInput[0].id) + '"]').forEach(label => {
+                    label.htmlFor = slider[0].id;
+                });
+            }
+
+            if (fmt && el.data('bubble') === true) {
+                bubble = $('<div class="range-value" aria-hidden="true"><div class="range-value-inner text-nowrap"></div></div>');
+                slider.after(bubble);
+            }
+
+            const options = slider[0].list?.options;
+            if (options?.length) {
+                const min = Number(slider.prop('min') || 0);
+                const max = Number(slider.prop('max') || 100);
+                const labels = new Map();
+                for (const option of options) {
+                    const value = Number(option.value);
+                    if (!option.value.trim() || !Number.isFinite(value) || value < min || value > max || labels.has(value)) continue;
+                    // Keep the first label at each position; labels are always inserted as text.
+                    valueDecoder.innerHTML = option.label;
+                    labels.set(value, valueDecoder.value);
+                }
+                if (labels.size && Number.isFinite(min) && Number.isFinite(max) && max > min) {
+                    // Include empty boundary intervals so inner-only ticks retain their true positions.
+                    const positions = [...new Set([min, ...labels.keys(), max])].sort((a, b) => a - b);
+                    const columns = positions.slice(1).map((value, i) => `${100 * ((value - positions[i]) / (max - min))}fr`);
+                    const ticks = $('<div class="form-range-ticks" aria-hidden="true"></div>')
+                        .css('grid-template-columns', [...columns, '0'].join(' '));
+                    positions.forEach((value, i) => {
+                        if (!labels.has(value)) return;
+                        const tick = $('<div class="form-range-tick"></div>')
+                            .attr('data-value', labels.get(value))
+                            .css('grid-column', i + 1)
+                            .toggleClass('form-range-tick-start', value === min)
+                            .toggleClass('form-range-tick-end', value === max)
+                            .appendTo(ticks);
+                        $('<span class="form-range-tick-label"></span>').text(labels.get(value)).appendTo(tick);
+                    });
+                    slider.parent().append(ticks);
+                }
             }
 
             slider.on('input', (e) => {
-                // Keep keyboard and programmatic changes precise; only pointer input snaps.
-                if (e.originalEvent) snapToTick();
                 if (self.isUnspecified()) {
                     setUnspecified(false);
                 }
@@ -145,9 +142,6 @@
                 e.preventDefault();
                 self.reset();
             });
-
-            // align bubble
-            el.on('mouseenter', refreshBubblePosition);
 
             updateSlider();
         };
@@ -166,4 +160,3 @@
     };
 
 })(jQuery, this, document);
-

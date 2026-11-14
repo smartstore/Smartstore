@@ -1,0 +1,211 @@
+/// <reference path="references.scss" />
+
+// Native ranges share theme defaults, including controls managed by Vue or PageBuilder.
+@mixin range-track {
+    height: var(--range-track-height);
+    cursor: var(--range-track-cursor);
+    color: transparent; // Suppress native tick paint without detaching the datalist.
+    border: 0;
+    border-radius: var(--range-track-radius);
+    background: linear-gradient(var(--range-direction),
+        var(--range-fill-bg) 0 var(--range-position),
+        var(--range-track-bg) var(--range-position) 100%);
+    box-shadow: var(--range-track-shadow);
+}
+
+@mixin range-thumb {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    box-sizing: border-box;
+    width: var(--range-thumb-width);
+    height: var(--range-thumb-height);
+    border: var(--range-thumb-border);
+    outline: var(--range-thumb-outline);
+    border-radius: var(--range-thumb-radius);
+    color: var(--range-thumb-color, inherit);
+    background: var(--range-thumb-bg);
+    box-shadow: var(--range-thumb-shadow);
+    transition: var(--range-transition);
+}
+
+.form-range {
+    --range-track-width: #{$custom-range-track-width};
+    --range-track-height: #{$custom-range-track-height};
+    --range-track-cursor: #{$custom-range-track-cursor};
+    --range-track-bg: #{$custom-range-track-bg};
+    --range-track-radius: #{$custom-range-track-border-radius};
+    --range-track-shadow: #{$custom-range-track-box-shadow};
+    // Add the white border without reducing the original colored thumb core.
+    --range-thumb-width: calc(#{$custom-range-thumb-width} + 4px);
+    --range-thumb-height: calc(#{$custom-range-thumb-height} + 4px);
+    --range-thumb-bg: #{$custom-range-thumb-bg};
+    --range-thumb-border: #{$custom-range-thumb-border};
+    --range-thumb-outline: 1px solid var(--border-color);
+    --range-thumb-radius: #{$custom-range-thumb-border-radius};
+    --range-thumb-shadow: #{$custom-range-thumb-box-shadow};
+    --range-thumb-focus-shadow: #{$custom-range-thumb-focus-box-shadow};
+    --range-thumb-active-bg: #{$custom-range-thumb-active-bg};
+    --range-thumb-disabled-bg: #{$custom-range-thumb-disabled-bg};
+    --range-transition: #{$custom-forms-transition};
+    --range-fill-bg: #{$custom-range-thumb-bg};
+    --range-fill: 0;
+    --range-direction: to right;
+    --range-height: #{$input-height};
+    --range-bubble-bg: var(--gray-800);
+    --range-bubble-color: #fff;
+    --range-bubble-gap: 8px;
+    --range-tick-font-size: 11px;
+    --range-tick-width: 1px;
+    --range-tick-height: 5px;
+    --range-tick-bg: rgb(0 0 0 / 36%);
+    // Percentages resolve at use, within the track or the nullable control wrapper.
+    --range-position: calc(var(--range-thumb-width) / 2 + (100% - var(--range-thumb-width)) * var(--range-fill));
+
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    width: var(--range-track-width);
+    height: var(--range-height);
+    min-width: 0;
+
+    &:dir(rtl) { 
+        --range-direction: to left; 
+    }
+    &.form-range-sm { 
+        --range-height: #{$input-height-sm}; 
+        --range-track-height: #{$custom-range-track-height * 0.75};
+        --range-thumb-width: calc(#{$custom-range-thumb-width} + 2px);
+        --range-thumb-height: calc(#{$custom-range-thumb-height} + 2px);
+    }
+
+    .range-control-wrapper {
+        display: flex;
+        align-items: center;
+        height: var(--range-height);
+        min-width: 0;
+    }
+
+    &.unspecified {
+        --range-thumb-bg: var(--gray-500);
+        --range-thumb-active-bg: var(--gray-500);
+        --range-fill-bg: var(--gray-500);
+    }
+
+    &:has(.form-range-input:disabled) {
+        --range-track-cursor: default;
+        --range-thumb-bg: var(--range-thumb-disabled-bg);
+        --range-fill-bg: var(--range-thumb-disabled-bg);
+    }
+
+    .form-range-ticks {
+        display: grid;
+        // Native thumb centers travel from half a thumb width to the opposite inset.
+        padding-inline: calc(var(--range-thumb-width) * 0.5);
+        // Preserve the centered control and keep nullable reset buttons outside the grid.
+        position: absolute;
+        inset-inline: 0;
+        top: calc(50% + var(--range-thumb-height) / 2 - 2px);
+        pointer-events: none;
+    }
+
+    .form-range-tick {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-self: start;
+        grid-row: 1;
+        width: 0;
+
+        &::before {
+            width: var(--range-tick-width);
+            height: var(--range-tick-height);
+            content: '';
+            background-color: var(--range-tick-bg);
+            border-radius: 1px;
+        }
+        &.form-range-tick-start { align-items: flex-start; }
+        &.form-range-tick-end { align-items: flex-end; }
+    }
+
+    .form-range-tick-label {
+        margin-top: 1px;
+        font-size: var(--range-tick-font-size);
+        color: var(--gray-500);
+        white-space: nowrap;
+    }
+
+    .range-value {
+        position: absolute;
+        inset-inline-start: var(--range-position);
+        bottom: calc(50% + var(--range-thumb-height) / 2 + var(--range-bubble-gap));
+        transform: translateX(-50%);
+        font-size: 11px;
+        border-radius: 3px;
+        background: var(--range-bubble-bg);
+        color: var(--range-bubble-color);
+        padding: 2px 6px;
+        opacity: 0;
+        pointer-events: none;
+        z-index: 2;
+        transition: opacity 0.2s ease-in-out;
+
+        &:dir(rtl) { transform: translateX(50%); }
+        &:before {
+            position: absolute;
+            content: '';
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 6px solid transparent;
+            border-bottom: 0;
+            border-top-color: var(--range-bubble-bg);
+        }
+    }
+
+    &:hover .form-range-input:not(:disabled) ~ .range-value,
+    .form-range-input:focus-visible ~ .range-value { opacity: 1; }
+}
+
+.form-range-input {
+    // Preserve prefixes when development CSS transpilation is disabled.
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    display: block;
+    width: 100%;
+    height: var(--range-thumb-height);
+    margin: 0;
+    padding: 0;
+    color: transparent;
+    background: transparent;
+    border: 0;
+    cursor: var(--range-track-cursor);
+
+    &::-webkit-slider-runnable-track { @include range-track; }
+    &::-moz-range-track { @include range-track; }
+    &::-webkit-slider-thumb {
+        @include range-thumb;
+        margin-top: calc((var(--range-track-height) - var(--range-thumb-height)) / 2);
+    }
+    &::-moz-range-thumb { @include range-thumb; }
+    &::-moz-range-progress { background: transparent; }
+
+    &:focus { outline: 0; }
+    &:focus-visible {
+        &::-webkit-slider-thumb { box-shadow: var(--range-thumb-focus-shadow); }
+        &::-moz-range-thumb { box-shadow: var(--range-thumb-focus-shadow); }
+    }
+    &:active:not(:disabled) {
+        &::-webkit-slider-thumb { background: var(--range-thumb-active-bg); }
+        &::-moz-range-thumb { background: var(--range-thumb-active-bg); }
+    }
+    &:disabled { opacity: 0.5; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .form-range { --range-transition: none; }
+    .form-range .range-value { transition: none; }
+}
+

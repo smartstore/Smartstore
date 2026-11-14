@@ -7,10 +7,22 @@
     var name = ViewData.TemplateInfo.GetFullHtmlFieldName(string.Empty);
     var propertyName = ViewData.ModelMetadata.PropertyName ?? name;
     var id = Html.GenerateIdFromName(name);
+    var inputId = $"{id}-range-{Guid.NewGuid():N}";
+    var listId = inputId + "-ticks";
     var min = GetMetadata<decimal?>("min") ?? 0m;
     var max = GetMetadata<decimal?>("max") ?? 100m;
     var step = GetMetadata<decimal?>("step") ?? 1m;
     var format = GetMetadata<string>("format") ?? "{0}";
+    var showBubble = format.HasValue() && (GetMetadata<bool?>("bubble") ?? true);
+    var inputAttributes = new AttributeDictionary();
+    foreach (var attribute in attributes.Where(x => x.Key.StartsWith("aria-") || x.Key == "disabled" || x.Key == "tabindex" || x.Key == "title"))
+    {
+        inputAttributes[attribute.Key] = attribute.Value;
+    }
+    if (!inputAttributes.ContainsKey("aria-label") && !inputAttributes.ContainsKey("aria-labelledby"))
+    {
+        inputAttributes["aria-label"] = ViewData.ModelMetadata.DisplayName ?? propertyName;
+    }
     var isNullable = Nullable.GetUnderlyingType(ViewData.ModelMetadata.ModelType) != null;
     var hasTools = isNullable && GetMetadata<bool?>("tools", true) == true;
     var hasValue = Model != null;
@@ -40,10 +52,10 @@
         var separatorIndex = tick.IndexOf('|');
         if (max > min
             && separatorIndex > 0
-            && ConvertUtility.TryConvert<decimal>(tick[..separatorIndex].Trim(), out var tickValue))
+            && decimal.TryParse(tick[..separatorIndex].Trim(), System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var tickValue))
         {
             tickLabels.Add(tick[(separatorIndex + 1)..].Trim());
-            tickPositions.Add(Math.Clamp((tickValue - min) / (max - min), 0m, 1m));
+            tickPositions.Add(Math.Clamp(tickValue, min, max));
         }
         else
         {
@@ -54,10 +66,10 @@
 
     var hasPositionedTicks = max > min && tickPositions.Count > 0 && tickPositions.All(x => x.HasValue);
 
-    var containerCssClass = "range-slider edit-control";
+    var containerCssClass = "form-range edit-control";
     if (ViewData.ContainsKey("size"))
     {
-        containerCssClass = containerCssClass.Grow($"range-slider-" + ViewData["size"].ToString());
+        containerCssClass = containerCssClass.Grow($"form-range-" + ViewData["size"].ToString());
     }
     if (ViewData.ContainsKey("class"))
     {
@@ -71,35 +83,39 @@
     async Task RenderRangeControl()
     {
         <input type="hidden" asp-for="@Model" attrs="attributes" />
-        <input type="range" 
-               class="form-control-range px-0 custom-range" 
-               data-target="#@id" 
-               min="@min.ToStringInvariant()" 
-               max="@max.ToStringInvariant()" 
+        <input type="range"
+               id="@inputId"
+               class="form-range-input"
+               data-target="#@id"
+               list="@(ticks.Count > 0 ? listId : null)"
+               attrs="inputAttributes"
+               min="@min.ToStringInvariant()"
+               max="@max.ToStringInvariant()"
                step="@step.ToStringInvariant()"
                value="@value" />
 
-        <div sm-if="format.HasValue()" class="range-value" data-placement="left">
-            <div class="range-value-inner text-nowrap"></div>
-        </div>
-
-        <div sm-if="ticks.Count > 0" class="range-ticks" attr-class='(hasPositionedTicks, "range-ticks-positioned")'>
+        <datalist sm-if="ticks.Count > 0" id="@listId">
             @for (var i = 0; i < ticks.Count; i++)
             {
                 var label = hasPositionedTicks ? tickLabels[i] : ticks[i];
-                var style = hasPositionedTicks
-                    ? $"--tick-position: {(tickPositions[i]!.Value * 100m).ToStringInvariant()}%"
-                    : null;
-
-                <div class="range-tick" data-value="@Html.Raw(label)" attr-style='(hasPositionedTicks, style)'></div>
+                var tickValue = hasPositionedTicks ? tickPositions[i].Value
+                    : min + (max - min) * i / Math.Max(1, ticks.Count - 1);
+                // Native suggestions must lie on the input's step grid, including reciprocal aspect ratios.
+                if (step > 0 && max > min)
+                {
+                    tickValue = min + Math.Clamp(Math.Round((tickValue - min) / step, MidpointRounding.AwayFromZero),
+                        0m, Math.Floor((max - min) / step)) * step;
+                }
+                <option value="@tickValue.ToStringInvariant()" label="@System.Net.WebUtility.HtmlDecode(label)"></option>
             }
-        </div>
+        </datalist>
     }
 }
 
 <div id="range-container-@id"
      class="@containerCssClass"
-     data-format="@Html.Raw(format)"
+     data-format="@format"
+     data-bubble="@showBubble.ToString().ToLowerInvariant()"
      data-editor="@(GetMetadata<string>("editor") ?? "range")"
      data-nullable="@isNullable.ToString().ToLowerInvariant()"
      data-default-value="@defaultValue.Value.ToStringInvariant()">
@@ -110,13 +126,13 @@
     }
     else
     {
-        <div class="d-flex align-items-start">
+        <div class="d-flex align-items-center">
             <div class="range-control-wrapper flex-grow-1 position-relative">
                 @{
                     await RenderRangeControl();
                 }
             </div>
-            <div class="ml-2 hstack flex-shrink-0" style="height: 24px;">
+            <div class="ml-2 hstack flex-shrink-0">
                 @* Use equally sized icon buttons for inherited and explicit values. *@
                 <button type="button"
                         class="btn btn-sm btn-plain btn-icon range-badge"
