@@ -4,11 +4,14 @@
     var parentModel = ViewData["Parent"] as ProductModel;
 }
 
-<datagrid id="productvariantattributes-grid" version="2"
+<datagrid id="productvariantattributes-grid" version="3"
           allow-resize="true"
           allow-row-selection="true"
           allow-edit="true"
           allow-column-reordering="true"
+          hover="false"
+          striped="false"
+          border-style="Grid"
           max-height="500px">
     <datasource read="@Url.Action("ProductVariantAttributeList", new { productId = parentModel.Id })"
                 delete="@Url.Action("ProductVariantAttributeDelete")"
@@ -48,7 +51,7 @@
                 <div class="dg-cell-value">{{ item.row.ProductAttribute }}</div>
             </display-template>
         </column>
-        <column for="AttributeControlTypeId" width="2fr">
+        <column for="AttributeControlTypeId" width="250px">
             <display-template>
                 <div class="dg-cell-value w-100">
                     <a v-if="item.row.IsSwatch"
@@ -69,7 +72,7 @@
         <column for="CustomData" width="1fr" visible="false" />
         <column for="IsRequired" halign="center" />
         <column for="DisplayOrder" entity-member="DisplayOrder" halign="center" />
-        <column for="EditUrl" width="1fr" sortable="false">
+        <column for="EditUrl" width="350px" sortable="false">
             <display-template>
                 <a :href="item.row.EditUrl" class="btn btn-sm btn-plain btn-block fwn justify-content-start" v-html="item.row.EditLinkText"></a>
             </display-template>

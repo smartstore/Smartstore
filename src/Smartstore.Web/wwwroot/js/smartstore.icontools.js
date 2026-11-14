@@ -44,12 +44,13 @@
             });
         },
         bindOpacity(toggle, callbacks) {
-            const percentages = Array.from({ length: 101 }, (_, i) => i);
             return this.bindRange(toggle, {
                 ...callbacks, onChange: value => callbacks.onChange(value === '1' ? '' : value)
             }, {
-                values: percentages.map(value => String(value / 100)),
-                labels: percentages.map(value => `${value} %`), ticks: [],
+                min: 0, max: 100, step: 1, ticks: [],
+                format: '{0} + " %"',
+                toPosition: value => Math.round(Number(value) * 100),
+                fromPosition: value => String(value / 100),
                 menuClass: 'icon-tool-opacity-menu', showPreview: true, previewOption: 'opacity',
                 normalize(value) {
                     const number = value == null || value === '' ? 1 : Number(value);
@@ -75,7 +76,7 @@
             }, {
                 values: degrees.map(value => value ? String(value) : ''),
                 labels: degrees.map(value => `${value}°`),
-                ticks: [0, 90, 180, 270, 360], snapTolerance: 5,
+                ticks: [0, 90, 180, 270, 360],
                 tickLabels: { 0: '↑', 90: '→', 180: '↓', 270: '←', 360: '↑' },
                 showPreview: callbacks.showPreview === true, previewOption: 'rotate',
                 normalize(value) {
@@ -84,7 +85,11 @@
                 }
             });
         },
-        bindRange(toggle, { getState, onChange, getPlacement, createPreview }, { values, labels, ticks: tickIndices, normalize, showPreview = false, previewOption = 'stroke-scale', tickLabels, snapTolerance, menuClass = '' }) {
+        bindRange(toggle, { getState, onChange, getPlacement, createPreview }, {
+            values, labels, min = 0, max = values?.length - 1, step = 1, format,
+            toPosition = value => Math.max(0, values.indexOf(value)), fromPosition = position => values[position],
+            ticks: tickIndices, normalize, showPreview = false, previewOption = 'stroke-scale', tickLabels, menuClass = ''
+        }) {
             let menu, popper;
             toggle.setAttribute('aria-haspopup', 'dialog');
             toggle.setAttribute('aria-expanded', 'false');
@@ -107,49 +112,40 @@
                 if (!state || (!state.name && !createPreview) || toggle.disabled) return;
                 closeCurrent?.(); closeCurrent = close;
                 const current = normalize(state.value);
-                const index = Math.max(0, values.indexOf(current));
+                const position = toPosition(current);
                 menu = document.createElement('div');
                 menu.className = 'dropdown-menu show icon-tool-size-menu px-3 py-2 ' + menuClass;
                 menu.setAttribute('role', 'dialog');
                 menu.setAttribute('aria-label', toggle.getAttribute('aria-label'));
                 const slider = document.createElement('div');
-                slider.className = 'range-slider';
-                slider.dataset.format = JSON.stringify(labels) + '[{0}]';
+                slider.className = 'form-range';
+                slider.dataset.bubble = String(menuClass !== 'icon-tool-opacity-menu');
+                slider.dataset.format = format ?? JSON.stringify(labels) + '[{0}]';
                 const hidden = document.createElement('input');
                 hidden.type = 'hidden'; hidden.id = `icon-size-${++nextToolId}`;
                 const input = document.createElement('input');
-                input.type = 'range'; input.min = 0; input.max = values.length - 1; input.step = 1; input.value = index;
-                input.className = 'form-control-range px-0 custom-range';
+                input.type = 'range'; input.min = min; input.max = max; input.step = step; input.value = position;
+                input.className = 'form-range-input';
+                input.id = hidden.id + '-range';
                 input.dataset.target = '#' + hidden.id;
                 input.setAttribute('aria-label', menu.getAttribute('aria-label'));
-                input.setAttribute('aria-valuetext', labels[index]);
-                const ticks = document.createElement('div');
-                ticks.className = 'range-ticks range-ticks-positioned';
-                if (tickLabels) ticks.style.fontSize = '14px';
-                for (const [i, label] of labels.entries()) {
-                    if (tickIndices && !tickIndices.includes(i)) continue;
-                    const tick = document.createElement('div');
-                    tick.className = 'range-tick'; tick.dataset.value = tickLabels?.[i] || label;
-                    tick.style.setProperty('--tick-position', `${i / (values.length - 1) * 100}%`);
+                const ticks = document.createElement('datalist');
+                ticks.id = input.id + '-ticks';
+                input.setAttribute('list', ticks.id);
+                if (tickLabels) slider.style.setProperty('--range-tick-font-size', '14px');
+                for (const i of tickIndices || labels?.keys() || []) {
+                    const tick = document.createElement('option');
+                    tick.value = i;
+                    tick.label = tickLabels?.[i] || labels?.[i] || String(i);
                     ticks.append(tick);
                 }
-                const bubble = document.createElement('div');
-                bubble.className = 'range-value';
-                bubble.dataset.placement = 'left';
-                const arrow = document.createElement('div');
-                arrow.className = 'arrow';
-                const bubbleText = document.createElement('div');
-                bubbleText.className = 'range-value-inner text-nowrap';
-                bubble.append(arrow, bubbleText);
-                slider.append(hidden, input, bubble, ticks);
-                let opacityRow;
+                slider.append(hidden, input, ticks);
+                let opacityRow, output;
                 if (menuClass === 'icon-tool-opacity-menu') {
                     // Keep the accessible range interaction, with the color picker's alpha-track appearance.
-                    const output = document.createElement('output');
+                    output = document.createElement('output');
                     output.className = 'text-right small text-muted text-nowrap';
                     menu.style.setProperty('--icon-tool-opacity-color', state.color || 'currentColor');
-                    output.textContent = labels[index];
-                    input.addEventListener('input', () => output.textContent = labels[Number(input.value)]);
                     opacityRow = document.createElement('div');
                     opacityRow.className = 'hstack gap-2';
                     slider.classList.add('flex-grow-1');
@@ -191,16 +187,17 @@
                 if (owner) menu.setAttribute('data-note-owner', owner);
                 addArrow(menu);
                 document.body.append(menu);
-                jQuery(slider).rangeSlider(snapTolerance == null ? undefined : { snapValues: tickIndices, snapTolerance }).on('rangeslider:change', (event, position) => {
-                    const i = Number(position);
-                    input.setAttribute('aria-valuetext', labels[i]);
+                jQuery(slider).rangeSlider().on('rangeslider:change', (event, position) => {
+                    const value = fromPosition(Number(position));
+                    if (output) output.textContent = input.getAttribute('aria-valuetext');
                     if (preview) {
-                        if (previewOption === 'rotate') preview.style.setProperty('--icon-rotate', (values[i] || 0) + 'deg');
-                        else if (values[i]) preview.setAttribute(previewOption, values[i]);
+                        if (previewOption === 'rotate') preview.style.setProperty('--icon-rotate', (value || 0) + 'deg');
+                        else if (value) preview.setAttribute(previewOption, value);
                         else preview.removeAttribute(previewOption);
                     }
-                    onChange(values[i]);
+                    onChange(value);
                 });
+                if (output) output.textContent = input.getAttribute('aria-valuetext');
                 menu.addEventListener('keydown', event => {
                     if (event.key === 'Escape') { event.preventDefault(); event.stopPropagation(); close(true); }
                 });

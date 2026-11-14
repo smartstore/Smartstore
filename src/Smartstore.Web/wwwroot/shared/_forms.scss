@@ -340,19 +340,6 @@ fieldset.content-group {
 }
 
 
-// Custom range
-// ------------------------------------------------------
-
-.custom-range {
-    // Keep these prefixes for the development mode where CSS transpilation may be disabled.
-    -webkit-appearance: none;
-    -moz-appearance: none;
-
-    &::-webkit-slider-thumb { -webkit-appearance: none; }
-    &::-moz-range-thumb     { -moz-appearance: none; }
-}
-
-
 // Validation
 // ------------------------------------------------------
 

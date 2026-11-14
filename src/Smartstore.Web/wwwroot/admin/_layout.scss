@@ -769,6 +769,8 @@ body.sticky-header #content .section-header::after {
     // Main page area containing the section header, settings form or data grid.
     .settings-content {
         min-width: 0;
+        // The section header extends across the navigation column.
+        overflow: visible;
     }
 
     // Desktop <nav> column that keeps the settings menu beside the page content.

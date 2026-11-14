@@ -94,8 +94,7 @@ select.form-control {
 }
 
 // Make file inputs better match text inputs by forcing them to new lines.
-.form-control-file,
-.form-control-range {
+.form-control-file {
   display: block;
   width: 100%;
 }

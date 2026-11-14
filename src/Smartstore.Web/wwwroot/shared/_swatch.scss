@@ -282,6 +282,10 @@
     }
 }
 
+.swatch-group-lg .swatch-details > :is(.swatch-price, .swatch-compare-price, .swatch-base-price) {
+    font-size: 11px;
+}
+
 .swatch-mediafile .swatch-content {
     max-width: var(--swatch-size) !important;
 
