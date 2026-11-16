@@ -6,7 +6,7 @@ Before we start, please look at the introduction to [creating modules](../gettin
 
 Start by creating a project file for your modules.
 
-1. Open the Smartstore Solution _Smartstore.sln_
+1. Open the Smartstore Solution _Smartstore.slnx_
 2. Right click on the _Modules_ Folder in the Solution Explorer
 3. Add a **New Project** of type _Class Library_
 4. Name it _MyOrg.HelloWorld_

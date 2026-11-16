@@ -17,8 +17,8 @@
 		<PackageReference Include="Smartstore.EmbeddedSass.Net.Compiler" Version="1.2.1" />
 		<PackageReference Include="FluentValidation.AspNetCore" Version="11.3.0" />
         <PackageReference Include="FluentValidation" Version="12.1.1" />
-		<PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="10.0.8" />
-		<PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="10.0.8" />
+		<PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="11.0.0-rc.3.26522.148" />
+		<PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="11.0.0" />
 		<PackageReference Include="Microsoft.AspNetCore.OData" Version="9.5.0" />
 		<PackageReference Include="NUglify" Version="1.22.4" />
 		<PackageReference Include="Smartstore.Licensing" Version="6.4.0" />

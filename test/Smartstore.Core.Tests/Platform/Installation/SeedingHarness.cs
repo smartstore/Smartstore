@@ -123,12 +123,12 @@ internal sealed class SeedingHarness : IDisposable
         {
             var dir = new DirectoryInfo(System.AppContext.BaseDirectory);
 
-            while (dir != null && !File.Exists(Path.Combine(dir.FullName, "Smartstore.sln")))
+            while (dir != null && !File.Exists(Path.Combine(dir.FullName, "Smartstore.slnx")))
             {
                 dir = dir.Parent;
             }
 
-            return dir?.FullName ?? throw new DirectoryNotFoundException("Could not locate the repository root (Smartstore.sln).");
+            return dir?.FullName ?? throw new DirectoryNotFoundException("Could not locate the repository root (Smartstore.slnx).");
         }
     }
 

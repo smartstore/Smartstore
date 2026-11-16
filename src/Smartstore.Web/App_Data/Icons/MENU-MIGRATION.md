@@ -77,5 +77,5 @@ not been verified by a build or visual run in this step.
 
 Admin sitemap root nodes now use SVG concepts; the legacy menu rendering branch has been removed.
 
-The final Debug build of Smartstore.sln passed with zero warnings and zero errors,
+The final Debug build of Smartstore.slnx passed with zero warnings and zero errors,
 including the conditional attribute changes.

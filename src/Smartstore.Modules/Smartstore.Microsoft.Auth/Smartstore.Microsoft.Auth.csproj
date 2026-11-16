@@ -5,6 +5,6 @@
 		<OutDir>$(OutputPath)</OutDir>
   </PropertyGroup>
   <ItemGroup>
-		<PackageReference Include="Microsoft.AspNetCore.Authentication.MicrosoftAccount" Version="10.0.8" />
+		<PackageReference Include="Microsoft.AspNetCore.Authentication.MicrosoftAccount" Version="11.0.0" />
   </ItemGroup>
 </Project>

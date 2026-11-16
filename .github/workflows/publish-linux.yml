@@ -43,18 +43,15 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: 10.x
+          dotnet-version: 11.0.x
 
       - name: Build solution for the target runtime
-        # The checked-in ModuleBuilder still targets .NET 9; allow it to run on .NET 10.
-        env:
-          DOTNET_ROLL_FORWARD: Major
         # Smartstore.Common.props sets the RID per project; --runtime on a solution triggers NETSDK1134.
-        run: dotnet build Smartstore.sln -c Release -p:SmartstoreBuildRuntime=${{ matrix.rid }} --no-self-contained
+        run: dotnet build Smartstore.slnx -c Release -p:SmartstoreBuildRuntime=${{ matrix.rid }} --no-self-contained
 
       - name: Test
         if: inputs.run-tests
-        run: dotnet test Smartstore.sln -c Release -p:SmartstoreBuildRuntime=${{ matrix.rid }} --no-restore --no-build
+        run: dotnet test Smartstore.slnx -c Release -p:SmartstoreBuildRuntime=${{ matrix.rid }} --no-restore --no-build
 
       - name: Publish and stage the Docker context
         env:

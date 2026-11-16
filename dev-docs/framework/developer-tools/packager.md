@@ -45,7 +45,7 @@ Use the build artifact's web root as the Packager's root path. This is the direc
 
 ## Use the desktop application
 
-Build the `Smartstore.Packager` project from `Smartstore.Tools.sln`, then start `Smartstore.Packager.exe`.
+Build the `Smartstore.Packager` project from `Smartstore.Tools.slnx`, then start `Smartstore.Packager.exe`.
 
 The application remembers the last root and output paths. For a regular community build, the initial paths default to locations similar to:
 
@@ -67,7 +67,7 @@ The output directory is created automatically if it does not exist.
 
 ## Use the command-line application
 
-Use `Smartstore.Packager.Cli` for scripts and automated builds. Build the `Smartstore.Packager.Cli` project from `Smartstore.Tools.sln`, then call the resulting executable with the `pack` command.
+Use `Smartstore.Packager.Cli` for scripts and automated builds. Build the `Smartstore.Packager.Cli` project from `Smartstore.Tools.slnx`, then call the resulting executable with the `pack` command.
 
 ```text
 Smartstore.Packager.Cli pack --root <path> --output <path> --extension <name>

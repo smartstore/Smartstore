@@ -54,7 +54,7 @@ This does not establish that old Qt enforces modern TLS security policy.
 
 Four combinations run: amd64/arm64, each with a system installation and with only
 system dependencies plus genuine lazy NuGet deployment. The final test image uses
-the same `aspnet:10.0-noble` base and dependency installer as production; Python
+the same `aspnet:11.0-resolute` base and dependency installer as production; Python
 and Poppler are added only to the test image.
 
 Each architecture should also be tested on a native host before release. Emulated

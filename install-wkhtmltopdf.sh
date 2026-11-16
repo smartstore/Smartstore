@@ -3,8 +3,8 @@ set -euo pipefail
 
 # Keep the runtime libraries from one distribution; never mix Debian into Ubuntu.
 source /etc/os-release
-if [[ "$ID" != ubuntu || "$VERSION_ID" != 24.04 ]]; then
-    echo "wkhtmltopdf provisioning requires Ubuntu 24.04 (Noble)." >&2
+if [[ "$ID" != ubuntu || "$VERSION_ID" != 26.04 ]]; then
+    echo "wkhtmltopdf provisioning requires Ubuntu 26.04 (Resolute)." >&2
     exit 1
 fi
 

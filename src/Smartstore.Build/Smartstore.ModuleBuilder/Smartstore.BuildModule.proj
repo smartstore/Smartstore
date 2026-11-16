@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFramework>net11.0</TargetFramework>
     <Copyright>Copyright © Smartstore AG</Copyright>
     <Company>Smartstore AG</Company>
     <Authors>Smartstore AG</Authors>

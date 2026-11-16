@@ -6,9 +6,18 @@ description: Instructions how to build Smartstore
 
 There are two options to build Smartstore and several ways to build Docker images and containers.
 
+Build with the .NET 11 SDK selected by `global.json` (11.0.100 or a newer patch).
+Open `Smartstore.slnx` for the platform or `Smartstore.Tools.slnx` for the packaging tools.
+
+The runtime and ASP.NET Core packages use stable .NET 11 releases. The database stack
+currently uses EF Core `11.0.0-rc.3.26522.148`, PostgreSQL provider `11.0.0-rc.3`,
+and MySQL provider `11.0.0-preview.1`. These are prerelease dependencies: PostgreSQL
+requires that exact EF Core RC3 version. Update EF Core and its providers together
+when compatible stable providers become available, and rerun the database tests.
+
 ## Option 1 - Publish the entry host project
 
-1. Open the Smartstore solution in Visual Studio 2022
+1. Open the Smartstore solution in Visual Studio with .NET 11 support
 2. Use **Release** configuration
 3. (Re)build the solution
 4. Publish host project **Smartstore.Web**
@@ -29,9 +38,13 @@ When the solution is built, all modules in `src/Smartstore.Modules/` are detecte
 
 To create a Docker image run `build/dockerize.{Platform}[.nobuild].sh`.
 
+The .NET 11 Linux images use Ubuntu 26.04 (`11.0-resolute`), including the PDF
+dependency installer. The Windows image uses Nano Server LTSC 2025
+(`11.0-nanoserver-ltsc2025`) and requires a compatible Windows container host.
+
 ### **dockerize.linux.sh**
 
-1. Creates a Debian Linux base image including the complete ASP.NET runtime.
+1. Creates an Ubuntu 26.04 base image including the complete ASP.NET runtime.
 2. Builds the solution.
 3. Publishes a framework-specific application within the Linux container.
 4. Installs the native _wkhtmltopdf_ library which is required to generate PDF files.
@@ -40,7 +53,7 @@ To create a Docker image run `build/dockerize.{Platform}[.nobuild].sh`.
 
 Much faster, but requires that the application was previously built and is located in `build/artifacts/Community.{Version}.linux-x64`.
 
-1. Creates a Debian Linux base image including only the ASP.NET runtime dependencies.
+1. Uses the Ubuntu 26.04 ASP.NET runtime image.
 2. Copies the build artifact.
 3. Installs _wkhtmltopdf_ native library which is required to generate PDF files.
 

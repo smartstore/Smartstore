@@ -139,7 +139,12 @@ class Program
             return null;
         }
 
-        return JsonSerializer.Deserialize<ModuleDescriptor>(File.ReadAllText(descriptorFilePath));
+        // Match the manifest syntax accepted by the application's module catalog.
+        return JsonSerializer.Deserialize<ModuleDescriptor>(File.ReadAllText(descriptorFilePath), new JsonSerializerOptions
+        {
+            ReadCommentHandling = JsonCommentHandling.Skip,
+            AllowTrailingCommas = true
+        });
     }
 
     static DependencyContext ReadDependencyContext(ModuleDescriptor module)

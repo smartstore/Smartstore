@@ -4,8 +4,8 @@
 # User-specific files
 *.suo
 *.user
-*.sln.docstates
-*.sln.ide/
+*.sln*.docstates
+*.sln*.ide/
 .vs/
 #.vscode/
 
@@ -242,9 +242,9 @@ src/Smartstore.Web/Config/usersettings*
 
 # Tools
 src/Tools/Smartstore.WebApi.Client/packages
-src/Tools/Smartstore.WebApi.Client/Smartstore.WebApi.Client.sln
+src/Tools/Smartstore.WebApi.Client/Smartstore.WebApi.Client.slnx
 
-src/Smartstore.Packager.sln
+src/Smartstore.Packager.slnx
 Log.txt
 
 # Local native-package and Docker test scratch space.

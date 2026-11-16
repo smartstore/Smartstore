@@ -6,7 +6,7 @@ There are two options to build Smartstore and several ways to build Docker image
 
 ## Option 1 - Publish the entry host project
 
-1. Open the Smartstore solution in Visual Studio 2022
+1. Open `Smartstore.slnx` in Visual Studio with .NET 11 support. The SDK is selected by `global.json`.
 2. Use **Release** configuration
 3. (Re)build the solution
 4. Publish host project **Smartstore.Web**
@@ -29,7 +29,7 @@ To create a Docker image run `build/dockerize.{Platform}[.nobuild].sh`.
 
 ### **dockerize.linux.sh**
 
-1. Creates a Debian Linux base image including the complete ASP.NET runtime.
+1. Creates an Ubuntu 26.04 (`11.0-resolute`) base image including the complete ASP.NET runtime.
 2. Builds the solution.
 3. Publishes a framework-specific application within the Linux container.
 4. Installs the native _wkhtmltopdf_ library which is required to generate PDF files.
@@ -38,7 +38,7 @@ To create a Docker image run `build/dockerize.{Platform}[.nobuild].sh`.
 
 Much faster, but requires that the application was previously built and is located in `build/artifacts/Community.{Version}.linux-x64`.
 
-1. Creates a Debian Linux base image including only the ASP.NET runtime dependencies.
+1. Uses the Ubuntu 26.04 (`11.0-resolute`) ASP.NET runtime image.
 2. Copies the build artifact.
 3. Installs _wkhtmltopdf_ native library which is required to generate PDF files.
 
@@ -46,7 +46,7 @@ Much faster, but requires that the application was previously built and is locat
 
 Requires, that the application was previously built, is located in `build/artifacts/Community.{Version}.win-x64` and the Docker engine is running a Windows image.
 
-1. Creates a Windows Nano Server base image including only the ASP.NET runtime dependencies.
+1. Creates a Windows Nano Server LTSC 2025 (`11.0-nanoserver-ltsc2025`) base image. Use a compatible Windows container host.
 2. Copies the build artifact.
 
 ## Creating Docker containers

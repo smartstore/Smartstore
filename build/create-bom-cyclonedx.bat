@@ -14,7 +14,7 @@ set "APP_EDITION=Community"
 set "ROOT_DIR=%~dp0.."
 set "TOOLS_DIR=%~dp0.tools"
 set "CYCLONEDX_EXE=%TOOLS_DIR%\dotnet-CycloneDX.exe"
-set "SOLUTION_FILE=%ROOT_DIR%\Smartstore.sln"
+set "SOLUTION_FILE=%ROOT_DIR%\Smartstore.slnx"
 set "SBOM_FILE=%ROOT_DIR%\Smartstore.%APP_EDITION%.%APP_VERSION%.sbom.cyclone.json"
 set "SBOM_TMP=%SBOM_FILE%.tmp"
 
