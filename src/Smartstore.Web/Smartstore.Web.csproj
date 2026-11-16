@@ -73,6 +73,10 @@
         <None Include="Modules\**" Exclude="Modules\**\*.pdb; Modules\**\runtimes\**; Modules\**\refs\**" CopyToPublishDirectory="PreserveNewest">
             <Visible>false</Visible>
         </None>
+        <!-- Module dependency resolvers need platform-specific managed implementations at their original paths. -->
+        <None Include="Modules\**\runtimes\*\lib\**\*.dll" CopyToPublishDirectory="PreserveNewest">
+            <Visible>false</Visible>
+        </None>
 	</ItemGroup>
 
 	<!-- Copy publishable files in Themes directory -->
