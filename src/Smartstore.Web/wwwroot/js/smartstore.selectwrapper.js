@@ -301,13 +301,18 @@
             // Select-level fallback also covers AJAX results and newly created tags.
             const defaultIcon = sel.attr("data-icon");
 
-            if (!options.selectionToolbar && window.touchable && !sel.hasClass("skin") && !sel.data("select-url") && !sel.data("remote-url")) {
-                if (!defaultIcon && sel.find('option[data-color], option[data-imageurl], option[data-icon]').length === 0
-                    || (sel.data("tags") && window.document.documentElement.classList.contains("mobile-device"))) {
-                    // Skip skinning if device is mobile and no rich content exists (color, image & icon)
-                    // or if device is mobile and no data tags exist.
-                    return;
-                }
+            const requiresSelect2 = options.selectionToolbar
+                || sel.hasClass("skin")
+                || sel.data("select-url")
+                || sel.data("remote-url")
+                || sel.data("tags")
+                || defaultIcon
+                || sel.find('option[data-color], option[data-imageurl], option[data-icon]').length > 0;
+            const prefersNativeSelect = window.matchMedia?.('(pointer: coarse) and (hover: none)').matches === true;
+
+            // Prefer the native control only on touch-first devices and only if Select2 adds no required behavior.
+            if (prefersNativeSelect && !requiresSelect2) {
+                return;
             }
 
             function normalizeText(value) {
