@@ -15,7 +15,6 @@
         refreshFailed: @T("Admin.Dashboard.RefreshFailed").JsValue,
         invalid: @T("Admin.Dashboard.Editor.Invalid").JsValue,
         removeWidgetConfirm: @T("Admin.Dashboard.Editor.RemoveWidgetConfirm").JsValue,
-        back: @T("Common.Back").JsValue,
         cancel: @T("Common.Cancel").JsValue,
         discardConfirm: @T("Admin.Dashboard.Editor.DiscardConfirm").JsValue,
         resetConfirm: @T("Admin.Dashboard.Editor.ResetConfirm").JsValue,
@@ -45,7 +44,6 @@
             <div class="dashboard-widget-body">
                 <div sm-if="canEdit"
                      class="dashboard-widget-overlay"
-                     attr-tabindex='(item.Policy.AllowMove, "0")'
                      attr-aria-label='(item.Policy.AllowMove, T("Admin.Dashboard.Editor.Move").ToString())'
                      attr-aria-hidden='(!item.Policy.AllowMove, "true")'></div>
 
@@ -79,19 +77,23 @@
                     <button sm-if="item.Policy.AllowMove"
                             type="button"
                             class="dashboard-resize"
+                            tabindex="-1"
                             data-dashboard-resize="width-start"
                             aria-label="@T("Admin.Dashboard.Editor.Width")"></button>
                     <button type="button"
                             class="dashboard-resize"
+                            tabindex="-1"
                             data-dashboard-resize="width"
                             aria-label="@T("Admin.Dashboard.Editor.Width")"></button>
                     <button type="button"
                             class="dashboard-resize"
+                            tabindex="-1"
                             data-dashboard-resize="height"
                             aria-label="@T("Admin.Dashboard.Editor.Height")"></button>
                     <button sm-if="item.Policy.AllowMove"
                             type="button"
                             class="dashboard-resize"
+                            tabindex="-1"
                             data-dashboard-resize="height-start"
                             aria-label="@T("Admin.Dashboard.Editor.Height")"></button>
                 }

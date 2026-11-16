@@ -378,8 +378,9 @@
             $('#dashboard-undo').prop('disabled', !undo.length);
             $('#dashboard-redo').prop('disabled', !redo.length);
             $(form.elements.save).prop('disabled', !dirty || previewing || leaving);
+            const cancelLabel = window.Res.Dashboard.cancel;
             $('#dashboard-cancel').prop('disabled', previewing || leaving)
-                .text(dirty ? window.Res.Dashboard.cancel : window.Res.Dashboard.back);
+                .text(cancelLabel).attr('aria-label', cancelLabel);
             document.querySelectorAll('[data-add-widget]').forEach(button => {
                 const descriptor = config.widgets.find(w => w.systemName === button.dataset.addWidget);
                 button.disabled = !descriptor?.allowMultipleInstances && layout.widgets.some(w => w.widgetSystemName === button.dataset.addWidget);
@@ -648,67 +649,6 @@
         window.addEventListener('blur', () => finish(true));
         document.addEventListener('keydown', event => {
             if (event.key === 'Escape') finish(true);
-
-            const handle = event.target.closest('[data-dashboard-resize], .dashboard-widget-overlay');
-
-            if (!handle) return;
-
-            const widget = widgetsById.get(handle.closest('[data-instance-id]').dataset.instanceId);
-            const kind = handle.dataset.dashboardResize;
-            const horizontal = event.key === 'ArrowLeft' || event.key === 'ArrowRight';
-            const vertical = event.key === 'ArrowUp' || event.key === 'ArrowDown';
-
-            if (kind === 'height' || kind === 'height-start' ? !vertical && event.key !== 'Home' : kind ? !horizontal : !horizontal && !vertical) return;
-
-            if ((!kind || kind === 'width-start' || kind === 'height-start') && !widget.allowMove) return;
-
-            event.preventDefault();
-            const before = capture(), p = position(widget), limits = bounds(widget);
-            const direction = getComputedStyle(container).direction === 'rtl' ? -1 : 1;
-            const delta = (event.key === 'ArrowLeft' || event.key === 'ArrowUp' ? -1 : 1) * (horizontal ? direction : 1);
-
-            if (kind === 'height' || kind === 'height-start') {
-                const fromStart = kind === 'height-start';
-                const span = event.key === 'Home' ? 1 : (p.size.rowSpan || 1) + delta * (fromStart ? -1 : 1);
-                const result = engine.resizeEdge(gridItems(), widget.id, span, layout.rowCounts[breakpoint], fromStart, columns());
-
-                if (!result.items) return;
-
-                const resized = result.items.find(item => item.id === widget.id);
-
-                if (resized.row === p.row && resized.size.rowSpan === p.size.rowSpan) return;
-
-                const rows = getComputedStyle(container).gridTemplateRows.split(' ').map(height => ({ top: 0, bottom: parseFloat(height) }));
-                applyItems(result.items);
-                reserveRows(rows, result.insertionRow);
-
-                if (result.insertionRow !== null) layout.rowCounts[breakpoint]++;
-            }
-            else if (kind === 'width-start' || kind === 'width') {
-                const change = kind === 'width-start' ? -delta : delta;
-                const widths = limits.widths.filter(width => kind !== 'width-start' || width <= p.column + p.size.columnSpan);
-                const width = (change > 0 ? widths.find(width => width > p.size.columnSpan)
-                    : widths.findLast(width => width < p.size.columnSpan)) ?? p.size.columnSpan;
-
-                if (kind === 'width-start') p.column += p.size.columnSpan - width;
-
-                p.size.columnSpan = width;
-            }
-            else if (horizontal) p.column = Math.max(0, Math.min(columns() - p.size.columnSpan, p.column + delta));
-            else p.row = Math.max(0, p.row + delta);
-
-            if (_.isEqual(before.layout, layout)) return;
-
-            if (!kind) arrange(widget.id, position(before.layout.widgets.find(item => item.id === widget.id)));
-
-            if (kind !== 'height' && kind !== 'height-start' &&
-                !engine.fits(gridItems(), { ...p, id: widget.id }, columns())) {
-                setLayout(before.layout);
-                return;
-            }
-
-            render(false);
-            remember(before);
         });
 
         // A one-use, tab-local transfer keeps undo across server-rendered add previews.
