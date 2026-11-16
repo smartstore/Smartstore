@@ -158,17 +158,7 @@ public class SmartDbContextDataSeeder : IDataSeeder<SmartDbContext>
         builder.AddOrUpdate("Permissions.DisplayName.Personalize", "Customize own dashboard", "Eigenes Dashboard anpassen");
         builder.AddOrUpdate("Permissions.DisplayName.ManageGlobal", "Manage shared dashboard", "Gemeinsames Dashboard verwalten");
 
-        builder.AddOrUpdate("Permissions.DisplayName.CookieConsents", "Cookie consent", "Cookie-Zustimmungen");
         builder.AddOrUpdate("Admin.Dashboard.RefreshFailed", "The widget could not be updated. Please try again.", "Das Widget konnte nicht aktualisiert werden. Bitte versuche es erneut.");
-        builder.AddOrUpdate("Admin.Dashboard.CookieConsents", "Cookie consent", "Cookie-Zustimmungen");
-
-        string prefix = "Admin.Dashboard.CookieConsents.";
-
-        builder.AddOrUpdate(prefix + "Description", "Saved consent status by cookie category.", "Gespeicherter Zustimmungsstatus je Cookie-Kategorie.");
-        builder.AddOrUpdate(prefix + "Skipped", "{0} unreadable or incomplete records were excluded.", "{0} nicht lesbare oder unvollständige Einträge wurden nicht berücksichtigt.");
-        builder.AddOrUpdate(prefix + "Category", "Category", "Kategorie");
-        builder.AddOrUpdate(prefix + "Accepted", "Accepted", "Zugestimmt");
-        builder.AddOrUpdate(prefix + "Declined", "Not consented", "Nicht zugestimmt");
 
         builder.AddOrUpdate("Permissions.DisplayName.ContactRequests", "Contact requests", "Kontaktanfragen");
         builder.AddOrUpdate("Admin.Dashboard.ContactRequests", "Contact enquiries", "Kontaktanfragen");
