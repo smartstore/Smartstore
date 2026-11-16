@@ -68,7 +68,6 @@ public class TopCustomersDashboardWidgetValidator : AbstractValidator<TopCustome
 {
     public TopCustomersDashboardWidgetValidator()
     {
-        RuleFor(x => x.Count).InclusiveBetween(1, 50)
-            .WithMessage("The number of displayed items must be between 1 and 50.");
+        RuleFor(x => x.Count).InclusiveBetween(1, 50);
     }
 }

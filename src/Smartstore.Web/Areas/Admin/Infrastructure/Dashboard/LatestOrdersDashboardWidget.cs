@@ -67,7 +67,6 @@ public class LatestOrdersDashboardWidgetValidator : AbstractValidator<LatestOrde
 {
     public LatestOrdersDashboardWidgetValidator()
     {
-        RuleFor(x => x.Count).InclusiveBetween(1, 50)
-            .WithMessage("The number of latest orders must be between 1 and 50.");
+        RuleFor(x => x.Count).InclusiveBetween(1, 50);
     }
 }

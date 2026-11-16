@@ -98,34 +98,18 @@ public class PaymentMethodsDashboardWidgetSettings
 /// <summary>Validates settings of the PaymentMethods dashboard widget.</summary>
 public class PaymentMethodsDashboardWidgetValidator : AbstractValidator<PaymentMethodsDashboardWidgetSettings>
 {
-    public PaymentMethodsDashboardWidgetValidator()
+    public PaymentMethodsDashboardWidgetValidator(Localizer T)
     {
-        RuleFor(x => x.Count).InclusiveBetween(1, 50)
-            .WithMessage("The number of payment methods must be between 1 and 50.");
+        RuleFor(x => x.Count).InclusiveBetween(1, 50);
 
-        RuleFor(x => x.Fees).NotNull();
-        RuleFor(x => x.Fees).Custom((fees, context) =>
-        {
-            if (fees == null)
+        RuleForEach(x => x.Fees)
+            .OverrideIndexer((_, _, fee, _) => $"[{fee.Key}]")
+            .ChildRules(fee =>
             {
-                return;
-            }
-
-            foreach (var fee in fees)
-            {
-                var field = $"Fees[{fee.Key}]";
-
-                if (!fee.Key.HasValue() || fee.Value == null ||
-                    fee.Value.Value < 0 || fee.Value.Value > (fee.Value.IsPercentage() ? 100 : 1000000))
-                {
-                    context.AddFailure(field + ".Value", "Invalid payment fee value.");
-                }
-
-                if (fee.Value != null && !fee.Value.Unit.HasValue())
-                {
-                    context.AddFailure(field + ".Unit", "A payment fee unit is required.");
-                }
-            }
-        });
+                fee.RuleFor(x => x.Value.Value).GreaterThanOrEqualTo(0)
+                    .WithName(_ => T("Common.Amount").Value)
+                    .When(x => x.Value != null)
+                    .OverridePropertyName(nameof(Amount.Value));
+            });
     }
 }
