@@ -109,15 +109,55 @@ public class SmartDbContextDataSeeder : IDataSeeder<SmartDbContext>
     public void MigrateLocaleResources(LocaleResourcesBuilder builder)
     {
         MigrateThemeResources(builder);
-        MigrateDashboardAndNavigationResources(builder);
+        MigrateDashboardResources(builder);
         MigrateSettingsResources(builder);
         MigrateCatalogResources(builder);
         MigrateCheckoutResources(builder);
         MigrateCommonResources(builder);
     }
 
-    private static void MigrateDashboardAndNavigationResources(LocaleResourcesBuilder builder)
+    private static void MigrateDashboardResources(LocaleResourcesBuilder builder)
     {
+        builder.AddOrUpdate("Admin.Dashboard.Editor.Dashboard.Global", "Dashboard for everyone", "Dashboard für alle");
+        builder.AddOrUpdate("Admin.Dashboard.Editor.Dashboard.User", "My dashboard", "Mein Dashboard");
+        builder.AddOrUpdate("Admin.Dashboard.Editor.Customize", "Customize dashboard", "Dashboard anpassen");
+        builder.AddOrUpdate("Admin.Dashboard.Editor.View", "Dashboard view", "Dashboard-Ansicht");
+        builder.AddOrUpdate("Admin.Dashboard.Editor.RemoveWidgetConfirm", "Really remove this widget?", "Dieses Widget wirklich entfernen?");
+        builder.AddOrUpdate("Admin.Dashboard.Editor.ResetConfirm",
+            "Remove the customization immediately and return to the default dashboard? Unsaved changes will be discarded.",
+            "Die Anpassung jetzt entfernen und zur Dashboard-Vorgabe zurückkehren? Ungespeicherte Änderungen werden verworfen.");
+        builder.AddOrUpdate("Admin.Dashboard.Editor.Widgets", "Add widget", "Widget hinzufügen");
+        builder.AddOrUpdate("Admin.Dashboard.Editor.Search", "Search widgets", "Widgets suchen");
+        builder.AddOrUpdate("Admin.Dashboard.Editor.ResetPersonal", "Reset to the shared dashboard", "Auf gemeinsame Vorgabe zurücksetzen");
+        builder.AddOrUpdate("Admin.Dashboard.Editor.ResetGlobal", "Reset to the default dashboard", "Auf Standard zurücksetzen");
+        builder.AddOrUpdate("Admin.Dashboard.Editor.SaveGlobal", "Save for everyone", "Für alle speichern");
+        builder.AddOrUpdate("Admin.Dashboard.Editor.SaveGlobalConfirm",
+            "This dashboard will be saved as the shared default for all users. Personal dashboards will be retained. Do you want to continue?",
+            "Dieses Dashboard wird als gemeinsame Vorgabe für alle Benutzer gespeichert. Persönliche Dashboards bleiben erhalten. Möchten Sie fortfahren?");
+        builder.AddOrUpdate("Admin.Dashboard.Editor.ResetFailed",
+            "The dashboard could not be reset. Please try again.",
+            "Das Dashboard konnte nicht zurückgesetzt werden. Bitte versuche es erneut.");
+        builder.AddOrUpdate("Admin.Dashboard.Editor.Saved", "Dashboard saved.", "Dashboard gespeichert.");
+        builder.AddOrUpdate("Admin.Dashboard.Editor.SelectionFailed", "The dashboard was saved, but the view selection could not be saved.", "Das Dashboard wurde gespeichert, die Ansichtsauswahl konnte jedoch nicht gespeichert werden.");
+        builder.AddOrUpdate("Admin.Dashboard.Editor.SaveFailed", "Could not save the dashboard. Your draft is still available.", "Dashboard konnte nicht gespeichert werden. Ihr Entwurf bleibt erhalten.");
+        builder.AddOrUpdate("Admin.Dashboard.Editor.Invalid", "The dashboard changes are invalid or no longer permitted.", "Die Dashboard-Änderungen sind ungültig oder nicht mehr erlaubt.");
+        builder.AddOrUpdate("Admin.Dashboard.Editor.DiscardConfirm",
+            "Discard your unsaved changes?",
+            "Deine ungespeicherten Änderungen wirklich verwerfen?");
+        builder.AddOrUpdate("Admin.Dashboard.Editor.Move", "Move widget", "Widget verschieben");
+        builder.AddOrUpdate("Admin.Dashboard.Editor.Undo", "Undo last change", "Letzte Änderung rückgängig machen");
+        builder.AddOrUpdate("Admin.Dashboard.Editor.Redo", "Redo last change", "Letzte Änderung wiederholen");
+        builder.AddOrUpdate("Admin.Dashboard.Editor.Configure", "Configure widget", "Widget konfigurieren");
+        builder.AddOrUpdate("Admin.Dashboard.Widget.Count",
+            "Number of displayed items",
+            "Anzahl angezeigter Elemente",
+            "Show between 1 and 50 items.",
+            "Zeigt zwischen 1 und 50 Elemente an.");
+        builder.AddOrUpdate("Admin.Dashboard.Editor.Width", "Change widget width", "Widget-Breite ändern");
+        builder.AddOrUpdate("Admin.Dashboard.Editor.Height", "Change widget row span", "Widget-Zeilenspanne ändern");
+        builder.AddOrUpdate("Permissions.DisplayName.Personalize", "Customize own dashboard", "Eigenes Dashboard anpassen");
+        builder.AddOrUpdate("Permissions.DisplayName.ManageGlobal", "Manage shared dashboard", "Gemeinsames Dashboard verwalten");
+
         builder.AddOrUpdate("Permissions.DisplayName.CookieConsents", "Cookie consent", "Cookie-Zustimmungen");
         builder.AddOrUpdate("Admin.Dashboard.RefreshFailed", "The widget could not be updated. Please try again.", "Das Widget konnte nicht aktualisiert werden. Bitte versuche es erneut.");
         builder.AddOrUpdate("Admin.Dashboard.CookieConsents", "Cookie consent", "Cookie-Zustimmungen");
@@ -157,11 +197,6 @@ public class SmartDbContextDataSeeder : IDataSeeder<SmartDbContext>
         builder.AddOrUpdate("Admin.Dashboard.PaymentMethods.FeeNotice",
             "The widget uses these settings to estimate payment fees for all paid orders. Changes also apply to past orders. The calculation includes tax and shipping but does not account for refunds.",
             "Mit diesen Angaben schätzt das Widget die Zahlungsgebühren für alle bezahlten Bestellungen. Änderungen gelten auch für frühere Bestellungen. Steuern und Versand gehören zur Berechnungsgrundlage; Erstattungen werden nicht berücksichtigt.");
-        builder.Delete("FixedValueOrPercent.Absolute", "FixedValueOrPercent.Percentage",
-            "Common.AmountOrPercent.Absolute", "Common.AmountOrPercent.Percentage");
-        builder.Delete("Admin.Dashboard.PaymentMethods.FixedFee");
-        builder.Delete("Admin.Dashboard.PaymentMethods.Fee", "Admin.Dashboard.PaymentMethods.Fee.Hint");
-        builder.Delete("Admin.Dashboard.PaymentMethods.FeePercentage", "Admin.Dashboard.PaymentMethods.FeePercentage.Hint");
 
         builder.AddOrUpdate("Permissions.DisplayName.Dashboard", "Dashboard", "Dashboard");
         builder.AddOrUpdate("Permissions.DisplayName.Widgets", "Widgets", "Widgets");
@@ -178,11 +213,6 @@ public class SmartDbContextDataSeeder : IDataSeeder<SmartDbContext>
 
         builder.AddOrUpdate("Admin.Dashboard", "Dashboard", "Dashboard");
         builder.AddOrUpdate("Admin.Dashboard.Customize", "Customize dashboard", "Dashboard anpassen");
-        builder.AddOrUpdate("Admin.Header.Account", "Account", "Konto");
-        builder.AddOrUpdate("Admin.Header.ExpandNavigation", "Expand navigation", "Navigation ausklappen");
-        builder.AddOrUpdate("Admin.Header.CollapseNavigation", "Collapse navigation", "Navigation einklappen");
-        builder.AddOrUpdate("Admin.Header.ExpandNavigation.Short", "Expand", "Ausklappen");
-        builder.AddOrUpdate("Admin.Header.CollapseNavigation.Short", "Collapse", "Einklappen");
     }
 
     private static void MigrateSettingsResources(LocaleResourcesBuilder builder)
@@ -773,71 +803,7 @@ public class SmartDbContextDataSeeder : IDataSeeder<SmartDbContext>
 
         builder.AddOrUpdate(prefix + "Title", "Migrate icons", "Icons migrieren");
         builder.AddOrUpdate(prefix + "Start", "Start migration", "Migration starten");
-        builder.Delete("Admin.Dashboard.Editor.Layer.System", "Admin.Dashboard.Editor.Layer.Global", "Admin.Dashboard.Editor.Layer.User",
-            "Admin.Dashboard.Editor.Using", "Admin.Dashboard.Editor.SharedHint");
-
-        builder.Delete("Admin.Dashboard.Editor.Dashboard.System");
-        builder.AddOrUpdate("Admin.Dashboard.Editor.Dashboard.Global", "Dashboard for everyone", "Dashboard für alle");
-        builder.AddOrUpdate("Admin.Dashboard.Editor.Dashboard.User", "My dashboard", "Mein Dashboard");
-        builder.Delete("Admin.Dashboard.Editor.Status.Unsaved");
-        builder.Delete("Admin.Dashboard.Editor.TemplateNotice");
-        builder.Delete("Admin.Dashboard.Editor.Status.Reset");
-        builder.AddOrUpdate("Admin.Dashboard.Editor.Customize", "Customize dashboard", "Dashboard anpassen");
-        builder.AddOrUpdate("Admin.Dashboard.Editor.View", "Dashboard view", "Dashboard-Ansicht");
-        builder.Delete("Admin.Dashboard.Editor.Editing");
-        builder.AddOrUpdate("Admin.Dashboard.Editor.RemoveWidgetConfirm", "Really remove this widget?", "Dieses Widget wirklich entfernen?");
-        builder.AddOrUpdate("Admin.Dashboard.Editor.ResetConfirm",
-            "Remove the customization immediately and return to the default dashboard? Unsaved changes will be discarded.",
-            "Die Anpassung jetzt entfernen und zur Dashboard-Vorgabe zurückkehren? Ungespeicherte Änderungen werden verworfen.");
-        builder.AddOrUpdate("Admin.Dashboard.Editor.Widgets", "Add widget", "Widget hinzufügen");
-        builder.Delete("Admin.Dashboard.Editor.AddWidget");
-        builder.AddOrUpdate("Admin.Dashboard.Editor.Search", "Search widgets", "Widgets suchen");
-        builder.AddOrUpdate("Admin.Dashboard.Editor.ResetPersonal", "Reset to the shared dashboard", "Auf gemeinsame Vorgabe zurücksetzen");
-        builder.AddOrUpdate("Admin.Dashboard.Editor.ResetGlobal", "Reset to the default dashboard", "Auf Standard zurücksetzen");
-        builder.Delete("Admin.Dashboard.Editor.SaveUser");
-        builder.AddOrUpdate("Admin.Dashboard.Editor.SaveGlobal", "Save for everyone", "Für alle speichern");
-        builder.AddOrUpdate("Admin.Dashboard.Editor.SaveGlobalConfirm",
-            "This dashboard will be saved as the shared default for all users. Personal dashboards will be retained. Do you want to continue?",
-            "Dieses Dashboard wird als gemeinsame Vorgabe für alle Benutzer gespeichert. Persönliche Dashboards bleiben erhalten. Möchten Sie fortfahren?");
-        builder.Delete("Admin.Dashboard.Editor.SaveTarget");
-        builder.Delete("Admin.Dashboard.Editor.ResetPending");
-        builder.AddOrUpdate("Admin.Dashboard.Editor.ResetFailed",
-            "The dashboard could not be reset. Please try again.",
-            "Das Dashboard konnte nicht zurückgesetzt werden. Bitte versuche es erneut.");
-        builder.AddOrUpdate("Admin.Dashboard.Editor.Saved", "Dashboard saved.", "Dashboard gespeichert.");
-        builder.AddOrUpdate("Admin.Dashboard.Editor.SelectionFailed", "The dashboard was saved, but the view selection could not be saved.", "Das Dashboard wurde gespeichert, die Ansichtsauswahl konnte jedoch nicht gespeichert werden.");
-        builder.AddOrUpdate("Admin.Dashboard.Editor.SaveFailed", "Could not save the dashboard. Your draft is still available.", "Dashboard konnte nicht gespeichert werden. Ihr Entwurf bleibt erhalten.");
-        builder.AddOrUpdate("Admin.Dashboard.Editor.Invalid", "The dashboard changes are invalid or no longer permitted.", "Die Dashboard-Änderungen sind ungültig oder nicht mehr erlaubt.");
-        builder.AddOrUpdate("Admin.Dashboard.Editor.DiscardConfirm",
-            "Discard your unsaved changes?",
-            "Deine ungespeicherten Änderungen wirklich verwerfen?");
-        builder.Delete("Admin.Dashboard.Editor.Unsaved");
-        builder.Delete("Admin.Dashboard.Editor.UnsavedHint");
-        builder.Delete("Admin.Dashboard.Editor.KeepEditing");
-        builder.Delete("Admin.Dashboard.Editor.Discard");
-        builder.Delete("Admin.Dashboard.Editor.SaveAndSwitch");
-        builder.Delete("Admin.Dashboard.Editor.TargetAbove", "Admin.Dashboard.Editor.TargetBelow");
-        builder.AddOrUpdate("Admin.Dashboard.Editor.Move", "Move widget", "Widget verschieben");
-        builder.AddOrUpdate("Admin.Dashboard.Editor.Undo", "Undo last change", "Letzte Änderung rückgängig machen");
-        builder.AddOrUpdate("Admin.Dashboard.Editor.Redo", "Redo last change", "Letzte Änderung wiederholen");
-        builder.AddOrUpdate("Admin.Dashboard.Editor.Configure", "Configure widget", "Widget konfigurieren");
-        builder.AddOrUpdate("Admin.Dashboard.Widget.Count",
-            "Number of displayed items",
-            "Anzahl angezeigter Elemente",
-            "Show between 1 and 50 items.",
-            "Zeigt zwischen 1 und 50 Elemente an.");
-        builder.Delete("Admin.Dashboard.LatestOrders.Fields.Count", "Admin.Dashboard.LatestOrders.Fields.Count.Hint",
-            "Admin.Dashboard.PaymentMethods.Fields.Count", "Admin.Dashboard.PaymentMethods.Fields.Count.Hint",
-            "Admin.Dashboard.PaymentMethods.Fields.FeePercentage", "Admin.Dashboard.PaymentMethods.Fields.FeePercentage.Hint");
-        builder.AddOrUpdate("Admin.Dashboard.Editor.Width", "Change widget width", "Widget-Breite ändern");
-        builder.AddOrUpdate("Admin.Dashboard.Editor.Height", "Change widget row span (Home: one row)", "Widget-Zeilenspanne ändern (Pos1: eine Zeile)");
-        builder.Delete("Permissions.DisplayName.dashboard.personalize", "Permissions.DisplayName.dashboard.manageglobal");
-        builder.AddOrUpdate("Permissions.DisplayName.Personalize", "Customize own dashboard", "Eigenes Dashboard anpassen");
-        builder.AddOrUpdate("Permissions.DisplayName.ManageGlobal", "Manage shared dashboard", "Gemeinsames Dashboard verwalten");
-
-        builder.AddOrUpdate("Admin.System.Maintenance.Icons.Title", "Migrate icons", "Icons migrieren");
-        builder.AddOrUpdate("Admin.System.Maintenance.Icons.Start", "Start migration", "Migration starten");
-        builder.AddOrUpdate("Admin.System.Maintenance.Icons.Hint",
+        builder.AddOrUpdate(prefix + "Hint",
             "Converts legacy Font Awesome icons in menus and HTML content to the new icon format. Already migrated icons remain unchanged. Migration usually takes just a few seconds, but may take several minutes for large datasets. Keep this page open until the migration finishes. Logs of automatic and manual migrations are available in App_Data/Logs (icon-migration-*).",
             "Überführt bisherige Font-Awesome-Icons in Menüs und HTML-Inhalten in das neue Icon-Format. Bereits migrierte Icons bleiben unverändert. Die Migration dauert meist nur wenige Sekunden, bei großen Datenbeständen auch mehrere Minuten. Lassen Sie diese Seite bis zum Abschluss geöffnet. Protokolle automatischer und manueller Migrationen finden Sie unter App_Data/Logs (icon-migration-*).");
         builder.AddOrUpdate(prefix + "Started", "Icon migration is running…", "Die Icon-Migration läuft…");
@@ -1053,6 +1019,12 @@ public class SmartDbContextDataSeeder : IDataSeeder<SmartDbContext>
 
     private static void MigrateCommonResources(LocaleResourcesBuilder builder)
     {
+        builder.AddOrUpdate("Admin.Header.Account", "Account", "Konto");
+        builder.AddOrUpdate("Admin.Header.ExpandNavigation", "Expand navigation", "Navigation ausklappen");
+        builder.AddOrUpdate("Admin.Header.CollapseNavigation", "Collapse navigation", "Navigation einklappen");
+        builder.AddOrUpdate("Admin.Header.ExpandNavigation.Short", "Expand", "Ausklappen");
+        builder.AddOrUpdate("Admin.Header.CollapseNavigation.Short", "Collapse", "Einklappen");
+
         builder.AddOrUpdate("Common.Email", "Email", "E-Mail");
 
         builder.AddOrUpdate("Admin.Common.Store.LimitedTo",
