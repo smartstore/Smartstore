@@ -463,10 +463,16 @@ public sealed class DashboardServiceTests
             async () => await service.GetDashboardAsync("admin-dashboard", null));
     }
 
-    [Test]
-    public async Task Single_Widget_Load_Preserves_Settings_And_Passes_Refresh_And_Display_Parameters()
+    [TestCase(null)]
+    [TestCase(1)]
+    [TestCase(12)]
+    [TestCase(0)]
+    [TestCase(-1)]
+    public async Task Single_Widget_Load_Preserves_Settings_And_Passes_Refresh_And_Display_Parameters(int? cacheHours)
     {
         var widget = new Mock<IDashboardWidget>();
+        TimeSpan? cacheDuration = cacheHours.HasValue ? TimeSpan.FromHours(cacheHours.Value) : null;
+        widget.SetupGet(x => x.CacheDuration).Returns(cacheDuration);
         widget.SetupGet(x => x.Descriptor).Returns(new TestDashboardWidget().Descriptor);
         widget.Setup(x => x.IsAvailableAsync(It.IsAny<DashboardWidgetContext>(), It.IsAny<CancellationToken>())).ReturnsAsync(true);
         widget.Setup(x => x.ValidateSettingsAsync(It.IsAny<JsonObject>(), It.IsAny<CancellationToken>())).Returns(ValueTask.CompletedTask);
@@ -478,9 +484,18 @@ public sealed class DashboardServiceTests
         var customer = CreateTestCustomer();
         var parameters = new Dictionary<string, string> { ["period"] = "30", ["count"] = "999" };
 
+        if (cacheHours <= 0)
+        {
+            Assert.ThrowsAsync<InvalidOperationException>(
+                async () => await service.PrepareWidgetAsync(layout, instance.Id, customer, true, parameters));
+            widget.Verify(x => x.CreateWidget(It.IsAny<DashboardWidgetContext>(), It.IsAny<DashboardWidgetInstance>()), Times.Never);
+            return;
+        }
+
         var result = await service.PrepareWidgetAsync(layout, instance.Id, customer, true, parameters);
 
         Assert.That(result, Is.Not.Null);
+        Assert.That(result!.CacheDuration, Is.EqualTo(cacheDuration));
         Assert.That(result!.Instance.Settings["count"]!.GetValue<int>(), Is.EqualTo(10));
         widget.Verify(x => x.CreateWidget(
             It.Is<DashboardWidgetContext>(c => c.Refresh && !c.IsEditMode && c.Customer == customer && c.Parameters["period"] == "30"),

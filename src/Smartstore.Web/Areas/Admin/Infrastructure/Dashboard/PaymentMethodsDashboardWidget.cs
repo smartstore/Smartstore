@@ -49,6 +49,9 @@ public sealed class PaymentMethodsDashboardWidget(
     public override DashboardWidgetDescriptor Descriptor => _descriptor;
 
     /// <inheritdoc />
+    public override TimeSpan? CacheDuration => TimeSpan.FromHours(12);
+
+    /// <inheritdoc />
     public override JsonObject CreateDefaultSettings()
         => new() { ["count"] = 10 };
 
@@ -58,6 +61,7 @@ public sealed class PaymentMethodsDashboardWidget(
         {
             fees = settings.Fees,
             count = settings.Count,
+            cacheDuration = CacheDuration,
             refresh = context.Refresh
         };
 

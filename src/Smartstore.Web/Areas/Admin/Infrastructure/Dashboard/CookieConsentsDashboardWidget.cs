@@ -32,7 +32,10 @@ public sealed class CookieConsentsDashboardWidget(IPermissionService permissions
 
     /// <inheritdoc />
     public override DashboardWidgetDescriptor Descriptor => _descriptor;
+
+    /// <inheritdoc />
+    public override TimeSpan? CacheDuration => TimeSpan.FromHours(24);
     /// <inheritdoc />
     public override Widget CreateWidget(DashboardWidgetContext context, DashboardWidgetInstance instance)
-        => new ComponentWidget<DashboardCookieConsentsViewComponent>(new { refresh = context.Refresh }) { Key = instance.Id };
+        => new ComponentWidget<DashboardCookieConsentsViewComponent>(new { cacheDuration = CacheDuration, refresh = context.Refresh }) { Key = instance.Id };
 }

@@ -2,6 +2,7 @@ using System.Text.Json;
 using Smartstore.Admin.Models.Customers;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Security;
+using Smartstore.Caching;
 
 namespace Smartstore.Admin.Components;
 
@@ -34,23 +35,27 @@ public class DashboardCookieConsentsViewComponent : SmartViewComponent
     /// <summary>
     /// Reads consent attributes in bounded batches and renders their aggregate counts.
     /// </summary>
-    public async Task<IViewComponentResult> InvokeAsync(bool refresh = false)
+    public async Task<IViewComponentResult> InvokeAsync(bool refresh = false, TimeSpan? cacheDuration = null)
     {
         if (!await Services.Permissions.AuthorizeAsync(RequiredPermission))
         {
             return Empty();
         }
 
+        var cache = cacheDuration.HasValue ? Services.Cache : NullCache.Instance;
         const string cacheKey = "admin:dashboard:cookieconsents";
 
         if (refresh)
         {
-            await Services.Cache.RemoveAsync(cacheKey);
+            await cache.RemoveAsync(cacheKey);
         }
 
-        var model = await Services.Cache.GetAsync(cacheKey, async ctx =>
+        var model = await cache.GetAsync(cacheKey, async ctx =>
         {
-            ctx.ExpiresIn(TimeSpan.FromHours(24));
+            if (cacheDuration.HasValue)
+            {
+                ctx.ExpiresIn(cacheDuration.Value);
+            }
 
             var customerIds = _db.Customers
                 .Where(x => !x.Deleted && !x.IsSystemAccount)

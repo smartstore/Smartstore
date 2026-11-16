@@ -1,3 +1,4 @@
+using Smartstore.Caching;
 using Smartstore.Admin.Models.Dashboard;
 using Smartstore.Admin.Models.Orders;
 using Smartstore.Core.Checkout.Payment;
@@ -35,7 +36,7 @@ public class DashboardPaymentMethodsViewComponent : SmartViewComponent
     /// <summary>
     /// Builds the payment method ranking across all order dates and statuses.
     /// </summary>
-    public async Task<IViewComponentResult> InvokeAsync(IReadOnlyDictionary<string, Amount> fees = null, int count = 10, bool refresh = false)
+    public async Task<IViewComponentResult> InvokeAsync(IReadOnlyDictionary<string, Amount> fees = null, int count = 10, bool refresh = false, TimeSpan? cacheDuration = null)
     {
         if (!await Services.Permissions.AuthorizeAsync(RequiredPermission))
         {
@@ -51,16 +52,20 @@ public class DashboardPaymentMethodsViewComponent : SmartViewComponent
 
         var authorizedStoreIds = await Services.StoreMappingService.GetAuthorizedStoreIdsAsync(nameof(Customer), Services.WorkContext.CurrentCustomer.Id);
         var storeKey = authorizedStoreIds.Length == 0 ? "all" : string.Join("-", authorizedStoreIds.Order());
-        var cacheKey = $"admin:dashboard:paymentmethods:v2:{storeKey}";
+        var cache = cacheDuration.HasValue ? Services.Cache : NullCache.Instance;
+        var cacheKey = $"admin:dashboard:paymentmethods:{storeKey}";
 
         if (refresh)
         {
-            await Services.Cache.RemoveAsync(cacheKey);
+            await cache.RemoveAsync(cacheKey);
         }
 
-        var totals = await Services.Cache.GetAsync(cacheKey, async ctx =>
+        var totals = await cache.GetAsync(cacheKey, async ctx =>
         {
-            ctx.ExpiresIn(TimeSpan.FromMinutes(5));
+            if (cacheDuration.HasValue)
+            {
+                ctx.ExpiresIn(cacheDuration.Value);
+            }
 
             return await _db.Orders
                 .AsNoTracking()

@@ -43,12 +43,15 @@ public sealed class TopCustomersDashboardWidget(
     public override DashboardWidgetDescriptor Descriptor => _descriptor;
 
     /// <inheritdoc />
+    public override TimeSpan? CacheDuration => TimeSpan.FromHours(12);
+
+    /// <inheritdoc />
     public override Task<Widget?> CreateConfigurationWidgetAsync(DashboardWidgetContext context, DashboardWidgetInstance instance)
         => Task.FromResult<Widget?>(new PartialViewWidget("Components/DashboardTopCustomers/Configure", LoadSettings(instance.Settings)));
 
     /// <inheritdoc />
     protected override object GetWidgetArguments(DashboardWidgetContext context, DashboardWidgetInstance instance, TopCustomersDashboardWidgetSettings settings)
-        => new { count = settings.Count };
+        => new { count = settings.Count, cacheDuration = CacheDuration, refresh = context.Refresh };
 }
 
 /// <summary>Contains the settings of the TopCustomers dashboard widget.</summary>

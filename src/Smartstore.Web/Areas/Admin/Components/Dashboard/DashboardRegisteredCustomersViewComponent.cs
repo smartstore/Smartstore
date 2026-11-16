@@ -1,4 +1,5 @@
-﻿using Smartstore.Admin.Models.Orders;
+﻿using Smartstore.Caching;
+using Smartstore.Admin.Models.Orders;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Security;
 
@@ -29,12 +30,29 @@ public class DashboardRegisteredCustomersViewComponent : DashboardWidgetViewComp
             .AsNoTracking()
             .FirstOrDefaultAsync(x => x.SystemName == SystemCustomerRoleNames.Registered);
 
-        var customerDates = _db.Customers
-            .AsNoTracking()
-            .ApplyRegistrationFilter(CreatedFrom, Now)
-            .ApplyRolesFilter(new[] { registeredRole.Id })
-            .Select(x => x.CreatedOnUtc)
-            .ToList();
+        bool refresh = ViewComponentContext.Arguments.TryGetValue("refresh", out var value) && value is true;
+        var cacheDuration = ViewComponentContext.Arguments.TryGetValue("cacheDuration", out var duration) ? duration as TimeSpan? : null;
+        var cache = cacheDuration.HasValue ? Services.Cache : NullCache.Instance;
+        var cacheKey = "admin:dashboard:registrations";
+        if (refresh)
+        {
+            await cache.RemoveAsync(cacheKey);
+        }
+
+        var customerDates = await cache.GetAsync(cacheKey, async ctx =>
+        {
+            if (cacheDuration.HasValue)
+            {
+                ctx.ExpiresIn(cacheDuration.Value);
+            }
+
+            return await _db.Customers
+                .AsNoTracking()
+                .ApplyRegistrationFilter(CreatedFrom, Now)
+                .ApplyRolesFilter(new[] { registeredRole.Id })
+                .Select(x => x.CreatedOnUtc)
+                .ToListAsync();
+        });
 
         var model = DashboardChartReportModel.Create(1);
 
@@ -101,10 +119,24 @@ public class DashboardRegisteredCustomersViewComponent : DashboardWidgetViewComp
             else if (i == 3 || i == 4)
             {
                 // Month or year before.
-                m.ComparedTotalAmount = await _db.Customers
-                    .ApplyRegistrationFilter(m.ComparedFrom, m.ComparedTo)
-                    .ApplyRolesFilter(new[] { registeredRole.Id })
-                    .CountAsync();
+                var comparisonKey = cacheKey + $":comparison:{i}";
+                if (refresh)
+                {
+                    await cache.RemoveAsync(comparisonKey);
+                }
+
+                m.ComparedTotalAmount = await cache.GetAsync(comparisonKey, async ctx =>
+                {
+                    if (cacheDuration.HasValue)
+                    {
+                        ctx.ExpiresIn(cacheDuration.Value);
+                    }
+
+                    return await _db.Customers
+                        .ApplyRegistrationFilter(m.ComparedFrom, m.ComparedTo)
+                        .ApplyRolesFilter(new[] { registeredRole.Id })
+                        .CountAsync();
+                });
                 ApplyComparedToDescription(m);
             }
         }

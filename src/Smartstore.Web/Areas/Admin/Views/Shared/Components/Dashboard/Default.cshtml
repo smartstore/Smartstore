@@ -32,6 +32,7 @@
 
     @foreach (var item in Model.Widgets)
     {
+        var canRefresh = !Model.Context.IsEditMode && item.CacheDuration.HasValue;
         var canConfigure = Model.Context.IsEditMode && item.Policy.AllowConfigure;
         var canEdit = Model.Context.IsEditMode && (item.Policy.AllowMove || item.Policy.AllowResize || !item.Policy.IsRequired || canConfigure);
 
@@ -48,8 +49,8 @@
                      attr-aria-label='(item.Policy.AllowMove, T("Admin.Dashboard.Editor.Move").ToString())'
                      attr-aria-hidden='(!item.Policy.AllowMove, "true")'></div>
 
-                <div sm-if="!Model.Context.IsEditMode || !item.Policy.IsRequired || canConfigure" class="dashboard-widget-tools">
-                    <button sm-if="!Model.Context.IsEditMode"
+                <div sm-if="canRefresh || (Model.Context.IsEditMode && (!item.Policy.IsRequired || canConfigure))" class="dashboard-widget-tools">
+                    <button sm-if="canRefresh"
                             type="button"
                             class="btn btn-xs btn-light btn-flat btn-icon dashboard-refresh"
                             title="@T("Common.Refresh")"
