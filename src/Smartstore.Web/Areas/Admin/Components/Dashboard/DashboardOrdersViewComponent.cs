@@ -26,10 +26,13 @@ public class DashboardOrdersViewComponent : DashboardWidgetViewComponentBase
         }
 
         var primaryCurrency = Services.CurrencyService.PrimaryCurrency;
+        var customer = Services.WorkContext.CurrentCustomer;
+        var authorizedStoreIds = await Services.StoreMappingService.GetAuthorizedStoreIdsAsync("Customer", customer.Id);
 
         var orderDataPoints = await _db.Orders
             .AsNoTracking()
             .ApplyAuditDateFilter(CreatedFrom, null)
+            .ApplyCustomerFilter(authorizedStoreIds)
             .Select(x => new OrderDataPoint
             {
                 CreatedOn = x.CreatedOnUtc,
@@ -104,7 +107,10 @@ public class DashboardOrdersViewComponent : DashboardWidgetViewComponentBase
             else if (i == 3 || i == 4)
             {
                 // Month or year before.
-                m.ComparedTotalAmount = await _db.Orders.ApplyAuditDateFilter(m.ComparedFrom, m.ComparedTo).GetOrdersTotalAsync();
+                m.ComparedTotalAmount = await _db.Orders
+                    .ApplyAuditDateFilter(m.ComparedFrom, m.ComparedTo)
+                    .ApplyCustomerFilter(authorizedStoreIds)
+                    .GetOrdersTotalAsync();
                 ApplyComparedToDescription(m);
             }
         }

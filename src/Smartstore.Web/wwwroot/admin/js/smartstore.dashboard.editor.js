@@ -378,9 +378,7 @@
             $('#dashboard-undo').prop('disabled', !undo.length);
             $('#dashboard-redo').prop('disabled', !redo.length);
             $(form.elements.save).prop('disabled', !dirty || previewing || leaving);
-            const cancelLabel = window.Res.Dashboard.cancel;
-            $('#dashboard-cancel').prop('disabled', previewing || leaving)
-                .text(cancelLabel).attr('aria-label', cancelLabel);
+            $('#dashboard-cancel').prop('disabled', previewing || leaving);
             document.querySelectorAll('[data-add-widget]').forEach(button => {
                 const descriptor = config.widgets.find(w => w.systemName === button.dataset.addWidget);
                 button.disabled = !descriptor?.allowMultipleInstances && layout.widgets.some(w => w.widgetSystemName === button.dataset.addWidget);

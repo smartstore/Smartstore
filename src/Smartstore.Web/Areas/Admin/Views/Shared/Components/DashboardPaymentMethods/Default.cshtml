@@ -65,7 +65,7 @@
                                     <td class="display-row text-right">
                                         @if (item.FeeValue.HasValue)
                                         {
-                                            var feeLabel = (string)T(resourceKey + (item.FeeIsPercentage ? ".FeePercentage" : ".FixedFee"));
+                                            var feeLabel = (string)T(resourceKey + ".FeeSettings");
                                             var feeUnit = item.FeeIsPercentage ? "%" : item.TotalAmount.Currency.CurrencyCode;
                                             <span title="@feeLabel: @item.FeeValue.Value.ToString("0.##") @feeUnit">@item.EstimatedFees</span>
                                         }
