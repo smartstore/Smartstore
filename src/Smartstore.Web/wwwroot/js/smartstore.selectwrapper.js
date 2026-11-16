@@ -45,10 +45,9 @@
 
     $.fn.select2.amd.define('select2/data/lazyAdapter', [
         'select2/data/array',
-        'select2/utils',
-        'select2/data/tags'
+        'select2/utils'
     ],
-        function (ArrayData, Utils, Tags) {
+        function (ArrayData, Utils) {
 
             function LazyAdapter($element, options) {
                 this._isInitialized = false;
@@ -139,8 +138,7 @@
                 this._isInitialized = true;
             };
 
-            // INFO: This enables addding tags when using lazy-loading.
-            return Utils.Decorate(LazyAdapter, Tags);
+            return LazyAdapter;
         }
     );
 
@@ -555,6 +553,12 @@
 
                 // URL specified: load data remotely (lazily on first open)...
                 opts.dataAdapter = $.fn.select2.amd.require('select2/data/lazyAdapter');
+
+                if (sel.data('tags')) {
+                    const utils = $.fn.select2.amd.require('select2/utils');
+                    const tags = $.fn.select2.amd.require('select2/data/tags');
+                    opts.dataAdapter = utils.Decorate(opts.dataAdapter, tags);
+                }
             }
             else if (sel.data('remote-url')) {
                 opts.ajax = {};
@@ -586,8 +590,10 @@
             sel.select2(opts);
 
             const select2 = sel.data("select2");
+            const hasTags = select2.options.get('tags') === true;
             // An explicit empty value disables the default hint for this instance.
-            const searchPlaceholder = sel.attr('data-search-placeholder') ?? window.Res?.['Common.Select.AddPlaceholder'];
+            const searchPlaceholder = sel.attr('data-search-placeholder')
+                ?? window.Res?.[hasTags ? 'Common.Select.AddPlaceholder' : 'Common.Search'];
 
             if (sel.prop('multiple') && searchPlaceholder && select2.selection.$search) {
                 const selection = select2.selection;
@@ -603,7 +609,7 @@
                 applySearchPlaceholder();
             }
 
-            if (sel.prop("multiple") && select2.options.get("tags")) {
+            if (sel.prop("multiple") && hasTags) {
                 sel.on("select2:select", (e) => {
                     const selectedId = e.params?.data?.id;
                     if (selectedId === undefined || selectedId === null) {
