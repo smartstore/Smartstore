@@ -155,7 +155,7 @@ bool IsDevEnvironment()
     if (System.Diagnostics.Debugger.IsAttached)
         return true;
 
-    // if there's a 'Smartstore.sln' in one of the parent folders,
+    // if there's a 'Smartstore.slnx' in one of the parent folders,
     // then we're likely in a dev environment
     if (CommonHelper.FindSolutionRoot(Directory.GetCurrentDirectory()) != null)
         return true;

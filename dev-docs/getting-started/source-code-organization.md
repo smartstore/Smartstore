@@ -8,8 +8,8 @@ Smartstore's repository keeps concerns separated and supports modular developmen
 
 ## Solutions
 
-* `Smartstore.sln` – main solution containing application projects, modules, and tests.
-* `Smartstore.Tools.sln` – separate solution for tooling and utilities.
+* `Smartstore.slnx` – main solution containing application projects, modules, and tests.
+* `Smartstore.Tools.slnx` – separate solution for tooling and utilities.
 
 ## Top-level directories
 
@@ -36,5 +36,5 @@ During a build, modules from `src/Smartstore.Modules` are compiled and copied to
 Test projects reside in the `test/` directory and follow the layout of `src/`. Typical projects include `Smartstore.Tests`, `Smartstore.Core.Tests`, and module-specific tests. All tests run via:
 
 ```bash
-dotnet test Smartstore.sln
+dotnet test Smartstore.slnx
 ```

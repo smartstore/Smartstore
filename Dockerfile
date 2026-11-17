@@ -3,15 +3,15 @@
 # the source within the container
 # -----------------------------------------------------------
 
-FROM mcr.microsoft.com/dotnet/sdk:11.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:11.0-resolute AS build
 
 # Copy solution and source
-ARG SOLUTION=Smartstore.sln
+ARG SOLUTION=Smartstore.slnx
 WORKDIR /app
 COPY $SOLUTION ./
 COPY src/ ./src
 COPY test/ ./test
-COPY nuget.config ./
+COPY nuget.config global.json Directory.Build.props ./
 
 # Create Modules dir if missing
 RUN mkdir /app/src/Smartstore.Web/Modules -p -v
@@ -26,7 +26,7 @@ RUN dotnet publish Smartstore.Web.csproj -c Release -o /app/release/publish \
 	--no-restore
 
 # Build Docker image
-FROM mcr.microsoft.com/dotnet/aspnet:11.0
+FROM mcr.microsoft.com/dotnet/aspnet:11.0-resolute
 EXPOSE 80
 EXPOSE 443
 ENV ASPNETCORE_URLS="http://+:80;https://+:443"

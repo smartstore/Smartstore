@@ -45,8 +45,10 @@ Architecture follows Domain-Driven Design. See
 
 ## Tech stack
 
-- **.NET 10 / C#**, **ASP.NET Core 10**, **EF Core 10** (`net11.0`, set centrally in
+- **.NET 11 / C#**, **ASP.NET Core 11**, **EF Core 11** (`net11.0`, set centrally in
   `src/Smartstore.Build/Smartstore.Common.props`)
+- EF Core is pinned to `11.0.0-rc.3.26522.148` for the PostgreSQL RC3 provider;
+  the MySQL provider uses `11.0.0-preview.1`. Upgrade these together, not independently.
 - **Nuke** for build automation (`build.cmd` / `build.ps1` / `build.sh`)
 - Bootstrap (4/5 hybrid), native embedded Dart Sass, jQuery, Select2, Vue.js
 - DotLiquid (Liquid) for email and content templates
@@ -191,8 +193,8 @@ module of that type.
 ## Build and test
 
 ```bash
-dotnet build Smartstore.sln -c Release
-dotnet test  Smartstore.sln -c Release --logger trx
+dotnet build Smartstore.slnx -c Release
+dotnet test  Smartstore.slnx -c Release --logger trx
 dotnet publish src/Smartstore.Web/Smartstore.Web.csproj -c Release -o ./publish
 ```
 
@@ -205,7 +207,7 @@ any time, and **never** a place to edit files.
 
 `build.cmd` (Windows) and `build.sh` (Linux/macOS) at the repository root run the Nuke
 build, defined in `src/Smartstore.Build/Smartstore.Build/Build.cs`. Its default solution
-is `Smartstore.sln` (`.nuke/parameters.json`).
+is `Smartstore.slnx` (`.nuke/parameters.json`).
 
 Targets: `Clean`, `Restore`, `Compile`, `Test`, `Deploy`, `Zip`, `GenerateSbom`.
 Configurations: `Debug`, `DebugNoRazorCompile`, `Release`.
@@ -232,7 +234,7 @@ Details in `build/README.md`. On CI, set `MSBUILDTERMINALLOGGER=off` to avoid
 `InternalLoggerException` on .NET CI images.
 
 > Working inside the private `Smartstore.Full` workspace? Build
-> `Smartstore.Full-sym.sln` instead, and follow `../AGENTS.md` for the rules that
+> `Smartstore.Full-sym.slnx` instead, and follow `../AGENTS.md` for the rules that
 > apply there.
 
 ## Known design decisions

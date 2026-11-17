@@ -254,6 +254,12 @@ public partial class DashboardService : IDashboardService
         DashboardWidgetContext context,
         CancellationToken cancelToken)
     {
+        var cacheDuration = widget.CacheDuration;
+        if (cacheDuration.HasValue && cacheDuration.Value <= TimeSpan.Zero)
+        {
+            throw new InvalidOperationException($"Widget '{widget.Descriptor.SystemName}' must specify a positive cache duration.");
+        }
+
         var runtimeInstance = await PrepareWidgetInstanceAsync(widget, instance, cancelToken);
         var policy = DashboardWidgetPolicy.Combine(widget.Descriptor.Policy, runtimeInstance.Policy);
 
@@ -261,6 +267,7 @@ public partial class DashboardService : IDashboardService
         {
             Instance = runtimeInstance,
             Descriptor = widget.Descriptor,
+            CacheDuration = cacheDuration,
             Policy = policy,
             Widget = widget.CreateWidget(context, runtimeInstance)
         };

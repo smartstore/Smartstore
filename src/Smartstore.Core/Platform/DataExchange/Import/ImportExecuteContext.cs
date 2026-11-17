@@ -18,6 +18,18 @@ public partial class ImportExecuteContext
     }
 
     /// <summary>
+    /// Creates a context for an import with an explicitly supplied data source.
+    /// </summary>
+    /// <param name="progressInfo">The format string used for progress messages.</param>
+    /// <param name="dataTable">The data source for the import.</param>
+    /// <param name="cancelToken">A cancellation token for the import.</param>
+    public ImportExecuteContext(string progressInfo, IDataTable dataTable, CancellationToken cancelToken)
+        : this(progressInfo, cancelToken)
+    {
+        DataTable = Guard.NotNull(dataTable);
+    }
+
+    /// <summary>
     /// A <see cref="CancellationToken"/> to observe while waiting for the task to complete.
     /// </summary>
     public CancellationToken CancelToken { get; private set; }

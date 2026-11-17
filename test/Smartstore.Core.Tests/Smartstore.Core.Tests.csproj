@@ -20,7 +20,7 @@
 
 	<ItemGroup>
 		<PackageReference Include="Autofac.Extras.Moq" Version="7.0.0" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="10.0.8" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="11.0.0-rc.3.26522.148" />
 		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.6.0" />
 		<PackageReference Include="Moq" Version="4.20.72" />
 		<PackageReference Include="NUnit" Version="4.6.1" />

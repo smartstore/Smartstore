@@ -37,4 +37,7 @@
   <Project Path="src/Smartstore/Smartstore.csproj">
     <BuildType Solution="DebugNoRazorCompile|*" Project="Debug" />
   </Project>
+  <Properties Name="ExtensibilityGlobals" Scope="PostLoad">
+    <Property Name="SolutionGuid" Value="{A0A0B995-5D0B-458E-BCC0-1071B76949D1}" />
+  </Properties>
 </Solution>

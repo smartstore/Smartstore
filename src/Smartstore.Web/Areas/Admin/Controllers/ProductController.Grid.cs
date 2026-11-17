@@ -11,6 +11,9 @@ namespace Smartstore.Admin.Controllers;
 
 public partial class ProductController : AdminController
 {
+    const int WithoutAssignmentFilterValue = -1;
+    const int WithAssignmentFilterValue = -2;
+
     [HttpPost]
     [Permission(Permissions.Catalog.Product.Read)]
     public async Task<IActionResult> ProductList(GridCommand command, ProductListModel model)
@@ -78,20 +81,28 @@ public partial class ProductController : AdminController
             query = query.IsProductType((ProductType)model.SearchProductTypeId);
         }
 
-        if (model.SearchWithoutManufacturers.HasValue)
+        if (model.SearchManufacturerId == WithoutAssignmentFilterValue)
         {
-            query = query.HasAnyManufacturer(!model.SearchWithoutManufacturers.Value);
+            query = query.HasAnyManufacturer(false);
         }
-        else if (model.SearchManufacturerId != 0)
+        else if (model.SearchManufacturerId == WithAssignmentFilterValue)
+        {
+            query = query.HasAnyManufacturer(true);
+        }
+        else if (model.SearchManufacturerId > 0)
         {
             query = query.WithManufacturerIds(null, model.SearchManufacturerId);
         }
 
-        if (model.SearchWithoutCategories.HasValue)
+        if (model.SearchCategoryId == WithoutAssignmentFilterValue)
         {
-            query = query.HasAnyCategory(!model.SearchWithoutCategories.Value);
+            query = query.HasAnyCategory(false);
         }
-        else if (model.SearchCategoryId != 0)
+        else if (model.SearchCategoryId == WithAssignmentFilterValue)
+        {
+            query = query.HasAnyCategory(true);
+        }
+        else if (model.SearchCategoryId > 0)
         {
             query = query.WithCategoryIds(null, model.SearchCategoryId);
         }

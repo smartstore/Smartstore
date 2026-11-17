@@ -4,8 +4,8 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="MySqlConnector" Version="2.6.2" GeneratePathProperty="true" />
-        <PackageReference Include="Microting.EntityFrameworkCore.MySql" Version="10.0.5" GeneratePathProperty="true" />
+        <PackageReference Include="MySqlConnector" Version="3.0.0" GeneratePathProperty="true" />
+        <PackageReference Include="Microting.EntityFrameworkCore.MySql" Version="11.0.0-preview.1" GeneratePathProperty="true" />
         <None Include="$(PkgMySqlConnector)\lib\net11.0\*.dll" CopyToOutputDirectory="PreserveNewest">
             <Visible>false</Visible>
         </None>

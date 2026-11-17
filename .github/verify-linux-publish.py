@@ -1,7 +1,6 @@
 """Reject incomplete or wrong-RID application artifacts before Docker publication."""
 import json
 from pathlib import Path
-import re
 import struct
 import sys
 import xml.etree.ElementTree as ET
@@ -34,9 +33,11 @@ for provider in ("SqlServer", "MySql", "PostgreSql", "Sqlite"):
     require(f"Smartstore.Data.{provider}.dll")
 
 # Only modules enrolled in the public solution belong in the Community image.
-solution = Path("Smartstore.sln").read_text(encoding="utf-8-sig")
-for relative in re.findall(r'"(src\\Smartstore.Modules\\[^"\n]+\.csproj)"', solution):
-    project = Path(relative.replace("\\", "/"))
+solution = ET.parse("Smartstore.slnx")
+for entry in solution.findall(".//Project"):
+    project = Path(entry.attrib["Path"].replace("\\", "/"))
+    if not project.as_posix().startswith("src/Smartstore.Modules/"):
+        continue
     descriptor = json.loads(project.with_name("module.json").read_text(encoding="utf-8-sig"))
     module = descriptor["SystemName"]
     assembly = ET.parse(project).findtext(".//AssemblyName") or project.stem

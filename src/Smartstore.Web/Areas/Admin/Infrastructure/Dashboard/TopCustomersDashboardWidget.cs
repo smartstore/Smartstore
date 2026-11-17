@@ -43,12 +43,15 @@ public sealed class TopCustomersDashboardWidget(
     public override DashboardWidgetDescriptor Descriptor => _descriptor;
 
     /// <inheritdoc />
+    public override TimeSpan? CacheDuration => TimeSpan.FromHours(12);
+
+    /// <inheritdoc />
     public override Task<Widget?> CreateConfigurationWidgetAsync(DashboardWidgetContext context, DashboardWidgetInstance instance)
         => Task.FromResult<Widget?>(new PartialViewWidget("Components/DashboardTopCustomers/Configure", LoadSettings(instance.Settings)));
 
     /// <inheritdoc />
     protected override object GetWidgetArguments(DashboardWidgetContext context, DashboardWidgetInstance instance, TopCustomersDashboardWidgetSettings settings)
-        => new { count = settings.Count };
+        => new { count = settings.Count, cacheDuration = CacheDuration, refresh = context.Refresh };
 }
 
 /// <summary>Contains the settings of the TopCustomers dashboard widget.</summary>
@@ -65,7 +68,6 @@ public class TopCustomersDashboardWidgetValidator : AbstractValidator<TopCustome
 {
     public TopCustomersDashboardWidgetValidator()
     {
-        RuleFor(x => x.Count).InclusiveBetween(1, 50)
-            .WithMessage("The number of displayed items must be between 1 and 50.");
+        RuleFor(x => x.Count).InclusiveBetween(1, 50);
     }
 }

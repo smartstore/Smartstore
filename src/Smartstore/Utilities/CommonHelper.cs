@@ -110,7 +110,7 @@ public static partial class CommonHelper
         if (System.Diagnostics.Debugger.IsAttached)
             return true;
 
-        // if there's a 'Smartstore.sln' in one of the parent folders,
+        // if there's a 'Smartstore.slnx' in one of the parent folders,
         // then we're likely in a dev environment
         return FindSolutionRoot(app.ContentRoot.Root) != null;
     }
@@ -129,7 +129,7 @@ public static partial class CommonHelper
 
     private static bool IsSolutionRoot(DirectoryInfo dir)
     {
-        return File.Exists(Path.Combine(dir.FullName, "Smartstore.sln"));
+        return File.Exists(Path.Combine(dir.FullName, "Smartstore.slnx"));
     }
 
     #endregion

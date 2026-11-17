@@ -45,7 +45,7 @@ public static class SmartJsonOptions
         // NSJ: ReferenceLoopHandling.Ignore
         ReferenceHandler = ReferenceHandler.IgnoreCycles,
 
-        // STJ supports a global preference (net8+ / net10 docs shown here).
+        // STJ supports a global preference (net8+ / net11 docs shown here).
         // Replace is the closest equivalent to "create new instance instead of populating existing".
         // NSJ: ObjectCreationHandling.Replace
         PreferredObjectCreationHandling = JsonObjectCreationHandling.Replace,

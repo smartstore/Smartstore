@@ -639,6 +639,9 @@ public class LinqCatalogSearchServiceTests : ServiceTestBase
         var money14_90 = 14.90M;
         var money59_90 = 59.90M;
 
+        var boundaryResult = await SearchAsync(new CatalogSearchQuery().WithCurrency(eur).PriceBetween(14.90M, 22.50M), products);
+        Assert.That(boundaryResult.TotalHitsCount, Is.EqualTo(2));
+
         var result = await SearchAsync(new CatalogSearchQuery().WithCurrency(eur).PriceBetween(money100, money200), products);
         Assert.That(result.TotalHitsCount, Is.EqualTo(1));
 

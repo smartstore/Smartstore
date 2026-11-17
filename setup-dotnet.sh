@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-DOTNET_VERSION="10.0"
+DOTNET_VERSION="11.0"
 APP_DIR="/app"
 GLOBAL_TOOLS=(
     "dotnet-ef"
@@ -39,5 +39,5 @@ for tool in "${GLOBAL_TOOLS[@]}"; do
 done
 
 if [ -d "$APP_DIR" ]; then
-    (cd "$APP_DIR" && dotnet restore Smartstore.sln --verbosity quiet)
+    (cd "$APP_DIR" && dotnet restore Smartstore.slnx --verbosity quiet)
 fi

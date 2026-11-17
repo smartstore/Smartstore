@@ -45,7 +45,7 @@ public class DashboardContactRequestsViewComponent : SmartViewComponent
             query = query.Where(x => authorizedStoreIds.Contains(x.StoreId));
         }
 
-        // TODO: (mh) I don't get it. QueuedEmails are deleted after sending.
+        // Contact requests remain visible only while their queued emails are retained.
         var messages = await _db.QueuedEmails
             .AsNoTracking()
             .Join(query,

@@ -13,7 +13,7 @@
 <input type="number"
        id="@id"
        name="@id"
-       value="@Model.RawValue"
+       value="@Model.RawValue.Convert<decimal?>()"
        sm-decimals="@decimals"
        sm-postfix="@metadata.Get("postfix")"
        placeholder="@T("Common.Empty")"

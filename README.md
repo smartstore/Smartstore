@@ -8,7 +8,7 @@
 </h3>
 <h3 align="center"><strong>Ready. Sell. Grow.</strong></h3>
 <p align="center">
-    A modular, scalable, and ultra-fast open-source all-in-one eCommerce platform built on ASP.NET Core 10.
+    A modular, scalable, and ultra-fast open-source all-in-one eCommerce platform built on ASP.NET Core 11.
 </p>
 <p align="center">
 <a href="#try-it-online">Try Online</a> &#8729;
@@ -26,7 +26,7 @@
 
 <br/>
 
-Smartstore is a cross-platform, modular, scalable, and ultra-fast open-source all-in-one eCommerce platform built on `ASP.NET Core 10`, `Entity Framework Core 10`, `Vue.js`, `Sass`, `Bootstrap`, and more.
+Smartstore is a cross-platform, modular, scalable, and ultra-fast open-source all-in-one eCommerce platform built on `ASP.NET Core 11`, `Entity Framework Core 11`, `Vue.js`, `Sass`, `Bootstrap`, and more.
 
 **Smartstore includes all the essential features to create multi-language, multi-store, and multi-currency shops**, with built-in AI capabilities for text and image generation powered by the world's leading AI providers — targeting desktop and mobile devices alike. It enables SEO-optimized, rich product catalogs with support for an unlimited number of products and categories, variants, bundles, datasheets, ESD, discounts, coupons, and much more.
 
@@ -34,7 +34,7 @@ A comprehensive set of tools for CRM & CMS, sales, marketing, payment, and shipp
 
 **Smartstore delivers a beautiful and fully configurable storefront out of the box**, built with a high-level design approach using `Sass`, `Bootstrap`, and other modern components. The included *Flex* theme is modern, clean, and fully responsive — giving shoppers the best possible experience on any device.
 
-The state-of-the-art architecture — with `ASP.NET Core 10`, `Entity Framework Core 10`, and a domain-driven design approach — makes Smartstore easy to extend, extremely flexible, and a pleasure to work with.
+The state-of-the-art architecture — with `ASP.NET Core 11`, `Entity Framework Core 11`, and a domain-driven design approach — makes Smartstore easy to extend, extremely flexible, and a pleasure to work with.
 
 * :house: **Website:** [https://www.smartstore.com](https://www.smartstore.com)
 * :orange_book: **Developer Guide:** [Smartstore Developer Guide](https://docs.smartstore.com/developer)
@@ -48,7 +48,7 @@ The state-of-the-art architecture — with `ASP.NET Core 10`, `Entity Framework 
 
 ## Technology & Design
 
-- State-of-the-art architecture with `ASP.NET Core 10`, `Entity Framework Core 10`, and domain-driven design
+- State-of-the-art architecture with `ASP.NET Core 11`, `Entity Framework Core 11`, and domain-driven design
 - Cross-platform: runs on Windows, Linux, and macOS
 - `Docker` support out of the box for easy deployment
 - Composable, extensible, and highly flexible through a modular architecture
@@ -130,10 +130,7 @@ Smartstore integrates with all major AI providers through a unified, provider-ag
 
 #### Supported Operating Systems
 
-- Windows 10 or higher / Windows Server 2016 or higher
-- Ubuntu 18.04+
-- Debian 11+
-- macOS 10.11+
+Use a Windows, Linux, or macOS version listed in the [.NET 11 supported operating systems](https://github.com/dotnet/core/blob/main/release-notes/11.0/supported-os.md).
 
 #### Supported Database Systems
 
@@ -144,7 +141,7 @@ Smartstore integrates with all major AI providers through a unified, provider-ag
 
 ### Upgrading from Smartstore.NET 4.2
 
-Smartstore 5+ is a port of [Smartstore.NET 4](https://github.com/smartstore/SmartStoreNET) — based on the classic .NET Framework 4.7.2 — to the modern `ASP.NET Core 10` platform. Existing instances based on classic `ASP.NET MVC` can be upgraded seamlessly. To [upgrade](https://smartstore.atlassian.net/wiki/spaces/SMNET50/pages/1956118609/Updating+from+Previous+Versions), simply replace the application files on your server (keep the `App_Data` directory intact) and **all your data will be migrated to the new system automatically**. [See the documentation for detailed installation and upgrade instructions](https://smartstore.atlassian.net/wiki/spaces/SMNET50/pages/1956118822/Installing+Smartstore).
+Smartstore 5+ is a port of [Smartstore.NET 4](https://github.com/smartstore/SmartStoreNET) — based on the classic .NET Framework 4.7.2 — to the modern `ASP.NET Core 11` platform. Existing instances based on classic `ASP.NET MVC` can be upgraded seamlessly. To [upgrade](https://smartstore.atlassian.net/wiki/spaces/SMNET50/pages/1956118609/Updating+from+Previous+Versions), simply replace the application files on your server (keep the `App_Data` directory intact) and **all your data will be migrated to the new system automatically**. [See the documentation for detailed installation and upgrade instructions](https://smartstore.atlassian.net/wiki/spaces/SMNET50/pages/1956118822/Installing+Smartstore).
 
 > :information_source: Upgrading from versions earlier than 4.2 is not supported. Please migrate to Smartstore.NET 4.2 first, then upgrade to Smartstore 5+.
 
@@ -152,8 +149,12 @@ Smartstore 5+ is a port of [Smartstore.NET 4](https://github.com/smartstore/Smar
 
 1. Clone the repository: `git clone https://github.com/smartstore/Smartstore.git` and check out the `main` branch.
 2. Download [Visual Studio 2026](https://www.visualstudio.com/downloads/) (any edition).
-3. Open `Smartstore.sln` and wait for Visual Studio to restore all NuGet packages.
+3. Open `Smartstore.slnx` and wait for Visual Studio to restore all NuGet packages.
 4. Set `Smartstore.Web` as the startup project and run it.
+
+The SDK is pinned in `global.json` to .NET 11. The current EF Core 11 database
+stack includes release candidate and preview packages; see the
+[build prerequisites](dev-docs/getting-started/deployment-and-build.md) for the exact versions.
 
 ### Repository Structure
 
@@ -195,15 +196,15 @@ Run `build/dockerize.{Platform}[.nobuild].sh` to create a Docker image.
 
 #### `dockerize.linux.sh`
 
-Builds a Debian Linux base image with the full ASP.NET runtime, compiles the solution, and publishes a framework-dependent application inside the container. Also installs the native **wkhtmltopdf** library required for PDF generation.
+Uses the Ubuntu 26.04 ASP.NET runtime image, compiles the solution, and publishes a framework-dependent application inside the container. Also installs the native **wkhtmltopdf** library required for PDF generation.
 
 #### `dockerize.linux.nobuild.sh`
 
-Faster alternative — skips the build step. Requires a pre-built artifact in `build/artifacts/Community.{Version}.linux-x64`. Creates a Debian Linux base image with only the ASP.NET runtime dependencies and copies the artifact. Also installs **wkhtmltopdf**.
+Faster alternative — skips the build step. Requires a pre-built artifact in `build/artifacts/Community.{Version}.linux-x64`. Uses the Ubuntu 26.04 ASP.NET runtime image and copies the artifact. Also installs **wkhtmltopdf**.
 
 #### `dockerize.windows.nobuild.sh`
 
-Creates a Windows Nano Server base image with only the ASP.NET runtime dependencies and copies the artifact from `build/artifacts/Community.{Version}.win-x64`. Requires the Docker engine to be running a Windows image.
+Uses the Windows Nano Server LTSC 2025 ASP.NET runtime image and copies the artifact from `build/artifacts/Community.{Version}.win-x64`. Requires a compatible Windows container host.
 
 ### Creating Docker Containers
 
