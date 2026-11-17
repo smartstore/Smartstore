@@ -592,8 +592,7 @@
             const select2 = sel.data("select2");
             const hasTags = select2.options.get('tags') === true;
             // An explicit empty value disables the default hint for this instance.
-            const searchPlaceholder = sel.attr('data-search-placeholder')
-                ?? window.Res?.[hasTags ? 'Common.Select.AddPlaceholder' : 'Common.Search'];
+            const searchPlaceholder = sel.attr('data-search-placeholder') ?? (hasTags ? window.Res?.['Common.Select.AddPlaceholder'] : null);
 
             if (sel.prop('multiple') && searchPlaceholder && select2.selection.$search) {
                 const selection = select2.selection;
