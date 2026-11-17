@@ -275,7 +275,7 @@ internal sealed class IconCatalog
                 var entry = _zip.GetEntry(info.Name + ".svg");
                 if (entry == null || entry.Crc32 != source.Checksum || entry.Length > IconSvgParser.MaxLength)
                 {
-                    throw new IOException("Icon archive changed during lookup. Retry after catalog reload.");
+                    return null;
                 }
 
                 using var svgStream = entry.Open();
