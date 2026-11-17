@@ -1,4 +1,17 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
+    <!-- Runtime Async is opt-in in .NET 11 and is not supported by Mono.
+         Set UseRuntimeAsync=false when building libraries for Mono consumers. -->
+    <PropertyGroup Condition="'$(TargetFrameworkIdentifier)' == '.NETCoreApp'
+                          And '$(TargetFrameworkVersion)' == 'v11.0'
+                          And '$(MSBuildProjectExtension)' == '.csproj'
+                          And '$(UseMonoRuntime)' != 'true'
+                          And '$(UsingMicrosoftNETSdkBlazorWebAssembly)' != 'true'
+                          And '$(TargetPlatformIdentifier)' != 'browser'
+                          And !$([System.String]::Copy('$(RuntimeIdentifier)').EndsWith('-wasm'))">
+        <UseRuntimeAsync Condition="'$(UseRuntimeAsync)' == ''">true</UseRuntimeAsync>
+        <!-- Append instead of replacing other compiler features, including Razor's tokenizer. -->
+        <Features Condition="'$(UseRuntimeAsync)' == 'true'">$(Features);runtime-async=on</Features>
+    </PropertyGroup>
 
 </Project>
