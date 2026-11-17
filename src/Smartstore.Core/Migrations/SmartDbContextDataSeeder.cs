@@ -771,6 +771,9 @@ public class SmartDbContextDataSeeder : IDataSeeder<SmartDbContext>
 
         prefix = "Admin.Catalog.Products.";
 
+        builder.AddOrUpdate(prefix + "List.SearchWithCategories", "With category mapping", "Mit Warengruppenzuordnung");
+        builder.AddOrUpdate(prefix + "List.SearchWithManufacturers", "With manufacturer mapping", "Mit Herstellerzuordnung");
+
         builder.AddOrUpdate(prefix + "ProductVariantAttributes.AttributeCombinations.SelectAttributes",
             "Set the attributes for the combination.",
             "Legen Sie die Attribute für die Kombination fest");
