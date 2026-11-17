@@ -177,31 +177,21 @@ public class FilePermissionChecker : IFilePermissionChecker
     protected virtual bool CanAccessOnLinux(FileSystemInfo entry, FileEntryRights rights)
     {
         // MacOSX file permission check differs slightly from linux
-        var arguments = RuntimeInformation.IsOSPlatform(OSPlatform.OSX)
-            ? $"-c \"stat -f '%A %u %g' {entry.FullName}\""
-            : $"-c \"stat -c '%a %u %g' {entry.FullName}\"";
+        string[] arguments = RuntimeInformation.IsOSPlatform(OSPlatform.OSX)
+            ? ["-f", "%A %u %g", entry.FullName]
+            : ["-c", "%a %u %g", entry.FullName];
 
         try
         {
-            // Create bash command like
-            // sh -c "stat -c '%a %u %g' <file>"
-            var process = new Process
+            var output = Process.RunAndCaptureText("stat", arguments);
+            if (output.ExitStatus.ExitCode != 0 || output.ExitStatus.Signal != null)
             {
-                StartInfo = new ProcessStartInfo
-                {
-                    RedirectStandardInput = true,
-                    RedirectStandardOutput = true,
-                    UseShellExecute = false,
-                    FileName = "/bin/sh",
-                    Arguments = arguments
-                }
-            };
-            process.Start();
-            process.WaitForExit();
+                throw new IOException($"Failed to read file permissions. Exit status: {output.ExitStatus}. {output.StandardError.Trim()}");
+            }
 
             // Result looks like: 555 1111 2222
             // Where 555 - file permissions, 1111 - file owner ID, 2222 - file group ID
-            var result = process.StandardOutput.ReadToEnd().Trim('\n').Split(' ');
+            var result = output.StandardOutput.Trim('\n').Split(' ');
 
             var filePermissions = result[0].Select(p => (int)char.GetNumericValue(p)).ToArray();
             var isOwner = _osIdentity.UserId == result[1];

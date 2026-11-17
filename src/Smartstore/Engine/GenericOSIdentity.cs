@@ -38,27 +38,16 @@ internal class GenericOSIdentity : IOSIdentity
 
     private static void PopulateLinuxUser(GenericOSIdentity identity)
     {
-        var process = new Process
+        var result = Process.RunAndCaptureText("sh", ["-c", "id -u && id -G"]);
+        var lines = result.StandardOutput.Split('\n', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
+
+        if (result.ExitStatus.ExitCode != 0 || result.ExitStatus.Signal != null || lines.Length != 2)
         {
-            StartInfo = new ProcessStartInfo
-            {
-                RedirectStandardInput = true,
-                RedirectStandardOutput = true,
-                UseShellExecute = false,
-                FileName = "sh",
-                Arguments = "-c \" id -u ; id -G \""
-            }
-        };
+            throw new InvalidOperationException($"Could not determine Unix user identity. Exit status: {result.ExitStatus}. {result.StandardError.Trim()}");
+        }
 
-        process.Start();
-        process.WaitForExit();
-
-        var res = process.StandardOutput.ReadToEnd();
-
-        var respars = res.Split("\n");
-
-        identity.UserId = respars[0];
-        identity.Groups = respars[1].Split(" ").AsReadOnly();
+        identity.UserId = lines[0];
+        identity.Groups = lines[1].Split(' ', StringSplitOptions.RemoveEmptyEntries).AsReadOnly();
     }
 
     public string Name { get; }
