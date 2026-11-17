@@ -59,16 +59,24 @@
     --range-tick-width: 1px;
     --range-tick-height: 5px;
     --range-tick-bg: rgb(0 0 0 / 36%);
+    --range-ticks-height: 17px;
+    --range-ticks-gap: -2px;
+    --range-ticks-space: 0px;
     // Percentages resolve at use, within the track or the nullable control wrapper.
     --range-position: calc(var(--range-thumb-width) / 2 + (100% - var(--range-thumb-width)) * var(--range-fill));
 
     position: relative;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
     width: var(--range-track-width);
-    height: var(--range-height);
-    min-width: 0;
+
+    // Both plain and nullable controls center the same input/tick stack.
+    &,
+    .range-control-wrapper {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        height: var(--range-height);
+        min-width: 0;
+    }
 
     &:dir(rtl) { 
         --range-direction: to left; 
@@ -80,11 +88,17 @@
         --range-thumb-height: calc(#{$custom-range-thumb-height} + 2px);
     }
 
+    &:has(.form-range-ticks) {
+        --range-ticks-space: calc(var(--range-ticks-height) + var(--range-ticks-gap));
+    }
+
     .range-control-wrapper {
-        display: flex;
         align-items: center;
-        height: var(--range-height);
-        min-width: 0;
+    }
+
+    // Match the track center without depending on the adjacent wrapper markup.
+    .range-tools {
+        margin-block-end: var(--range-ticks-space);
     }
 
     &.unspecified {
@@ -101,12 +115,13 @@
 
     .form-range-ticks {
         display: grid;
-        // Native thumb centers travel from half a thumb width to the opposite inset.
-        padding-inline: calc(var(--range-thumb-width) * 0.5);
-        // Preserve the centered control and keep nullable reset buttons outside the grid.
-        position: absolute;
-        inset-inline: 0;
-        top: calc(50% + var(--range-thumb-height) / 2 - 2px);
+        padding-inline: calc(var(--range-thumb-width) / 2);
+        // Reserve the legacy tick/label space in the centered control stack.
+        position: relative;
+        width: 100%;
+        height: var(--range-ticks-height);
+        flex-shrink: 0;
+        margin-top: var(--range-ticks-gap);
         pointer-events: none;
     }
 
@@ -125,8 +140,16 @@
             background-color: var(--range-tick-bg);
             border-radius: 1px;
         }
-        &.form-range-tick-start { align-items: flex-start; }
-        &.form-range-tick-end { align-items: flex-end; }
+        &.form-range-tick-start {
+            position: relative;
+            inset-inline-start: calc(3px - var(--range-thumb-width) / 2);
+            align-items: flex-start;
+        }
+        &.form-range-tick-end {
+            position: relative;
+            inset-inline-end: calc(3px - var(--range-thumb-width) / 2);
+            align-items: flex-end;
+        }
     }
 
     .form-range-tick-label {
@@ -139,7 +162,7 @@
     .range-value {
         position: absolute;
         inset-inline-start: var(--range-position);
-        bottom: calc(50% + var(--range-thumb-height) / 2 + var(--range-bubble-gap));
+        bottom: calc(50% + var(--range-ticks-space) / 2 + var(--range-thumb-height) / 2 + var(--range-bubble-gap));
         transform: translateX(-50%);
         font-size: 11px;
         border-radius: 3px;
@@ -173,9 +196,12 @@
     -webkit-appearance: none;
     -moz-appearance: none;
     appearance: none;
+    position: relative;
+    z-index: 1;
     display: block;
     width: 100%;
     height: var(--range-thumb-height);
+    flex-shrink: 0;
     margin: 0;
     padding: 0;
     color: transparent;
