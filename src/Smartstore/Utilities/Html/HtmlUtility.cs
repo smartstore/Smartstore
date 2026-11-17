@@ -102,7 +102,7 @@ public static partial class HtmlUtility
             return string.Empty;
         }
 
-        var removeTags = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "script", "style", "svg", "img" };
+        HashSet<string> removeTags = [with(StringComparer.OrdinalIgnoreCase), "script", "style", "svg", "img"];
         var parser = new HtmlParser();
 
         using var doc = parser.ParseDocument(html);

@@ -4,6 +4,7 @@ using System.Net.Http.Json;
 using Smartstore.Admin.Models.Common;
 using Smartstore.Core.Web;
 using Smartstore.Core.Security;
+using Smartstore.Caching;
 
 namespace Smartstore.Admin.Components;
 
@@ -23,7 +24,7 @@ public class NewsFeedViewComponent : SmartViewComponent
         _webHelper = webHelper;
     }
 
-    public async Task<IViewComponentResult> InvokeAsync(bool refresh = false)
+    public async Task<IViewComponentResult> InvokeAsync(bool refresh = false, TimeSpan? cacheDuration = null)
     {
         if (!await Services.Permissions.AuthorizeAsync(RequiredPermission))
         {
@@ -31,15 +32,19 @@ public class NewsFeedViewComponent : SmartViewComponent
         }
 
         var lang = Services.WorkContext.WorkingLanguage;
+        var cache = cacheDuration.HasValue ? Services.Cache : NullCache.Instance;
         var cacheKey = $"admin:newsfeed{lang.UniqueSeoCode}";
         if (refresh)
         {
-            await Services.Cache.RemoveAsync(cacheKey);
+            await cache.RemoveAsync(cacheKey);
         }
 
-        var result = await Services.Cache.GetAsync(cacheKey, async ctx =>
+        var result = await cache.GetAsync(cacheKey, async ctx =>
         {
-            ctx.ExpiresIn(TimeSpan.FromHours(4));
+            if (cacheDuration.HasValue)
+            {
+                ctx.ExpiresIn(cacheDuration.Value);
+            }
 
             try
             {

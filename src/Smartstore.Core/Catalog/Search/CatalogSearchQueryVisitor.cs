@@ -1,4 +1,5 @@
-﻿using System.Linq.Dynamic.Core;
+﻿using System.Globalization;
+using System.Linq.Dynamic.Core;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Rules;
 using Smartstore.Core.Rules.Filters;
@@ -343,7 +344,7 @@ public class CatalogSearchQueryVisitor : LinqSearchQueryVisitor<Product, Catalog
 
             if (lower.HasValue)
             {
-                var minPrice = Convert.ToDecimal(lower.Value);
+                var minPrice = ConvertPrice(lower.Value);
 
                 query = query.Where(x =>
                     ((x.SpecialPrice.HasValue &&
@@ -360,7 +361,7 @@ public class CatalogSearchQueryVisitor : LinqSearchQueryVisitor<Product, Catalog
 
             if (upper.HasValue)
             {
-                var maxPrice = Convert.ToDecimal(upper);
+                var maxPrice = ConvertPrice(upper.Value);
 
                 query = query.Where(x =>
                     ((x.SpecialPrice.HasValue &&
@@ -377,7 +378,7 @@ public class CatalogSearchQueryVisitor : LinqSearchQueryVisitor<Product, Catalog
         }
         else
         {
-            var price = Convert.ToDecimal(filter.Term);
+            var price = ConvertPrice(filter.Term);
 
             if (filter.Occurence == SearchFilterOccurence.MustNot)
             {
@@ -410,6 +411,15 @@ public class CatalogSearchQueryVisitor : LinqSearchQueryVisitor<Product, Catalog
         }
 
         return query;
+    }
+
+    private static decimal ConvertPrice(object value)
+    {
+        // Search terms use doubles. Recover their decimal representation instead of
+        // retaining the binary fraction introduced by .NET 11's decimal conversion.
+        return value is double price
+            ? decimal.Parse(price.ToString("R", CultureInfo.InvariantCulture), NumberStyles.Float, CultureInfo.InvariantCulture)
+            : Convert.ToDecimal(value, CultureInfo.InvariantCulture);
     }
 
     protected virtual IQueryable<Product> VisitRatingFilter(IAttributeSearchFilter filter, CatalogSearchQueryContext context, IQueryable<Product> query)

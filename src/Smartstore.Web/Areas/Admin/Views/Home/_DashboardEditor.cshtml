@@ -96,24 +96,26 @@
                     <button type="button" class="btn btn-light btn-destructive" id="dashboard-reset" title="@resetLabel" aria-label="@resetLabel">
                         <icon name="hi:eraser!" />
                     </button>
-                    <button type="button" class="btn btn-light" id="dashboard-cancel">@T(Model.IsDirty ? "Common.Cancel" : "Common.Back")</button>
-                    <div sm-if="Model.CanManageGlobal" class="dropdown">
-                        <button type="button" class="btn btn-light dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" aria-label="@T(editorKey + "View"): @T(editorKey + "Dashboard." + Model.State.Layer)">
-                            @T(editorKey + "Dashboard." + Model.State.Layer)
-                        </button>
-                        <div class="dropdown-menu dropdown-menu-right">
-                            <button sm-if="Model.CanPersonalize" type="button" class="dropdown-item" attr-class='(Model.State.Layer == DashboardLayoutLayer.User, "active")' data-dashboard-edit="@DashboardLayoutLayer.User">
-                                @T(editorKey + "Dashboard." + DashboardLayoutLayer.User)
+                    <button type="button" class="btn btn-light" id="dashboard-cancel">@T("Common.Cancel")</button>
+                    <div class="btn-group">
+                        <div sm-if="Model.CanManageGlobal" class="btn-group">
+                            <button type="button" class="btn btn-light dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" aria-label="@T(editorKey + "View"): @T(editorKey + "Dashboard." + Model.State.Layer)">
+                                @T(editorKey + "Dashboard." + Model.State.Layer)
                             </button>
-                            <button type="button" class="dropdown-item" attr-class='(Model.State.Layer == DashboardLayoutLayer.Global, "active")' data-dashboard-edit="@DashboardLayoutLayer.Global">
-                                @T(editorKey + "Dashboard." + DashboardLayoutLayer.Global)
-                            </button>
+                            <div class="dropdown-menu dropdown-menu-right">
+                                <button sm-if="Model.CanPersonalize" type="button" class="dropdown-item" attr-class='(Model.State.Layer == DashboardLayoutLayer.User, "active")' data-dashboard-edit="@DashboardLayoutLayer.User">
+                                    @T(editorKey + "Dashboard." + DashboardLayoutLayer.User)
+                                </button>
+                                <button type="button" class="dropdown-item" attr-class='(Model.State.Layer == DashboardLayoutLayer.Global, "active")' data-dashboard-edit="@DashboardLayoutLayer.Global">
+                                    @T(editorKey + "Dashboard." + DashboardLayoutLayer.Global)
+                                </button>
+                            </div>
                         </div>
+                        <button type="submit" name="save" class="btn btn-primary" disabled="@(!Model.IsDirty)">
+                            <icon name="check" />
+                            <span>@T("Admin.Common.Save")</span>
+                        </button>
                     </div>
-                    <button type="submit" name="save" class="btn btn-primary" disabled="@(!Model.IsDirty)">
-                        <icon name="check" />
-                        <span>@T("Admin.Common.Save")</span>
-                    </button>
                 </div>
             </form>
         }

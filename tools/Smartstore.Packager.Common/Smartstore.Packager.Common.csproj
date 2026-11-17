@@ -9,6 +9,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="System.Security.Cryptography.Xml" Version="11.0.0" />
         <ProjectReference Include="..\..\src\Smartstore\Smartstore.csproj" />
         <ProjectReference Include="..\..\src\Smartstore.Core\Smartstore.Core.csproj" />
     </ItemGroup>

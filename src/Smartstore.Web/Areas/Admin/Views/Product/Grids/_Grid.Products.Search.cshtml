@@ -20,16 +20,8 @@
     <editor asp-for="SearchHomePageProducts" />
 </div>
 <div class="form-group">
-    <smart-label asp-for="SearchWithoutCategories" />
-    <editor asp-for="SearchWithoutCategories" />
-</div>
-<div class="form-group">
     <smart-label asp-for="SearchCategoryId" />
     <select asp-for="SearchCategoryId" asp-items="Model.AvailableCategories" asp-placeholder="@T("Admin.Common.All")"></select>
-</div>
-<div class="form-group">
-    <smart-label asp-for="SearchWithoutManufacturers" />
-    <editor asp-for="SearchWithoutManufacturers" />
 </div>
 <div class="form-group">
     <smart-label asp-for="SearchManufacturerId" />

@@ -117,7 +117,7 @@ public class DashboardControllerTests
     [TestCase("Count", "", false)]
     [TestCase("Count", "abc", false)]
     [TestCase("Fees[Payments.Example].Value", "2.75", true)]
-    [TestCase("Fees[Payments.Example].Value", "101", false)]
+    [TestCase("Fees[Payments.Example].Value", "-1", false)]
     [TestCase("Fees[Payments.Example].Value", "", false)]
     [SetCulture("de-DE")]
     public async Task Configuration_Form_Binds_Validates_And_Renders_In_One_Request(string field, string value, bool valid)
@@ -184,6 +184,7 @@ public class DashboardControllerTests
         services.AddLogging();
         services.AddMvcCore(options => options.ModelBinderProviders.Insert(0, new InvariantFloatingPointTypeModelBinderProvider())).AddDataAnnotations();
         services.AddFluentValidationAutoValidation();
+        services.AddSingleton(Smartstore.Core.Localization.NullLocalizer.Instance);
         services.AddTransient<IValidator<PaymentMethodsDashboardWidgetSettings>, PaymentMethodsDashboardWidgetValidator>();
         services.AddSingleton(invoker.Object);
         using var provider = services.BuildServiceProvider();

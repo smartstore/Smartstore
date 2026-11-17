@@ -43,7 +43,7 @@ Because the modules are loaded by the running application, the page's app pool m
 
 If a module is to be distributed to a third party, the module should be provided in a format that allows the third party to install it in their store independently.
 
-This can be done using the **Smartstore Packager**. To use it, open the `Smartstore.Tools.sln` solution located in the Smartstore repository root. Build the `Smartstore.Packager` project from the _Tools_ directory. The resulting `Smartstore.Packager.exe` file can list all modules of a build directory. After starting the packager, select the directory in _Artifacts_, created by the batch file. Clicking on **ReadExtensions** will list all available modules. Now select the module you want to package, an output directory and press **Create Package**.
+This can be done using the **Smartstore Packager**. To use it, open the `Smartstore.Tools.slnx` solution located in the Smartstore repository root. Build the `Smartstore.Packager` project from the _Tools_ directory. The resulting `Smartstore.Packager.exe` file can list all modules of a build directory. After starting the packager, select the directory in _Artifacts_, created by the batch file. Clicking on **ReadExtensions** will list all available modules. Now select the module you want to package, an output directory and press **Create Package**.
 
 The packager creates a zip file using the naming pattern `Smartstore.Module.{module systemname}.{current module version}.zip` which will result in something like `Smartstore.Module.MyOrg.MyModule.5.0.zip`.
 
@@ -51,7 +51,7 @@ This packaged module can now be uploaded by any store owner. There is no need to
 
 ### Packager CLI
 
-For automated builds the same packages can be created without a user interface. Build the `Smartstore.Packager.Cli` project from the _Tools_ directory of `Smartstore.Tools.sln` and call the resulting `Smartstore.Packager.Cli.exe` with the `pack` command. GUI and CLI share their extension discovery and packaging code, so both produce identical packages.
+For automated builds the same packages can be created without a user interface. Build the `Smartstore.Packager.Cli` project from the _Tools_ directory of `Smartstore.Tools.slnx` and call the resulting `Smartstore.Packager.Cli.exe` with the `pack` command. GUI and CLI share their extension discovery and packaging code, so both produce identical packages.
 
 ```bash
 Smartstore.Packager.Cli pack --root <path> --output <path> --extension <name> [--extension <name>...]

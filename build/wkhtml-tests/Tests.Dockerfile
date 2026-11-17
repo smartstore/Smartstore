@@ -1,5 +1,5 @@
 # Build on the host CPU; only the runtime stage needs target-platform emulation.
-FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:10.0-noble AS build
+FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:11.0-resolute AS build
 ARG TARGETARCH
 WORKDIR /src
 COPY src/ ./src/
@@ -13,7 +13,7 @@ RUN case "$TARGETARCH" in amd64) rid=linux-x64 ;; arm64) rid=linux-arm64 ;; *) e
     dotnet restore build/wkhtml-tests/seed.csproj -p:ProbeRID=$rid --source /packages --source https://api.nuget.org/v3/index.json
 
 # A test image, not the production image: Poppler/Python are test dependencies only.
-FROM mcr.microsoft.com/dotnet/aspnet:10.0-noble
+FROM mcr.microsoft.com/dotnet/aspnet:11.0-resolute
 ARG MODE=system
 WORKDIR /work
 COPY install-wkhtmltopdf.sh /work/install-wkhtmltopdf.sh

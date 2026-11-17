@@ -15,6 +15,14 @@ public interface IDashboardWidget
     DashboardWidgetDescriptor Descriptor { get; }
 
     /// <summary>
+    /// Gets the data cache duration. Null disables caching and the manual refresh button.
+    /// A configured duration must be greater than zero.
+    /// </summary>
+    // TODO (dashboard): Review SupportsRefresh, AllowRefresh and DefaultRefreshInterval;
+    // integrate them into a consistent refresh policy or remove them.
+    TimeSpan? CacheDuration => null;
+
+    /// <summary>
     /// Determines whether the widget is available for the current dashboard request.
     /// </summary>
     /// <param name="context">The current dashboard context.</param>

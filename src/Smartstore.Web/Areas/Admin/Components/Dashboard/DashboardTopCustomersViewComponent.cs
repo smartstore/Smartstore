@@ -1,4 +1,5 @@
-﻿using Smartstore.Admin.Models.Customers;
+﻿using Smartstore.Caching;
+using Smartstore.Admin.Models.Customers;
 using Smartstore.Core.Checkout.Orders.Reporting;
 using Smartstore.Core.Security;
 
@@ -18,7 +19,7 @@ public class DashboardTopCustomersViewComponent : SmartViewComponent
         _db = db;
     }
 
-    public async Task<IViewComponentResult> InvokeAsync(int count = 7)
+    public async Task<IViewComponentResult> InvokeAsync(int count = 7, bool refresh = false, TimeSpan? cacheDuration = null)
     {
         if (!await Services.Permissions.AuthorizeAsync(RequiredPermission))
         {
@@ -28,22 +29,42 @@ public class DashboardTopCustomersViewComponent : SmartViewComponent
         var customer = Services.WorkContext.CurrentCustomer;
         var authorizedStoreIds = await Services.StoreMappingService.GetAuthorizedStoreIdsAsync("Customer", customer.Id);
 
-        var orderQuery = _db.Orders.Where(x => !x.Customer.Deleted).ApplyCustomerFilter(authorizedStoreIds);
+        count = Math.Clamp(count, 1, 50);
 
-        var reportByQuantity = await orderQuery
-            .SelectAsTopCustomerReportLine(ReportSorting.ByQuantityDesc)
-            .Take(Math.Clamp(count, 1, 50))
-            .ToListAsync();
+        var storeKey = authorizedStoreIds.Length == 0 ? "all" : string.Join("-", authorizedStoreIds.Order());
+        var cache = cacheDuration.HasValue ? Services.Cache : NullCache.Instance;
+        var cacheKey = $"admin:dashboard:topcustomers:{storeKey}:{count}";
+        if (refresh)
+        {
+            await cache.RemoveAsync(cacheKey);
+        }
 
-        var reportByAmount = await orderQuery
-            .SelectAsTopCustomerReportLine(ReportSorting.ByAmountDesc)
-            .Take(Math.Clamp(count, 1, 50))
-            .ToListAsync();
+        var reports = await cache.GetAsync(cacheKey, async ctx =>
+        {
+            if (cacheDuration.HasValue)
+            {
+                ctx.ExpiresIn(cacheDuration.Value);
+            }
+
+            var orderQuery = _db.Orders.Where(x => !x.Customer.Deleted).ApplyCustomerFilter(authorizedStoreIds);
+
+            var reportByQuantity = await orderQuery
+                .SelectAsTopCustomerReportLine(ReportSorting.ByQuantityDesc)
+                .Take(count)
+                .ToListAsync();
+
+            var reportByAmount = await orderQuery
+                .SelectAsTopCustomerReportLine(ReportSorting.ByAmountDesc)
+                .Take(count)
+                .ToListAsync();
+
+            return new[] { reportByQuantity, reportByAmount };
+        });
 
         var model = new DashboardTopCustomersModel
         {
-            TopCustomersByQuantity = await reportByQuantity.MapAsync(_db),
-            TopCustomersByAmount = await reportByAmount.MapAsync(_db)
+            TopCustomersByQuantity = await reports[0].MapAsync(_db),
+            TopCustomersByAmount = await reports[1].MapAsync(_db)
         };
 
         return View(model);

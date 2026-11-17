@@ -45,8 +45,8 @@
                  id="paymentmethods-@tabNames[i]"
                  role="tabpanel"
                  aria-labelledby="paymentmethods-@tabNames[i]-tab">
-                <div class="table-responsive pb-3">
-                    <table class="table table-3 small table-hover text-nowrap mb-0">
+                <div class="table-responsive table-dashboard">
+                    <table class="table table-4 small table-hover table-prevent-overflow">
                         <thead>
                             <tr>
                                 <th class="display-row">@T(resourceKey + ".Name")</th>
@@ -65,7 +65,7 @@
                                     <td class="display-row text-right">
                                         @if (item.FeeValue.HasValue)
                                         {
-                                            var feeLabel = (string)T(resourceKey + (item.FeeIsPercentage ? ".FeePercentage" : ".FixedFee"));
+                                            var feeLabel = (string)T(resourceKey + ".FeeSettings");
                                             var feeUnit = item.FeeIsPercentage ? "%" : item.TotalAmount.Currency.CurrencyCode;
                                             <span title="@feeLabel: @item.FeeValue.Value.ToString("0.##") @feeUnit">@item.EstimatedFees</span>
                                         }

@@ -4,6 +4,7 @@
 
 ### Breaking Changes
 
+- (DEV) Upgraded to .NET 11 and migrated solutions to `.slnx`. The EF Core 11 database stack currently uses RC3 and preview providers; see the build documentation before updating these packages.
 - (DEV) Removed the obsolete `win-x86` build target.
 - (DEV) Removed Font Awesome from the storefront and administration in favor of the new IconKit system. The Fontastic icon font, its `.icm` / `.icm-*` CSS classes and the `<bootstrap-icon>` TagHelper have also been removed. Migrate affected themes, modules and views to IconKit.
 - (DEV) Custom bundling configuration must use `EnableCssTranspilation` instead of `EnableAutoprefixer` and `CssTranspiler:Targets` (a Browserslist query string) instead of `Autoprefixer:Browsers`. The old Autoprefixer-specific switches have been removed.

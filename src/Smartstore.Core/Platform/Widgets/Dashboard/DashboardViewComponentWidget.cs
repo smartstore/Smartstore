@@ -37,6 +37,9 @@ public abstract class DashboardViewComponentWidget<TComponent> : IDashboardWidge
     public abstract DashboardWidgetDescriptor Descriptor { get; }
 
     /// <inheritdoc />
+    public virtual TimeSpan? CacheDuration => null;
+
+    /// <inheritdoc />
     public virtual ValueTask<bool> IsAvailableAsync(
         DashboardWidgetContext context,
         CancellationToken cancelToken = default)

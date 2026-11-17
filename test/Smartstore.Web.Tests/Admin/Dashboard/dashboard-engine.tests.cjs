@@ -74,8 +74,8 @@ test('expanding left displaces a neighbor without moving the opposite edge', () 
     assert.equal(neighbor.row, 1);
 });
 
-// Run the editor's actual keyboard handlers with a minimal DOM and the bundled Underscore.
-function keyboardEditor({ direction = 'ltr', blockedStorage = false, allowedSizes = [], layer = 'User', belowPosition, news = false, breakpoint = 'xl', dirty = false } = {}) {
+// Run the editor with a minimal DOM and the bundled Underscore.
+function createEditor({ direction = 'ltr', blockedStorage = false, allowedSizes = [], layer = 'User', belowPosition, news = false, breakpoint = 'xl', dirty = false } = {}) {
     const handlers = new Map();
     const controls = new Map();
     const element = {
@@ -154,6 +154,7 @@ function keyboardEditor({ direction = 'ltr', blockedStorage = false, allowedSize
                 disabled: false,
                 prop(name, value) { this[name] = value; return this; },
                 text(value) { this.label = value; return this; },
+                attr(name, value) { this[name] = value; return this; },
                 toggleClass() { return this; },
                 on(name, callback) { this[name] = callback; return this; }
             };
@@ -167,7 +168,7 @@ function keyboardEditor({ direction = 'ltr', blockedStorage = false, allowedSize
         HTMLFormElement: { prototype: { submit() { submissions++; } } },
         confirm2(options) { confirmation = options; return { find: () => ({ text() {} }) }; },
         window: { innerWidth: 1200, innerHeight: 900, scrollY: 0, location: { href: 'https://example.test/admin?dashboardHistory=test', assign(url) { navigations.push(url); } },
-            Res: { Dashboard: { back: 'Back', cancel: 'Cancel' } }, history: { replaceState() {} }, addEventListener() {} },
+            Res: { Dashboard: { cancel: 'Cancel' } }, history: { replaceState() {} }, addEventListener() {} },
         sessionStorage: {
             getItem() { if (blockedStorage) throw new Error('Storage blocked');
 
@@ -204,6 +205,7 @@ function keyboardEditor({ direction = 'ltr', blockedStorage = false, allowedSize
         cancel: () => controls.get('#dashboard-cancel').click(),
         canCancel: () => !controls.get('#dashboard-cancel').disabled,
         cancelLabel: () => controls.get('#dashboard-cancel').label,
+        cancelAriaLabel: () => controls.get('#dashboard-cancel')['aria-label'],
         navigations,
         changeLayer: layer => controls.get('[data-dashboard-edit]').click.call({ dataset: { dashboardEdit: layer } }),
         canSave: () => !controls.get(form.elements.save).disabled,
@@ -237,61 +239,16 @@ function keyboardEditor({ direction = 'ltr', blockedStorage = false, allowedSize
             }
 
             handlers.get('pointerup')[0]();
-        },
-        press(kind, key) {
-            const handle = { dataset: { dashboardResize: kind }, closest: () => element };
-            const event = { key, target: { closest: () => handle }, preventDefault() {} };
-
-            for (const handler of handlers.get('keydown')) handler(event);
         }
     };
 }
 
-test('each keyboard handle ignores unrelated keys without creating undo entries', () => {
-    for (const [kind, keys] of [[undefined, ['Home']], ['width', ['Home', 'ArrowUp', 'ArrowDown']],
-        ['width-start', ['Home', 'ArrowUp', 'ArrowDown']], ['height', ['ArrowLeft', 'ArrowRight']]]) {
-        const editor = keyboardEditor();
-        const before = { ...editor.style };
-
-        for (const key of keys) editor.press(kind, key);
-
-        assert.deepEqual(editor.style, before);
-        assert.equal(editor.canUndo(), false);
-    }
-});
-
-test('width limit does not add a redundant undo step and redo restores the change', () => {
-    const editor = keyboardEditor();
-    editor.press('width', 'ArrowRight');
-    editor.press('width', 'ArrowRight');
-    editor.press('width', 'ArrowRight');
-    assert.equal(editor.style.gridColumn, '3 / span 6');
-    editor.undo();
-    assert.equal(editor.style.gridColumn, '3 / span 5');
-    editor.redo();
-    assert.equal(editor.style.gridColumn, '3 / span 6');
-});
-
-test('RTL start resizing keeps the opposite edge fixed even with blocked history storage', () => {
-    const editor = keyboardEditor({ direction: 'rtl', blockedStorage: true });
-    editor.press('width-start', 'ArrowRight');
-    assert.equal(editor.style.gridColumn, '2 / span 5');
-    editor.undo();
-    assert.equal(editor.style.gridColumn, '3 / span 4');
-});
-
 // A gap is only converted into grid rows when the drop is committed.
-test('pointer and keyboard resizing use only allowed widths and keep the opposite edge fixed', () => {
+test('pointer resizing uses only allowed widths and keeps the opposite edge fixed', () => {
     const allowedSizes = [{ columnSpan: 4, rowSpan: 1 }, { columnSpan: 6, rowSpan: 1 }];
 
     for (const direction of ['ltr', 'rtl']) {
-        const editor = keyboardEditor({ allowedSizes, direction });
-        editor.press('width', direction === 'ltr' ? 'ArrowRight' : 'ArrowLeft');
-        assert.equal(editor.style.gridColumn, '3 / span 6');
-        editor.undo();
-        editor.press('width-start', direction === 'ltr' ? 'ArrowLeft' : 'ArrowRight');
-        assert.equal(editor.style.gridColumn, '1 / span 6');
-        editor.undo();
+        const editor = createEditor({ allowedSizes, direction });
         editor.drag('width', { clientX: direction === 'ltr' ? 510 : 90 });
         assert.equal(editor.style.gridColumn, '3 / span 6');
         editor.undo();
@@ -301,22 +258,26 @@ test('pointer and keyboard resizing use only allowed widths and keep the opposit
 });
 
 test('personal dashboard saves changes without a confirmation', () => {
-    const editor = keyboardEditor();
+    const editor = createEditor();
     assert.equal(editor.canSave(), false);
     assert.equal(editor.canCancel(), true);
-    assert.equal(editor.cancelLabel(), 'Back');
+    assert.equal(editor.cancelLabel(), 'Cancel');
+    assert.equal(editor.cancelAriaLabel(), 'Cancel');
     editor.save();
     assert.equal(editor.submissions(), 0);
-    editor.press('width', 'ArrowRight');
+    editor.drag('width', { clientX: 410 });
     assert.equal(editor.canSave(), true);
     assert.equal(editor.canCancel(), true);
     assert.equal(editor.cancelLabel(), 'Cancel');
+    assert.equal(editor.cancelAriaLabel(), 'Cancel');
     editor.undo();
     assert.equal(editor.canSave(), false);
     assert.equal(editor.canCancel(), true);
-    assert.equal(editor.cancelLabel(), 'Back');
+    assert.equal(editor.cancelLabel(), 'Cancel');
+    assert.equal(editor.cancelAriaLabel(), 'Cancel');
     editor.redo();
     assert.equal(editor.cancelLabel(), 'Cancel');
+    assert.equal(editor.cancelAriaLabel(), 'Cancel');
     assert.equal(editor.canSave(), true);
     assert.equal(editor.canCancel(), true);
     editor.save();
@@ -325,8 +286,8 @@ test('personal dashboard saves changes without a confirmation', () => {
 });
 
 test('global dashboard only saves after confirmation and can be cancelled', () => {
-    const editor = keyboardEditor({ layer: 'Global' });
-    editor.press('width', 'ArrowRight');
+    const editor = createEditor({ layer: 'Global' });
+    editor.drag('width', { clientX: 410 });
     editor.save();
     assert.equal(editor.hasConfirmation(), true);
     assert.equal(editor.submissions(), 0);
@@ -393,21 +354,8 @@ test('save compaction retains rows occupied by spanning widgets and respects loc
     assert.deepEqual(locked.map(x => x.row), [3, 4]);
 });
 
-test('keyboard row resizing and history never produce pixel heights', () => {
-    const editor = keyboardEditor({ belowPosition: { column: 6 } });
-    editor.press('height', 'ArrowDown');
-    assert.equal(editor.style.gridRow, '2 / span 2');
-    assert.equal(editor.style.minHeight, undefined);
-    editor.undo();
-    assert.equal(editor.style.gridRow, '2 / span 1');
-    editor.redo();
-    assert.equal(editor.style.gridRow, '2 / span 2');
-    editor.press('height', 'Home');
-    assert.equal(editor.style.gridRow, '2 / span 1');
-});
-
 test('pointer resizing snaps to rows and undo restores the row span', () => {
-    const editor = keyboardEditor({ belowPosition: { column: 6 } });
+    const editor = createEditor({ belowPosition: { column: 6 } });
     editor.dragHeight(450);
     assert.equal(editor.style.gridRow, '2 / span 2');
     editor.undo();
@@ -418,7 +366,7 @@ test('pointer resizing snaps to rows and undo restores the row span', () => {
 });
 
 test('saving compacts every responsive layout without removing occupied spans', () => {
-    const editor = keyboardEditor({ dirty: true });
+    const editor = createEditor({ dirty: true });
     assert.equal(editor.style.gridRow, '2 / span 1');
     editor.save();
 
@@ -469,22 +417,9 @@ test('moving over a locked widget preserves its placement', () => {
     assert.deepEqual([fixed.column, fixed.row, moved.row], [0, 0, 1]);
 });
 
-test('keyboard movement swaps occupied cells and undo restores both widgets', () => {
-    const editor = keyboardEditor({ belowPosition: { row: 0 } });
-    editor.press(undefined, 'ArrowUp');
-    assert.equal(editor.style.gridRow, '1 / span 1');
-    assert.equal(editor.belowStyle.gridRow, '2 / span 1');
-    editor.undo();
-    assert.equal(editor.style.gridRow, '2 / span 1');
-    assert.equal(editor.belowStyle.gridRow, '1 / span 1');
-    editor.redo();
-    assert.equal(editor.style.gridRow, '1 / span 1');
-    assert.equal(editor.belowStyle.gridRow, '2 / span 1');
-});
-
 
 test('pointer swap keeps the grid stable until drop and cancellation restores the draft', () => {
-    const editor = keyboardEditor({ belowPosition: { row: 0 } });
+    const editor = createEditor({ belowPosition: { row: 0 } });
     const before = { ...editor.style };
     const neighbor = { ...editor.belowStyle };
     const inspect = () => {
@@ -805,7 +740,7 @@ for (const fail of [false, true]) {
 for (const hasNews of [false, true]) {
     test(`available news positions follow the draft across breakpoints and saving (news: ${hasNews})`, () => {
         for (const breakpoint of ['xs', 'sm', 'md', 'lg', 'xl', 'xxl']) {
-            const editor = keyboardEditor({ news: hasNews, breakpoint, dirty: true });
+            const editor = createEditor({ news: hasNews, breakpoint, dirty: true });
             const desktop = ['lg', 'xl', 'xxl'].includes(breakpoint);
 
             if (hasNews) assert.equal(editor.newsStyle.gridRow, desktop ? '1 / span 2' : '3 / span 1');
@@ -829,7 +764,7 @@ for (const hasNews of [false, true]) {
 
 for (const layer of ['User', 'Global']) {
     test(`reset submits directly to save only after confirmation (${layer})`, () => {
-        const editor = keyboardEditor({ layer, blockedStorage: true });
+        const editor = createEditor({ layer, blockedStorage: true });
         editor.reset();
         assert.equal(editor.submissions(), 0);
         editor.confirm(false);
@@ -843,15 +778,15 @@ for (const layer of ['User', 'Global']) {
     });
 }
 
-test('back leaves directly without changes and cancel only discards after confirmation', () => {
-    const clean = keyboardEditor();
+test('cancel leaves directly without changes and only discards changes after confirmation', () => {
+    const clean = createEditor();
     clean.cancel();
     assert.equal(clean.hasConfirmation(), false);
     assert.deepEqual(clean.navigations, ['/admin']);
     assert.equal(clean.submissions(), 0);
 
-    const editor = keyboardEditor();
-    editor.press('width', 'ArrowRight');
+    const editor = createEditor();
+    editor.drag('width', { clientX: 410 });
     editor.cancel();
     assert.equal(editor.hasConfirmation(), true);
     editor.confirm(false);
@@ -864,11 +799,11 @@ test('back leaves directly without changes and cancel only discards after confir
 });
 
 test('changing dashboard view only asks to discard when there are changes', () => {
-    const clean = keyboardEditor();
+    const clean = createEditor();
     clean.changeLayer('Global');
     assert.equal(clean.hasConfirmation(), false);
     assert.deepEqual(clean.navigations, ['/admin?edit=true&layer=Global']);
-    const dirty = keyboardEditor({ dirty: true });
+    const dirty = createEditor({ dirty: true });
     dirty.changeLayer('Global');
     dirty.confirm(false);
     assert.deepEqual(dirty.navigations, []);

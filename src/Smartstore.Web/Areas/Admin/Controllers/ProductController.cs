@@ -1650,14 +1650,54 @@ public partial class ProductController : AdminController
         model.DisplayProductPictures = _adminAreaSettings.DisplayProductPictures;
         model.IsSingleStoreMode = Services.StoreContext.IsSingleStoreMode();
 
+        var filterGroup = new SelectListGroup { Name = T("Common.Filter") };
+        var categoryGroup = new SelectListGroup { Name = T("Admin.Catalog.Categories") };
+        var manufacturerGroup = new SelectListGroup { Name = T("Admin.Catalog.Manufacturers") };
+
+        model.AvailableCategories.Add(new()
+        {
+            Text = T("Admin.Catalog.Products.List.SearchWithoutCategories"),
+            Value = WithoutAssignmentFilterValue.ToString(),
+            Group = filterGroup
+        });
+        model.AvailableCategories.Add(new()
+        {
+            Text = T("Admin.Catalog.Products.List.SearchWithCategories"),
+            Value = WithAssignmentFilterValue.ToString(),
+            Group = filterGroup
+        });
+
         foreach (var c in (await _categoryService.Value.GetCategoryTreeAsync(includeHidden: true)).FlattenNodes(false))
         {
-            model.AvailableCategories.Add(new() { Text = c.GetCategoryNameIndented(), Value = c.Id.ToString() });
+            model.AvailableCategories.Add(new()
+            {
+                Text = c.GetCategoryNameIndented(),
+                Value = c.Id.ToString(),
+                Group = categoryGroup
+            });
         }
+
+        model.AvailableManufacturers.Add(new()
+        {
+            Text = T("Admin.Catalog.Products.List.SearchWithoutManufacturers"),
+            Value = WithoutAssignmentFilterValue.ToString(),
+            Group = filterGroup
+        });
+        model.AvailableManufacturers.Add(new()
+        {
+            Text = T("Admin.Catalog.Products.List.SearchWithManufacturers"),
+            Value = WithAssignmentFilterValue.ToString(),
+            Group = filterGroup
+        });
 
         foreach (var m in await _db.Manufacturers.AsNoTracking().ApplyStandardFilter(true).Select(x => new { x.Name, x.Id }).ToListAsync())
         {
-            model.AvailableManufacturers.Add(new() { Text = m.Name, Value = m.Id.ToString() });
+            model.AvailableManufacturers.Add(new()
+            {
+                Text = m.Name,
+                Value = m.Id.ToString(),
+                Group = manufacturerGroup
+            });
         }
 
         model.AvailableProductTypes = ProductType.SimpleProduct.ToSelectList(false).ToList();

@@ -2,7 +2,7 @@
 # Creates a Docker image from an existing build artifact
 # -----------------------------------------------------------
 
-ARG ASPNET_TAG=10.0-noble
+ARG ASPNET_TAG=11.0-resolute
 
 FROM mcr.microsoft.com/dotnet/aspnet:${ASPNET_TAG}
 EXPOSE 80

@@ -33,4 +33,11 @@ public sealed class RegisteredCustomersDashboardWidget(IPermissionService permis
 
     /// <inheritdoc />
     public override DashboardWidgetDescriptor Descriptor => _descriptor;
+
+    /// <inheritdoc />
+    public override TimeSpan? CacheDuration => TimeSpan.FromHours(1);
+
+    /// <inheritdoc />
+    protected override object GetWidgetArguments(DashboardWidgetContext context, DashboardWidgetInstance instance)
+        => new { cacheDuration = CacheDuration, refresh = context.Refresh };
 }

@@ -47,7 +47,7 @@ https://shop.example.com/odata/v1/Customers
 
 ## Use the Windows client
 
-Build the `Smartstore.WebApi.Client` project from `Smartstore.Tools.sln`, then start `Smartstore.WebApi.Client.exe`.
+Build the `Smartstore.WebApi.Client` project from `Smartstore.Tools.slnx`, then start `Smartstore.WebApi.Client.exe`.
 
 The application provides separate fields for the service URL, credentials, request method, resource path, query string, JSON body, headers, and file uploads.
 

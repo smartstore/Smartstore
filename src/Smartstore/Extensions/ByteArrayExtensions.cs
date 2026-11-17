@@ -81,16 +81,31 @@ public static class ByteArrayExtensions
                 return result;
             }
 
-            // Heuristic capacity: compressed output usually smaller than input for JSON.
-            using var ms = new MemoryStream(1 + Math.Min(value.Length, 64 * 1024));
-            ms.WriteByte(CodecGZip);
-
-            using (var gzip = new GZipStream(ms, level, leaveOpen: true))
+            // Match GZipStream's CompressionLevel-to-zlib quality mapping.
+            int quality = level switch
             {
-                gzip.Write(value, 0, value.Length);
-            }
+                CompressionLevel.Fastest => 1,
+                CompressionLevel.Optimal => -1,
+                CompressionLevel.SmallestSize => 9,
+                CompressionLevel.NoCompression => 0,
+                _ => throw new ArgumentOutOfRangeException(nameof(level))
+            };
 
-            return ms.ToArray();
+            var buffer = ArrayPool<byte>.Shared.Rent(checked((int)GZipEncoder.GetMaxCompressedLength(value.Length) + 1));
+            try
+            {
+                buffer[0] = CodecGZip;
+                if (!GZipEncoder.TryCompress(value, buffer.AsSpan(1), out int bytesWritten, quality))
+                {
+                    throw new InvalidDataException("GZip compression could not complete within the allocated buffer.");
+                }
+
+                return buffer.AsSpan(0, bytesWritten + 1).ToArray();
+            }
+            finally
+            {
+                ArrayPool<byte>.Shared.Return(buffer);
+            }
         }
 
         /// <inheritdoc cref="Zip(byte[], CompressionLevel)" />
@@ -156,15 +171,45 @@ public static class ByteArrayExtensions
             if (codec != CodecGZip)
                 throw new InvalidDataException($"Unknown compression codec: {codec}");
 
-            using var source = new MemoryStream(value, 1, value.Length - 1, writable: false);
-            using var gzip = new GZipStream(source, CompressionMode.Decompress);
+            // Grow from actual decoded data, not the untrusted size in the GZip trailer.
+            var buffer = ArrayPool<byte>.Shared.Rent((int)Math.Clamp((long)(value.Length - 1) * 3, 256, CopyBufferSize));
+            try
+            {
+                var source = value.AsSpan(1);
+                int length = 0;
+                do
+                {
+                    // Each concatenated GZip member needs its own decoder.
+                    using var decoder = new GZipDecoder();
+                    while (true)
+                    {
+                        if (length == buffer.Length)
+                        {
+                            var larger = ArrayPool<byte>.Shared.Rent(checked(buffer.Length * 2));
+                            buffer.AsSpan(0, length).CopyTo(larger);
+                            ArrayPool<byte>.Shared.Return(buffer);
+                            buffer = larger;
+                        }
 
-            // Inflated size unknown. For JSON, 2-4x is a common ballpark.
-            using var ms = new MemoryStream((value.Length - 1) * 3);
+                        var status = decoder.Decompress(source, buffer.AsSpan(length), out int consumed, out int written);
+                        source = source[consumed..];
+                        length += written;
 
-            CopyToPooled(gzip, ms);
+                        if (status == OperationStatus.Done)
+                            break;
 
-            return ms.ToArray();
+                        if (status != OperationStatus.DestinationTooSmall)
+                            throw new InvalidDataException("Compressed payload is invalid or incomplete.");
+                    }
+                }
+                while (!source.IsEmpty);
+
+                return buffer.AsSpan(0, length).ToArray();
+            }
+            finally
+            {
+                ArrayPool<byte>.Shared.Return(buffer);
+            }
         }
 
         /// <inheritdoc cref="Unzip(byte[])" />
@@ -201,27 +246,6 @@ public static class ByteArrayExtensions
             await CopyToPooledAsync(gzip, ms, cancelToken).ConfigureAwait(false);
 
             return ms.ToArray();
-        }
-    }
-
-    private static void CopyToPooled(Stream source, Stream destination)
-    {
-        byte[]? buffer = null;
-
-        try
-        {
-            buffer = ArrayPool<byte>.Shared.Rent(CopyBufferSize);
-
-            int read;
-            while ((read = source.Read(buffer, 0, buffer.Length)) > 0)
-            {
-                destination.Write(buffer, 0, read);
-            }
-        }
-        finally
-        {
-            if (buffer != null)
-                ArrayPool<byte>.Shared.Return(buffer);
         }
     }
 

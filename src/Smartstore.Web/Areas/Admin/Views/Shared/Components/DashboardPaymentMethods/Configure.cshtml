@@ -34,7 +34,7 @@
                 </div>
                 <div class="col-6">
                     <editor asp-for="Fees[systemName]"
-                            asp-additional-viewdata='new { units = new[] { currencyCode, "%" }, min = 0, max = 1000000, placeholder = "0" }'
+                            asp-additional-viewdata='new { units = new[] { currencyCode, "%" }, min = 0, placeholder = "0" }'
                             required="required" />
                     <span asp-validation-for="Fees[systemName].Value"></span>
                     <span asp-validation-for="Fees[systemName].Unit"></span>

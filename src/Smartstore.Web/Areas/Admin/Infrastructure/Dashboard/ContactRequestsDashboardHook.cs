@@ -1,4 +1,4 @@
-using Smartstore.Core.Common.Services;
+using Smartstore.Core.Common;
 using Smartstore.Core.Messaging;
 using Smartstore.Core.Messaging.Events;
 using Smartstore.Data.Hooks;
@@ -12,14 +12,12 @@ namespace Smartstore.Admin.Infrastructure.Dashboard;
 [Important]
 internal sealed class ContactRequestsDashboardHook : AsyncDbSaveHook<QueuedEmail>, IConsumer
 {
-    private readonly IGenericAttributeService _attributes;
     private readonly SmartDbContext _db;
 
     internal const string AttributeKey = "Dashboard.ContactRequest";
 
-    public ContactRequestsDashboardHook(IGenericAttributeService attributes, SmartDbContext db)
+    public ContactRequestsDashboardHook(SmartDbContext db)
     {
-        _attributes = attributes;
         _db = db;
     }
 
@@ -50,9 +48,15 @@ internal sealed class ContactRequestsDashboardHook : AsyncDbSaveHook<QueuedEmail
             return HookResult.Ok;
 
         (int storeId, string email) = contact;
-        var attributes = _attributes.GetAttributesForEntity(nameof(QueuedEmail), entity.Id);
-        attributes.Set(AttributeKey, email, storeId);
-        await attributes.SaveChangesAsync(cancelToken);
+        _db.GenericAttributes.Add(new GenericAttribute
+        {
+            KeyGroup = nameof(QueuedEmail),
+            EntityId = entity.Id,
+            Key = AttributeKey,
+            StoreId = storeId,
+            Value = email
+        });
+        await _db.SaveChangesAsync(cancelToken);
         return HookResult.Ok;
     }
 
