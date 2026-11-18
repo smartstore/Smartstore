@@ -3280,6 +3280,39 @@ public class IconServiceTests
         _cache.VerifyNoOtherCalls();
     }
 
+    [TestCase(false)]
+    [TestCase(true)]
+    public async Task Browser_Direct_Sprite_Request_Tracks_Published_File(bool cancelAfterPublication)
+    {
+        var dependencies = _dependencies[_service];
+        var catalog = dependencies.Catalog.Catalog;
+        var revision = dependencies.Sprites.GetRevision(catalog, "hugeicons", "rounded");
+        using var cancellation = new CancellationTokenSource();
+        var sprites = new Mock<IIconLibrarySpriteService>(MockBehavior.Strict);
+        sprites.Setup(x => x.GetRevision(catalog, "hugeicons", "rounded")).Returns(revision);
+        sprites.Setup(x => x.PrepareAsync(catalog, "hugeicons", "rounded", cancellation.Token))
+            .Returns(async () =>
+            {
+                var published = await dependencies.Sprites.PrepareAsync(catalog, "hugeicons", "rounded", cancellation.Token);
+                if (cancelAfterPublication)
+                {
+                    cancellation.Cancel();
+                }
+
+                return published;
+            });
+
+        var accessor = new HttpContextAccessor();
+        var browser = new IconBrowser(dependencies.Catalog, CreateKitService(_service, accessor), _service,
+            sprites.Object, dependencies.Lifecycle, dependencies.Options, accessor);
+        var path = await browser.GetSpriteFileAsync("hi", "sr", revision, cancellation.Token);
+
+        Assert.That(File.Exists(path), Is.True);
+        using var index = JsonDocument.Parse(await File.ReadAllTextAsync(Path.Combine(_options.Value.CachePath, "index.json")));
+        Assert.That(index.RootElement.GetProperty("currentFiles").EnumerateArray()
+            .Any(x => x.GetProperty("file").GetString() == "browser/hugeicons-rounded-" + revision + ".svg"), Is.True);
+    }
+
     /// <summary>
     /// A source change produces a new picker sprite without replacing historical bytes.
     /// </summary>

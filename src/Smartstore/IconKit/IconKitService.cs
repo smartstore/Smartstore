@@ -64,7 +64,7 @@ public sealed class IconKitService : IIconKitService
                 throw new IOException("Icon sources changed during manifest creation. Retry after catalog reload.");
             }
         }, cancelToken);
-        await RegisterArtifactAsync(catalog, new("manifest", null, null, null, "kits/manifest-" + revision + ".json"), cancelToken);
+        await RegisterArtifactAsync(catalog, new("manifest", null, null, null, "kits/manifest-" + revision + ".json"));
         return published;
     }
 
@@ -184,7 +184,7 @@ public sealed class IconKitService : IIconKitService
 
         var published = await plan.PublishAsync(path, cancelToken);
         await RegisterArtifactAsync(catalog, new("kit", kitName, plan.LibraryName, plan.VariantName,
-            "kits/" + kitName + "-" + plan.Revision + ".svg"), cancelToken);
+            "kits/" + kitName + "-" + plan.Revision + ".svg"));
         return published;
     }
 
@@ -209,7 +209,7 @@ public sealed class IconKitService : IIconKitService
         var path = Path.Combine(_options.CachePath, "kits", kitName + "-" + sprite.Revision + ".svg");
         await sprite.PublishAsync(path, cancelToken);
         await RegisterArtifactAsync(catalog, new("kit", kitName, sprite.LibraryName, sprite.VariantName,
-            "kits/" + kitName + "-" + sprite.Revision + ".svg"), cancelToken);
+            "kits/" + kitName + "-" + sprite.Revision + ".svg"));
 
         // Search the selected kit, not global concept precedence. Empty searches load no tags.
         var page = query.FindPage(index.Entries[kitName].Where(entry => entry.Variant.Names.Contains(entry.Mapping.Name)).ToArray(), (entry, word) =>
@@ -228,8 +228,9 @@ public sealed class IconKitService : IIconKitService
                 catalog.ExternalIcons[kitName].Contains(entry.Concept))).ToArray());
     }
 
-    private Task RegisterArtifactAsync(IconCatalog catalog, IconCacheArtifact artifact, CancellationToken cancelToken)
-        => _lifecycle.TrackCacheFileAsync(artifact, catalog, cancelToken);
+    // Finish tracking published files even if the originating request was cancelled.
+    private Task RegisterArtifactAsync(IconCatalog catalog, IconCacheArtifact artifact)
+        => _lifecycle.TrackCacheFileAsync(artifact, catalog, CancellationToken.None);
 
     private string BuildUrl(string kit, string revision)
         => (_httpContextAccessor.HttpContext?.Request.PathBase.Value ?? string.Empty)

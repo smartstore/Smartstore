@@ -84,10 +84,7 @@ public sealed class IconBrowser : IIconBrowser
             return null;
         }
 
-        var revision = await _librarySprites.PrepareAsync(catalog, library.Manifest.SystemName, variant.Manifest.Name, cancelToken);
-        await _lifecycle.TrackCacheFileAsync(new("browser", null, library.Manifest.SystemName, variant.Manifest.Name,
-            "browser/" + library.Manifest.SystemName + "-" + variant.Manifest.Name + "-" + revision + ".svg"),
-            catalog, cancelToken);
+        var revision = await PrepareSpriteAsync(catalog, library.Manifest.SystemName, variant.Manifest.Name, cancelToken);
         var page = await _icons.SearchAsync(catalog, query, cancelToken);
         var url = (_httpContextAccessor.HttpContext?.Request.PathBase.Value ?? string.Empty)
             + _options.RoutePrefix + "/browser/" + Uri.EscapeDataString(library.Manifest.SystemName)
@@ -103,12 +100,43 @@ public sealed class IconBrowser : IIconBrowser
     }
 
     /// <inheritdoc />
-    public Task<string> GetSpriteFileAsync(string library, string variant, string revision, CancellationToken cancelToken = default)
+    public async Task<string> GetSpriteFileAsync(string library, string variant, string revision, CancellationToken cancelToken = default)
     {
         var catalog = _catalogAccessor.Catalog;
         var source = SelectSource(catalog, library, variant);
-        return source.Variant == null ? Task.FromResult<string>(null)
-            : _librarySprites.GetFileAsync(catalog, source.Library.Manifest.SystemName, source.Variant.Manifest.Name, revision, cancelToken);
+        if (source.Variant == null || !IconFileCache.IsRevision(revision))
+        {
+            return null;
+        }
+
+        library = source.Library.Manifest.SystemName;
+        variant = source.Variant.Manifest.Name;
+        var path = Path.Combine(_options.CachePath, "browser", library + "-" + variant + "-" + revision + ".svg");
+
+        // Serve historical files without marking them as the current revision again.
+        if (File.Exists(path))
+        {
+            return path;
+        }
+
+        if (_librarySprites.GetRevision(catalog, library, variant) != revision)
+        {
+            return null;
+        }
+
+        await PrepareSpriteAsync(catalog, library, variant, cancelToken);
+        return path;
+    }
+
+    private async Task<string> PrepareSpriteAsync(IconCatalog catalog, string library, string variant, CancellationToken cancelToken)
+    {
+        var revision = await _librarySprites.PrepareAsync(catalog, library, variant, cancelToken);
+
+        // Once published, the shared file must be tracked even if this request was cancelled.
+        await _lifecycle.TrackCacheFileAsync(new("browser", null, library, variant,
+            "browser/" + library + "-" + variant + "-" + revision + ".svg"), catalog, CancellationToken.None);
+
+        return revision;
     }
 
     // Selects registered sources while keeping the internal system library out of the picker.

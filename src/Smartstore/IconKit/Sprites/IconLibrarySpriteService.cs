@@ -35,31 +35,6 @@ public sealed class IconLibrarySpriteService : IIconLibrarySpriteService
         return sprite.Revision;
     }
 
-    /// <inheritdoc />
-    public Task<string> GetFileAsync(IconCatalog catalog, string libraryName, string variantName, string revision, CancellationToken cancelToken = default)
-    {
-        var library = catalog.SelectLibrary(libraryName);
-        var variant = catalog.SelectVariant(library, variantName);
-        if (variant == null)
-        {
-            return Task.FromResult<string>(null);
-        }
-
-        if (!IconFileCache.IsRevision(revision))
-        {
-            return Task.FromResult<string>(null);
-        }
-
-        var path = GetSpritePath(library, variant, revision);
-        if (File.Exists(path))
-        {
-            return Task.FromResult(path);
-        }
-
-        var sprite = GetSprite(catalog, library, variant);
-        return sprite.Revision == revision ? sprite.PublishAsync(path, cancelToken) : Task.FromResult<string>(null);
-    }
-
     // Defers complete variant plans until first use, bypassing conceptual mappings.
     private IconSprite GetSprite(IconCatalog catalog, IconCatalog.Library library, IconCatalog.Variant variant)
         => catalog.VariantSprites.GetOrAdd(library.Manifest.SystemName + ":" + variant.Manifest.Name,
