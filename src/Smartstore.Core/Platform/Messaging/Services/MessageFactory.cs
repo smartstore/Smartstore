@@ -727,7 +727,7 @@ public partial class MessageFactory : IMessageFactory
                 order.CustomerLanguageId = _workContext.WorkingLanguage.Id;
                 order.CustomerCurrencyCode = _workContext.WorkingCurrency.CurrencyCode;
                 order.CurrencyRate = 1;
-                order.PaymentMethodSystemName = "foo";
+                order.PaymentMethodSystemName = "{{ Order.PaymentMethodSystemName }}";
                 order.OrderStatus = OrderStatus.Pending;
                 order.PaymentStatus = PaymentStatus.Pending;
                 order.ShippingStatus = ShippingStatus.NotYetShipped;
