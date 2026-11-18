@@ -719,6 +719,23 @@ public partial class MessageFactory : IMessageFactory
 
                 result = entity;
             }
+            else if (entity is Order order)
+            {
+                order.OrderGuid = Guid.NewGuid();
+                order.OrderNumber = "1000";
+                order.StoreId = _storeContext.CurrentStore.Id;
+                order.CustomerLanguageId = _workContext.WorkingLanguage.Id;
+                order.CustomerCurrencyCode = _workContext.WorkingCurrency.CurrencyCode;
+                order.CurrencyRate = 1;
+                order.PaymentMethodSystemName = "foo";
+                order.OrderStatus = OrderStatus.Pending;
+                order.PaymentStatus = PaymentStatus.Pending;
+                order.ShippingStatus = ShippingStatus.NotYetShipped;
+                order.CreatedOnUtc = DateTime.UtcNow;
+                order.UpdatedOnUtc = DateTime.UtcNow;
+
+                result = entity;
+            }
             else
             {
                 result = _templateEngine.CreateTestModelFor(entity, entity.GetEntityName());
