@@ -203,15 +203,13 @@ public sealed class IconService : IIconService
 
     private IconSearchResult Search(IconSearchQuery query, IconCatalog.Library library, IconCatalog.Variant variant)
     {
-        ILookup<string, string> aliases = null;
-        var page = query.FindPage(variant.Names, (name, word) =>
+        var page = query.FindPage(variant.SortedNames, (name, word) =>
         {
             // Empty searches do not invoke this predicate or load tags and mappings.
-            aliases ??= library.Mapping.ToLookup(x => x.Value.Name, x => x.Key, StringComparer.Ordinal);
             return name.Contains(word, StringComparison.OrdinalIgnoreCase)
                 || (library.Tags.GetValueOrDefault(name) ?? []).Any(tag => tag.Contains(word, StringComparison.OrdinalIgnoreCase))
-                || aliases[name].Any(alias => alias.Contains(word, StringComparison.OrdinalIgnoreCase));
-        }, name => name);
+                || library.Aliases[name].Any(alias => alias.Contains(word, StringComparison.OrdinalIgnoreCase));
+        });
 
         return new IconSearchResult
         {

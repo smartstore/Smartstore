@@ -245,15 +245,43 @@ public sealed class IconInfo
 /// </summary>
 public sealed class IconSearchQuery
 {
-    // Applies the same word matching and pagination to library names and resolved kit entries.
-    // Each word may match a different field; only the requested page needs full icon metadata.
-    internal (int TotalCount, T[] Items) FindPage<T>(IReadOnlyCollection<T> entries,
-        Func<T, string, bool> matches, Func<T, string> orderBy = null)
+    // Entries already have browser order. Count all matches, but retain only the requested page.
+    internal (int TotalCount, T[] Items) FindPage<T>(IReadOnlyList<T> entries, Func<T, string, bool> matches)
     {
-        var words = (Term ?? string.Empty).Split((char[])null, StringSplitOptions.RemoveEmptyEntries);
-        var filtered = words.Length == 0 ? entries : entries.Where(entry => words.All(word => matches(entry, word))).ToArray();
-        IEnumerable<T> ordered = orderBy == null ? filtered : filtered.OrderBy(orderBy, StringComparer.Ordinal);
-        return (filtered.Count, ordered.Skip(Skip).Take(Take).ToArray());
+        var words = (Term ?? string.Empty).Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries);
+        if (words.Length == 0)
+        {
+            return (entries.Count, entries.Skip(Skip).Take(Take).ToArray());
+        }
+
+        var items = new List<T>(Math.Min(Take, entries.Count));
+        int totalCount = 0;
+        foreach (var entry in entries)
+        {
+            bool matchesAll = true;
+            foreach (var word in words)
+            {
+                if (!matches(entry, word))
+                {
+                    matchesAll = false;
+                    break;
+                }
+            }
+
+            if (!matchesAll)
+            {
+                continue;
+            }
+
+            if (totalCount >= Skip && items.Count < Take)
+            {
+                items.Add(entry);
+            }
+
+            totalCount++;
+        }
+
+        return (totalCount, items.ToArray());
     }
 
 

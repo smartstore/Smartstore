@@ -125,6 +125,7 @@ public sealed class IconCatalog
     {
         private Lazy<Dictionary<string, IconMapping>> _mapping;
         private Lazy<Dictionary<string, string[]>> _tags;
+        private Lazy<ILookup<string, string>> _aliases;
 
         /// <summary>
         /// Registers deferred JSON reads without opening either file.
@@ -135,6 +136,10 @@ public sealed class IconCatalog
         {
             _mapping = new(() => LoadMapping(files, root));
             _tags = new(() => LoadTags(files, root));
+
+            // Capture only the mapping, so sharing aliases does not retain an old library snapshot.
+            var mapping = _mapping;
+            _aliases = new(() => mapping.Value.ToLookup(x => x.Value.Name, x => x.Key, StringComparer.Ordinal));
         }
 
         internal Library Refresh(IFileProvider files, IconChange[] changes)
@@ -148,6 +153,7 @@ public sealed class IconCatalog
             if (!changes.Any(x => x.Kind == IconChangeKind.Mapping))
             {
                 copy._mapping = _mapping;
+                copy._aliases = _aliases;
             }
 
             if (!changes.Any(x => x.Kind == IconChangeKind.SearchMetadata))
@@ -187,6 +193,11 @@ public sealed class IconCatalog
         internal Dictionary<string, IconMapping> Mapping => _mapping.Value;
 
         /// <summary>
+        /// Gets concept names grouped by their target icon, built on the first alias search.
+        /// </summary>
+        internal ILookup<string, string> Aliases => _aliases.Value;
+
+        /// <summary>
         /// Gets supplemental search terms, loaded only when icon metadata is requested.
         /// </summary>
         internal Dictionary<string, string[]> Tags => _tags.Value;
@@ -207,6 +218,7 @@ public sealed class IconCatalog
         private readonly string _manifestRevision;
         private readonly Lazy<Dictionary<string, uint>> _archive;
         private readonly Lazy<FrozenSet<string>> _names;
+        private readonly Lazy<string[]> _sortedNames;
         private readonly ConcurrentDictionary<string, Lazy<Source>> _sources = new(StringComparer.Ordinal);
 
         /// <summary>
@@ -229,6 +241,7 @@ public sealed class IconCatalog
                 .Concat(GetOverrideNames("icons"))
                 .Concat(_archive.Value.Keys)
                 .ToFrozenSet(StringComparer.Ordinal));
+            _sortedNames = new(() => Names.OrderBy(x => x, StringComparer.Ordinal).ToArray());
         }
 
         internal Variant Copy(bool changed)
@@ -249,6 +262,11 @@ public sealed class IconCatalog
         /// Gets all available names, indexed lazily once per catalog generation without reading SVG contents.
         /// </summary>
         internal FrozenSet<string> Names => _names.Value;
+
+        /// <summary>
+        /// Gets names in browser order, sorted once when first needed.
+        /// </summary>
+        internal string[] SortedNames => _sortedNames.Value;
 
         /// <summary>
         /// Resolves and fingerprints a requested source once per catalog generation.

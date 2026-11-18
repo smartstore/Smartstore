@@ -8,9 +8,7 @@ namespace Smartstore.IconKit.Sprites;
 /// </summary>
 public sealed class IconKitIndex
 {
-    // A kit can remain usable even when some mapped sources are missing.
-    // Check once per generation, not once per rendered icon.
-    private readonly Dictionary<string, Lazy<bool>> _availability = new(StringComparer.Ordinal);
+    private readonly Dictionary<string, Lazy<Entry[]>> _availableEntries = new(StringComparer.Ordinal);
     private readonly Dictionary<string, Lazy<Entry[]>> _entries = new(StringComparer.Ordinal);
     private readonly Lazy<Dictionary<(string Area, string Concept, string Address, IconTransform Transform, double StrokeScale), (string Kit, string Symbol, bool Pinned)>> _memberships;
 
@@ -30,6 +28,11 @@ public sealed class IconKitIndex
     internal Entry[] GetEntries(string kit) => _entries[kit].Value;
 
     /// <summary>
+    /// Gets entries with existing source icons, in browser order. Missing sources are excluded once per kit.
+    /// </summary>
+    internal Entry[] GetAvailableEntries(string kit) => _availableEntries[kit].Value;
+
+    /// <summary>
     /// Prepares deferred kit lookups. No icon sources are read during construction.
     /// </summary>
     /// <param name="catalog">The owning source generation.</param>
@@ -45,7 +48,8 @@ public sealed class IconKitIndex
         {
             var entries = new Lazy<Entry[]>(() => ResolveEntries(catalog, library, variant, resolver, kit));
             _entries.Add(kit.Name, entries);
-            _availability.Add(kit.Name, new Lazy<bool>(() => entries.Value.Any(x => x.Variant.Names.Contains(x.Mapping.Name))));
+            _availableEntries.Add(kit.Name, new Lazy<Entry[]>(() => entries.Value
+                .Where(x => x.Variant.Names.Contains(x.Mapping.Name)).ToArray()));
             Plans.Add(kit.Name, new Lazy<IconSprite>(() =>
             {
                 var sprite = new IconSprite(catalog, library, variant, kit.Name,
@@ -148,5 +152,5 @@ public sealed class IconKitIndex
     /// Checks source availability across every library used by one kit, without parsing SVGs.
     /// </summary>
     /// <param name="kit">The configured kit name.</param>
-    internal bool CanGenerate(string kit) => _availability[kit].Value;
+    internal bool CanGenerate(string kit) => GetAvailableEntries(kit).Length > 0;
 }

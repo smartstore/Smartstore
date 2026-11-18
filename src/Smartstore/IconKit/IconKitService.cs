@@ -212,7 +212,7 @@ public sealed class IconKitService : IIconKitService
             "kits/" + kitName + "-" + sprite.Revision + ".svg"));
 
         // Search the selected kit, not global concept precedence. Empty searches load no tags.
-        var page = query.FindPage(index.GetEntries(kitName).Where(entry => entry.Variant.Names.Contains(entry.Mapping.Name)).ToArray(), (entry, word) =>
+        var page = query.FindPage(index.GetAvailableEntries(kitName), (entry, word) =>
             entry.Concept.Contains(word, StringComparison.OrdinalIgnoreCase)
             || entry.Mapping.Name.Contains(word, StringComparison.OrdinalIgnoreCase)
             || (entry.Library.Tags.GetValueOrDefault(entry.Mapping.Name) ?? [])

@@ -1024,6 +1024,7 @@ public class IconServiceTests
         var huge = before.Libraries["hugeicons"];
         var other = before.Libraries["other"];
         var oldSource = huge.Variants["rounded"].GetSource("cart-01");
+        var sortedNames = huge.Variants["rounded"].SortedNames;
         var sharpNames = huge.Variants["sharp"].Names;
         var otherPlan = GetSprite(before, other, other.Variants["rounded"]);
         var sharpPlan = GetSprite(before, huge, huge.Variants["sharp"]);
@@ -1035,6 +1036,8 @@ public class IconServiceTests
         Assert.That(after, Is.Not.SameAs(before));
         Assert.That(after.Libraries["other"], Is.SameAs(other));
         Assert.That(after.Libraries["hugeicons"].Variants["sharp"].Names, Is.SameAs(sharpNames));
+        Assert.That(after.Libraries["hugeicons"].Variants["rounded"].SortedNames, Is.Not.SameAs(sortedNames));
+        Assert.That(after.Libraries["hugeicons"].Variants["rounded"].SortedNames, Is.EqualTo(new[] { "cart-01" }));
         Assert.That(after.Libraries["hugeicons"].Variants["rounded"].GetSource("cart-01").Revision, Is.Not.EqualTo(oldSource.Revision));
         Assert.That(after.VariantSprites.Count, Is.EqualTo(2));
         Assert.That(GetSprite(after, other, other.Variants["rounded"]).Revision, Is.EqualTo(otherPlan.Revision));
@@ -1053,6 +1056,8 @@ public class IconServiceTests
         var library = before.Libraries["hugeicons"];
         var variant = library.Variants["rounded"];
         var names = variant.Names;
+        var sortedNames = variant.SortedNames;
+        var aliases = library.Aliases;
         var source = variant.GetSource("cart-01");
         var plan = GetSprite(before, library, variant);
         _ = library.Mapping;
@@ -1063,11 +1068,22 @@ public class IconServiceTests
         var after = _service.Catalog;
         var refreshed = after.Libraries["hugeicons"];
         Assert.That(refreshed.Variants["rounded"].Names, Is.SameAs(names));
+        Assert.That(refreshed.Variants["rounded"].SortedNames, Is.SameAs(sortedNames));
         Assert.That(refreshed.Variants["rounded"].GetSource("cart-01"), Is.SameAs(source));
         Assert.That(after.VariantSprites.Count, Is.EqualTo(1));
         Assert.That(GetSprite(after, refreshed, refreshed.Variants["rounded"]).Revision, Is.EqualTo(plan.Revision));
-        if (filename == "mapping.json") Assert.That(refreshed.Mapping["cart"].Name, Is.EqualTo("direct"));
-        else Assert.That(refreshed.Tags["cart-01"], Does.Contain("updated"));
+        if (filename == "mapping.json")
+        {
+            Assert.That(refreshed.Mapping["cart"].Name, Is.EqualTo("direct"));
+            Assert.That(refreshed.Aliases, Is.Not.SameAs(aliases));
+            Assert.That(refreshed.Aliases["direct"], Does.Contain("cart"));
+            Assert.That(refreshed.Aliases["cart-01"], Does.Not.Contain("cart"));
+        }
+        else
+        {
+            Assert.That(refreshed.Tags["cart-01"], Does.Contain("updated"));
+            Assert.That(refreshed.Aliases, Is.SameAs(aliases));
+        }
     }
 
     private const string _svg = "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"-1 -2 24 25\" width=\"24\" height=\"25\" fill=\"none\"><path d=\"M0 0L1 1\" stroke=\"currentColor\" stroke-width=\"1\" stroke-linecap=\"butt\"/></svg>";
@@ -1348,6 +1364,8 @@ public class IconServiceTests
         Parallel.For(0, 20, _ => Assert.That(index.CanGenerate("shared"), Is.True));
         var entries = index.GetEntries("shared");
         Assert.That(index.GetEntries("shared"), Is.SameAs(entries));
+        var available = index.GetAvailableEntries("shared");
+        Assert.That(index.GetAvailableEntries("shared"), Is.SameAs(available));
         resolver.Verify(x => x.Resolve(catalog, It.Is<IconAddress>(a => a.Name == "cart"), true), Times.Once);
         resolver.Verify(x => x.Resolve(catalog, It.Is<IconAddress>(a => a.Name == "direct"), true), Times.Never);
 

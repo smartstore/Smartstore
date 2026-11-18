@@ -42,10 +42,8 @@ public sealed class IconKitPlanner : IIconKitPlanner
             var index = GetIndex(catalog, library, variant);
             // Every concept has its own symbol, even when several concepts share artwork.
             // Mapping transforms and stroke multipliers are baked into symbols.
-            var entries = index.GetEntries(kit.Name)
-                .Where(entry => entry.Variant.Names.Contains(entry.Mapping.Name))
-                .ToArray();
-            if (entries.Length == 0 || !index.CanGenerate(kit.Name))
+            var entries = index.GetAvailableEntries(kit.Name);
+            if (entries.Length == 0)
             {
                 // Do not substitute a lower-priority kit for an unavailable preferred kit.
                 // The render endpoint still resolves individual concepts with their defaults.
