@@ -1,10 +1,12 @@
 using Smartstore.IconKit.Sources;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using System.Text.RegularExpressions;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Primitives;
+using Microsoft.Extensions.FileProviders;
 using Smartstore.IO;
 using Smartstore.Engine;
 using Smartstore.Json;
@@ -19,6 +21,7 @@ public sealed class IconCacheLifecycle : IIconCacheLifecycle, IAsyncDisposable
     private readonly AsyncLock _gate = new();
     private readonly Lock _watchLock = new();
     private readonly List<(string Filter, IChangeToken Token, IconChange Change)> _watches = [];
+    private SourceChangeToken _sourceToken;
     private IconCacheIndex _index;
     private readonly IFileSystem _cache;
     private readonly IIconCacheRecovery _recovery;
@@ -117,7 +120,10 @@ public sealed class IconCacheLifecycle : IIconCacheLifecycle, IAsyncDisposable
                 }
             }
 
-            return new CompositeChangeToken(_watches.Select(x => x.Token).ToArray());
+            var next = new SourceChangeToken(_watches.Select(x => x.Token).ToArray());
+            _sourceToken?.Dispose();
+            _sourceToken = next;
+            return next;
 
             void Watch(string filter, IconChangeKind kind, string library = null, string variant = null)
             {
@@ -401,7 +407,83 @@ public sealed class IconCacheLifecycle : IIconCacheLifecycle, IAsyncDisposable
         }
 
         await cleanup;
+
+        lock (_watchLock)
+        {
+            _sourceToken?.Dispose();
+        }
+
         _ownedCacheRoot?.Dispose();
+    }
+
+    // Active watchers set one flag. Passive providers are checked at most once a second.
+    private sealed class SourceChangeToken : IChangeToken, IDisposable
+    {
+        private readonly CancellationTokenSource _signal = new();
+        private readonly CancellationToken _token;
+        private readonly IChangeToken[] _passiveTokens;
+        private readonly List<IDisposable> _registrations = [];
+        private long _lastPoll;
+
+        public SourceChangeToken(IChangeToken[] tokens)
+        {
+            _token = _signal.Token;
+            _passiveTokens = tokens.Where(x => !x.ActiveChangeCallbacks && x != NullChangeToken.Singleton).ToArray();
+            foreach (var token in tokens)
+            {
+                if (token.ActiveChangeCallbacks)
+                {
+                    _registrations.Add(token.RegisterChangeCallback(
+                        static state => ((CancellationTokenSource)state).Cancel(), _signal));
+                }
+
+                // A notification may already have arrived before subscription.
+                if (token.HasChanged)
+                {
+                    _signal.Cancel();
+                }
+            }
+        }
+
+        public bool HasChanged
+        {
+            get
+            {
+                if (_token.IsCancellationRequested)
+                {
+                    return true;
+                }
+
+                if (_passiveTokens.Length > 0)
+                {
+                    var now = Environment.TickCount64;
+                    var last = Volatile.Read(ref _lastPoll);
+                    if (now - last >= 1000 && Interlocked.CompareExchange(ref _lastPoll, now, last) == last
+                        && _passiveTokens.Any(x => x.HasChanged))
+                    {
+                        _signal.Cancel();
+                    }
+                }
+
+                return _token.IsCancellationRequested;
+            }
+        }
+
+        public bool ActiveChangeCallbacks => true;
+
+        public IDisposable RegisterChangeCallback(Action<object> callback, object state)
+            => _token.Register(callback, state);
+
+        public void Dispose()
+        {
+            foreach (var registration in _registrations)
+            {
+                registration.Dispose();
+            }
+
+            _signal.Cancel();
+            // Old catalog readers may still poll this token. Keep its signal usable until collected.
+        }
     }
 
     private sealed class IconCacheIndex
@@ -409,7 +491,7 @@ public sealed class IconCacheLifecycle : IIconCacheLifecycle, IAsyncDisposable
         public int SchemaVersion { get; set; } = 1;
         public List<IconCacheArtifact> CurrentFiles { get; set; } = [];
         public Dictionary<string, DateTimeOffset> ObsoleteFiles { get; set; } = new(StringComparer.Ordinal);
-        [System.Text.Json.Serialization.JsonIgnore]
+        [JsonIgnore]
         public bool Recovered { get; set; }
     }
 }

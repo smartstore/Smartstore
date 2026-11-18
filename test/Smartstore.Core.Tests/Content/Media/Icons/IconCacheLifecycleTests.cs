@@ -258,6 +258,32 @@ public class IconCacheLifecycleTests
     }
 
     [Test]
+    public void Active_Source_Tokens_Are_Not_Polled_On_Catalog_Reads()
+    {
+        using var changed = new CancellationTokenSource();
+        var token = new Mock<IChangeToken>();
+        token.SetupGet(x => x.ActiveChangeCallbacks).Returns(true);
+        token.SetupGet(x => x.HasChanged).Returns(() => changed.IsCancellationRequested);
+        token.Setup(x => x.RegisterChangeCallback(It.IsAny<Action<object>>(), It.IsAny<object>()))
+            .Returns((Action<object> callback, object state) => changed.Token.Register(callback, state));
+        var files = new Mock<IFileSystem>();
+        files.Setup(x => x.GetDirectoryContents(It.IsAny<string>())).Returns(NotFoundDirectoryContents.Singleton);
+        files.Setup(x => x.Watch(It.IsAny<string>())).Returns(NullChangeToken.Singleton);
+        files.Setup(x => x.Watch("config.json")).Returns(token.Object);
+        var snapshot = Create().StartWatchingSources(files.Object);
+
+        for (var i = 0; i < 1000; i++)
+        {
+            Assert.That(snapshot.HasChanged, Is.False);
+        }
+
+        token.VerifyGet(x => x.HasChanged, Times.Once);
+        changed.Cancel();
+        Assert.That(snapshot.HasChanged, Is.True);
+        token.VerifyGet(x => x.HasChanged, Times.Once);
+    }
+
+    [Test]
     public void Changes_Report_Their_Library_And_Variant_Once()
     {
         Directory.CreateDirectory(Path.Combine(_sources.Root, "hugeicons", "rounded"));
