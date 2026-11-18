@@ -65,8 +65,18 @@ public sealed class IconCatalogAccessor : IIconCatalogAccessor, IDisposable
 
             // Keep pending changes if loading fails, so the next attempt can apply them.
             var token = _lifecycle.StartWatchingSources(_files);
-            var next = IconCatalog.Load(_files, CreateProviders(), _applicationContext.ContentRoot,
-                token, catalog, _pendingChanges);
+            IconCatalog next;
+            if (catalog != null && _pendingChanges.Count > 0
+                && _pendingChanges.All(x => x.Kind == IconChangeKind.SearchMetadata))
+            {
+                catalog.RefreshSearchMetadata(_files, _pendingChanges, token);
+                next = catalog;
+            }
+            else
+            {
+                next = IconCatalog.Load(_files, CreateProviders(), _applicationContext.ContentRoot,
+                    token, catalog, _pendingChanges);
+            }
 
             // Publish only the completed catalog. Existing readers can finish with the old one.
             Volatile.Write(ref _catalog, next);

@@ -1088,6 +1088,59 @@ public class IconServiceTests
         }
     }
 
+    [TestCase(false)]
+    [TestCase(true)]
+    public async Task Tag_Updates_Keep_Artifact_State_Unless_Mappings_Also_Change(bool changeMapping)
+    {
+        Write("Icons/kits.json", """{"shared":["cart"]}""");
+        using var metadataChanged = new CancellationTokenSource();
+        using var mappingChanged = new CancellationTokenSource();
+        Mock.Get(_sourceFiles).SetupSequence(x => x.Watch("hugeicons/metadata.json"))
+            .Returns(new CancellationChangeToken(metadataChanged.Token)).Returns(NullChangeToken.Singleton);
+        Mock.Get(_sourceFiles).SetupSequence(x => x.Watch("hugeicons/mapping.json"))
+            .Returns(new CancellationChangeToken(mappingChanged.Token)).Returns(NullChangeToken.Singleton);
+
+        var dependencies = _dependencies[_service];
+        var kits = CreateKitService(_service, new HttpContextAccessor());
+        Assert.That((await kits.SearchAsync("shared", new IconSearchQuery { Term = "basket" })).TotalCount, Is.EqualTo(1));
+        await _lifecycles.Single().PendingCleanup;
+        var before = _service.Catalog;
+        var plan = dependencies.Planner.GetIndex(before, "hi", "sr").Plans["shared"].Value;
+        var manifest = dependencies.Planner.GetManifest(before);
+        var indexPath = Path.Combine(_options.Value.CachePath, "index.json");
+        File.SetLastWriteTimeUtc(indexPath, DateTime.UtcNow.AddHours(-1));
+        var indexTimestamp = File.GetLastWriteTimeUtc(indexPath);
+
+        Write("Icons/hugeicons/metadata.json", """{"icons":{"cart-01":{"tags":["trolley"]},"direct":{"tags":["trolley"]}}}""");
+        metadataChanged.Cancel();
+        if (changeMapping)
+        {
+            Write("Icons/hugeicons/mapping.json", """{"cart":"direct"}""");
+            mappingChanged.Cancel();
+        }
+
+        var after = _service.Catalog;
+        Assert.That((await kits.SearchAsync("shared", new IconSearchQuery { Term = "trolley" })).TotalCount, Is.EqualTo(1));
+        Assert.That((await kits.SearchAsync("shared", new IconSearchQuery { Term = "basket" })).TotalCount, Is.Zero);
+        Assert.That((await _service.SearchAsync(new IconSearchQuery { Term = "trolley" })).TotalCount, Is.EqualTo(2));
+        var refreshedPlan = dependencies.Planner.GetIndex(after, "hi", "sr").Plans["shared"].Value;
+
+        if (changeMapping)
+        {
+            Assert.That(after, Is.Not.SameAs(before));
+            Assert.That(after.ArtifactVersion, Is.Not.SameAs(before.ArtifactVersion));
+            Assert.That(refreshedPlan.Revision, Is.Not.EqualTo(plan.Revision));
+            Assert.That(File.GetLastWriteTimeUtc(indexPath), Is.GreaterThan(indexTimestamp));
+        }
+        else
+        {
+            Assert.That(after, Is.SameAs(before));
+            Assert.That(refreshedPlan, Is.SameAs(plan));
+            Assert.That(dependencies.Planner.GetManifest(after), Is.SameAs(manifest));
+            Assert.That(File.GetLastWriteTimeUtc(indexPath), Is.EqualTo(indexTimestamp));
+        }
+    }
+
     private const string _svg = "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"-1 -2 24 25\" width=\"24\" height=\"25\" fill=\"none\"><path d=\"M0 0L1 1\" stroke=\"currentColor\" stroke-width=\"1\" stroke-linecap=\"butt\"/></svg>";
     private string _root;
     private IFileSystem _sourceFiles;

@@ -79,6 +79,7 @@ public sealed class IconBrowser : IIconBrowser
 
         var catalog = _catalogAccessor.Catalog;
         var (library, variant) = SelectSource(catalog, query.Library, query.Variant);
+        var sourceSnapshot = catalog.ChangeToken;
         if (variant == null)
         {
             return null;
@@ -91,7 +92,7 @@ public sealed class IconBrowser : IIconBrowser
             + "/" + Uri.EscapeDataString(variant.Manifest.Name) + "/" + revision + ".svg";
         var result = new IconBrowserResult(url, page.TotalCount, page.Items.Select(info => IconBrowserItem.Create(info)).ToArray());
 
-        if (catalog.ChangeToken.HasChanged)
+        if (sourceSnapshot.HasChanged)
         {
             throw new IOException("Icon sources changed during browsing. Retry with the current catalog.");
         }

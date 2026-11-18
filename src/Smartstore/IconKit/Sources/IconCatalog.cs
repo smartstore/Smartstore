@@ -9,18 +9,22 @@ using System.Xml.Linq;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Primitives;
 using Smartstore.Json;
+using Smartstore.IO;
 
 namespace Smartstore.IconKit.Sources;
 
 /// <summary>
-/// Holds the library and kit data for one version of the icon source files.
-/// Indexes are loaded when needed; SVG contents and open ZIP files are not kept here.
+/// Holds library and kit data. Search tags can refresh without rebuilding source indexes.
+/// SVG contents and open ZIP files are not kept here.
 /// </summary>
 public sealed class IconCatalog
 {
+    private IChangeToken _changeToken;
+
     internal IconCatalog(IChangeToken changeToken)
     {
-        ChangeToken = changeToken;
+        _changeToken = changeToken;
+        ArtifactVersion = changeToken;
     }
 
     /// <summary>
@@ -92,7 +96,28 @@ public sealed class IconCatalog
     /// <summary>
     /// Gets the token that marks this generation stale when source files change.
     /// </summary>
-    internal IChangeToken ChangeToken { get; }
+    internal IChangeToken ChangeToken => Volatile.Read(ref _changeToken);
+
+    /// <summary>
+    /// Identifies the inputs used to build cache files. Search tag updates keep this identity.
+    /// </summary>
+    internal object ArtifactVersion { get; }
+
+    internal void RefreshSearchMetadata(IFileSystem files, IReadOnlyCollection<IconChange> changes, IChangeToken changeToken)
+    {
+        foreach (var name in changes.Select(x => x.Library).Distinct(StringComparer.OrdinalIgnoreCase))
+        {
+            // Replaced library names may point at another library; do not reset its tags.
+            if (name != null && Libraries.TryGetValue(name, out var library)
+                && library.Manifest.SystemName.Equals(name, StringComparison.OrdinalIgnoreCase))
+            {
+                library.RefreshTags(files);
+            }
+        }
+
+        // Publish the new watch only after every affected tag lookup has been reset.
+        Volatile.Write(ref _changeToken, changeToken);
+    }
 
     internal Library SelectLibrary(string name)
         => name == null ? DefaultLibrary : Libraries.GetValueOrDefault(name);
@@ -200,7 +225,13 @@ public sealed class IconCatalog
         /// <summary>
         /// Gets supplemental search terms, loaded only when icon metadata is requested.
         /// </summary>
-        internal Dictionary<string, string[]> Tags => _tags.Value;
+        internal Dictionary<string, string[]> Tags => Volatile.Read(ref _tags).Value;
+
+        internal void RefreshTags(IFileSystem files)
+        {
+            var root = Manifest.SystemName;
+            Volatile.Write(ref _tags, new Lazy<Dictionary<string, string[]>>(() => LoadTags(files, root)));
+        }
 
         /// <summary>
         /// Indexes variants by full name and optional short name.

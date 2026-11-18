@@ -197,6 +197,7 @@ public sealed class IconKitService : IIconKitService
         Guard.InRange(query.Take, 1, 500);
 
         var catalog = _catalogAccessor.Catalog;
+        var sourceSnapshot = catalog.ChangeToken;
         if (!catalog.Kits.TryGetValue(kitName, out var kit))
         {
             return null;
@@ -218,7 +219,7 @@ public sealed class IconKitService : IIconKitService
             || (entry.Library.Tags.GetValueOrDefault(entry.Mapping.Name) ?? [])
                 .Any(tag => tag.Contains(word, StringComparison.OrdinalIgnoreCase)));
 
-        if (catalog.ChangeToken.HasChanged)
+        if (sourceSnapshot.HasChanged)
         {
             throw new IOException("Icon sources changed during browsing. Retry with the current catalog.");
         }

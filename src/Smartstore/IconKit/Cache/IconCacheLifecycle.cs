@@ -27,7 +27,7 @@ public sealed class IconCacheLifecycle : IIconCacheLifecycle, IAsyncDisposable
     private readonly IFileSystem _cache;
     private readonly IIconCacheRecovery _recovery;
     private readonly IDisposable _ownedCacheRoot;
-    private IChangeToken _validatedSources;
+    private object _validatedArtifacts;
     private DateTimeOffset _lastScan;
     private Task _cleanup = Task.CompletedTask;
     private bool _disposed;
@@ -145,6 +145,7 @@ public sealed class IconCacheLifecycle : IIconCacheLifecycle, IAsyncDisposable
         cancelToken.ThrowIfCancellationRequested();
 
         var sourceSnapshot = catalog.ChangeToken;
+        var artifactVersion = catalog.ArtifactVersion;
         ValidateArtifact(artifact);
         await EnsureIndexAsync(catalog, cancelToken);
 
@@ -152,7 +153,7 @@ public sealed class IconCacheLifecycle : IIconCacheLifecycle, IAsyncDisposable
         {
             ObjectDisposedException.ThrowIf(_disposed, this);
             EnsureCurrent(sourceSnapshot);
-            if (_validatedSources != sourceSnapshot)
+            if (_validatedArtifacts != artifactVersion)
             {
                 throw new IOException("The icon cache index changed during registration. Retry with the current catalog.");
             }
@@ -186,7 +187,7 @@ public sealed class IconCacheLifecycle : IIconCacheLifecycle, IAsyncDisposable
                 {
                     using (await _gate.LockAsync())
                     {
-                        if (_disposed || _validatedSources != sourceSnapshot || sourceSnapshot.HasChanged)
+                        if (_disposed || _validatedArtifacts != artifactVersion || sourceSnapshot.HasChanged)
                         {
                             return;
                         }
@@ -208,11 +209,12 @@ public sealed class IconCacheLifecycle : IIconCacheLifecycle, IAsyncDisposable
     private async Task EnsureIndexAsync(IconCatalog catalog, CancellationToken cancelToken)
     {
         var snapshot = catalog.ChangeToken;
+        var artifactVersion = catalog.ArtifactVersion;
         using (await _gate.LockAsync())
         {
             ObjectDisposedException.ThrowIf(_disposed, this);
             EnsureCurrent(snapshot);
-            if (_validatedSources == snapshot && _cache.FileExists("index.json"))
+            if (_validatedArtifacts == artifactVersion && _cache.FileExists("index.json"))
             {
                 return;
             }
@@ -226,7 +228,7 @@ public sealed class IconCacheLifecycle : IIconCacheLifecycle, IAsyncDisposable
             {
                 ObjectDisposedException.ThrowIf(_disposed, this);
                 EnsureCurrent(snapshot);
-                if (_validatedSources == snapshot && _cache.FileExists("index.json"))
+                if (_validatedArtifacts == artifactVersion && _cache.FileExists("index.json"))
                 {
                     return;
                 }
@@ -238,7 +240,7 @@ public sealed class IconCacheLifecycle : IIconCacheLifecycle, IAsyncDisposable
                 }
 
                 index = _index;
-                _validatedSources = null;
+                _validatedArtifacts = null;
             }
 
             // Directory reads and revision calculation do not hold the index lock.
@@ -282,7 +284,7 @@ public sealed class IconCacheLifecycle : IIconCacheLifecycle, IAsyncDisposable
                 index.CurrentFiles = current;
                 index.Recovered = true;
                 await SaveIndexAsync();
-                _validatedSources = snapshot;
+                _validatedArtifacts = artifactVersion;
             }
         }
     }
@@ -384,7 +386,7 @@ public sealed class IconCacheLifecycle : IIconCacheLifecycle, IAsyncDisposable
         {
             // A failed write must not make subsequent registrations trust unsaved in-memory state.
             _index = null;
-            _validatedSources = null;
+            _validatedArtifacts = null;
             throw;
         }
     }
