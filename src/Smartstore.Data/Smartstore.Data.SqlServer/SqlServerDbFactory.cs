@@ -59,13 +59,14 @@ internal class SqlServerDbFactory : DbFactory
             connectionString = connectionString.Trim();
 
             // Ensure that MARS is enabled
-            if (!connectionString.ContainsNoCase("MultipleActiveResultSets="))
+            if (!connectionString.ContainsNoCase("MultipleActiveResultSets=")
+                && !connectionString.ContainsNoCase("Multiple Active Result Sets="))
             {
                 connectionString = connectionString.EnsureEndsWith(';') + "MultipleActiveResultSets=True";
                 normalized = true;
             }
 
-            // Ensure that Encrypt is false, othwerwise SqlClient will reject connection.
+            // Ensure that Encrypt is false, otherwise SqlClient will reject connection.
             if (!connectionString.ContainsNoCase("Encrypt="))
             {
                 connectionString = connectionString.EnsureEndsWith(';') + "Encrypt=False";
