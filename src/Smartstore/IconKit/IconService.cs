@@ -8,27 +8,27 @@ namespace Smartstore.IconKit;
 
 public sealed class IconService : IIconService
 {
-    private readonly IIconCatalogProvider _catalogProvider;
+    private readonly IIconCatalogAccessor _catalogAccessor;
     private readonly IIconCache _cache;
     private readonly IIconResolver _resolver;
     private readonly IIconAreaResolver _areaResolver;
     private readonly IHttpContextAccessor _httpContextAccessor;
 
     public IconService(
-        IIconCatalogProvider catalogProvider,
+        IIconCatalogAccessor catalogAccessor,
         IIconCache cache,
         IIconResolver resolver,
         IIconAreaResolver areaResolver,
         IHttpContextAccessor httpContextAccessor)
     {
-        _catalogProvider = catalogProvider;
+        _catalogAccessor = catalogAccessor;
         _cache = cache;
         _resolver = resolver;
         _areaResolver = areaResolver;
         _httpContextAccessor = httpContextAccessor;
     }
 
-    internal IconCatalog Catalog => _catalogProvider.Catalog;
+    internal IconCatalog Catalog => _catalogAccessor.Catalog;
 
     /// <inheritdoc />
     public IconLibrary DefaultLibrary => Catalog.DefaultLibrary.Manifest;

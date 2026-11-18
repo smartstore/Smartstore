@@ -8,20 +8,20 @@ namespace Smartstore.IconKit;
 
 public sealed class IconKitService : IIconKitService
 {
-    private readonly IIconCatalogProvider _catalogProvider;
+    private readonly IIconCatalogAccessor _catalogAccessor;
     private readonly IIconCacheLifecycle _lifecycle;
     private readonly IIconKitPlanner _planner;
     private readonly IconKitOptions _options;
     private readonly IHttpContextAccessor _httpContextAccessor;
 
     public IconKitService(
-        IIconCatalogProvider catalogProvider,
+        IIconCatalogAccessor catalogAccessor,
         IIconCacheLifecycle lifecycle,
         IIconKitPlanner planner,
         IOptions<IconKitOptions> options,
         IHttpContextAccessor httpContextAccessor)
     {
-        _catalogProvider = catalogProvider;
+        _catalogAccessor = catalogAccessor;
         _lifecycle = lifecycle;
         _planner = planner;
         _options = options.Value;
@@ -31,7 +31,7 @@ public sealed class IconKitService : IIconKitService
     /// <inheritdoc />
     public string GetManifestUrl()
         => (_httpContextAccessor.HttpContext?.Request.PathBase.Value ?? string.Empty)
-            + _options.RoutePrefix + "/manifest/" + _planner.GetManifest(_catalogProvider.Catalog).Revision + ".json";
+            + _options.RoutePrefix + "/manifest/" + _planner.GetManifest(_catalogAccessor.Catalog).Revision + ".json";
 
     /// <inheritdoc />
     public async Task<string> GetManifestFileAsync(string revision, CancellationToken cancelToken = default)
@@ -49,7 +49,7 @@ public sealed class IconKitService : IIconKitService
             return path;
         }
 
-        var catalog = _catalogProvider.Catalog;
+        var catalog = _catalogAccessor.Catalog;
         var manifest = _planner.GetManifest(catalog);
         if (manifest.Revision != revision)
         {
@@ -69,12 +69,12 @@ public sealed class IconKitService : IIconKitService
     }
 
     /// <inheritdoc />
-    public IReadOnlyCollection<IconKit> Kits => _catalogProvider.Catalog.Kits.Values;
+    public IReadOnlyCollection<IconKit> Kits => _catalogAccessor.Catalog.Kits.Values;
 
     /// <inheritdoc />
     public IReadOnlySet<string> GetSourceAddresses()
     {
-        var catalog = _catalogProvider.Catalog;
+        var catalog = _catalogAccessor.Catalog;
         var addresses = new HashSet<string>(StringComparer.Ordinal);
         foreach (var kit in catalog.Kits.Values)
         {
@@ -103,7 +103,7 @@ public sealed class IconKitService : IIconKitService
     {
         Guard.NotNull(icon);
 
-        var catalog = _catalogProvider.Catalog;
+        var catalog = _catalogAccessor.Catalog;
         var index = GetIndex(catalog, icon.SelectionLibraryName ?? icon.LibraryName, icon.SelectionVariantName ?? icon.VariantName);
         if (index == null || !index.Memberships.TryGetValue(
             (icon.Area, icon.ConceptName, icon.Address, icon.Transform, icon.StrokeScale), out var member))
@@ -125,7 +125,7 @@ public sealed class IconKitService : IIconKitService
     /// <inheritdoc />
     public string GetUrl(string kitName, string library = null, string variant = null)
     {
-        var catalog = _catalogProvider.Catalog;
+        var catalog = _catalogAccessor.Catalog;
         if (kitName == null || !catalog.Kits.TryGetValue(kitName, out var kit))
         {
             return null;
@@ -162,7 +162,7 @@ public sealed class IconKitService : IIconKitService
             return path;
         }
 
-        var catalog = _catalogProvider.Catalog;
+        var catalog = _catalogAccessor.Catalog;
         if (!catalog.Kits.ContainsKey(kitName))
         {
             return null;
@@ -196,7 +196,7 @@ public sealed class IconKitService : IIconKitService
         Guard.NotNegative(query.Skip);
         Guard.InRange(query.Take, 1, 500);
 
-        var catalog = _catalogProvider.Catalog;
+        var catalog = _catalogAccessor.Catalog;
         if (!catalog.Kits.TryGetValue(kitName, out var kit))
         {
             return null;

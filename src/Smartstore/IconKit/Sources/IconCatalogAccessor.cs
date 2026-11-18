@@ -5,7 +5,7 @@ using Smartstore.IO;
 
 namespace Smartstore.IconKit.Sources;
 
-public sealed class IconCatalogProvider : IIconCatalogProvider, IDisposable
+public sealed class IconCatalogAccessor : IIconCatalogAccessor, IDisposable
 {
     private readonly IApplicationContext _applicationContext;
     private readonly IIconCacheLifecycle _lifecycle;
@@ -15,7 +15,7 @@ public sealed class IconCatalogProvider : IIconCatalogProvider, IDisposable
     private readonly List<IconChange> _pendingChanges = [];
     private IconCatalog _catalog;
 
-    public IconCatalogProvider(
+    public IconCatalogAccessor(
         IApplicationContext applicationContext,
         IOptions<IconKitOptions> options,
         IIconCacheLifecycle lifecycle)

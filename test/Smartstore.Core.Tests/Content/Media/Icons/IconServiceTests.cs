@@ -34,8 +34,8 @@ public class IconServiceTests
 {
     private readonly List<IContainer> _providerContainers = [];
     private readonly List<IDisposable> _ownedFileSystems = [];
-    private readonly List<IconCatalogProvider> _catalogProviders = [];
-    private readonly Dictionary<IconService, (IIconCatalogProvider Catalog, IIconCacheLifecycle Lifecycle, IOptions<IconKitOptions> Options, IIconResolver Resolver, IIconLibrarySpriteService Sprites, IIconKitPlanner Planner)> _dependencies = [];
+    private readonly List<IconCatalogAccessor> _catalogAccessors = [];
+    private readonly Dictionary<IconService, (IIconCatalogAccessor Catalog, IIconCacheLifecycle Lifecycle, IOptions<IconKitOptions> Options, IIconResolver Resolver, IIconLibrarySpriteService Sprites, IIconKitPlanner Planner)> _dependencies = [];
     private readonly List<IconCacheLifecycle> _lifecycles = [];
 
     [Test]
@@ -95,9 +95,9 @@ public class IconServiceTests
         var planner = new IconKitPlanner(resolver, options);
         var recovery = new IconCacheRecovery(planner, sprites);
         var lifecycle = new IconCacheLifecycle(context, options, recovery);
-        var catalog = new IconCatalogProvider(context, options, lifecycle);
+        var catalog = new IconCatalogAccessor(context, options, lifecycle);
         var service = new IconService(catalog, cache, resolver, areaResolver, accessor);
-        _catalogProviders.Add(catalog);
+        _catalogAccessors.Add(catalog);
         _dependencies.Add(service, (catalog, lifecycle, options, resolver, sprites, planner));
         _lifecycles.Add(lifecycle);
         return service;
@@ -1367,8 +1367,8 @@ public class IconServiceTests
     [TearDown]
     public async Task TearDown()
     {
-        foreach (var catalog in _catalogProviders) catalog.Dispose();
-        _catalogProviders.Clear();
+        foreach (var catalog in _catalogAccessors) catalog.Dispose();
+        _catalogAccessors.Clear();
         _dependencies.Clear();
         foreach (var lifecycle in _lifecycles) await lifecycle.DisposeAsync();
         _lifecycles.Clear();

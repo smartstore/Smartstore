@@ -8,7 +8,7 @@ namespace Smartstore.IconKit;
 
 public sealed class IconBrowser : IIconBrowser
 {
-    private readonly IIconCatalogProvider _catalogProvider;
+    private readonly IIconCatalogAccessor _catalogAccessor;
     private readonly IIconKitService _kits;
     private readonly IIconService _icons;
     private readonly IIconLibrarySpriteService _librarySprites;
@@ -17,7 +17,7 @@ public sealed class IconBrowser : IIconBrowser
     private readonly IHttpContextAccessor _httpContextAccessor;
 
     public IconBrowser(
-        IIconCatalogProvider catalogProvider,
+        IIconCatalogAccessor catalogAccessor,
         IIconKitService kits,
         IIconService icons,
         IIconLibrarySpriteService librarySprites,
@@ -25,7 +25,7 @@ public sealed class IconBrowser : IIconBrowser
         IOptions<IconKitOptions> options,
         IHttpContextAccessor httpContextAccessor)
     {
-        _catalogProvider = catalogProvider;
+        _catalogAccessor = catalogAccessor;
         _kits = kits;
         _icons = icons;
         _librarySprites = librarySprites;
@@ -37,7 +37,7 @@ public sealed class IconBrowser : IIconBrowser
     /// <inheritdoc />
     public IconBrowserSource GetSource(string address, string area = "public", bool showHiddenKits = false)
     {
-        var catalog = _catalogProvider.Catalog;
+        var catalog = _catalogAccessor.Catalog;
         IconAddress parsed = default;
         if (!string.IsNullOrEmpty(address))
         {
@@ -77,7 +77,7 @@ public sealed class IconBrowser : IIconBrowser
             return await _kits.SearchAsync(kit, query, cancelToken);
         }
 
-        var catalog = _catalogProvider.Catalog;
+        var catalog = _catalogAccessor.Catalog;
         var (library, variant) = SelectSource(catalog, query.Library, query.Variant);
         if (variant == null)
         {
@@ -105,7 +105,7 @@ public sealed class IconBrowser : IIconBrowser
     /// <inheritdoc />
     public Task<string> GetSpriteFileAsync(string library, string variant, string revision, CancellationToken cancelToken = default)
     {
-        var catalog = _catalogProvider.Catalog;
+        var catalog = _catalogAccessor.Catalog;
         var source = SelectSource(catalog, library, variant);
         return source.Variant == null ? Task.FromResult<string>(null)
             : _librarySprites.GetFileAsync(catalog, source.Library.Manifest.SystemName, source.Variant.Manifest.Name, revision, cancelToken);
