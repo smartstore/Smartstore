@@ -32,40 +32,69 @@ internal sealed class IconSprite
     /// <param name="variant">The selected variant.</param>
     /// <param name="kit">The configured kit name.</param>
     /// <param name="entries">Concepts and their actual mapped names.</param>
-    internal IconSprite(IconCatalog catalog, IconCatalog.Library library, IconCatalog.Variant variant,
-        string kit, IEnumerable<(string Concept, IconInfo Info, IconCatalog.Variant Variant)> entries)
+    internal IconSprite(
+        IconCatalog catalog,
+        IconCatalog.Library library,
+        IconCatalog.Variant variant,
+        string kit,
+        IEnumerable<(string Concept, IconInfo Info, IconCatalog.Variant Variant)> entries)
     {
         _catalog = catalog;
         LibraryName = library.Manifest.SystemName;
         VariantName = variant.Manifest.Name;
-        // Bump the sprite version whenever symbol preparation changes.
-        var fingerprint = new StringBuilder("sprite-9:").Append(IconSvgParser.Revision);
-        // System identities prevent ambiguous flat filenames and distinguish empty kits.
-        foreach (var identity in new[] { library.Manifest.SystemName, variant.Manifest.Name, kit })
+
+        using var hash = SHA256.Create();
+        using var hashStream = new CryptoStream(Stream.Null, hash, CryptoStreamMode.Write);
+
+        // Stream the same UTF-8 bytes as before, without a full fingerprint string or byte array.
+        // No BOM: adding one would change every existing sprite URL.
+        using (var fingerprint = new StreamWriter(hashStream, new UTF8Encoding(false), 1024, leaveOpen: true))
         {
-            fingerprint.Append('|').Append(identity.Length).Append(':').Append(identity);
-        }
-        foreach (var entry in entries)
-        {
-            var source = entry.Variant.GetSource(entry.Info.Name);
-            if (source == null)
+            // Bump the sprite version whenever symbol preparation changes.
+            fingerprint.Write("sprite-9:");
+            fingerprint.Write(IconSvgParser.Revision);
+
+            // System identities distinguish library selections and empty kits.
+            WriteIdentity(fingerprint, LibraryName);
+            WriteIdentity(fingerprint, VariantName);
+            WriteIdentity(fingerprint, kit);
+
+            foreach (var entry in entries)
             {
-                // One missing mapping must not prevent valid symbols from being published.
-                continue;
+                var source = entry.Variant.GetSource(entry.Info.Name);
+                if (source == null)
+                {
+                    // One missing mapping must not prevent valid symbols from being published.
+                    continue;
+                }
+
+                var info = entry.Info;
+                _entries.Add((entry.Concept, info, entry.Variant, source));
+
+                WriteIdentity(fingerprint, entry.Concept);
+                WriteIdentity(fingerprint, info.Address);
+                fingerprint.Write('|');
+                fingerprint.Write(source.Revision);
+                fingerprint.Write('|');
+                fingerprint.Write(info.Transform.RevisionKey);
+                fingerprint.Write('|');
+                fingerprint.Write(info.StrokeScale.ToString("R", CultureInfo.InvariantCulture));
             }
-            var info = entry.Info;
-            _entries.Add((entry.Concept, info, entry.Variant, source));
-            fingerprint.Append('|').Append(entry.Concept.Length).Append(':').Append(entry.Concept)
-                .Append('|').Append(info.Address.Length).Append(':').Append(info.Address)
-                .Append('|').Append(source.Revision)
-                .Append('|').Append(info.Transform.RevisionKey)
-                .Append('|').Append(info.StrokeScale.ToString("R", CultureInfo.InvariantCulture));
         }
 
-        // A 96-bit content fingerprint keeps URLs and filenames compact.
-        // This is a cache identity, not a security token.
-        var hash = SHA256.HashData(Encoding.UTF8.GetBytes(fingerprint.ToString()));
-        Revision = Convert.ToHexStringLower(hash.AsSpan(0, 12));
+        // The writer must flush its last UTF-8 bytes before the hash is finalized.
+        hashStream.FlushFinalBlock();
+
+        // Keep the existing 96-bit cache identity used in URLs and filenames.
+        Revision = Convert.ToHexStringLower(hash.Hash.AsSpan(0, 12));
+    }
+
+    private static void WriteIdentity(TextWriter writer, string value)
+    {
+        writer.Write('|');
+        writer.Write(value.Length);
+        writer.Write(':');
+        writer.Write(value);
     }
 
     internal IconSprite Rebind(IconCatalog catalog)

@@ -7,7 +7,9 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
+using System.Globalization;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -2596,6 +2598,55 @@ public class IconServiceTests
         rendered.WriteTo(writer, System.Text.Encodings.Web.HtmlEncoder.Default);
         Assert.That(writer.ToString(), Does.Contain("<use").And.Not.Contain("<path"));
         _cache.VerifyNoOtherCalls();
+    }
+
+    [TestCase(0)]
+    [TestCase(1)]
+    [TestCase(128)]
+    [SetCulture("de-DE")]
+    public void Streamed_Sprite_Fingerprint_Preserves_Existing_Revisions(int count)
+    {
+        var catalog = _service.Catalog;
+        var library = catalog.SelectLibrary("hi");
+        var variant = catalog.SelectVariant(library, "sr");
+        var info = IconInfo.Create(library, variant, "cart-01", false);
+        info.Transform = new IconTransform(true, false, 22.5);
+        info.StrokeScale = 1.25;
+        var entries = new List<(string Concept, IconInfo Info, IconCatalog.Variant Variant)>();
+        for (int i = 0; i < count; i++)
+        {
+            // Vary the boundary around multibyte UTF-8 and surrogate pairs.
+            entries.Add((new string('x', 1020 + i) + "é🚲", info, variant));
+        }
+
+        entries.Add(("missing", IconInfo.Create(library, variant, "missing", false), variant));
+
+        // Keep the previous algorithm as the reference: existing sprite URLs must not change.
+        var fingerprint = new StringBuilder("sprite-9:").Append(IconSvgParser.Revision);
+        foreach (var identity in new[] { library.Manifest.SystemName, variant.Manifest.Name, "shared" })
+        {
+            fingerprint.Append('|').Append(identity.Length).Append(':').Append(identity);
+        }
+
+        foreach (var entry in entries)
+        {
+            var source = entry.Variant.GetSource(entry.Info.Name);
+            if (source == null)
+            {
+                continue;
+            }
+
+            fingerprint.Append('|').Append(entry.Concept.Length).Append(':').Append(entry.Concept)
+                .Append('|').Append(entry.Info.Address.Length).Append(':').Append(entry.Info.Address)
+                .Append('|').Append(source.Revision)
+                .Append('|').Append(entry.Info.Transform.RevisionKey)
+                .Append('|').Append(entry.Info.StrokeScale.ToString("R", CultureInfo.InvariantCulture));
+        }
+
+        var expected = Convert.ToHexStringLower(SHA256.HashData(Encoding.UTF8.GetBytes(fingerprint.ToString())).AsSpan(0, 12));
+        var sprite = new IconSprite(catalog, library, variant, "shared", entries);
+
+        Assert.That(sprite.Revision, Is.EqualTo(expected));
     }
 
     /// <summary>
