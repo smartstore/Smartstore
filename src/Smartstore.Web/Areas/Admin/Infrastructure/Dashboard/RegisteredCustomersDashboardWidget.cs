@@ -12,7 +12,7 @@ namespace Smartstore.Admin.Infrastructure.Dashboard;
 /// Describes and creates the dashboard widget that renders customer registrations.
 /// </summary>
 [SystemName(SystemName)]
-public sealed class RegisteredCustomersDashboardWidget(IPermissionService permissions)
+public sealed class RegisteredCustomersDashboardWidget(IPermissionService permissions, IPageAssetBuilder assets)
     : DashboardViewComponentWidget<DashboardRegisteredCustomersViewComponent>(permissions, DashboardRegisteredCustomersViewComponent.RequiredPermission)
 {
     /// <summary>
@@ -38,6 +38,11 @@ public sealed class RegisteredCustomersDashboardWidget(IPermissionService permis
     public override TimeSpan? CacheDuration => TimeSpan.FromHours(1);
 
     /// <inheritdoc />
-    protected override object GetWidgetArguments(DashboardWidgetContext context, DashboardWidgetInstance instance)
-        => new { cacheDuration = CacheDuration, refresh = context.Refresh };
+    public override Widget CreateWidget(DashboardWidgetContext context, DashboardWidgetInstance instance)
+    {
+        // Register scripts here: CreateWidget runs on cache hits too, while the view and its asset registrations are skipped.
+        assets.AppendScriptFiles("~/bundle/js/chart.js", "~/admin/js/admin.dashboard.js");
+
+        return base.CreateWidget(context, instance);
+    }
 }

@@ -1,7 +1,9 @@
 #nullable enable
 
+using System.Globalization;
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.FileProviders;
 using Smartstore.Core.Identity;
@@ -22,6 +24,7 @@ public partial class DashboardService : IDashboardService
     private const string UserLayoutAttributePrefix = "DashboardLayout.";
 
     private readonly IApplicationContext _appContext;
+    private readonly ICommonServices _services;
     private readonly IMemoryCache _memCache;
     private readonly IEventPublisher _eventPublisher;
     private readonly IEnumerable<Lazy<IDashboardWidget, DashboardMetadata>> _widgetRegistrations;
@@ -32,12 +35,14 @@ public partial class DashboardService : IDashboardService
 
     public DashboardService(
         IApplicationContext appContext,
+        ICommonServices services,
         IMemoryCache memCache,
         IEventPublisher eventPublisher,
         IEnumerable<Lazy<IDashboardWidget, DashboardMetadata>> widgetRegistrations,
         IEnumerable<Lazy<IDashboardLayoutProvider, DashboardMetadata>> layoutProviderRegistrations)
     {
         _appContext = appContext;
+        _services = services;
         _memCache = memCache;
         _eventPublisher = eventPublisher;
         _widgetRegistrations = widgetRegistrations;
@@ -176,6 +181,7 @@ public partial class DashboardService : IDashboardService
 
         var items = new List<DashboardRenderItem>(layout.Widgets.Count);
         var singletonWidgets = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        Dictionary<string, string?>? cacheContext = null;
 
         foreach (var instance in layout.Widgets.OrderBy(x => x.Order))
         {
@@ -202,7 +208,14 @@ public partial class DashboardService : IDashboardService
                 continue;
             }
 
-            items.Add(await PrepareRenderItemAsync(dashboardWidget, instance, context, cancelToken));
+            var cacheDuration = dashboardWidget.CacheDuration;
+
+            if (cacheDuration > TimeSpan.Zero)
+            {
+                cacheContext ??= await CreateCacheContextAsync(context);
+            }
+
+            items.Add(await PrepareRenderItemAsync(dashboardWidget, instance, context, cacheDuration, cacheContext, cancelToken));
         }
 
         return new DashboardRenderModel
@@ -238,6 +251,7 @@ public partial class DashboardService : IDashboardService
             Refresh = refresh,
             Parameters = parameters ?? new Dictionary<string, string>()
         };
+
         var widget = ResolveWidget(registration);
 
         if (!await widget.IsAvailableAsync(context, cancelToken))
@@ -245,32 +259,77 @@ public partial class DashboardService : IDashboardService
             return null;
         }
 
-        return await PrepareRenderItemAsync(widget, instance, context, cancelToken);
+        var cacheDuration = widget.CacheDuration;
+        Dictionary<string, string?>? cacheContext = cacheDuration > TimeSpan.Zero ? await CreateCacheContextAsync(context) : null;
+        return await PrepareRenderItemAsync(widget, instance, context, cacheDuration, cacheContext, cancelToken);
     }
 
     private async ValueTask<DashboardRenderItem> PrepareRenderItemAsync(
         IDashboardWidget widget,
         DashboardWidgetInstance instance,
         DashboardWidgetContext context,
+        TimeSpan? cacheDuration,
+        Dictionary<string, string?>? cacheContext,
         CancellationToken cancelToken)
     {
-        var cacheDuration = widget.CacheDuration;
         if (cacheDuration.HasValue && cacheDuration.Value <= TimeSpan.Zero)
         {
             throw new InvalidOperationException($"Widget '{widget.Descriptor.SystemName}' must specify a positive cache duration.");
         }
 
-        var runtimeInstance = await PrepareWidgetInstanceAsync(widget, instance, cancelToken);
-        var policy = DashboardWidgetPolicy.Combine(widget.Descriptor.Policy, runtimeInstance.Policy);
+        var preparedWidget = await PrepareWidgetInstanceAsync(widget, instance, cancelToken);
+        var policy = DashboardWidgetPolicy.Combine(widget.Descriptor.Policy, preparedWidget.Policy);
+        var content = widget.CreateWidget(context, preparedWidget);
+
+        if (cacheDuration.HasValue)
+        {
+            var cacheKey = BuildCacheKey(context, preparedWidget, Guard.NotNull(cacheContext));
+            content = new CachedDashboardWidget(content, cacheKey, context.Refresh, cacheDuration.Value, _services.Cache);
+        }
 
         return new DashboardRenderItem
         {
-            Instance = runtimeInstance,
+            Instance = preparedWidget,
             Descriptor = widget.Descriptor,
             CacheDuration = cacheDuration,
             Policy = policy,
-            Widget = widget.CreateWidget(context, runtimeInstance)
+            Widget = content
         };
+    }
+
+    private async Task<Dictionary<string, string?>> CreateCacheContextAsync(DashboardWidgetContext context)
+    {
+        var customer = context.Customer ?? _services.WorkContext.CurrentCustomer;
+        var storeIds = await _services.StoreMappingService.GetAuthorizedStoreIdsAsync(nameof(Customer), customer.Id);
+
+        return new Dictionary<string, string?>
+        {
+            ["customerId"] = customer.Id.ToString(CultureInfo.InvariantCulture),
+            ["roles"] = customer.GetRolesIdent(),
+            ["stores"] = string.Join(',', storeIds.Order()),
+            ["store"] = _services.StoreContext.CurrentStore.Id.ToString(CultureInfo.InvariantCulture),
+            ["language"] = _services.WorkContext.WorkingLanguage.Id.ToString(CultureInfo.InvariantCulture)
+        };
+    }
+
+    private static string BuildCacheKey(
+        DashboardWidgetContext context,
+        DashboardWidgetInstance instance,
+        Dictionary<string, string?> cacheContext)
+    {
+        var parameters = new Dictionary<string, string?>(cacheContext)
+        {
+            ["widget"] = instance.WidgetSystemName,
+            // Draft settings must vary the output even before the layout is saved.
+            ["settings"] = instance.Settings.ToJsonString()
+        };
+
+        foreach (var parameter in context.Parameters.OrderBy(x => x.Key, StringComparer.Ordinal))
+        {
+            parameters.Add("parameter." + parameter.Key, parameter.Value);
+        }
+
+        return $"admin:dashboard:html:{Uri.EscapeDataString(context.DashboardId)}:{Uri.EscapeDataString(instance.Id)}{QueryString.Create(parameters)}";
     }
 
     /// <summary>

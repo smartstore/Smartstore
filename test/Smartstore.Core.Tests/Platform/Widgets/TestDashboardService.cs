@@ -19,8 +19,9 @@ internal sealed class TestDashboardService : DashboardService
         IMemoryCache memCache,
         IEventPublisher eventPublisher,
         IEnumerable<Lazy<IDashboardWidget, DashboardMetadata>> widgetRegistrations,
-        IEnumerable<Lazy<IDashboardLayoutProvider, DashboardMetadata>> layoutProviderRegistrations)
-        : base(appContext, memCache, eventPublisher, widgetRegistrations, layoutProviderRegistrations)
+        IEnumerable<Lazy<IDashboardLayoutProvider, DashboardMetadata>> layoutProviderRegistrations,
+        ICommonServices? services = null)
+        : base(appContext, services ?? new Moq.Mock<ICommonServices>().Object, memCache, eventPublisher, widgetRegistrations, layoutProviderRegistrations)
     {
     }
 

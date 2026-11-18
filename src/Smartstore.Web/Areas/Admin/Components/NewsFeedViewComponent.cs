@@ -4,7 +4,6 @@ using System.Net.Http.Json;
 using Smartstore.Admin.Models.Common;
 using Smartstore.Core.Web;
 using Smartstore.Core.Security;
-using Smartstore.Caching;
 
 namespace Smartstore.Admin.Components;
 
@@ -24,7 +23,7 @@ public class NewsFeedViewComponent : SmartViewComponent
         _webHelper = webHelper;
     }
 
-    public async Task<IViewComponentResult> InvokeAsync(bool refresh = false, TimeSpan? cacheDuration = null)
+    public async Task<IViewComponentResult> InvokeAsync()
     {
         if (!await Services.Permissions.AuthorizeAsync(RequiredPermission))
         {
@@ -32,42 +31,30 @@ public class NewsFeedViewComponent : SmartViewComponent
         }
 
         var lang = Services.WorkContext.WorkingLanguage;
-        var cache = cacheDuration.HasValue ? Services.Cache : NullCache.Instance;
-        var cacheKey = $"admin:newsfeed{lang.UniqueSeoCode}";
-        if (refresh)
+        FeedModel result;
+        try
         {
-            await cache.RemoveAsync(cacheKey);
-        }
+            var url = "https://smartstore.com/Plugins/NewsFeed/JsonFeed";
+            var client = _httpClientFactory.CreateClient();
 
-        var result = await cache.GetAsync(cacheKey, async ctx =>
-        {
-            if (cacheDuration.HasValue)
+            client.Timeout = TimeSpan.FromSeconds(30);
+
+            var formContent = new FormUrlEncodedContent(new KeyValuePair<string, string>[]
             {
-                ctx.ExpiresIn(cacheDuration.Value);
+                new("lang", lang.UniqueSeoCode),
+                new("ip", _webHelper.ClientInfo.IpAddress.ToString()),
+                new("modules", string.Join(',', Services.ApplicationContext.ModuleCatalog.Modules.Select(x => x.Name))),
+                new("id", Services.ApplicationContext.RuntimeInfo.ApplicationIdentifier),
+                new("auth", Services.StoreContext.CurrentStore.GetBaseUrl().TrimEnd('/'))
+            });
+
+            var response = await client.PostAsync(url, formContent);
+            if (response.StatusCode != HttpStatusCode.OK)
+            {
+                result = new FeedModel { IsError = true, ErrorMessage = response.ReasonPhrase };
             }
-
-            try
+            else
             {
-                var url = "https://smartstore.com/Plugins/NewsFeed/JsonFeed";
-                var client = _httpClientFactory.CreateClient();
-
-                client.Timeout = TimeSpan.FromSeconds(30);
-
-                var formContent = new FormUrlEncodedContent(new KeyValuePair<string, string>[]
-                {
-                    new("lang", lang.UniqueSeoCode),
-                    new("ip", _webHelper.ClientInfo.IpAddress.ToString()),
-                    new("modules", string.Join(',', Services.ApplicationContext.ModuleCatalog.Modules.Select(x => x.Name))),
-                    new("id", Services.ApplicationContext.RuntimeInfo.ApplicationIdentifier),
-                    new("auth", Services.StoreContext.CurrentStore.GetBaseUrl().TrimEnd('/'))
-                });
-
-                var response = await client.PostAsync(url, formContent);
-                if (response.StatusCode != HttpStatusCode.OK)
-                {
-                    return new FeedModel { IsError = true, ErrorMessage = response.ReasonPhrase };
-                }
-
                 var channels = await response.Content.ReadFromJsonAsync<List<NewsFeedChannelModel>>();
 
                 // Decide to what extent to show news items in each channel
@@ -100,16 +87,16 @@ public class NewsFeedViewComponent : SmartViewComponent
                     }
                 }
 
-                return new FeedModel
+                result = new FeedModel
                 {
                     NewsFeedCannels = channels
                 };
             }
-            catch (Exception ex)
-            {
-                return new FeedModel { IsError = true, ErrorMessage = ex.Message };
-            }
-        });
+        }
+        catch (Exception ex)
+        {
+            result = new FeedModel { IsError = true, ErrorMessage = ex.Message };
+        }
 
         if (!result.NewsFeedCannels.Any() && result.IsError)
         {

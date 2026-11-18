@@ -17,7 +17,7 @@ public class DashboardPaymentMethodsModel
 }
 
 /// <summary>
-/// Contains language-independent order aggregates cached per authorized store selection.
+/// Contains order aggregates per payment method for orders accessible to the current customer.
 /// </summary>
 public class DashboardPaymentMethodTotals
 {

@@ -6,10 +6,8 @@ using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Security;
 using Smartstore.Core.Web;
-using Smartstore.Core.Widgets;
 using Smartstore.Core.Widgets.Dashboard;
 using Smartstore.Engine.Modularity;
-using Smartstore.Web.Modelling;
 using Smartstore.Web.Models;
 
 namespace Smartstore.Admin.Infrastructure.Dashboard;
@@ -60,9 +58,7 @@ public sealed class PaymentMethodsDashboardWidget(
         => new
         {
             fees = settings.Fees,
-            count = settings.Count,
-            cacheDuration = CacheDuration,
-            refresh = context.Refresh
+            count = settings.Count
         };
 
     /// <inheritdoc />
@@ -83,19 +79,27 @@ public sealed class PaymentMethodsDashboardWidget(
     }
 }
 
-/// <summary>Contains the settings of the PaymentMethods dashboard widget.</summary>
+/// <summary>
+/// Contains the settings of the PaymentMethods dashboard widget.
+/// </summary>
 [LocalizedDisplay("Admin.Dashboard.PaymentMethods.")]
 public class PaymentMethodsDashboardWidgetSettings
 {
-    /// <summary>Gets or sets the maximum number of items to display.</summary>
+    /// <summary>
+    /// Gets or sets the maximum number of items to display.
+    /// </summary>
     [LocalizedDisplay("Admin.Dashboard.Widget.Count")]
     public int Count { get; set; } = 10;
 
-    /// <summary>Gets or sets the fee amount and unit for each payment provider.</summary>
+    /// <summary>
+    /// Gets or sets the fee amount and unit for each payment provider.
+    /// </summary>
     public Dictionary<string, Amount> Fees { get; set; } = new(StringComparer.Ordinal);
 }
 
-/// <summary>Validates settings of the PaymentMethods dashboard widget.</summary>
+/// <summary>
+/// Validates settings of the PaymentMethods dashboard widget.
+/// </summary>
 public class PaymentMethodsDashboardWidgetValidator : AbstractValidator<PaymentMethodsDashboardWidgetSettings>
 {
     public PaymentMethodsDashboardWidgetValidator(Localizer T)

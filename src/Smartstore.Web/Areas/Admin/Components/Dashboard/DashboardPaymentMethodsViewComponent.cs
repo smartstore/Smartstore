@@ -1,4 +1,3 @@
-using Smartstore.Caching;
 using Smartstore.Admin.Models.Dashboard;
 using Smartstore.Admin.Models.Orders;
 using Smartstore.Core.Checkout.Payment;
@@ -36,7 +35,7 @@ public class DashboardPaymentMethodsViewComponent : SmartViewComponent
     /// <summary>
     /// Builds the payment method ranking across all order dates and statuses.
     /// </summary>
-    public async Task<IViewComponentResult> InvokeAsync(IReadOnlyDictionary<string, Amount> fees = null, int count = 10, bool refresh = false, TimeSpan? cacheDuration = null)
+    public async Task<IViewComponentResult> InvokeAsync(IReadOnlyDictionary<string, Amount> fees = null, int count = 10)
     {
         if (!await Services.Permissions.AuthorizeAsync(RequiredPermission))
         {
@@ -51,37 +50,20 @@ public class DashboardPaymentMethodsViewComponent : SmartViewComponent
             StringComparer.OrdinalIgnoreCase);
 
         var authorizedStoreIds = await Services.StoreMappingService.GetAuthorizedStoreIdsAsync(nameof(Customer), Services.WorkContext.CurrentCustomer.Id);
-        var storeKey = authorizedStoreIds.Length == 0 ? "all" : string.Join("-", authorizedStoreIds.Order());
-        var cache = cacheDuration.HasValue ? Services.Cache : NullCache.Instance;
-        var cacheKey = $"admin:dashboard:paymentmethods:{storeKey}";
-
-        if (refresh)
-        {
-            await cache.RemoveAsync(cacheKey);
-        }
-
-        var totals = await cache.GetAsync(cacheKey, async ctx =>
-        {
-            if (cacheDuration.HasValue)
+        var totals = await _db.Orders
+            .AsNoTracking()
+            .ApplyCustomerFilter(authorizedStoreIds)
+            .Where(x => !x.Deleted && !string.IsNullOrEmpty(x.PaymentMethodSystemName))
+            .GroupBy(x => x.PaymentMethodSystemName)
+            .Select(group => new DashboardPaymentMethodTotals
             {
-                ctx.ExpiresIn(cacheDuration.Value);
-            }
-
-            return await _db.Orders
-                .AsNoTracking()
-                .ApplyCustomerFilter(authorizedStoreIds)
-                .Where(x => !x.Deleted && !string.IsNullOrEmpty(x.PaymentMethodSystemName))
-                .GroupBy(x => x.PaymentMethodSystemName)
-                .Select(group => new DashboardPaymentMethodTotals
-                {
-                    SystemName = group.Key,
-                    OrderCount = group.Count(),
-                    TotalAmount = group.Sum(x => x.OrderTotal),
-                    PaidAmount = group.Sum(x => x.PaymentStatusId == (int)PaymentStatus.Paid ? x.OrderTotal : 0),
-                    PaidOrderCount = group.Count(x => x.PaymentStatusId == (int)PaymentStatus.Paid)
-                })
-                .ToListAsync(HttpContext.RequestAborted);
-        });
+                SystemName = group.Key,
+                OrderCount = group.Count(),
+                TotalAmount = group.Sum(x => x.OrderTotal),
+                PaidAmount = group.Sum(x => x.PaymentStatusId == (int)PaymentStatus.Paid ? x.OrderTotal : 0),
+                PaidOrderCount = group.Count(x => x.PaymentStatusId == (int)PaymentStatus.Paid)
+            })
+            .ToListAsync(HttpContext.RequestAborted);
         var paymentMethodTotals = totals.Where(x => names.ContainsKey(x.SystemName))
             .OrderBy(x => x.SystemName, StringComparer.Ordinal).ToArray();
         var topByQuantity = paymentMethodTotals.OrderByDescending(x => x.OrderCount).Take(count);

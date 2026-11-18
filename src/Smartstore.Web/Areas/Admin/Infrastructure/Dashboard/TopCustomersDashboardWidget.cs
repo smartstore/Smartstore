@@ -4,10 +4,8 @@ using FluentValidation;
 using Smartstore.Admin.Components;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Security;
-using Smartstore.Core.Widgets;
 using Smartstore.Core.Widgets.Dashboard;
 using Smartstore.Engine.Modularity;
-using Smartstore.Web.Modelling;
 
 namespace Smartstore.Admin.Infrastructure.Dashboard;
 
@@ -15,9 +13,8 @@ namespace Smartstore.Admin.Infrastructure.Dashboard;
 /// Describes and creates the dashboard widget that renders the top customers report.
 /// </summary>
 [SystemName(SystemName)]
-public sealed class TopCustomersDashboardWidget(
-    IPermissionService permissions,
-    IValidator<TopCustomersDashboardWidgetSettings> validator) : DashboardViewComponentWidget<DashboardTopCustomersViewComponent, TopCustomersDashboardWidgetSettings>(
+public sealed class TopCustomersDashboardWidget(IPermissionService permissions, IValidator<TopCustomersDashboardWidgetSettings> validator)
+    : DashboardViewComponentWidget<DashboardTopCustomersViewComponent, TopCustomersDashboardWidgetSettings>(
         permissions,
         DashboardTopCustomersViewComponent.RequiredPermission,
         validator)
@@ -51,19 +48,25 @@ public sealed class TopCustomersDashboardWidget(
 
     /// <inheritdoc />
     protected override object GetWidgetArguments(DashboardWidgetContext context, DashboardWidgetInstance instance, TopCustomersDashboardWidgetSettings settings)
-        => new { count = settings.Count, cacheDuration = CacheDuration, refresh = context.Refresh };
+        => new { count = settings.Count };
 }
 
-/// <summary>Contains the settings of the TopCustomers dashboard widget.</summary>
+/// <summary>
+/// Contains the settings of the TopCustomers dashboard widget.
+/// </summary>
 [LocalizedDisplay("Admin.Dashboard.Widget.")]
 public class TopCustomersDashboardWidgetSettings
 {
-    /// <summary>Gets or sets the maximum number of items to display.</summary>
+    /// <summary>
+    /// Gets or sets the maximum number of items to display.
+    /// </summary>
     [LocalizedDisplay("*Count")]
     public int Count { get; set; } = 7;
 }
 
-/// <summary>Validates settings of the TopCustomers dashboard widget.</summary>
+/// <summary>
+/// Validates settings of the TopCustomers dashboard widget.
+/// </summary>
 public class TopCustomersDashboardWidgetValidator : AbstractValidator<TopCustomersDashboardWidgetSettings>
 {
     public TopCustomersDashboardWidgetValidator()
