@@ -227,6 +227,56 @@ public class IconCacheLifecycleTests
     }
 
     [Test]
+    public async Task Recovery_Releases_Index_Lock_And_Preserves_Parallel_Registrations()
+    {
+        Write(Current);
+        var lifecycle = Create();
+        using var entered = new ManualResetEventSlim();
+        using var release = new ManualResetEventSlim();
+        _recoveries[lifecycle]
+            .Setup(x => x.GetCurrentFiles(It.IsAny<IconCatalog>(), It.IsAny<IReadOnlySet<string>>()))
+            .Returns(() =>
+            {
+                entered.Set();
+                if (!release.Wait(TimeSpan.FromSeconds(10)))
+                {
+                    throw new TimeoutException("The test did not release recovery.");
+                }
+
+                return new[] { Artifact() };
+            });
+
+        var first = Task.Run(() => lifecycle.TrackCacheFileAsync(Artifact(), new IconCatalog(Unchanged)));
+        Task second = Task.CompletedTask;
+        try
+        {
+            Assert.That(entered.Wait(TimeSpan.FromSeconds(5)), Is.True);
+
+            // Stale requests must reach the index lock and fail while recovery is still blocked.
+            using var changed = new CancellationTokenSource();
+            changed.Cancel();
+            var stale = lifecycle.TrackCacheFileAsync(Artifact(), new IconCatalog(new CancellationChangeToken(changed.Token)));
+            Assert.ThrowsAsync<IOException>(async () => await stale.WaitAsync(TimeSpan.FromSeconds(2)));
+
+            // This file appeared after the recovery snapshot. Its registration must survive.
+            Write(Old);
+            second = lifecycle.TrackCacheFileAsync(Artifact(Old, "hugeicons", "rounded"), new IconCatalog(Unchanged));
+        }
+        finally
+        {
+            release.Set();
+            await Task.WhenAll(first, second);
+        }
+
+        await lifecycle.PendingCleanup;
+        _recoveries[lifecycle].Verify(x => x.GetCurrentFiles(It.IsAny<IconCatalog>(), It.IsAny<IReadOnlySet<string>>()), Times.Once);
+        using var index = ReadIndex();
+        Assert.That(index.RootElement.GetProperty("currentFiles").EnumerateArray().Select(x => x.GetProperty("file").GetString()),
+            Is.EquivalentTo(new[] { Current, Old }));
+        Assert.That(index.RootElement.GetProperty("obsoleteFiles").EnumerateObject(), Is.Empty);
+    }
+
+    [Test]
     public void Refresh_Keeps_Unchanged_Watches_To_Avoid_Losing_Late_Notifications()
     {
         Directory.CreateDirectory(Path.Combine(_sources.Root, "hugeicons"));

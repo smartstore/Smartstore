@@ -19,6 +19,7 @@ public sealed class IconCacheLifecycle : IIconCacheLifecycle, IAsyncDisposable
     private static readonly TimeSpan Retention = TimeSpan.FromMinutes(10);
     private static readonly TimeSpan ScanInterval = TimeSpan.FromMinutes(1);
     private readonly AsyncLock _gate = new();
+    private readonly AsyncLock _recoveryGate = new();
     private readonly Lock _watchLock = new();
     private readonly List<(string Filter, IChangeToken Token, IconChange Change)> _watches = [];
     private SourceChangeToken _sourceToken;
@@ -141,60 +142,22 @@ public sealed class IconCacheLifecycle : IIconCacheLifecycle, IAsyncDisposable
     {
         Guard.NotNull(artifact);
         Guard.NotNull(catalog);
+        cancelToken.ThrowIfCancellationRequested();
 
         var sourceSnapshot = catalog.ChangeToken;
         ValidateArtifact(artifact);
-        using (await _gate.LockAsync(cancelToken: cancelToken))
+        await EnsureIndexAsync(catalog, cancelToken);
+
+        using (await _gate.LockAsync())
         {
             ObjectDisposedException.ThrowIf(_disposed, this);
             EnsureCurrent(sourceSnapshot);
-            _cache.GetDirectory(string.Empty).Create();
-            var indexWasMissing = !_cache.FileExists("index.json");
-            if (_index == null || indexWasMissing)
+            if (_validatedSources != sourceSnapshot)
             {
-                _index = LoadIndex();
-                _validatedSources = null;
+                throw new IOException("The icon cache index changed during registration. Retry with the current catalog.");
             }
 
             var changed = false;
-
-            // Reconcile disk only after restart, index loss, or observed source changes.
-            // Never infer obsolescence from an empty in-memory catalog.
-            if (_validatedSources != sourceSnapshot)
-            {
-                var files = EnumerateArtifacts().ToArray();
-                var names = files.Select(x => Path.GetRelativePath(_cache.Root, x.PhysicalPath).Replace('\\', '/')).ToHashSet(StringComparer.Ordinal);
-                var current = _recovery.GetCurrentFiles(catalog, names).ToList();
-
-                foreach (var item in current)
-                {
-                    ValidateArtifact(item);
-                }
-
-                EnsureCurrent(sourceSnapshot);
-                var currentNames = current.Select(x => x.File).ToHashSet(StringComparer.Ordinal);
-                var now = DateTimeOffset.UtcNow;
-
-                foreach (var file in files)
-                {
-                    var name = Path.GetRelativePath(_cache.Root, file.PhysicalPath).Replace('\\', '/');
-                    if (currentNames.Contains(name))
-                    {
-                        _index.ObsoleteFiles.Remove(name);
-                    }
-                    else
-                    {
-                        _index.ObsoleteFiles.TryAdd(name, _index.Recovered ? now : file.LastModified);
-                    }
-                }
-
-                _index.CurrentFiles = current;
-                _index.Recovered = true;
-                _validatedSources = sourceSnapshot;
-                changed = true;
-            }
-
-            EnsureCurrent(sourceSnapshot);
             var previous = _index.CurrentFiles.FirstOrDefault(x => SameSelection(x, artifact));
             if (previous != artifact)
             {
@@ -223,7 +186,7 @@ public sealed class IconCacheLifecycle : IIconCacheLifecycle, IAsyncDisposable
                 {
                     using (await _gate.LockAsync())
                     {
-                        if (_disposed || sourceSnapshot.HasChanged)
+                        if (_disposed || _validatedSources != sourceSnapshot || sourceSnapshot.HasChanged)
                         {
                             return;
                         }
@@ -238,6 +201,88 @@ public sealed class IconCacheLifecycle : IIconCacheLifecycle, IAsyncDisposable
                         }
                     }
                 });
+            }
+        }
+    }
+
+    private async Task EnsureIndexAsync(IconCatalog catalog, CancellationToken cancelToken)
+    {
+        var snapshot = catalog.ChangeToken;
+        using (await _gate.LockAsync())
+        {
+            ObjectDisposedException.ThrowIf(_disposed, this);
+            EnsureCurrent(snapshot);
+            if (_validatedSources == snapshot && _cache.FileExists("index.json"))
+            {
+                return;
+            }
+        }
+
+        // Only one request rebuilds the index. Other requests reuse its result.
+        using (await _recoveryGate.LockAsync())
+        {
+            IconCacheIndex index;
+            using (await _gate.LockAsync())
+            {
+                ObjectDisposedException.ThrowIf(_disposed, this);
+                EnsureCurrent(snapshot);
+                if (_validatedSources == snapshot && _cache.FileExists("index.json"))
+                {
+                    return;
+                }
+
+                _cache.GetDirectory(string.Empty).Create();
+                if (_index == null || !_cache.FileExists("index.json"))
+                {
+                    _index = LoadIndex();
+                }
+
+                index = _index;
+                _validatedSources = null;
+            }
+
+            // Directory reads and revision calculation do not hold the index lock.
+            var files = EnumerateArtifacts().ToDictionary(
+                file => Path.GetRelativePath(_cache.Root, file.PhysicalPath).Replace('\\', '/'),
+                file => file.LastModified,
+                StringComparer.Ordinal);
+            var current = _recovery.GetCurrentFiles(catalog, files.Keys.ToHashSet(StringComparer.Ordinal)).ToList();
+            foreach (var item in current)
+            {
+                ValidateArtifact(item);
+            }
+
+            var currentNames = current.Select(x => x.File).ToHashSet(StringComparer.Ordinal);
+
+            using (await _gate.LockAsync())
+            {
+                cancelToken.ThrowIfCancellationRequested();
+                ObjectDisposedException.ThrowIf(_disposed, this);
+                EnsureCurrent(snapshot);
+
+                // Never overwrite state replaced while the calculation was running.
+                if (_index != index)
+                {
+                    throw new IOException("The icon cache index changed during recovery. Retry with the current catalog.");
+                }
+
+                var now = DateTimeOffset.UtcNow;
+                foreach (var file in files)
+                {
+                    if (currentNames.Contains(file.Key))
+                    {
+                        index.ObsoleteFiles.Remove(file.Key);
+                    }
+                    else
+                    {
+                        index.ObsoleteFiles.TryAdd(file.Key, index.Recovered ? now : file.Value);
+                    }
+                }
+
+                index.CurrentFiles = current;
+                index.Recovered = true;
+                await SaveIndexAsync();
+                _validatedSources = snapshot;
             }
         }
     }
@@ -413,7 +458,11 @@ public sealed class IconCacheLifecycle : IIconCacheLifecycle, IAsyncDisposable
             _sourceToken?.Dispose();
         }
 
-        _ownedCacheRoot?.Dispose();
+        // Recovery reads files outside the index lock. Let it finish before closing their root.
+        using (await _recoveryGate.LockAsync())
+        {
+            _ownedCacheRoot?.Dispose();
+        }
     }
 
     // Active watchers set one flag. Passive providers are checked at most once a second.
