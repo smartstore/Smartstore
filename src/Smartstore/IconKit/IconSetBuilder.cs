@@ -1,3 +1,5 @@
+using Smartstore.IconKit.Sources;
+
 namespace Smartstore.IconKit;
 
 /// <summary>

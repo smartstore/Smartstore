@@ -1,3 +1,5 @@
+using Smartstore.IconKit.Cache;
+using Smartstore.IconKit.Sprites;
 using System.Collections.Concurrent;
 using System.Collections.Frozen;
 using System.IO.Compression;
@@ -8,18 +10,23 @@ using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Primitives;
 using Smartstore.Json;
 
-namespace Smartstore.IconKit;
+namespace Smartstore.IconKit.Sources;
 
 /// <summary>
-/// Holds library manifests and demand-loaded indexes for one file watcher generation.
-/// No file objects, SVG contents or open archive handles are retained.
+/// Holds the library and kit data for one version of the icon source files.
+/// Indexes are loaded when needed; SVG contents and open ZIP files are not kept here.
 /// </summary>
-internal sealed class IconCatalog
+public sealed class IconCatalog
 {
+    internal IconCatalog(IChangeToken changeToken)
+    {
+        ChangeToken = changeToken;
+    }
+
     /// <summary>
     /// Holds the small browser index once per catalog generation, without request-specific URLs.
     /// </summary>
-    internal Lazy<(string Revision, byte[] Content)> BrowserManifest;
+    internal Lazy<IconKitManifest> BrowserManifest;
 
     /// <summary>
     /// Gets definitions from kits.json, without loading artwork.
@@ -85,15 +92,39 @@ internal sealed class IconCatalog
     /// <summary>
     /// Gets the token that marks this generation stale when source files change.
     /// </summary>
-    internal IChangeToken ChangeToken { get; private set; }
+    internal IChangeToken ChangeToken { get; }
+
+    internal Library SelectLibrary(string name)
+        => name == null ? DefaultLibrary : Libraries.GetValueOrDefault(name);
+
+    internal Variant SelectVariant(Library library, string name, IconKit kit = null)
+    {
+        if (library == null)
+        {
+            return null;
+        }
+
+        // A kit's variant is scoped to its effective default library, even when an
+        // explicit selector chooses a different library with a similarly named variant.
+        if (name == null && kit?.DefaultVariant != null
+            && library == SelectLibrary(kit.DefaultLibrary))
+        {
+            name = kit.DefaultVariant;
+        }
+
+        // The global variant override belongs only to the default library. Applying it to
+        // another library could select an unrelated style or a variant that does not exist.
+        name ??= library == DefaultLibrary ? DefaultVariant ?? library.Manifest.DefaultVariant : library.Manifest.DefaultVariant;
+        return library.Variants.GetValueOrDefault(name);
+    }
 
     /// <summary>
     /// Groups a manifest with independently deferred mappings and search metadata.
     /// </summary>
     internal sealed class Library
     {
-        private readonly Lazy<Dictionary<string, IconMapping>> _mapping;
-        private readonly Lazy<Dictionary<string, string[]>> _tags;
+        private Lazy<Dictionary<string, IconMapping>> _mapping;
+        private Lazy<Dictionary<string, string[]>> _tags;
 
         /// <summary>
         /// Registers deferred JSON reads without opening either file.
@@ -104,6 +135,42 @@ internal sealed class IconCatalog
         {
             _mapping = new(() => LoadMapping(files, root));
             _tags = new(() => LoadTags(files, root));
+        }
+
+        internal Library Refresh(IFileProvider files, IconChange[] changes)
+        {
+            if (changes.Length == 0)
+            {
+                return this;
+            }
+
+            var copy = new Library(files, Manifest.SystemName) { Manifest = Manifest };
+            if (!changes.Any(x => x.Kind == IconChangeKind.Mapping))
+            {
+                copy._mapping = _mapping;
+            }
+
+            if (!changes.Any(x => x.Kind == IconChangeKind.SearchMetadata))
+            {
+                copy._tags = _tags;
+            }
+
+            // Keep archive indexes and source fingerprints for unaffected variants. Resolution
+            // chains must point at this generation's copies so fallbacks see changed variants.
+            var variants = Variants.Values.Distinct().ToDictionary(x => x, x =>
+                x.Copy(changes.Any(c => c.Kind == IconChangeKind.VariantSources && c.Variant == x.Manifest.Name)));
+
+            foreach (var pair in Variants)
+            {
+                copy.Variants.Add(pair.Key, variants[pair.Value]);
+            }
+
+            foreach (var pair in variants)
+            {
+                pair.Value.ResolutionOrder = pair.Key.ResolutionOrder.Select(x => variants[x]).ToArray();
+            }
+
+            return copy;
         }
 
         /// <summary>
@@ -163,6 +230,9 @@ internal sealed class IconCatalog
                 .Concat(_archive.Value.Keys)
                 .ToFrozenSet(StringComparer.Ordinal));
         }
+
+        internal Variant Copy(bool changed)
+            => changed ? new Variant(_files, _root, Manifest, _manifestRevision) : (Variant)MemberwiseClone();
 
         /// <summary>
         /// Gets the native grid and paint settings for this variant.
@@ -275,7 +345,9 @@ internal sealed class IconCatalog
                 var entry = _zip.GetEntry(info.Name + ".svg");
                 if (entry == null || entry.Crc32 != source.Checksum || entry.Length > IconSvgParser.MaxLength)
                 {
-                    return null;
+                    // The source was present when this revision was planned. Silently omitting it
+                    // would publish an incomplete sprite under the previous content fingerprint.
+                    throw new IOException("Icon archive changed during lookup. Retry after catalog reload.");
                 }
 
                 using var svgStream = entry.Open();
@@ -405,32 +477,23 @@ internal sealed class IconCatalog
     /// <param name="files">The icon source directory file provider.</param>
     /// <param name="providers">Application-wide contributions from installed modules.</param>
     /// <param name="appFiles">Application content files used by provider SVG file contributions.</param>
+    /// <param name="changeToken">The watched source generation.</param>
+    /// <param name="previous">The previous catalog, whose unchanged source indexes can be reused.</param>
+    /// <param name="changes">The observed source changes since the previous catalog.</param>
     /// <returns>A manifest snapshot with its change token established before source reads.</returns>
-    internal static IconCatalog Load(IFileProvider files, IEnumerable<IIconProvider> providers, IFileProvider appFiles)
+    internal static IconCatalog Load(IFileProvider files, IEnumerable<IIconProvider> providers, IFileProvider appFiles, IChangeToken changeToken, IconCatalog previous, IReadOnlyCollection<IconChange> changes)
     {
-        // Watch before reading so a change during any deferred load invalidates this generation.
-        // Watch source locations explicitly: generated files in App_Data/.cache/icons/kits must never
-        // invalidate their own catalog. Wildcards still discover new libraries and variants.
-        var catalog = new IconCatalog
-        {
-            ChangeToken = new CompositeChangeToken(new[]
-            {
-                files.Watch("config.json"),
-                files.Watch("kits.json"),
-                files.Watch("collections.json"),
-                files.Watch("*/library.json"),
-                files.Watch("*/mapping.json"),
-                files.Watch("*/metadata.json"),
-                files.Watch("*/*/icons.zip"),
-                files.Watch("*/*/user/*.svg"),
-                files.Watch("*/*/icons/*.svg")
-            })
-        };
+        var catalog = new IconCatalog(changeToken);
+        var reuse = previous != null && changes.Count > 0
+            && !changes.Any(x => x.Kind is IconChangeKind.GlobalConfiguration or IconChangeKind.LibraryManifest);
         using var config = ReadJson(files, "config.json", true);
         var installed = new Dictionary<string, Library>(StringComparer.OrdinalIgnoreCase);
         foreach (var dir in files.GetDirectoryContents(string.Empty).Where(x => x.IsDirectory))
         {
-            var library = LoadLibrary(files, dir.Name);
+            var old = reuse ? previous.Libraries.GetValueOrDefault(dir.Name) : null;
+            var library = old != null && old.Manifest.SystemName == dir.Name && !old.IsProvider
+                ? old.Refresh(files, changes.Where(x => x.Library == dir.Name).ToArray())
+                : LoadLibrary(files, dir.Name);
             if (library != null)
             {
                 installed.Add(dir.Name, library);
@@ -613,8 +676,8 @@ internal sealed class IconCatalog
             var iconKit = new IconKit(kit.Key, names, libraryName, variantName, sources, icon, showInPicker, areas, displayName);
             foreach (var address in iconKit.SourceAddresses.Values)
             {
-                var entryLibrary = IconService.SelectLibrary(catalog, address.Library ?? libraryName);
-                if (entryLibrary == null || IconService.SelectVariant(catalog, entryLibrary, address.Variant, iconKit) == null)
+                var entryLibrary = catalog.SelectLibrary(address.Library ?? libraryName);
+                if (entryLibrary == null || catalog.SelectVariant(entryLibrary, address.Variant, iconKit) == null)
                 {
                     throw new InvalidDataException($"Unknown library or variant in icon kit '{kit.Key}': '{address}'.");
                 }
@@ -633,6 +696,21 @@ internal sealed class IconCatalog
                 foreach (var area in kit.Areas)
                 {
                     catalog.ConceptKits.TryAdd((area, concept), kit);
+                }
+            }
+        }
+
+        if (reuse)
+        {
+            // Rebind retained plans to the new token; their actual source variants are unchanged.
+            foreach (var entry in previous.VariantSprites)
+            {
+                var parts = entry.Key.Split(':');
+                if (entry.Value.IsValueCreated && !changes.Any(x => x.Kind == IconChangeKind.VariantSources
+                    && x.Library == parts[0] && x.Variant == parts[1]))
+                {
+                    var retained = entry.Value.Value.Rebind(catalog);
+                    catalog.VariantSprites.TryAdd(entry.Key, new Lazy<IconSprite>(() => retained));
                 }
             }
         }

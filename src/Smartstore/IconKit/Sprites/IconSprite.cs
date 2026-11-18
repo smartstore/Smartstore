@@ -1,3 +1,4 @@
+using Smartstore.IconKit.Sources;
 using System.Globalization;
 using System.Security.Cryptography;
 using System.Text;
@@ -5,20 +6,23 @@ using System.Text.RegularExpressions;
 using System.Xml;
 using System.Xml.Linq;
 
-namespace Smartstore.IconKit;
+namespace Smartstore.IconKit.Sprites;
 
 /// <summary>
 /// Captures source descriptors and streams sprites for both conceptual kits and complete variants.
 /// </summary>
 internal sealed class IconSprite
 {
-    private readonly IconCatalog _catalog;
+    private IconCatalog _catalog;
     private readonly List<(string Concept, IconInfo Info, IconCatalog.Variant Variant, IconCatalog.Source Source)> _entries = [];
 
     /// <summary>
     /// Gets the output revision, including mapping, membership, source and preparation changes.
     /// </summary>
     internal string Revision { get; }
+    internal string LibraryName { get; }
+    internal string VariantName { get; }
+
 
     /// <summary>
     /// Resolves sources and computes a stable revision without parsing their drawing.
@@ -32,6 +36,8 @@ internal sealed class IconSprite
         string kit, IEnumerable<(string Concept, IconInfo Info, IconCatalog.Variant Variant)> entries)
     {
         _catalog = catalog;
+        LibraryName = library.Manifest.SystemName;
+        VariantName = variant.Manifest.Name;
         // Bump the sprite version whenever symbol preparation changes.
         var fingerprint = new StringBuilder("sprite-9:").Append(IconSvgParser.Revision);
         // System identities prevent ambiguous flat filenames and distinguish empty kits.
@@ -60,6 +66,13 @@ internal sealed class IconSprite
         // This is a cache identity, not a security token.
         var hash = SHA256.HashData(Encoding.UTF8.GetBytes(fingerprint.ToString()));
         Revision = Convert.ToHexStringLower(hash.AsSpan(0, 12));
+    }
+
+    internal IconSprite Rebind(IconCatalog catalog)
+    {
+        var copy = (IconSprite)MemberwiseClone();
+        copy._catalog = catalog;
+        return copy;
     }
 
     /// <summary>

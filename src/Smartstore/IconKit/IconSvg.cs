@@ -1,5 +1,6 @@
 #nullable enable
 
+using Smartstore.IconKit.Sources;
 using System.Collections.Frozen;
 using System.Globalization;
 using System.Xml.Linq;
@@ -119,6 +120,21 @@ public sealed class IconSvg
 /// </summary>
 public sealed class IconInfo
 {
+    internal static IconInfo Create(IconCatalog.Library library, IconCatalog.Variant variant, string name, bool includeTags = true) => new()
+    {
+        Address = new IconAddress(name, library.Manifest.ShortName ?? library.Manifest.SystemName, variant.Manifest.ShortName ?? variant.Manifest.Name).ToString(),
+        LibraryName = library.Manifest.SystemName,
+        LibraryShortName = library.Manifest.ShortName,
+        VariantName = variant.Manifest.Name,
+        SupportsStrokeScaling = variant.Manifest.SupportsStrokeScaling,
+        IsDuotone = variant.Manifest.IsDuotone,
+        VariantShortName = variant.Manifest.ShortName,
+        Name = name,
+        DeferredTags = includeTags
+            ? new Lazy<string[]>(() => library.Tags.TryGetValue(name, out var tags) ? (string[])tags.Clone() : [])
+            : null
+    };
+
     private string[]? _tags;
 
     /// <summary>
@@ -229,6 +245,18 @@ public sealed class IconInfo
 /// </summary>
 public sealed class IconSearchQuery
 {
+    // Applies the same word matching and pagination to library names and resolved kit entries.
+    // Each word may match a different field; only the requested page needs full icon metadata.
+    internal (int TotalCount, T[] Items) FindPage<T>(IReadOnlyCollection<T> entries,
+        Func<T, string, bool> matches, Func<T, string> orderBy = null)
+    {
+        var words = (Term ?? string.Empty).Split((char[])null, StringSplitOptions.RemoveEmptyEntries);
+        var filtered = words.Length == 0 ? entries : entries.Where(entry => words.All(word => matches(entry, word))).ToArray();
+        IEnumerable<T> ordered = orderBy == null ? filtered : filtered.OrderBy(orderBy, StringComparer.Ordinal);
+        return (filtered.Count, ordered.Skip(Skip).Take(Take).ToArray());
+    }
+
+
     /// <summary>
     /// Gets or sets words matched against the name and tags.
     /// </summary>

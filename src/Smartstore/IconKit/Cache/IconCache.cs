@@ -1,14 +1,17 @@
 using System.Runtime.CompilerServices;
 using Smartstore.Caching;
 
-namespace Smartstore.IconKit;
+namespace Smartstore.IconKit.Cache;
 
-/// <summary>
-/// Uses the configured composite cache, including its distributed store when available.
-/// </summary>
-/// <param name="cache">The composite cache manager responsible for local and optional distributed storage.</param>
-public sealed class IconCache(ICacheManager cache) : IIconCache
+public sealed class IconCache : IIconCache
 {
+    private readonly ICacheManager _cache;
+
+    public IconCache(ICacheManager cache)
+    {
+        _cache = cache;
+    }
+
     private const string _keyPrefix = "icons:svg:";
 
     /// <inheritdoc />
@@ -16,7 +19,7 @@ public sealed class IconCache(ICacheManager cache) : IIconCache
     {
         // Inspect the backing cache on demand instead of maintaining a second index
         // that could drift after expiration, eviction or writes from other nodes.
-        await foreach (var storedKey in cache.KeysAsync(BuildCacheKey("*")).WithCancellation(cancelToken))
+        await foreach (var storedKey in _cache.KeysAsync(BuildCacheKey("*")).WithCancellation(cancelToken))
         {
             var key = storedKey[_keyPrefix.Length..];
             // The revision can contain colons of its own. Its boundary is the first
@@ -35,7 +38,7 @@ public sealed class IconCache(ICacheManager cache) : IIconCache
     {
         cancelToken.ThrowIfCancellationRequested();
         // IconSvg is immutable, so all levels may safely return their stored instance.
-        return await cache.GetAsync<IconSvg>(BuildCacheKey(key));
+        return await _cache.GetAsync<IconSvg>(BuildCacheKey(key));
     }
 
     /// <inheritdoc />
@@ -46,14 +49,14 @@ public sealed class IconCache(ICacheManager cache) : IIconCache
 
         // Source changes produce new keys rather than rewriting old revisions. Expiration
         // eventually removes those obsolete entries, including from the distributed store.
-        await cache.PutAsync(BuildCacheKey(key), svg, new CacheEntryOptions().ExpiresIn(TimeSpan.FromDays(7)));
+        await _cache.PutAsync(BuildCacheKey(key), svg, new CacheEntryOptions().ExpiresIn(TimeSpan.FromDays(7)));
     }
 
     /// <inheritdoc />
     public async Task RemoveAsync(string key, CancellationToken cancelToken = default)
     {
         cancelToken.ThrowIfCancellationRequested();
-        await cache.RemoveAsync(BuildCacheKey(key));
+        await _cache.RemoveAsync(BuildCacheKey(key));
     }
 
     /// <inheritdoc />
@@ -67,13 +70,8 @@ public sealed class IconCache(ICacheManager cache) : IIconCache
 
         // Validate before composing a wildcard pattern; the selector must not inject wildcards.
         // Use the canonical selector supplied by the service, not a second resolution mechanism.
-        await cache.RemoveByPatternAsync(BuildCacheKey(libraryName.ToLowerInvariant() + ":*"));
+        await _cache.RemoveByPatternAsync(BuildCacheKey(libraryName.ToLowerInvariant() + ":*"));
     }
 
-    /// <summary>
-    /// Adds the cache namespace to an icon key.
-    /// </summary>
-    /// <param name="key">The icon cache key.</param>
-    /// <returns>The prefixed cache key.</returns>
     private static string BuildCacheKey(string key) => _keyPrefix + key;
 }

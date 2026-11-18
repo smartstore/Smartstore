@@ -7,9 +7,6 @@ using Smartstore.IO;
 
 namespace Smartstore.Bootstrapping;
 
-/// <summary>
-/// Integrates IconKit with Smartstore's application data directory and endpoint pipeline.
-/// </summary>
 internal class IconKitStarter : StarterBase
 {
     /// <inheritdoc />

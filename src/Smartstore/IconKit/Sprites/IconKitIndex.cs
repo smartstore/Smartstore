@@ -1,10 +1,12 @@
-namespace Smartstore.IconKit;
+using Smartstore.IconKit.Sources;
+
+namespace Smartstore.IconKit.Sprites;
 
 /// <summary>
 /// Indexes conceptual memberships for one library/variant and defers source revisions per kit.
 /// Owned by the catalog generation; contains no live files or SVG bodies.
 /// </summary>
-internal sealed class IconKitIndex
+public sealed class IconKitIndex
 {
     // A kit can remain usable even when some mapped sources are missing.
     // Check once per generation, not once per rendered icon.
@@ -31,7 +33,11 @@ internal sealed class IconKitIndex
     /// <param name="catalog">The owning source generation.</param>
     /// <param name="library">The selected library.</param>
     /// <param name="variant">The selected variant.</param>
-    internal IconKitIndex(IconCatalog catalog, IconCatalog.Library library, IconCatalog.Variant variant)
+    internal IconKitIndex(
+        IconCatalog catalog,
+        IconCatalog.Library library,
+        IconCatalog.Variant variant,
+        IIconResolver resolver)
     {
         foreach (var kit in catalog.Kits.Values)
         {
@@ -41,18 +47,21 @@ internal sealed class IconKitIndex
                 // with alternate defaults. Ordinary concepts still use the selected mapping.
                 var address = kit.SourceAddresses.GetValueOrDefault(concept);
                 var pinned = !address.IsEmpty;
-                var entryLibrary = pinned ? IconService.SelectLibrary(catalog, address.Library ?? kit.DefaultLibrary) : library;
-                var entryVariant = pinned ? IconService.SelectVariant(catalog, entryLibrary, address.Variant, kit) : variant;
-                var resolved = IconService.Resolve(catalog, entryLibrary, entryVariant, pinned ? address.Name : concept, pinned, indexOnly: true);
+                var entryLibrary = pinned ? catalog.SelectLibrary(address.Library ?? kit.DefaultLibrary) : library;
+                var entryVariant = pinned ? catalog.SelectVariant(entryLibrary, address.Variant, kit) : variant;
+                var resolved = resolver.Resolve(catalog, new IconAddress(pinned ? address.Name : concept,
+                    entryLibrary.Manifest.SystemName, entryVariant.Manifest.Name, pinned), indexOnly: true);
                 if (resolved is { } source)
                 {
                     var presentation = pinned ? kit.SourcePresentations.GetValueOrDefault(concept) : default;
-                    var sourceMapping = source.Mapping with
+                    var sourceMapping = new IconMapping(source.Name, source.Transform, source.StrokeScale) with
                     {
-                        Transform = presentation.Apply(source.Mapping.Transform),
-                        StrokeScale = presentation.StrokeScale ?? source.Mapping.StrokeScale
+                        Transform = presentation.Apply(source.Transform),
+                        StrokeScale = presentation.StrokeScale ?? source.StrokeScale
                     };
-                    return new Entry(concept, source.Library, source.Variant, sourceMapping, pinned);
+                    var sourceLibrary = catalog.SelectLibrary(source.LibraryName);
+                    var sourceVariant = catalog.SelectVariant(sourceLibrary, source.VariantName);
+                    return new Entry(concept, sourceLibrary, sourceVariant, sourceMapping, pinned);
                 }
 
                 // Retain missing entries for resolution; sprite and browser output skip them.
@@ -103,7 +112,7 @@ internal sealed class IconKitIndex
         /// </summary>
         internal IconInfo CreateInfo()
         {
-            var info = IconService.CreateInfo(Library, Variant, Mapping.Name, false);
+            var info = IconInfo.Create(Library, Variant, Mapping.Name, false);
             info.Transform = Mapping.Transform;
             info.StrokeScale = Mapping.StrokeScale;
             return info;

@@ -4,7 +4,7 @@ using System.Text;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Primitives;
 
-namespace Smartstore.IconKit;
+namespace Smartstore.IconKit.Sources;
 
 /// <summary>
 /// A deferred provider drawing. File values are relative to the application's content root.

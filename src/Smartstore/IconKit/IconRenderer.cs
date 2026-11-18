@@ -4,13 +4,17 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Smartstore.IconKit;
 
-/// <summary>
-/// Owns SVG markup and presentation for both external symbols and inline sources.
-/// </summary>
-/// <param name="icons">Provides validated inline payloads for icons outside kits.</param>
-/// <param name="kits">Selects a versioned external symbol without generating its sprite.</param>
-public sealed partial class IconRenderer(IIconService icons, IIconKitService kits) : IIconRenderer
+public sealed partial class IconRenderer : IIconRenderer
 {
+    private readonly IIconService _icons;
+    private readonly IIconKitService _kits;
+
+    public IconRenderer(IIconService icons, IIconKitService kits)
+    {
+        _icons = icons;
+        _kits = kits;
+    }
+
     /// <inheritdoc />
     public async Task<TagBuilder> RenderAsync(IconInfo icon, IconPresentation presentation = default, IconOptions options = null, CancellationToken cancelToken = default)
     {
@@ -19,7 +23,7 @@ public sealed partial class IconRenderer(IIconService icons, IIconKitService kit
         var missing = icon == null;
         if (missing)
         {
-            icon = await icons.GetIconAsync("system:not-found!/outline", area: area, cancelToken: cancelToken);
+            icon = await _icons.GetIconAsync("system:not-found!/outline", area: area, cancelToken: cancelToken);
             if (icon == null)
             {
                 return null;
@@ -37,7 +41,7 @@ public sealed partial class IconRenderer(IIconService icons, IIconKitService kit
         // Presentation overrides retain the original kit symbol.
         var reference = options?.ForceInline == true
             ? null
-            : kits.GetReference(icon);
+            : _kits.GetReference(icon);
         var svg = new TagBuilder("svg");
         if (reference != null)
         {
@@ -48,7 +52,7 @@ public sealed partial class IconRenderer(IIconService icons, IIconKitService kit
         }
         else
         {
-            var source = await icons.GetSvgAsync(icon, cancelToken);
+            var source = await _icons.GetSvgAsync(icon, cancelToken);
             if (source == null)
             {
                 // Never recurse if the system placeholder itself is unavailable.
@@ -172,7 +176,7 @@ public sealed partial class IconRenderer(IIconService icons, IIconKitService kit
     /// <inheritdoc />
     public async Task<TagBuilder> RenderAsync(IconExpression expression, IconOptions options = null, CancellationToken cancelToken = default)
     {
-        var icon = await icons.GetIconAsync(expression.Address, area: options?.Area, cancelToken: cancelToken);
+        var icon = await _icons.GetIconAsync(expression.Address, area: options?.Area, cancelToken: cancelToken);
         if (icon == null && options?.RequestedName == null)
         {
             options = options?.Clone() ?? new IconOptions();

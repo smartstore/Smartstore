@@ -1,6 +1,6 @@
 #nullable enable
 
-namespace Smartstore.IconKit;
+namespace Smartstore.IconKit.Cache;
 
 /// <summary>
 /// Caches SVG payloads under canonical-address:revision keys. Revisions are not part of persistent icon addresses.

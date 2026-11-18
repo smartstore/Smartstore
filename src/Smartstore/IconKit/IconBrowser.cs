@@ -1,19 +1,43 @@
+using Smartstore.IconKit.Cache;
+using Smartstore.IconKit.Sources;
+using Smartstore.IconKit.Sprites;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Options;
 
 namespace Smartstore.IconKit;
 
-/// <summary>
-/// Adapts kit and library operations to picker results without owning search or sprite generation.
-/// </summary>
-/// <param name="icons">Provides the shared catalog, library search and variant sprites.</param>
-/// <param name="kits">Provides kit search and sprite generation.</param>
-/// <param name="httpContextAccessor">Provides the current request path base.</param>
-public sealed class IconBrowser(IconService icons, IconKitService kits, IHttpContextAccessor httpContextAccessor) : IIconBrowser
+public sealed class IconBrowser : IIconBrowser
 {
+    private readonly IIconCatalogProvider _catalogProvider;
+    private readonly IIconKitService _kits;
+    private readonly IIconService _icons;
+    private readonly IIconLibrarySpriteService _librarySprites;
+    private readonly IIconCacheLifecycle _lifecycle;
+    private readonly IconKitOptions _options;
+    private readonly IHttpContextAccessor _httpContextAccessor;
+
+    public IconBrowser(
+        IIconCatalogProvider catalogProvider,
+        IIconKitService kits,
+        IIconService icons,
+        IIconLibrarySpriteService librarySprites,
+        IIconCacheLifecycle lifecycle,
+        IOptions<IconKitOptions> options,
+        IHttpContextAccessor httpContextAccessor)
+    {
+        _catalogProvider = catalogProvider;
+        _kits = kits;
+        _icons = icons;
+        _librarySprites = librarySprites;
+        _lifecycle = lifecycle;
+        _options = options.Value;
+        _httpContextAccessor = httpContextAccessor;
+    }
+
     /// <inheritdoc />
     public IconBrowserSource GetSource(string address, string area = "public", bool showHiddenKits = false)
     {
-        var catalog = icons.Catalog;
+        var catalog = _catalogProvider.Catalog;
         IconAddress parsed = default;
         if (!string.IsNullOrEmpty(address))
         {
@@ -43,8 +67,6 @@ public sealed class IconBrowser(IconService icons, IconKitService kits, IHttpCon
         Guard.NotNegative(query.Skip);
         Guard.InRange(query.Take, 1, 500);
 
-        var catalog = icons.Catalog;
-        IconBrowserResult result;
         if (kit != null)
         {
             if (query.Library != null || query.Variant != null)
@@ -52,30 +74,25 @@ public sealed class IconBrowser(IconService icons, IconKitService kits, IHttpCon
                 throw new ArgumentException("Kit browsing cannot also select a library or variant.", nameof(query));
             }
 
-            var page = await kits.SearchAsync(catalog, kit, query, cancelToken);
-            if (page == null)
-            {
-                return null;
-            }
-
-            result = new IconBrowserResult(page.Value.Url, page.Value.TotalCount,
-                page.Value.Items.Select(entry => CreateItem(entry.Info, entry.Concept, catalog.ExternalIcons[kit].Contains(entry.Concept))).ToArray());
+            return await _kits.SearchAsync(kit, query, cancelToken);
         }
-        else
+
+        var catalog = _catalogProvider.Catalog;
+        var (library, variant) = SelectSource(catalog, query.Library, query.Variant);
+        if (variant == null)
         {
-            var (library, variant) = SelectSource(catalog, query.Library, query.Variant);
-            if (variant == null)
-            {
-                return null;
-            }
-
-            var revision = await icons.PrepareSpriteAsync(catalog, library, variant, cancelToken);
-            var page = IconService.Search(query, library, variant);
-            var url = (httpContextAccessor.HttpContext?.Request.PathBase.Value ?? string.Empty)
-                + icons.Options.RoutePrefix + "/browser/" + Uri.EscapeDataString(library.Manifest.SystemName)
-                + "/" + Uri.EscapeDataString(variant.Manifest.Name) + "/" + revision + ".svg";
-            result = new IconBrowserResult(url, page.TotalCount, page.Items.Select(info => CreateItem(info)).ToArray());
+            return null;
         }
+
+        var revision = await _librarySprites.PrepareAsync(catalog, library.Manifest.SystemName, variant.Manifest.Name, cancelToken);
+        await _lifecycle.TrackCacheFileAsync(new("browser", null, library.Manifest.SystemName, variant.Manifest.Name,
+            "browser/" + library.Manifest.SystemName + "-" + variant.Manifest.Name + "-" + revision + ".svg"),
+            catalog, cancelToken);
+        var page = await _icons.SearchAsync(catalog, query, cancelToken);
+        var url = (_httpContextAccessor.HttpContext?.Request.PathBase.Value ?? string.Empty)
+            + _options.RoutePrefix + "/browser/" + Uri.EscapeDataString(library.Manifest.SystemName)
+            + "/" + Uri.EscapeDataString(variant.Manifest.Name) + "/" + revision + ".svg";
+        var result = new IconBrowserResult(url, page.TotalCount, page.Items.Select(info => IconBrowserItem.Create(info)).ToArray());
 
         if (catalog.ChangeToken.HasChanged)
         {
@@ -88,43 +105,18 @@ public sealed class IconBrowser(IconService icons, IconKitService kits, IHttpCon
     /// <inheritdoc />
     public Task<string> GetSpriteFileAsync(string library, string variant, string revision, CancellationToken cancelToken = default)
     {
-        var catalog = icons.Catalog;
+        var catalog = _catalogProvider.Catalog;
         var source = SelectSource(catalog, library, variant);
         return source.Variant == null ? Task.FromResult<string>(null)
-            : icons.GetSpriteFileAsync(catalog, source.Library, source.Variant, revision, cancelToken);
+            : _librarySprites.GetFileAsync(catalog, source.Library.Manifest.SystemName, source.Variant.Manifest.Name, revision, cancelToken);
     }
 
-    /// <summary>
-    /// Selects registered sources while keeping the internal system library out of the picker.
-    /// </summary>
-    /// <param name="catalog">The retained catalog generation.</param>
-    /// <param name="library">The optional library selector.</param>
-    /// <param name="variant">The optional variant selector.</param>
+    // Selects registered sources while keeping the internal system library out of the picker.
     private static (IconCatalog.Library Library, IconCatalog.Variant Variant) SelectSource(IconCatalog catalog, string library, string variant)
     {
-        var selected = IconService.SelectLibrary(catalog, library);
+        var selected = catalog.SelectLibrary(library);
         return selected == null || selected.Manifest.SystemName.Equals("system", StringComparison.OrdinalIgnoreCase)
-            ? default : (selected, IconService.SelectVariant(catalog, selected, variant));
+            ? default : (selected, catalog.SelectVariant(selected, variant));
     }
 
-    /// <summary>
-    /// Keeps kit selections conceptual and library selections literal. Mapping modifiers are baked into sprites.
-    /// </summary>
-    /// <param name="info">The resolved source metadata.</param>
-    /// <param name="concept">The kit concept, or null for a literal library selection.</param>
-    /// <param name="isExternal">Whether kit membership depends on a provider.</param>
-    private static IconBrowserItem CreateItem(IconInfo info, string concept = null, bool isExternal = false)
-    {
-        var address = new IconAddress(info.Name, info.LibraryKey, info.VariantKey, skipMapping: true);
-        var expression = new IconExpression(address, new IconPresentation
-        {
-            FlipHorizontal = info.Transform.FlipX,
-            FlipVertical = info.Transform.FlipY,
-            Rotate = info.Transform.Rotation,
-            StrokeScale = info.StrokeScale
-        });
-
-        return new(concept ?? info.Name, concept ?? address.ToString(), info.Address, info.LibraryKey, info.VariantKey,
-            null, info.SupportsStrokeScaling, info.IsDuotone, expression.ToString(), isExternal);
-    }
 }

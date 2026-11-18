@@ -1,6 +1,8 @@
+using Smartstore.IconKit.Cache;
+using Smartstore.IconKit.Sources;
+using Smartstore.IconKit.Sprites;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 
@@ -31,30 +33,37 @@ public static class IconKitServiceCollectionExtensions
         services.TryAddEnumerable(ServiceDescriptor.Singleton<IPostConfigureOptions<IconKitOptions>, ConfigureIconKitOptions>());
         services.AddHttpContextAccessor();
         services.TryAddSingleton<IIconCache, IconCache>();
+        services.TryAddSingleton<IIconCacheLifecycle, IconCacheLifecycle>();
+        services.TryAddSingleton<IIconCacheRecovery, IconCacheRecovery>();
+        services.TryAddSingleton<IIconKitPlanner, IconKitPlanner>();
         services.TryAddSingleton<IIconAreaResolver, IconAreaResolver>();
-        services.TryAddSingleton<IconService>();
-        services.TryAddSingleton<IIconService>(sp => sp.GetRequiredService<IconService>());
-        services.TryAddSingleton<IconKitService>();
-        services.TryAddSingleton<IIconKitService>(sp => sp.GetRequiredService<IconKitService>());
+        services.TryAddSingleton<IIconCatalogProvider, IconCatalogProvider>();
+        services.TryAddSingleton<IIconResolver, IconResolver>();
+        services.TryAddSingleton<IIconLibrarySpriteService, IconLibrarySpriteService>();
+        services.TryAddSingleton<IIconService, IconService>();
+        services.TryAddSingleton<IIconKitService, IconKitService>();
         services.TryAddSingleton<IIconBrowser, IconBrowser>();
         services.TryAddScoped<IIconRenderer, IconRenderer>();
-        // The keyed provider does not interfere with other application file providers.
-        // Its directory and watcher are opened only when IconService is first resolved.
-        services.TryAddKeyedSingleton<IFileProvider>(typeof(IconService), (sp, _) =>
-            new PhysicalFileProvider(sp.GetRequiredService<IOptions<IconKitOptions>>().Value.SourcePath));
         return services;
     }
 
-    private sealed class ConfigureIconKitOptions(IHostEnvironment environment) : IPostConfigureOptions<IconKitOptions>
+    private sealed class ConfigureIconKitOptions : IPostConfigureOptions<IconKitOptions>
     {
+        private readonly IHostEnvironment _environment;
+
+        public ConfigureIconKitOptions(IHostEnvironment environment)
+        {
+            _environment = environment;
+        }
+
         public void PostConfigure(string name, IconKitOptions options)
         {
             Guard.NotEmpty(options.SourcePath);
             Guard.NotEmpty(options.CachePath);
             Guard.NotEmpty(options.RoutePrefix);
 
-            options.SourcePath = Path.GetFullPath(options.SourcePath, environment.ContentRootPath);
-            options.CachePath = Path.GetFullPath(options.CachePath, environment.ContentRootPath);
+            options.SourcePath = Path.GetFullPath(options.SourcePath, _environment.ContentRootPath);
+            options.CachePath = Path.GetFullPath(options.CachePath, _environment.ContentRootPath);
             options.RoutePrefix = "/" + options.RoutePrefix.Trim('/');
             if (options.RoutePrefix == "/" || options.RoutePrefix.Any(c => char.IsWhiteSpace(c) || "?#{ }\\".Contains(c)))
             {

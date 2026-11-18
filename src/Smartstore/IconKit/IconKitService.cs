@@ -1,21 +1,37 @@
-using System.Security.Cryptography;
-using System.Text.Json;
-using Smartstore.Json;
+using Smartstore.IconKit.Cache;
+using Smartstore.IconKit.Sources;
+using Smartstore.IconKit.Sprites;
+using Microsoft.Extensions.Options;
 using Microsoft.AspNetCore.Http;
 
 namespace Smartstore.IconKit;
 
-/// <summary>
-/// Resolves external sprite URLs and publishes immutable sprite files in the configured cache directory.
-/// </summary>
-/// <param name="icons">Provides the shared source catalog.</param>
-/// <param name="httpContextAccessor">Supplies the application's request path base.</param>
-public sealed class IconKitService(IconService icons, IHttpContextAccessor httpContextAccessor) : IIconKitService
+public sealed class IconKitService : IIconKitService
 {
+    private readonly IIconCatalogProvider _catalogProvider;
+    private readonly IIconCacheLifecycle _lifecycle;
+    private readonly IIconKitPlanner _planner;
+    private readonly IconKitOptions _options;
+    private readonly IHttpContextAccessor _httpContextAccessor;
+
+    public IconKitService(
+        IIconCatalogProvider catalogProvider,
+        IIconCacheLifecycle lifecycle,
+        IIconKitPlanner planner,
+        IOptions<IconKitOptions> options,
+        IHttpContextAccessor httpContextAccessor)
+    {
+        _catalogProvider = catalogProvider;
+        _lifecycle = lifecycle;
+        _planner = planner;
+        _options = options.Value;
+        _httpContextAccessor = httpContextAccessor;
+    }
+
     /// <inheritdoc />
     public string GetManifestUrl()
-        => (httpContextAccessor.HttpContext?.Request.PathBase.Value ?? string.Empty)
-            + icons.Options.RoutePrefix + "/manifest/" + GetManifest(icons.Catalog).Revision + ".json";
+        => (_httpContextAccessor.HttpContext?.Request.PathBase.Value ?? string.Empty)
+            + _options.RoutePrefix + "/manifest/" + _planner.GetManifest(_catalogProvider.Catalog).Revision + ".json";
 
     /// <inheritdoc />
     public async Task<string> GetManifestFileAsync(string revision, CancellationToken cancelToken = default)
@@ -26,21 +42,21 @@ public sealed class IconKitService(IconService icons, IHttpContextAccessor httpC
             return null;
         }
 
-        var directory = Path.Combine(icons.Options.CachePath, "kits");
+        var directory = Path.Combine(_options.CachePath, "kits");
         var path = Path.Combine(directory, "manifest-" + revision + ".json");
         if (File.Exists(path))
         {
             return path;
         }
 
-        var catalog = icons.Catalog;
-        var manifest = GetManifest(catalog);
+        var catalog = _catalogProvider.Catalog;
+        var manifest = _planner.GetManifest(catalog);
         if (manifest.Revision != revision)
         {
             return null;
         }
 
-        return await IconFileCache.PublishAsync(path, async (stream, token) =>
+        var published = await IconFileCache.PublishAsync(path, async (stream, token) =>
         {
             await stream.WriteAsync(manifest.Content, token);
             if (catalog.ChangeToken.HasChanged)
@@ -48,111 +64,22 @@ public sealed class IconKitService(IconService icons, IHttpContextAccessor httpC
                 throw new IOException("Icon sources changed during manifest creation. Retry after catalog reload.");
             }
         }, cancelToken);
-    }
-
-    private (string Revision, byte[] Content) GetManifest(IconCatalog catalog)
-    {
-        var lazy = Volatile.Read(ref catalog.BrowserManifest);
-        if (lazy == null)
-        {
-            lazy = new Lazy<(string, byte[])>(() => CreateManifest(catalog));
-            lazy = Interlocked.CompareExchange(ref catalog.BrowserManifest, lazy, null) ?? lazy;
-        }
-
-        return lazy.Value;
-    }
-
-    /// <summary>
-    /// Publishes directly renderable concepts, kit URLs and compact DOM identities.
-    /// Source resolution stays server-side; identity patches never change symbol references.
-    /// </summary>
-    /// <param name="catalog">The immutable source generation supplying mappings and kit plans.</param>
-    private (string Revision, byte[] Content) CreateManifest(IconCatalog catalog)
-    {
-        var kits = new Dictionary<string, object>(StringComparer.Ordinal);
-        foreach (var kit in catalog.Kits.Values)
-        {
-            var library = IconService.SelectLibrary(catalog, kit.DefaultLibrary);
-            var variant = IconService.SelectVariant(catalog, library, null, kit);
-            var index = GetIndex(catalog, library, variant);
-            // Every concept has its own symbol, even when several concepts share artwork.
-            // Mapping transforms and stroke multipliers are baked into symbols.
-            var entries = index.Entries[kit.Name]
-                .Where(entry => entry.Variant.Names.Contains(entry.Mapping.Name))
-                .ToArray();
-            if (entries.Length == 0 || !index.CanGenerate(kit.Name))
-            {
-                // Do not substitute a lower-priority kit for an unavailable preferred kit.
-                // The render endpoint still resolves individual concepts with their defaults.
-                continue;
-            }
-
-            var defaultLibrary = library.Manifest.ShortName ?? library.Manifest.SystemName;
-            var defaultVariant = variant.Manifest.ShortName ?? variant.Manifest.Name;
-            var sources = new SortedDictionary<string, string>(StringComparer.Ordinal);
-            foreach (var entry in entries)
-            {
-                var libraryKey = entry.Library.Manifest.ShortName ?? entry.Library.Manifest.SystemName;
-                var variantKey = entry.Variant.Manifest.ShortName ?? entry.Variant.Manifest.Name;
-                if (entry.Mapping.Name != entry.Concept || libraryKey != defaultLibrary || variantKey != defaultVariant)
-                {
-                    // These are final identities, not mappings for the client to resolve.
-                    // Missing qualifiers inherit this kit's defaults, even across libraries.
-                    sources.Add(entry.Concept, string.Concat(
-                        libraryKey != defaultLibrary ? libraryKey + ":" : string.Empty,
-                        entry.Mapping.Name,
-                        variantKey != defaultVariant ? "/" + variantKey : string.Empty));
-                }
-            }
-
-            // Fingerprint source descriptors only. Manifest requests neither generate sprites
-            // nor read SVG drawings into the individual icon cache.
-            var manifestKit = new Dictionary<string, object>
-            {
-                ["areas"] = kit.Areas,
-                ["url"] = icons.Options.RoutePrefix.TrimStart('/') + "/" + Uri.EscapeDataString(kit.Name) + "-" + index.Plans[kit.Name].Value.Revision + ".svg",
-                ["defaultLibrary"] = defaultLibrary,
-                ["defaultVariant"] = defaultVariant,
-                ["icons"] = entries.Select(x => x.Concept).ToArray(),
-                ["duotone"] = entries.Where(x => x.Variant.Manifest.IsDuotone).Select(x => x.Concept).ToArray(),
-                ["supportsStrokeScaling"] = entries.Where(x => x.Variant.Manifest.SupportsStrokeScaling).Select(x => x.Concept).ToArray(),
-                ["sources"] = sources,
-                ["transforms"] = entries.Where(x => !x.Mapping.Transform.IsIdentity).ToDictionary(x => x.Concept,
-                    x => FormattableString.Invariant($"{(x.Mapping.Transform.FlipX ? 1 : 0)} {(x.Mapping.Transform.FlipY ? 1 : 0)} {x.Mapping.Transform.Rotation:R}"))
-            };
-            var external = catalog.ExternalIcons[kit.Name];
-            if (external.Count > 0)
-            {
-                // Zero-based positions in this kit's sorted icons array; never repeat concept names.
-                manifestKit.Add("external", entries.Select((entry, i) => (entry, i))
-                    .Where(x => external.Contains(x.entry.Concept)).Select(x => x.i).ToArray());
-            }
-            kits.Add(kit.Name, manifestKit);
-        }
-
-        var content = JsonSerializer.SerializeToUtf8Bytes(new
-        {
-            SchemaVersion = 12,
-            MirrorInRtl = catalog.MirrorInRtl.OrderBy(x => x, StringComparer.Ordinal).ToArray(),
-            Areas = catalog.ConceptKits.GroupBy(x => x.Key.Area).ToDictionary(
-                group => group.Key, group => group.ToDictionary(x => x.Key.Concept, x => x.Value.Name)),
-            Kits = kits
-        }, SmartJsonOptions.CamelCased);
-        return (Convert.ToHexStringLower(SHA256.HashData(content).AsSpan(0, 12)), content);
+        await RegisterArtifactAsync(catalog, new("manifest", null, null, null, "kits/manifest-" + revision + ".json"), cancelToken);
+        return published;
     }
 
     /// <inheritdoc />
-    public IReadOnlyCollection<IconKit> Kits => icons.Catalog.Kits.Values;
+    public IReadOnlyCollection<IconKit> Kits => _catalogProvider.Catalog.Kits.Values;
 
     /// <inheritdoc />
     public IReadOnlySet<string> GetSourceAddresses()
     {
-        var catalog = icons.Catalog;
+        var catalog = _catalogProvider.Catalog;
         var addresses = new HashSet<string>(StringComparer.Ordinal);
         foreach (var kit in catalog.Kits.Values)
         {
-            var library = IconService.SelectLibrary(catalog, kit.DefaultLibrary);
-            var variant = IconService.SelectVariant(catalog, library, null, kit);
+            var library = catalog.SelectLibrary(kit.DefaultLibrary);
+            var variant = catalog.SelectVariant(library, null, kit);
             if (variant == null)
             {
                 continue;
@@ -176,7 +103,7 @@ public sealed class IconKitService(IconService icons, IHttpContextAccessor httpC
     {
         Guard.NotNull(icon);
 
-        var catalog = icons.Catalog;
+        var catalog = _catalogProvider.Catalog;
         var index = GetIndex(catalog, icon.SelectionLibraryName ?? icon.LibraryName, icon.SelectionVariantName ?? icon.VariantName);
         if (index == null || !index.Memberships.TryGetValue(
             (icon.Area, icon.ConceptName, icon.Address, icon.Transform, icon.StrokeScale), out var member))
@@ -187,8 +114,8 @@ public sealed class IconKitService(IconService icons, IHttpContextAccessor httpC
         if (member.Pinned)
         {
             var kit = catalog.Kits[member.Kit];
-            var library = IconService.SelectLibrary(catalog, kit.DefaultLibrary);
-            index = GetIndex(catalog, library, IconService.SelectVariant(catalog, library, null, kit));
+            var library = catalog.SelectLibrary(kit.DefaultLibrary);
+            index = GetIndex(catalog, library, catalog.SelectVariant(library, null, kit));
         }
         if (!index.CanGenerate(member.Kit)) return null;
         return new IconKitReference(BuildUrl(member.Kit, index.Plans[member.Kit].Value.Revision)
@@ -198,14 +125,14 @@ public sealed class IconKitService(IconService icons, IHttpContextAccessor httpC
     /// <inheritdoc />
     public string GetUrl(string kitName, string library = null, string variant = null)
     {
-        var catalog = icons.Catalog;
+        var catalog = _catalogProvider.Catalog;
         if (kitName == null || !catalog.Kits.TryGetValue(kitName, out var kit))
         {
             return null;
         }
 
-        var selectedLibrary = IconService.SelectLibrary(catalog, library ?? kit.DefaultLibrary);
-        var selectedVariant = IconService.SelectVariant(catalog, selectedLibrary, variant, kit);
+        var selectedLibrary = catalog.SelectLibrary(library ?? kit.DefaultLibrary);
+        var selectedVariant = catalog.SelectVariant(selectedLibrary, variant, kit);
         if (selectedVariant == null)
         {
             return null;
@@ -226,7 +153,7 @@ public sealed class IconKitService(IconService icons, IHttpContextAccessor httpC
             return null;
         }
 
-        var directory = Path.Combine(icons.Options.CachePath, "kits");
+        var directory = Path.Combine(_options.CachePath, "kits");
         var path = Path.Combine(directory, $"{kitName}-{revision}.svg");
         // Retain historical revisions for already rendered pages, even after sources change.
         // Nothing is read into memory and no source plan is needed for an existing file.
@@ -235,7 +162,7 @@ public sealed class IconKitService(IconService icons, IHttpContextAccessor httpC
             return path;
         }
 
-        var catalog = icons.Catalog;
+        var catalog = _catalogProvider.Catalog;
         if (!catalog.Kits.ContainsKey(kitName))
         {
             return null;
@@ -255,48 +182,63 @@ public sealed class IconKitService(IconService icons, IHttpContextAccessor httpC
             }
         }
 
-        return await plan.PublishAsync(path, cancelToken);
+        var published = await plan.PublishAsync(path, cancelToken);
+        await RegisterArtifactAsync(catalog, new("kit", kitName, plan.LibraryName, plan.VariantName,
+            "kits/" + kitName + "-" + plan.Revision + ".svg"), cancelToken);
+        return published;
     }
 
-    /// <summary>
-    /// Prepares a kit and searches its own resolved concepts, source names and tags.
-    /// </summary>
-    /// <param name="catalog">The source generation retained for the entire operation.</param>
-    /// <param name="kitName">The configured kit name.</param>
-    /// <param name="query">The validated search and pagination options.</param>
-    internal async Task<(string Url, int TotalCount, (string Concept, IconInfo Info)[] Items)?> SearchAsync(
-        IconCatalog catalog, string kitName, IconSearchQuery query, CancellationToken cancelToken)
+    /// <inheritdoc />
+    public async Task<IconBrowserResult> SearchAsync(string kitName, IconSearchQuery query, CancellationToken cancelToken = default)
     {
+        Guard.NotEmpty(kitName);
+        Guard.NotNull(query);
+        Guard.NotNegative(query.Skip);
+        Guard.InRange(query.Take, 1, 500);
+
+        var catalog = _catalogProvider.Catalog;
         if (!catalog.Kits.TryGetValue(kitName, out var kit))
         {
             return null;
         }
 
-        var library = IconService.SelectLibrary(catalog, kit.DefaultLibrary);
-        var variant = IconService.SelectVariant(catalog, library, null, kit);
+        var library = catalog.SelectLibrary(kit.DefaultLibrary);
+        var variant = catalog.SelectVariant(library, null, kit);
         var index = GetIndex(catalog, library, variant);
         var sprite = index.Plans[kitName].Value;
-        var path = Path.Combine(icons.Options.CachePath, "kits", kitName + "-" + sprite.Revision + ".svg");
+        var path = Path.Combine(_options.CachePath, "kits", kitName + "-" + sprite.Revision + ".svg");
         await sprite.PublishAsync(path, cancelToken);
+        await RegisterArtifactAsync(catalog, new("kit", kitName, sprite.LibraryName, sprite.VariantName,
+            "kits/" + kitName + "-" + sprite.Revision + ".svg"), cancelToken);
 
         // Search the selected kit, not global concept precedence. Empty searches load no tags.
-        var page = IconService.FindPage(query, index.Entries[kitName].Where(entry => entry.Variant.Names.Contains(entry.Mapping.Name)).ToArray(), (entry, word) =>
+        var page = query.FindPage(index.Entries[kitName].Where(entry => entry.Variant.Names.Contains(entry.Mapping.Name)).ToArray(), (entry, word) =>
             entry.Concept.Contains(word, StringComparison.OrdinalIgnoreCase)
             || entry.Mapping.Name.Contains(word, StringComparison.OrdinalIgnoreCase)
             || (entry.Library.Tags.GetValueOrDefault(entry.Mapping.Name) ?? [])
                 .Any(tag => tag.Contains(word, StringComparison.OrdinalIgnoreCase)));
-        return (BuildUrl(kitName, sprite.Revision), page.TotalCount,
-            page.Items.Select(entry => (entry.Concept, entry.CreateInfo())).ToArray());
+
+        if (catalog.ChangeToken.HasChanged)
+        {
+            throw new IOException("Icon sources changed during browsing. Retry with the current catalog.");
+        }
+
+        return new IconBrowserResult(BuildUrl(kitName, sprite.Revision), page.TotalCount,
+            page.Items.Select(entry => IconBrowserItem.Create(entry.CreateInfo(), entry.Concept,
+                catalog.ExternalIcons[kitName].Contains(entry.Concept))).ToArray());
     }
 
-    /// <summary>
-    /// Reconstructs opaque revision lookups from current configuration after a cold endpoint request.
-    /// Does not enumerate the cache directory or parse SVG drawings. Incomplete library variants
-    /// cannot supply this kit and are skipped; normal URL generation still reports missing targets.
-    /// </summary>
-    /// <param name="catalog">The current source generation.</param>
-    /// <param name="kit">The configured kit to recover.</param>
-    private static bool RecoverPlans(IconCatalog catalog, string kit)
+    private Task RegisterArtifactAsync(IconCatalog catalog, IconCacheArtifact artifact, CancellationToken cancelToken)
+        => _lifecycle.TrackCacheFileAsync(artifact, catalog, cancelToken);
+
+    private string BuildUrl(string kit, string revision)
+        => (_httpContextAccessor.HttpContext?.Request.PathBase.Value ?? string.Empty)
+            + _options.RoutePrefix + "/" + Uri.EscapeDataString(kit) + "-" + revision + ".svg";
+
+    // Rebuild plans when a requested sprite revision is not yet known in memory.
+    // Does not enumerate the cache directory or parse SVG drawings. Incomplete library variants
+    // cannot supply this kit and are skipped; normal URL generation still reports missing targets.
+    private bool RecoverPlans(IconCatalog catalog, string kit)
     {
         foreach (var library in catalog.Libraries.Values.Distinct())
         {
@@ -314,35 +256,9 @@ public sealed class IconKitService(IconService icons, IHttpContextAccessor httpC
         return true;
     }
 
-    /// <summary>
-    /// Selects only registered manifests, bounding index entries to configured variants.
-    /// </summary>
-    /// <param name="catalog">The source generation retained for the entire lookup.</param>
-    /// <param name="library">The library selector.</param>
-    /// <param name="variant">The variant selector.</param>
-    private static IconKitIndex GetIndex(IconCatalog catalog, string library, string variant)
-    {
-        var selectedLibrary = IconService.SelectLibrary(catalog, library);
-        var selectedVariant = IconService.SelectVariant(catalog, selectedLibrary, variant);
-        return selectedVariant == null ? null : GetIndex(catalog, selectedLibrary, selectedVariant);
-    }
+    private IconKitIndex GetIndex(IconCatalog catalog, string library, string variant)
+        => _planner.GetIndex(catalog, library, variant);
 
-    /// <summary>
-    /// Reuses one deferred membership index per variant and source generation.
-    /// </summary>
-    /// <param name="catalog">The current source generation.</param>
-    /// <param name="library">The selected library.</param>
-    /// <param name="variant">The selected variant.</param>
-    internal static IconKitIndex GetIndex(IconCatalog catalog, IconCatalog.Library library, IconCatalog.Variant variant)
-        => catalog.KitIndexes.GetOrAdd(library.Manifest.SystemName + ":" + variant.Manifest.Name,
-            _ => new Lazy<IconKitIndex>(() => new IconKitIndex(catalog, library, variant))).Value;
-
-    /// <summary>
-    /// Builds the endpoint path, preserving application hosting beneath a path base.
-    /// </summary>
-    /// <param name="kit">The configured kit name.</param>
-    /// <param name="revision">The output fingerprint.</param>
-    private string BuildUrl(string kit, string revision)
-        => (httpContextAccessor.HttpContext?.Request.PathBase.Value ?? string.Empty)
-            + icons.Options.RoutePrefix + "/" + Uri.EscapeDataString(kit) + "-" + revision + ".svg";
+    private IconKitIndex GetIndex(IconCatalog catalog, IconCatalog.Library library, IconCatalog.Variant variant)
+        => _planner.GetIndex(catalog, library.Manifest.SystemName, variant.Manifest.Name);
 }

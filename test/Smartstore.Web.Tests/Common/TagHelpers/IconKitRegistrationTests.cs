@@ -1,3 +1,4 @@
+using Smartstore.IconKit.Cache;
 using System;
 using System.IO;
 using System.Linq;
@@ -39,7 +40,7 @@ public class IconKitRegistrationTests
         Assert.That(options.SourcePath, Is.EqualTo(Path.Combine(builder.Environment.ContentRootPath, "App_Data", "Icons")));
         Assert.That(options.CachePath, Is.EqualTo(absoluteCache));
         Assert.That(builder.Services.Count(x => x.ServiceType == typeof(IIconService)), Is.EqualTo(1));
-        Assert.That(builder.Services.Count(x => x.ServiceType == typeof(IFileProvider) && Equals(x.ServiceKey, typeof(IconService))), Is.EqualTo(1));
+        Assert.That(builder.Services.Single(x => x.ServiceType == typeof(IIconCacheLifecycle)).Lifetime, Is.EqualTo(ServiceLifetime.Singleton));
     }
 
     [Test]

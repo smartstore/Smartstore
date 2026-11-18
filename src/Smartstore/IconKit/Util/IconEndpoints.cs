@@ -9,14 +9,29 @@ namespace Smartstore.IconKit;
 /// <summary>
 /// Serves public, revisioned SVG sprites independently of storefront or admin pages.
 /// </summary>
-/// <param name="context">The current HTTP request.</param>
-/// <param name="kits">Resolves revisions and generates cached sprites on demand.</param>
-/// <param name="icons">Resolves requested icon addresses and modifiers.</param>
-/// <param name="renderer">Creates kit-backed or inline SVG output.</param>
-/// <param name="browser">Prepares picker sprites and searches available sources.</param>
-internal class IconEndpoints(HttpContext context, IIconKitService kits, IIconService icons, IIconRenderer renderer, IIconBrowser browser)
+internal class IconEndpoints
 {
-    internal HttpResponse Response => context.Response;
+    private readonly HttpContext _context;
+    private readonly IIconKitService _kits;
+    private readonly IIconService _icons;
+    private readonly IIconRenderer _renderer;
+    private readonly IIconBrowser _browser;
+
+    public IconEndpoints(
+        HttpContext context,
+        IIconKitService kits,
+        IIconService icons,
+        IIconRenderer renderer,
+        IIconBrowser browser)
+    {
+        _context = context;
+        _kits = kits;
+        _icons = icons;
+        _renderer = renderer;
+        _browser = browser;
+    }
+
+    internal HttpResponse Response => _context.Response;
 
     /// <summary>
     /// Serves exactly one kit. Old revisions are never replaced with current content.
@@ -25,7 +40,7 @@ internal class IconEndpoints(HttpContext context, IIconKitService kits, IIconSer
     /// <param name="revision">The output revision supplied by the renderer.</param>
     public async Task<IResult> Kit(string kit, string revision, CancellationToken cancelToken)
     {
-        var path = await kits.GetSpriteFileAsync(kit, revision, cancelToken);
+        var path = await _kits.GetSpriteFileAsync(kit, revision, cancelToken);
         if (path == null)
         {
             Response.Headers.CacheControl = "no-store";
@@ -45,7 +60,7 @@ internal class IconEndpoints(HttpContext context, IIconKitService kits, IIconSer
     /// <param name="revision">The content fingerprint embedded in the page.</param>
     public async Task<IResult> Manifest(string revision, CancellationToken cancelToken)
     {
-        var path = await kits.GetManifestFileAsync(revision, cancelToken);
+        var path = await _kits.GetManifestFileAsync(revision, cancelToken);
         if (path == null)
         {
             Response.Headers.CacheControl = "no-store";
@@ -76,7 +91,7 @@ internal class IconEndpoints(HttpContext context, IIconKitService kits, IIconSer
 
         try
         {
-            var result = await browser.SearchAsync(new IconSearchQuery
+            var result = await _browser.SearchAsync(new IconSearchQuery
             {
                 Library = lib, Variant = variant, Term = term, Skip = (page - 1) * pageSize, Take = pageSize
             }, kit, cancelToken);
@@ -116,7 +131,7 @@ internal class IconEndpoints(HttpContext context, IIconKitService kits, IIconSer
     /// <param name="revision">The exact sprite content revision.</param>
     public async Task<IResult> BrowserSprite(string library, string variant, string revision, CancellationToken cancelToken)
     {
-        var path = await browser.GetSpriteFileAsync(library, variant, revision, cancelToken);
+        var path = await _browser.GetSpriteFileAsync(library, variant, revision, cancelToken);
         if (path == null)
         {
             Response.Headers.CacheControl = "no-store";
@@ -152,7 +167,7 @@ internal class IconEndpoints(HttpContext context, IIconKitService kits, IIconSer
             var expression = IconExpression.Parse(name);
             var address = expression.Address;
             address = new IconAddress(address.Name, address.Library ?? lib, address.Variant ?? variant, address.SkipMapping);
-            var icon = await icons.GetIconAsync(address, area, cancelToken);
+            var icon = await _icons.GetIconAsync(address, area, cancelToken);
             var presentation = expression.Presentation with
             {
                 Rotate = rotate ?? expression.Presentation.Rotate,
@@ -160,7 +175,7 @@ internal class IconEndpoints(HttpContext context, IIconKitService kits, IIconSer
                 FlipVertical = flipV ?? expression.Presentation.FlipVertical,
                 StrokeScale = strokeScale ?? expression.Presentation.StrokeScale
             };
-            var svg = await renderer.RenderAsync(icon, presentation, new IconOptions
+            var svg = await _renderer.RenderAsync(icon, presentation, new IconOptions
             {
                 Area = area,
                 RequestedName = name

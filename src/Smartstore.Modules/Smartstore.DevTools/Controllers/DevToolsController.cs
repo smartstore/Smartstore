@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using Smartstore.IconKit.Cache;
+using System.IO;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Smartstore.ComponentModel;

@@ -1,3 +1,4 @@
+using Smartstore.IconKit.Sources;
 using System.Text.Json;
 
 namespace Smartstore.IconKit;

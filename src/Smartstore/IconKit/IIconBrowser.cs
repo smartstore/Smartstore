@@ -56,7 +56,24 @@ public sealed record IconBrowserResult(string SpriteUrl, int TotalCount, IReadOn
 /// <param name="InlineName">An explicit address with modifiers for exceptions that require inline rendering.</param>
 /// <param name="PreviewAddress">The concrete source address including mapping modifiers, independent of the current page area.</param>
 /// <param name="IsExternal">Whether kit membership depends on an installed module provider.</param>
-public sealed record IconBrowserItem(string Name, string Value, string Address, string LibraryKey, string VariantKey, string? InlineName = null, bool SupportsStrokeScaling = false, bool IsDuotone = false, string? PreviewAddress = null, bool IsExternal = false);
+public sealed record IconBrowserItem(string Name, string Value, string Address, string LibraryKey, string VariantKey, string? InlineName = null, bool SupportsStrokeScaling = false, bool IsDuotone = false, string? PreviewAddress = null, bool IsExternal = false)
+{
+    // Keeps kit selections conceptual and library selections literal. Mapping modifiers are baked into sprites.
+    internal static IconBrowserItem Create(IconInfo info, string concept = null, bool isExternal = false)
+    {
+        var address = new IconAddress(info.Name, info.LibraryKey, info.VariantKey, skipMapping: true);
+        var expression = new IconExpression(address, new IconPresentation
+        {
+            FlipHorizontal = info.Transform.FlipX,
+            FlipVertical = info.Transform.FlipY,
+            Rotate = info.Transform.Rotation,
+            StrokeScale = info.StrokeScale
+        });
+
+        return new(concept ?? info.Name, concept ?? address.ToString(), info.Address, info.LibraryKey, info.VariantKey,
+            null, info.SupportsStrokeScaling, info.IsDuotone, expression.ToString(), isExternal);
+    }
+}
 
 /// <summary>
 /// Identifies a picker source independently of the selected icon and its resolved fallback artwork.

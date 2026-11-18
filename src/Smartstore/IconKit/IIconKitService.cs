@@ -21,6 +21,11 @@ public interface IIconKitService
     Task<string?> GetManifestFileAsync(string revision, CancellationToken cancelToken = default);
 
     /// <summary>
+    /// Searches a kit and prepares its sprite for display in the icon browser. Returns null if the kit does not exist.
+    /// </summary>
+    Task<IconBrowserResult?> SearchAsync(string kitName, IconSearchQuery query, CancellationToken cancelToken = default);
+
+    /// <summary>
     /// Gets configured kits without reading SVG drawing data.
     /// </summary>
     IReadOnlyCollection<IconKit> Kits { get; }

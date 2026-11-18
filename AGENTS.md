@@ -16,9 +16,14 @@ already documented.
   `src/Smartstore.Modules/` hit. Edits to the copy are silently overwritten on the next
   build.
 - **English only** in code, comments and XML docs. Never write German comments.
-- **Do not rewrite existing XML documentation comments** (including `<inheritdoc/>`)
-  while changing code. Preserve them verbatim; touch them only when the documentation
-  itself is wrong. New public members do get docs.
+- **Document behavior in contracts, not redundantly in DI implementation classes.**
+  Implementations may use `<inheritdoc/>`; do not duplicate summaries or explain ordinary
+  constructors and dependency parameters. Explain genuinely non-obvious implementation
+  decisions with focused comments. Utilities and public types without a separate contract
+  retain appropriate XML documentation. Remove a description only when the same behavior is
+  already documented in its contract; DI registration alone is not a reason to remove it.
+  Preserve existing contract documentation unless
+  it is outdated or the user explicitly requests a documentation change.
 - **Database changes use FluentMigrator, not EF Core migrations.**
 - **Sass is compiled with native embedded Dart Sass.** Existing stylesheets use
   `@import`; keep that style until the Sass module-system migration is planned.
@@ -105,7 +110,19 @@ Beyond formatting:
   Avoid `!` except at clearly justified boundaries.
 - **Async:** use `async`/`await`, suffix async methods with `Async`, never `.Result`
   or `.Wait()`.
-- **DI:** constructor injection. No service locator.
+- **DI:** constructor injection. No service locator. Use ordinary constructors with explicit
+  dependency fields in DI-registered classes; dependencies are required, not replaced by `new`
+  when null. Primary constructors are reserved for utilities and simple, readable cases with
+  one or two parameters.
+  Inject service contracts, never another DI service's concrete implementation. Keep shared
+  service behavior with its responsible service and expose the needed contract; do not collect
+  unrelated service responsibilities in a static utility class to bypass this rule.
+- **Constructor formatting:** keep signatures with up to two parameters on one line.
+  With three or more parameters, put every parameter on its own line, starting below
+  the opening parenthesis. Never mix multiple parameters per line with wrapped parameters.
+- **Readability:** put XML summary text on its own line between `<summary>` and `</summary>`,
+  even for a single sentence. Separate completed blocks and distinct logical steps with blank
+  lines, and explain non-obvious decisions with comments.
 - **Logging:** Smartstore property-injects `ILogger`; use `public ILogger Logger { get; set; } = NullLogger.Instance;` instead of adding a logger constructor parameter.
 - **Validation:** guard clauses for arguments; `ArgumentException` family for argument
   errors, domain-specific exceptions for domain errors.
