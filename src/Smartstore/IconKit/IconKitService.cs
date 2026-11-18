@@ -88,7 +88,7 @@ public sealed class IconKitService : IIconKitService
             var index = GetIndex(catalog, library, variant);
             if (index.CanGenerate(kit.Name))
             {
-                foreach (var entry in index.Entries[kit.Name])
+                foreach (var entry in index.GetEntries(kit.Name))
                 {
                     addresses.Add(entry.CreateInfo().Address);
                 }
@@ -212,7 +212,7 @@ public sealed class IconKitService : IIconKitService
             "kits/" + kitName + "-" + sprite.Revision + ".svg"));
 
         // Search the selected kit, not global concept precedence. Empty searches load no tags.
-        var page = query.FindPage(index.Entries[kitName].Where(entry => entry.Variant.Names.Contains(entry.Mapping.Name)).ToArray(), (entry, word) =>
+        var page = query.FindPage(index.GetEntries(kitName).Where(entry => entry.Variant.Names.Contains(entry.Mapping.Name)).ToArray(), (entry, word) =>
             entry.Concept.Contains(word, StringComparison.OrdinalIgnoreCase)
             || entry.Mapping.Name.Contains(word, StringComparison.OrdinalIgnoreCase)
             || (entry.Library.Tags.GetValueOrDefault(entry.Mapping.Name) ?? [])

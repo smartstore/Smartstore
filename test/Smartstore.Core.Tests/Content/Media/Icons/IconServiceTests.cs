@@ -1332,6 +1332,52 @@ public class IconServiceTests
         _cache.VerifyNoOtherCalls();
     }
 
+    [Test]
+    public void Kit_Index_Resolves_Only_Requested_Kit_Once()
+    {
+        Write("Icons/kits.json", """{"shared":["cart"],"admin":["direct"]}""");
+        var catalog = _dependencies[_service].Catalog.Catalog;
+        var resolver = new Mock<IIconResolver>(MockBehavior.Strict);
+        var implementation = new IconResolver();
+        resolver.Setup(x => x.Resolve(catalog, It.IsAny<IconAddress>(), true))
+            .Returns((IconCatalog snapshot, IconAddress address, bool indexOnly) => implementation.Resolve(snapshot, address, indexOnly));
+        var planner = new IconKitPlanner(resolver.Object, _options);
+        var index = planner.GetIndex(catalog, "hi", "sr");
+        resolver.VerifyNoOtherCalls();
+
+        Parallel.For(0, 20, _ => Assert.That(index.CanGenerate("shared"), Is.True));
+        var entries = index.GetEntries("shared");
+        Assert.That(index.GetEntries("shared"), Is.SameAs(entries));
+        resolver.Verify(x => x.Resolve(catalog, It.Is<IconAddress>(a => a.Name == "cart"), true), Times.Once);
+        resolver.Verify(x => x.Resolve(catalog, It.Is<IconAddress>(a => a.Name == "direct"), true), Times.Never);
+
+        // Rendering needs all memberships, but must reuse the entries already resolved.
+        _ = index.Memberships;
+        resolver.Verify(x => x.Resolve(catalog, It.Is<IconAddress>(a => a.Name == "cart"), true), Times.Once);
+        resolver.Verify(x => x.Resolve(catalog, It.Is<IconAddress>(a => a.Name == "direct"), true), Times.Once);
+    }
+
+    [Test]
+    public void Cache_Recovery_Does_Not_Resolve_Kits_Without_Files()
+    {
+        Write("Icons/kits.json", """{"shared":["cart"],"admin":["direct"]}""");
+        var dependencies = _dependencies[_service];
+        var catalog = dependencies.Catalog.Catalog;
+        var resolver = new Mock<IIconResolver>(MockBehavior.Strict);
+        var implementation = new IconResolver();
+        resolver.Setup(x => x.Resolve(catalog, It.IsAny<IconAddress>(), true))
+            .Returns((IconCatalog snapshot, IconAddress address, bool indexOnly) => implementation.Resolve(snapshot, address, indexOnly));
+        var planner = new IconKitPlanner(resolver.Object, _options);
+        var recovery = new IconCacheRecovery(planner, dependencies.Sprites);
+
+        // Only the shared kit has a file to reconcile; its revision is deliberately obsolete.
+        var current = recovery.GetCurrentFiles(catalog, new HashSet<string> { "kits/shared-" + new string('0', 24) + ".svg" });
+
+        Assert.That(current, Is.Empty);
+        resolver.Verify(x => x.Resolve(catalog, It.Is<IconAddress>(a => a.Name == "cart"), true), Times.AtLeastOnce);
+        resolver.Verify(x => x.Resolve(catalog, It.Is<IconAddress>(a => a.Name == "direct"), true), Times.Never);
+    }
+
     /// <summary>
     /// DOM identities use system names when short names are absent and omit unchanged sources.
     /// </summary>

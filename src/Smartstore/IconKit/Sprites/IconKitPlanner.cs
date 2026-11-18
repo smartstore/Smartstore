@@ -42,7 +42,7 @@ public sealed class IconKitPlanner : IIconKitPlanner
             var index = GetIndex(catalog, library, variant);
             // Every concept has its own symbol, even when several concepts share artwork.
             // Mapping transforms and stroke multipliers are baked into symbols.
-            var entries = index.Entries[kit.Name]
+            var entries = index.GetEntries(kit.Name)
                 .Where(entry => entry.Variant.Names.Contains(entry.Mapping.Name))
                 .ToArray();
             if (entries.Length == 0 || !index.CanGenerate(kit.Name))
