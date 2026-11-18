@@ -8,7 +8,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using FluentValidation;
 using FluentValidation.AspNetCore;
-using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Abstractions;
@@ -177,16 +176,12 @@ public class DashboardControllerTests
                             Policy = widget.Object.Descriptor.Policy, Widget = new HtmlWidget("<div>Updated widget</div>")
                         }));
             });
-        var invoker = new Mock<IWidgetInvoker<PartialViewWidget>>();
-        invoker.Setup(x => x.InvokeAsync(It.IsAny<WidgetContext>(), It.IsAny<PartialViewWidget>()))
-            .ReturnsAsync(new HtmlString("<div>Updated widget</div>"));
         var services = new ServiceCollection();
         services.AddLogging();
         services.AddMvcCore(options => options.ModelBinderProviders.Insert(0, new InvariantFloatingPointTypeModelBinderProvider())).AddDataAnnotations();
         services.AddFluentValidationAutoValidation();
         services.AddSingleton(Smartstore.Core.Localization.NullLocalizer.Instance);
         services.AddTransient<IValidator<PaymentMethodsDashboardWidgetSettings>, PaymentMethodsDashboardWidgetValidator>();
-        services.AddSingleton(invoker.Object);
         using var provider = services.BuildServiceProvider();
         controller.HttpContext.RequestServices = provider;
         controller.TempData = new TempDataDictionary(controller.HttpContext, Mock.Of<ITempDataProvider>());
@@ -226,9 +221,6 @@ public class DashboardControllerTests
                 false,
                 parameters,
                 It.IsAny<CancellationToken>()), Times.Once);
-            invoker.Verify(x => x.InvokeAsync(
-                It.IsAny<WidgetContext>(),
-                It.Is<PartialViewWidget>(v => v.ViewName == "_DashboardWidget" && v.Model is DashboardRenderItem)), Times.Once);
         }
         else
         {
@@ -243,7 +235,6 @@ public class DashboardControllerTests
                 It.IsAny<bool>(),
                 It.IsAny<IReadOnlyDictionary<string, string>>(),
                 It.IsAny<CancellationToken>()), Times.Never);
-            invoker.Verify(x => x.InvokeAsync(It.IsAny<WidgetContext>(), It.IsAny<PartialViewWidget>()), Times.Never);
         }
 
         dashboard.Verify(x => x.SaveLayoutAsync(

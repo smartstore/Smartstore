@@ -94,7 +94,7 @@ public class HomeController : AdminController
 
                 if (!await TryUpdateModelAsync(model, model.GetType(), prefix: ""))
                 {
-                    return PartialView("_DashboardConfiguration", configuration);
+                    return Content(await RenderDashboardWidgetAsync(configuration), "text/html");
                 }
 
                 var settings = JsonSerializer.SerializeToNode(model, model.GetType(), SmartJsonOptions.CamelCased).AsObject();
@@ -116,11 +116,11 @@ public class HomeController : AdminController
                 return Json(new
                 {
                     settings = item.Instance.Settings,
-                    html = await InvokePartialViewAsync("_DashboardWidget", item)
+                    html = await RenderDashboardWidgetAsync(item.Widget)
                 });
             }
 
-            return PartialView("_DashboardConfiguration", configuration);
+            return Content(await RenderDashboardWidgetAsync(configuration), "text/html");
         }
         catch (Exception ex) when (ex is JsonException or ArgumentException or InvalidOperationException or KeyNotFoundException)
         {
@@ -195,12 +195,18 @@ public class HomeController : AdminController
                 return NotFound();
             }
 
-            return PartialView("_DashboardWidget", item);
+            return Content(await RenderDashboardWidgetAsync(item.Widget), "text/html");
         }
         catch (Exception ex) when (ex is JsonException or ArgumentException or InvalidOperationException or KeyNotFoundException)
         {
             return BadRequest();
         }
+    }
+
+    private async Task<string> RenderDashboardWidgetAsync(Widget widget)
+    {
+        var content = await widget.InvokeAsync(new WidgetContext(ControllerContext));
+        return content.ToHtmlString().ToString();
     }
 
     private DashboardLayoutLayer GetDashboardViewLayer(bool canManageGlobal)

@@ -9,6 +9,8 @@
     var providers = (SelectListItem[])ViewBag.PaymentProviders;
 }
 
+<div asp-validation-summary="ModelOnly"></div>
+
 <tabstrip id="dashboard-paymentmethods-configuration" sm-nav-style="Material">
     <tab sm-title="@T(resourceKey + "DisplaySettings")" sm-selected="true">
         <div class="form-group form-row">
