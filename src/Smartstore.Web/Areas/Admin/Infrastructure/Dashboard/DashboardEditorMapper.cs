@@ -29,24 +29,14 @@ public static class DashboardEditorMapper
             ColumnCount = model.State.Layout.ColumnCount,
             Widgets = model.Dashboard.Widgets.Select(widget => widget.Instance).ToList()
         };
-        var movableIds = model.Dashboard.Widgets
-            .Where(widget => widget.Policy.AllowMove)
-            .Select(widget => widget.Instance.Id)
-            .ToHashSet();
-
-        var widgets = layout.Widgets.Select(widget =>
-        {
-            var settings = model.Dashboard.Widgets
-                .FirstOrDefault(item => item.Instance.Id == widget.Id && item.Policy.AllowConfigure)
-                ?.Instance.Settings;
-
-            return new DashboardEditorWidget(
-                widget.Id,
-                widget.WidgetSystemName,
-                widget.Positions,
-                movableIds.Contains(widget.Id),
-                settings);
-        }).ToArray();
+        var widgets = model.Dashboard.Widgets
+            .Select(item => new DashboardEditorWidget(
+                item.Instance.Id,
+                item.Instance.WidgetSystemName,
+                item.Instance.Positions,
+                item.Policy.AllowMove,
+                item.Policy.AllowConfigure ? item.Instance.Settings : null))
+            .ToArray();
 
         var widgetChoices = model.Catalog
             .Select(descriptor => new DashboardEditorWidgetChoice(

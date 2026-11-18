@@ -650,7 +650,7 @@
         });
 
         // A one-use, tab-local transfer keeps undo across server-rendered add previews.
-        // Only placement data is transferred; widget HTML, settings and credentials never enter storage.
+        // History includes widget placements and settings, but no rendered widget HTML.
         let addedWidgetId;
         const transferToken = new URL(window.location.href).searchParams.get('dashboardHistory');
 
@@ -721,12 +721,9 @@
                         addedWidget: command === 'add' ? widget : null,
                         layer: config.layer, undo, redo, dirty, rowCounts: layout.rowCounts, rowMinimums: layout.rowMinimums
                     }));
+                    url.searchParams.set('dashboardHistory', token);
                 }
-                catch {
-                    displayNotification(window.Res.Dashboard.invalid, 'error');
-                    return;
-                }
-                url.searchParams.set('dashboardHistory', token);
+                catch { /* Continue without transferred history when storage is unavailable. */ }
             }
 
             form.action = url.href;

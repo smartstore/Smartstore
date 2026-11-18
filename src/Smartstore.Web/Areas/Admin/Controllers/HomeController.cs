@@ -219,30 +219,6 @@ public class HomeController : AdminController
     }
 
     /// <summary>
-    /// Changes only the current user's dashboard view selection.
-    /// </summary>
-    [HttpPost, Permission(Permissions.Dashboard.Read)]
-    public async Task<IActionResult> DashboardSelect(DashboardLayoutLayer layer)
-    {
-        if (!ModelState.IsValid || layer == DashboardLayoutLayer.System || !Enum.IsDefined(layer))
-        {
-            return BadRequest();
-        }
-
-        if (!await Services.Permissions.AuthorizeAsync(Permissions.Dashboard.ManageGlobal))
-        {
-            throw new AccessDeniedException();
-        }
-
-        await _dashboardService.SelectLayerAsync(
-            AdminDashboardLayoutProvider.Id,
-            Services.WorkContext.CurrentCustomer,
-            layer,
-            HttpContext.RequestAborted);
-        return RedirectToAction(nameof(Index), new { area = "Admin" });
-    }
-
-    /// <summary>
     /// Renders a draft, optionally adding a widget; never persists it.
     /// </summary>
     [HttpPost, Permission(Permissions.Dashboard.Read), RequestSizeLimit(262144)]

@@ -390,19 +390,10 @@ public class DashboardControllerTests
             It.IsAny<CancellationToken>()), Times.Never());
     }
 
-    [TestCase(false, false)]
-    [TestCase(true, false)]
-    public void Normal_Users_Cannot_Select_The_Global_View(bool personal, bool global)
-    {
-        var controller = CreateController(personal, global, DashboardLayoutLayer.User);
-        Assert.ThrowsAsync<AccessDeniedException>(async () => await controller.DashboardSelect(DashboardLayoutLayer.Global));
-    }
-
     [Test]
     public async Task System_View_Is_No_Longer_Selectable()
     {
         var controller = CreateController(true, true, DashboardLayoutLayer.System);
-        Assert.That(await controller.DashboardSelect(DashboardLayoutLayer.System), Is.TypeOf<BadRequestResult>());
         var result = (ViewResult)await controller.Index();
         Assert.That(((DashboardEditorModel)result.Model).State.Layer, Is.EqualTo(DashboardLayoutLayer.User));
     }
@@ -697,7 +688,6 @@ public class DashboardControllerTests
     /// The MVC filter protects every dashboard endpoint when dashboard read access is missing.
     /// </summary>
     [TestCase(nameof(HomeController.Index))]
-    [TestCase(nameof(HomeController.DashboardSelect))]
     [TestCase(nameof(HomeController.DashboardPreview))]
     [TestCase(nameof(HomeController.DashboardSave))]
     [TestCase(nameof(HomeController.DashboardConfigure))]

@@ -127,7 +127,6 @@ public class SmartDbContextDataSeeder : IDataSeeder<SmartDbContext>
             "Remove the customization immediately and return to the default dashboard? Unsaved changes will be discarded.",
             "Die Anpassung jetzt entfernen und zur Dashboard-Vorgabe zurückkehren? Ungespeicherte Änderungen werden verworfen.");
         builder.AddOrUpdate("Admin.Dashboard.Editor.Widgets", "Add widget", "Widget hinzufügen");
-        builder.AddOrUpdate("Admin.Dashboard.Editor.Search", "Search widgets", "Widgets suchen");
         builder.AddOrUpdate("Admin.Dashboard.Editor.ResetPersonal", "Reset to the shared dashboard", "Auf gemeinsame Vorgabe zurücksetzen");
         builder.AddOrUpdate("Admin.Dashboard.Editor.ResetGlobal", "Reset to the default dashboard", "Auf Standard zurücksetzen");
         builder.AddOrUpdate("Admin.Dashboard.Editor.SaveGlobal", "Save for everyone", "Für alle speichern");
