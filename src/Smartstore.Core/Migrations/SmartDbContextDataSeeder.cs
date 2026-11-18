@@ -1020,6 +1020,9 @@ public class SmartDbContextDataSeeder : IDataSeeder<SmartDbContext>
 
         builder.AddOrUpdate("Common.Email", "Email", "E-Mail");
 
+        builder.AddOrUpdate("Validation.InclusiveBetweenValidator", "'{PropertyName}' must be between {From} and {To}. You entered {PropertyValue}.", "'{PropertyName}' muss zwischen {From} und {To} liegen. Sie haben '{PropertyValue}' eingegeben.");
+        builder.AddOrUpdate("Validation.ExclusiveBetweenValidator", "'{PropertyName}' must be between {From} and {To} (exclusive). You entered {PropertyValue}.", "'{PropertyName}' muss größer als {From} und kleiner als {To} sein. Sie haben '{PropertyValue}' eingegeben.");
+
         builder.AddOrUpdate("Admin.Common.Store.LimitedTo",
             "Limited to stores",
             "Auf Shops begrenzt",
