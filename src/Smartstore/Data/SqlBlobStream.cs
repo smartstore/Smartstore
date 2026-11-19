@@ -15,6 +15,7 @@ public class SqlBlobStream : Stream
     private DbDataReader _reader;
     private long? _length;
     private long _dataIndex;
+    private bool _connectionOpened;
 
     public SqlBlobStream(
         DataProvider dataProvider,
@@ -68,6 +69,7 @@ public class SqlBlobStream : Stream
 
         // Open connection if closed
         _database.OpenConnection();
+        _connectionOpened = true;
 
         _reader = _command.ExecuteReader(CommandBehavior.SequentialAccess | CommandBehavior.SingleResult);
         if (!_reader.Read())
@@ -134,9 +136,11 @@ public class SqlBlobStream : Stream
     {
         get
         {
-            EnsureOpen();
-
-            _length ??= _reader.GetBytes(0, 0, null, 0, 0);
+            if (!_length.HasValue)
+            {
+                EnsureOpen();
+                _length ??= _reader.GetBytes(0, 0, null, 0, 0);
+            }
 
             return _length.Value;
         }
@@ -144,10 +148,46 @@ public class SqlBlobStream : Stream
 
     public override int Read(byte[] buffer, int offset, int count)
     {
+        ArgumentNullException.ThrowIfNull(buffer);
+
+        if (offset < 0 || offset > buffer.Length)
+        {
+            throw new ArgumentOutOfRangeException(nameof(offset));
+        }
+
+        if (count < 0 || count > buffer.Length - offset)
+        {
+            throw new ArgumentOutOfRangeException(nameof(count));
+        }
+
+        if (count == 0)
+        {
+            return 0;
+        }
+
+        if (_length.HasValue && _dataIndex >= _length.Value)
+        {
+            long position = _dataIndex;
+            CloseReader();
+            _dataIndex = position;
+            return 0;
+        }
+
         EnsureOpen();
 
-        var read = _reader.GetBytes(0, _dataIndex + offset, buffer, 0, count);
+        _length ??= _reader.GetBytes(0, 0, null, 0, 0);
+
+        long read = _length.Value == 0 ? 0 : _reader.GetBytes(0, _dataIndex, buffer, offset, count);
         _dataIndex += read;
+
+        if (read == 0 || _dataIndex >= _length.Value)
+        {
+            long position = _dataIndex;
+            CloseReader();
+
+            // Preserve EOF until the caller explicitly seeks backwards.
+            _dataIndex = position;
+        }
 
         return (int)read;
     }
@@ -189,7 +229,11 @@ public class SqlBlobStream : Stream
             _command = null;
         }
 
-        _database.CloseConnection();
+        if (_connectionOpened)
+        {
+            _database.CloseConnection();
+            _connectionOpened = false;
+        }
 
         _dataIndex = 0;
         PrimaryKey = null;
@@ -212,7 +256,11 @@ public class SqlBlobStream : Stream
             _command = null;
         }
 
-        await _database.CloseConnectionAsync();
+        if (_connectionOpened)
+        {
+            await _database.CloseConnectionAsync();
+            _connectionOpened = false;
+        }
 
         _dataIndex = 0;
         PrimaryKey = null;
