@@ -1,7 +1,5 @@
 #nullable enable
 
-using Smartstore.IconKit.Sources;
-
 namespace Smartstore.IconKit;
 
 /// <summary>
@@ -75,10 +73,6 @@ public interface IIconService
     /// <returns>The requested page in icon-name order and the total matching count before pagination.</returns>
     /// <exception cref="ArgumentOutOfRangeException">Skip is negative or Take is outside the range 1 through 500.</exception>
     Task<IconSearchResult> SearchAsync(IconSearchQuery query, CancellationToken cancelToken = default);
-    /// <summary>
-    /// Searches using the supplied catalog so related browser operations use the same source version.
-    /// </summary>
-    Task<IconSearchResult> SearchAsync(IconCatalog catalog, IconSearchQuery query, CancellationToken cancelToken = default);
 
     /// <summary>
     /// Gets existing kit sprite details and cached individual icons for a diagnostic view.

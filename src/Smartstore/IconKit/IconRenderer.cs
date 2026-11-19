@@ -41,13 +41,13 @@ public sealed partial class IconRenderer : IIconRenderer
         // Presentation overrides retain the original kit symbol.
         var reference = options?.ForceInline == true
             ? null
-            : _kits.GetReference(icon);
+            : _kits.GetSpriteHref(icon);
         var svg = new TagBuilder("svg");
         if (reference != null)
         {
             // The external symbol supplies its viewBox; CSS sizes the use viewport.
             var use = new TagBuilder("use");
-            use.Attributes["href"] = reference.Href;
+            use.Attributes["href"] = reference;
             svg.InnerHtml.AppendHtml(use);
         }
         else

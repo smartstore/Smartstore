@@ -34,11 +34,9 @@ public static class IconKitServiceCollectionExtensions
         services.TryAddSingleton<IIconCache, IconCache>();
         services.TryAddSingleton<IIconCacheLifecycle, IconCacheLifecycle>();
         services.TryAddSingleton<IIconCacheRecovery, IconCacheRecovery>();
-        services.TryAddSingleton<IIconKitPlanner, IconKitPlanner>();
+        services.TryAddSingleton<IIconSpritePlanner, IconSpritePlanner>();
         services.TryAddSingleton<IIconAreaResolver, IconAreaResolver>();
         services.TryAddSingleton<IIconCatalogAccessor, IconCatalogAccessor>();
-        services.TryAddSingleton<IIconResolver, IconResolver>();
-        services.TryAddSingleton<IIconLibrarySpriteService, IconLibrarySpriteService>();
         services.TryAddSingleton<IIconService, IconService>();
         services.TryAddSingleton<IIconKitService, IconKitService>();
         services.TryAddSingleton<IIconBrowser, IconBrowser>();

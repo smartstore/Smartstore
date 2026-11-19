@@ -41,12 +41,11 @@ public sealed class IconKitIndex
     internal IconKitIndex(
         IconCatalog catalog,
         IconCatalog.Library library,
-        IconCatalog.Variant variant,
-        IIconResolver resolver)
+        IconCatalog.Variant variant)
     {
         foreach (var kit in catalog.Kits.Values)
         {
-            var entries = new Lazy<Entry[]>(() => ResolveEntries(catalog, library, variant, resolver, kit));
+            var entries = new Lazy<Entry[]>(() => ResolveEntries(catalog, library, variant, kit));
             _entries.Add(kit.Name, entries);
             _availableEntries.Add(kit.Name, new Lazy<Entry[]>(() => entries.Value
                 .Where(x => x.Variant.Names.Contains(x.Mapping.Name)).ToArray()));
@@ -67,7 +66,6 @@ public sealed class IconKitIndex
         IconCatalog catalog,
         IconCatalog.Library library,
         IconCatalog.Variant variant,
-        IIconResolver resolver,
         IconKit kit)
     {
         return kit.Icons.OrderBy(x => x, StringComparer.Ordinal).Select(concept =>
@@ -77,7 +75,7 @@ public sealed class IconKitIndex
             var pinned = !address.IsEmpty;
             var entryLibrary = pinned ? catalog.SelectLibrary(address.Library ?? kit.DefaultLibrary) : library;
             var entryVariant = pinned ? catalog.SelectVariant(entryLibrary, address.Variant, kit) : variant;
-            var resolved = resolver.Resolve(catalog, new IconAddress(pinned ? address.Name : concept,
+            var resolved = catalog.Resolve(new IconAddress(pinned ? address.Name : concept,
                 entryLibrary.Manifest.SystemName, entryVariant.Manifest.Name, pinned), indexOnly: true);
             if (resolved is { } source)
             {

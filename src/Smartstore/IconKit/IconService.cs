@@ -11,7 +11,6 @@ public sealed class IconService : IIconService
     private readonly IIconCatalogAccessor _catalogAccessor;
     private readonly IIconCache _cache;
     private readonly IIconKitService _kits;
-    private readonly IIconResolver _resolver;
     private readonly IIconAreaResolver _areaResolver;
     private readonly IHttpContextAccessor _httpContextAccessor;
 
@@ -19,14 +18,12 @@ public sealed class IconService : IIconService
         IIconCatalogAccessor catalogAccessor,
         IIconCache cache,
         IIconKitService kits,
-        IIconResolver resolver,
         IIconAreaResolver areaResolver,
         IHttpContextAccessor httpContextAccessor)
     {
         _catalogAccessor = catalogAccessor;
         _cache = cache;
         _kits = kits;
-        _resolver = resolver;
         _areaResolver = areaResolver;
         _httpContextAccessor = httpContextAccessor;
     }
@@ -141,26 +138,7 @@ public sealed class IconService : IIconService
 
     /// <inheritdoc />
     public Task<IconSearchResult> SearchAsync(IconSearchQuery query, CancellationToken cancelToken = default)
-        => SearchAsync(Catalog, query, cancelToken);
-
-    /// <inheritdoc />
-    public Task<IconSearchResult> SearchAsync(IconCatalog catalog, IconSearchQuery query, CancellationToken cancelToken = default)
-    {
-        Guard.NotNull(query);
-
-        Guard.NotNegative(query.Skip);
-
-        Guard.InRange(query.Take, 1, 500);
-
-        var library = catalog.SelectLibrary(query.Library);
-        var variant = catalog.SelectVariant(library, query.Variant);
-        if (variant == null)
-        {
-            return Task.FromResult(new IconSearchResult());
-        }
-
-        return Task.FromResult(Search(query, library, variant));
-    }
+        => Task.FromResult(Catalog.Search(query));
 
     /// <inheritdoc />
     public async Task<IconCacheSummary> GetCacheSummaryAsync(CancellationToken cancelToken = default)
@@ -222,7 +200,7 @@ public sealed class IconService : IIconService
         // the same fallback resolution as kit planning and browser manifest generation.
         var useSource = !entry.IsEmpty && library == entryLibrary
             && variant == catalog.SelectVariant(entryLibrary, entry.Variant, kit);
-        var info = _resolver.Resolve(catalog, new IconAddress(useSource ? entry.Name : address.Name,
+        var info = catalog.Resolve(new IconAddress(useSource ? entry.Name : address.Name,
             library.Manifest.SystemName, variant.Manifest.Name, address.SkipMapping || useSource));
         if (info == null)
         {
@@ -241,23 +219,6 @@ public sealed class IconService : IIconService
         info.MirrorInRtl = !address.SkipMapping && address.Library == null && address.Variant == null
             && catalog.MirrorInRtl.Contains(address.Name);
         return info;
-    }
-
-    private IconSearchResult Search(IconSearchQuery query, IconCatalog.Library library, IconCatalog.Variant variant)
-    {
-        var page = query.FindPage(variant.SortedNames, (name, word) =>
-        {
-            // Empty searches do not invoke this predicate or load tags and mappings.
-            return name.Contains(word, StringComparison.OrdinalIgnoreCase)
-                || (library.Tags.GetValueOrDefault(name) ?? []).Any(tag => tag.Contains(word, StringComparison.OrdinalIgnoreCase))
-                || library.Aliases[name].Any(alias => alias.Contains(word, StringComparison.OrdinalIgnoreCase));
-        });
-
-        return new IconSearchResult
-        {
-            TotalCount = page.TotalCount,
-            Items = page.Items.Select(name => IconInfo.Create(library, variant, name)).ToArray()
-        };
     }
 
 }

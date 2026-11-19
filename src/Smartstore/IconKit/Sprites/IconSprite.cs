@@ -12,7 +12,7 @@ namespace Smartstore.IconKit.Sprites;
 /// <summary>
 /// Captures source descriptors and streams sprites for both conceptual kits and complete variants.
 /// </summary>
-internal sealed class IconSprite
+public sealed class IconSprite
 {
     private IconCatalog _catalog;
     private readonly List<(string Concept, IconInfo Info, IconCatalog.Variant Variant, IconCatalog.Source Source)> _entries = [];
@@ -20,10 +20,17 @@ internal sealed class IconSprite
     /// <summary>
     /// Gets the output revision, including mapping, membership, source and preparation changes.
     /// </summary>
-    internal string Revision { get; }
-    internal string LibraryName { get; }
-    internal string VariantName { get; }
+    public string Revision { get; }
 
+    /// <summary>
+    /// Gets the library selected when this sprite was planned.
+    /// </summary>
+    public string LibraryName { get; }
+
+    /// <summary>
+    /// Gets the variant selected when this sprite was planned.
+    /// </summary>
+    public string VariantName { get; }
 
     /// <summary>
     /// Resolves sources and computes a stable revision without parsing their drawing.

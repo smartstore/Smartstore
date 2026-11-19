@@ -12,7 +12,7 @@ public sealed class IconKitService : IIconKitService
 {
     private readonly IIconCatalogAccessor _catalogAccessor;
     private readonly IIconCacheLifecycle _lifecycle;
-    private readonly IIconKitPlanner _planner;
+    private readonly IIconSpritePlanner _planner;
     private readonly IconKitOptions _options;
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IFileSystem _fileCache;
@@ -21,7 +21,7 @@ public sealed class IconKitService : IIconKitService
         IApplicationContext appContext,
         IIconCatalogAccessor catalogAccessor,
         IIconCacheLifecycle lifecycle,
-        IIconKitPlanner planner,
+        IIconSpritePlanner planner,
         IOptions<IconKitOptions> options,
         IHttpContextAccessor httpContextAccessor)
     {
@@ -104,7 +104,7 @@ public sealed class IconKitService : IIconKitService
     }
 
     /// <inheritdoc />
-    public IconKitReference GetReference(IconInfo icon)
+    public string GetSpriteHref(IconInfo icon)
     {
         Guard.NotNull(icon);
 
@@ -123,8 +123,8 @@ public sealed class IconKitService : IIconKitService
             index = GetIndex(catalog, library, catalog.SelectVariant(library, null, kit));
         }
         if (!index.CanGenerate(member.Kit)) return null;
-        return new IconKitReference(BuildUrl(member.Kit, index.Plans[member.Kit].Value.Revision)
-            + "#" + Uri.EscapeDataString(member.Symbol));
+        return BuildUrl(member.Kit, index.Plans[member.Kit].Value.Revision)
+            + "#" + Uri.EscapeDataString(member.Symbol);
     }
 
     /// <inheritdoc />
@@ -201,47 +201,6 @@ public sealed class IconKitService : IIconKitService
         await RegisterArtifactAsync(catalog, new("kit", kitName, plan.LibraryName, plan.VariantName,
             "kits/" + kitName + "-" + plan.Revision + ".svg"));
         return published;
-    }
-
-    /// <inheritdoc />
-    public async Task<IconBrowserResult> SearchAsync(string kitName, IconSearchQuery query, CancellationToken cancelToken = default)
-    {
-        Guard.NotEmpty(kitName);
-        Guard.NotNull(query);
-        Guard.NotNegative(query.Skip);
-        Guard.InRange(query.Take, 1, 500);
-
-        var catalog = _catalogAccessor.Catalog;
-        var sourceSnapshot = catalog.ChangeToken;
-        if (!catalog.Kits.TryGetValue(kitName, out var kit))
-        {
-            return null;
-        }
-
-        var library = catalog.SelectLibrary(kit.DefaultLibrary);
-        var variant = catalog.SelectVariant(library, null, kit);
-        var index = GetIndex(catalog, library, variant);
-        var sprite = index.Plans[kitName].Value;
-        var file = _fileCache.GetFile("kits/" + kitName + "-" + sprite.Revision + ".svg");
-        await sprite.PublishAsync(file, cancelToken);
-        await RegisterArtifactAsync(catalog, new("kit", kitName, sprite.LibraryName, sprite.VariantName,
-            "kits/" + kitName + "-" + sprite.Revision + ".svg"));
-
-        // Search the selected kit, not global concept precedence. Empty searches load no tags.
-        var page = query.FindPage(index.GetAvailableEntries(kitName), (entry, word) =>
-            entry.Concept.Contains(word, StringComparison.OrdinalIgnoreCase)
-            || entry.Mapping.Name.Contains(word, StringComparison.OrdinalIgnoreCase)
-            || (entry.Library.Tags.GetValueOrDefault(entry.Mapping.Name) ?? [])
-                .Any(tag => tag.Contains(word, StringComparison.OrdinalIgnoreCase)));
-
-        if (sourceSnapshot.HasChanged)
-        {
-            throw new IOException("Icon sources changed during browsing. Retry with the current catalog.");
-        }
-
-        return new IconBrowserResult(BuildUrl(kitName, sprite.Revision), page.TotalCount,
-            page.Items.Select(entry => IconBrowserItem.Create(entry.CreateInfo(), entry.Concept,
-                catalog.ExternalIcons[kitName].Contains(entry.Concept))).ToArray());
     }
 
     // Finish tracking published files even if the originating request was cancelled.

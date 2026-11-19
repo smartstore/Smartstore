@@ -122,12 +122,12 @@
                 let icon;
                 const hasPreviewOptions = !isResult && Object.keys(options).some(key =>
                     key !== 'size' && key !== 'animation' && (key !== 'stroke-scale' || supportsStrokeScaling));
-                if (!item.spriteUrl || item.inlineName || hasPreviewOptions) {
+                if (!item.spriteUrl || hasPreviewOptions) {
                     // Preserve the chosen source even when its kit belongs to another area.
                     // Unmodified selections and result tiles use that kit's sprite directly.
                     icon = document.createElement('sm-icon');
                     if (area) icon.setAttribute('area', area);
-                    icon.setAttribute('name', isResult ? item.inlineName : (item.previewAddress || item.id));
+                    icon.setAttribute('name', item.previewAddress || item.id);
                     if (!isResult) applyPreviewOptions(icon);
                 } else {
                     icon = document.createElementNS(ns, 'svg');

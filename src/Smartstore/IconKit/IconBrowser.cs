@@ -11,9 +11,7 @@ namespace Smartstore.IconKit;
 public sealed class IconBrowser : IIconBrowser
 {
     private readonly IIconCatalogAccessor _catalogAccessor;
-    private readonly IIconKitService _kits;
-    private readonly IIconService _icons;
-    private readonly IIconLibrarySpriteService _librarySprites;
+    private readonly IIconSpritePlanner _planner;
     private readonly IIconCacheLifecycle _lifecycle;
     private readonly IconKitOptions _options;
     private readonly IHttpContextAccessor _httpContextAccessor;
@@ -22,17 +20,13 @@ public sealed class IconBrowser : IIconBrowser
     public IconBrowser(
         IApplicationContext appContext,
         IIconCatalogAccessor catalogAccessor,
-        IIconKitService kits,
-        IIconService icons,
-        IIconLibrarySpriteService librarySprites,
+        IIconSpritePlanner planner,
         IIconCacheLifecycle lifecycle,
         IOptions<IconKitOptions> options,
         IHttpContextAccessor httpContextAccessor)
     {
         _catalogAccessor = catalogAccessor;
-        _kits = kits;
-        _icons = icons;
-        _librarySprites = librarySprites;
+        _planner = planner;
         _lifecycle = lifecycle;
         _options = options.Value;
         _httpContextAccessor = httpContextAccessor;
@@ -80,7 +74,7 @@ public sealed class IconBrowser : IIconBrowser
                 throw new ArgumentException("Kit browsing cannot also select a library or variant.", nameof(query));
             }
 
-            return await _kits.SearchAsync(kit, query, cancelToken);
+            return await SearchKitAsync(_catalogAccessor.Catalog, kit, query, cancelToken);
         }
 
         var catalog = _catalogAccessor.Catalog;
@@ -91,11 +85,11 @@ public sealed class IconBrowser : IIconBrowser
             return null;
         }
 
-        var revision = await PrepareSpriteAsync(catalog, library.Manifest.SystemName, variant.Manifest.Name, cancelToken);
-        var page = await _icons.SearchAsync(catalog, query, cancelToken);
-        var url = (_httpContextAccessor.HttpContext?.Request.PathBase.Value ?? string.Empty)
-            + _options.RoutePrefix + "/browser/" + Uri.EscapeDataString(library.Manifest.SystemName)
-            + "/" + Uri.EscapeDataString(variant.Manifest.Name) + "/" + revision + ".svg";
+        var sprite = _planner.GetLibrarySprite(catalog, library.Manifest.SystemName, variant.Manifest.Name);
+        await PrepareSpriteAsync(catalog, sprite, CreateBrowserArtifact(sprite), cancelToken);
+        var page = catalog.Search(query);
+        var url = BuildUrl("browser/" + Uri.EscapeDataString(library.Manifest.SystemName)
+            + "/" + Uri.EscapeDataString(variant.Manifest.Name) + "/" + sprite.Revision + ".svg");
         var result = new IconBrowserResult(url, page.TotalCount, page.Items.Select(info => IconBrowserItem.Create(info)).ToArray());
 
         if (sourceSnapshot.HasChanged)
@@ -126,25 +120,64 @@ public sealed class IconBrowser : IIconBrowser
             return file.PhysicalPath;
         }
 
-        if (_librarySprites.GetRevision(catalog, library, variant) != revision)
+        var sprite = _planner.GetLibrarySprite(catalog, library, variant);
+        if (sprite.Revision != revision)
         {
             return null;
         }
 
-        await PrepareSpriteAsync(catalog, library, variant, cancelToken);
+        await PrepareSpriteAsync(catalog, sprite, CreateBrowserArtifact(sprite), cancelToken);
         return file.PhysicalPath;
     }
 
-    private async Task<string> PrepareSpriteAsync(IconCatalog catalog, string library, string variant, CancellationToken cancelToken)
+    private async Task<IconBrowserResult> SearchKitAsync(IconCatalog catalog, string kitName, IconSearchQuery query, CancellationToken cancelToken)
     {
-        var revision = await _librarySprites.PrepareAsync(catalog, library, variant, cancelToken);
+        Guard.NotEmpty(kitName);
 
-        // Once published, the shared file must be tracked even if this request was cancelled.
-        await _lifecycle.TrackCacheFileAsync(new("browser", null, library, variant,
-            "browser/" + library + "-" + variant + "-" + revision + ".svg"), catalog, CancellationToken.None);
+        var sourceSnapshot = catalog.ChangeToken;
+        if (!catalog.Kits.TryGetValue(kitName, out var kit))
+        {
+            return null;
+        }
 
-        return revision;
+        var library = catalog.SelectLibrary(kit.DefaultLibrary);
+        var variant = catalog.SelectVariant(library, null, kit);
+        var index = _planner.GetIndex(catalog, library.Manifest.SystemName, variant.Manifest.Name);
+        var sprite = index.Plans[kitName].Value;
+        await PrepareSpriteAsync(catalog, sprite, new("kit", kitName, sprite.LibraryName, sprite.VariantName,
+            "kits/" + kitName + "-" + sprite.Revision + ".svg"), cancelToken);
+
+        // Search the selected kit, not global concept precedence. Empty searches load no tags.
+        var page = query.FindPage(index.GetAvailableEntries(kitName), (entry, word) =>
+            entry.Concept.Contains(word, StringComparison.OrdinalIgnoreCase)
+            || entry.Mapping.Name.Contains(word, StringComparison.OrdinalIgnoreCase)
+            || (entry.Library.Tags.GetValueOrDefault(entry.Mapping.Name) ?? [])
+                .Any(tag => tag.Contains(word, StringComparison.OrdinalIgnoreCase)));
+
+        if (sourceSnapshot.HasChanged)
+        {
+            throw new IOException("Icon sources changed during browsing. Retry with the current catalog.");
+        }
+
+        return new IconBrowserResult(BuildUrl(Uri.EscapeDataString(kitName) + "-" + sprite.Revision + ".svg"), page.TotalCount,
+            page.Items.Select(entry => IconBrowserItem.Create(entry.CreateInfo(), entry.Concept,
+                catalog.ExternalIcons[kitName].Contains(entry.Concept))).ToArray());
     }
+
+    private async Task PrepareSpriteAsync(IconCatalog catalog, IconSprite sprite, IconCacheArtifact artifact, CancellationToken cancelToken)
+    {
+        await sprite.PublishAsync(_fileCache.GetFile(artifact.File), cancelToken);
+
+        // Track published files even if the originating request was cancelled.
+        await _lifecycle.TrackCacheFileAsync(artifact, catalog, CancellationToken.None);
+    }
+
+    private static IconCacheArtifact CreateBrowserArtifact(IconSprite sprite)
+        => new("browser", null, sprite.LibraryName, sprite.VariantName,
+            $"browser/{sprite.LibraryName}-{sprite.VariantName}-{sprite.Revision}.svg");
+
+    private string BuildUrl(string path)
+        => (_httpContextAccessor.HttpContext?.Request.PathBase.Value ?? string.Empty) + _options.RoutePrefix + "/" + path;
 
     // Selects registered sources while keeping the internal system library out of the picker.
     private static (IconCatalog.Library Library, IconCatalog.Variant Variant) SelectSource(IconCatalog catalog, string library, string variant)

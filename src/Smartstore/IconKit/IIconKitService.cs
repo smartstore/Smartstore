@@ -21,11 +21,6 @@ public interface IIconKitService
     Task<string?> GetManifestFileAsync(string revision, CancellationToken cancelToken = default);
 
     /// <summary>
-    /// Searches a kit and prepares its sprite for display in the icon browser. Returns null if the kit does not exist.
-    /// </summary>
-    Task<IconBrowserResult?> SearchAsync(string kitName, IconSearchQuery query, CancellationToken cancelToken = default);
-
-    /// <summary>
     /// Gets configured kits without reading SVG drawing data.
     /// </summary>
     IReadOnlyCollection<IconKit> Kits { get; }
@@ -42,7 +37,7 @@ public interface IIconKitService
     /// Kit declaration order determines precedence within the resolved area.
     /// </summary>
     /// <param name="icon">The resolved icon, including its library and variant.</param>
-    IconKitReference? GetReference(IconInfo icon);
+    string? GetSpriteHref(IconInfo icon);
 
     /// <summary>
     /// Gets the versioned sprite URL without generating its content.
@@ -189,12 +184,6 @@ public sealed class IconKit
     /// </summary>
     public string? DefaultVariant { get; }
 }
-
-/// <summary>
-/// Identifies an external symbol without loading its drawing.
-/// </summary>
-/// <param name="Href">The versioned application-relative sprite URL including the symbol fragment.</param>
-public sealed record IconKitReference(string Href);
 
 /// <summary>
 /// Describes an existing kit sprite without exposing file access.

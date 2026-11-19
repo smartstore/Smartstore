@@ -144,6 +144,86 @@ public sealed class IconCatalog
     }
 
     /// <summary>
+    /// Resolves a name using library mappings and fallbacks. Kit planning uses name indexes only.
+    /// </summary>
+    internal IconInfo Resolve(IconAddress address, bool indexOnly = false)
+    {
+        var library = SelectLibrary(address.Library);
+        var variant = SelectVariant(library, address.Variant);
+        if (variant == null)
+        {
+            return null;
+        }
+
+        var name = address.Name;
+        var skipMapping = address.SkipMapping;
+        var result = FindInLibrary(library, variant);
+        if (result == null && !skipMapping && FallbackToDefaultLibrary && library != DefaultLibrary)
+        {
+            // Do not carry a foreign concrete name, mapping modifiers, or kit variant across
+            // libraries. The system default resolves the original concept independently.
+            result = FindInLibrary(DefaultLibrary, SelectVariant(DefaultLibrary, null));
+        }
+
+        if (result is not { } source)
+        {
+            return null;
+        }
+
+        var info = IconInfo.Create(source.Library, source.Variant, source.Mapping.Name, includeTags: !indexOnly);
+        info.Transform = source.Mapping.Transform;
+        info.StrokeScale = source.Mapping.StrokeScale;
+        return info;
+
+        (Library Library, Variant Variant, IconMapping Mapping)? FindInLibrary(
+            Library candidateLibrary, Variant candidateVariant)
+        {
+            var mapping = (!skipMapping ? candidateLibrary.Mapping.GetValueOrDefault(name) : null)
+                ?? new IconMapping(name, default);
+            foreach (var candidate in candidateVariant.ResolutionOrder)
+            {
+                // Individual lookups retain the direct override fast path: no directory scan
+                // or archive access when a loose override exists. Kits use name indexes so
+                // resolving memberships does not fingerprint unrelated kits' loose sources.
+                if (indexOnly ? candidate.Names.Contains(mapping.Name) : candidate.GetSource(mapping.Name) != null)
+                {
+                    return (candidateLibrary, candidate, candidate.Manifest.SupportsStrokeScaling ? mapping : mapping with { StrokeScale = 1 });
+                }
+            }
+
+            return null;
+        }
+    }
+
+    /// <summary>
+    /// Searches one variant in this catalog without preparing SVG files.
+    /// </summary>
+    internal IconSearchResult Search(IconSearchQuery query)
+    {
+        Guard.NotNull(query);
+        Guard.NotNegative(query.Skip);
+        Guard.InRange(query.Take, 1, 500);
+
+        var library = SelectLibrary(query.Library);
+        var variant = SelectVariant(library, query.Variant);
+        if (variant == null)
+        {
+            return new IconSearchResult();
+        }
+
+        var page = query.FindPage(variant.SortedNames, (name, word) =>
+            name.Contains(word, StringComparison.OrdinalIgnoreCase)
+            || (library.Tags.GetValueOrDefault(name) ?? []).Any(tag => tag.Contains(word, StringComparison.OrdinalIgnoreCase))
+            || library.Aliases[name].Any(alias => alias.Contains(word, StringComparison.OrdinalIgnoreCase)));
+
+        return new IconSearchResult
+        {
+            TotalCount = page.TotalCount,
+            Items = page.Items.Select(name => IconInfo.Create(library, variant, name)).ToArray()
+        };
+    }
+
+    /// <summary>
     /// Groups a manifest with independently deferred mappings and search metadata.
     /// </summary>
     internal sealed class Library

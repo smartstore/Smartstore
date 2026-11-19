@@ -53,10 +53,9 @@ public sealed record IconBrowserResult(string SpriteUrl, int TotalCount, IReadOn
 /// <param name="VariantKey">The short or system variant name used for CSS classes.</param>
 /// <param name="SupportsStrokeScaling">Whether the resolved source variant supports per-icon stroke scaling.</param>
 /// <param name="IsDuotone">Whether the resolved source variant has primary and secondary layers.</param>
-/// <param name="InlineName">An explicit address with modifiers for exceptions that require inline rendering.</param>
 /// <param name="PreviewAddress">The concrete source address including mapping modifiers, independent of the current page area.</param>
 /// <param name="IsExternal">Whether kit membership depends on an installed module provider.</param>
-public sealed record IconBrowserItem(string Name, string Value, string Address, string LibraryKey, string VariantKey, string? InlineName = null, bool SupportsStrokeScaling = false, bool IsDuotone = false, string? PreviewAddress = null, bool IsExternal = false)
+public sealed record IconBrowserItem(string Name, string Value, string Address, string LibraryKey, string VariantKey, bool SupportsStrokeScaling = false, bool IsDuotone = false, string? PreviewAddress = null, bool IsExternal = false)
 {
     // Keeps kit selections conceptual and library selections literal. Mapping modifiers are baked into sprites.
     internal static IconBrowserItem Create(IconInfo info, string concept = null, bool isExternal = false)
@@ -71,7 +70,7 @@ public sealed record IconBrowserItem(string Name, string Value, string Address, 
         });
 
         return new(concept ?? info.Name, concept ?? address.ToString(), info.Address, info.LibraryKey, info.VariantKey,
-            null, info.SupportsStrokeScaling, info.IsDuotone, expression.ToString(), isExternal);
+            info.SupportsStrokeScaling, info.IsDuotone, expression.ToString(), isExternal);
     }
 }
 

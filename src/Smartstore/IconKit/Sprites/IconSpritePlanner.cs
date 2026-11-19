@@ -6,15 +6,29 @@ using Smartstore.Json;
 
 namespace Smartstore.IconKit.Sprites;
 
-public sealed class IconKitPlanner : IIconKitPlanner
+public sealed class IconSpritePlanner : IIconSpritePlanner
 {
-    private readonly IIconResolver _resolver;
     private readonly IconKitOptions _options;
 
-    public IconKitPlanner(IIconResolver resolver, IOptions<IconKitOptions> options)
+    public IconSpritePlanner(IOptions<IconKitOptions> options)
     {
-        _resolver = resolver;
         _options = options.Value;
+    }
+
+    /// <inheritdoc />
+    public IconKitIndex GetIndex(IconCatalog catalog, string library, string variant)
+    {
+        var selectedLibrary = catalog.SelectLibrary(library);
+        var selectedVariant = catalog.SelectVariant(selectedLibrary, variant);
+        return selectedVariant == null ? null : GetIndex(catalog, selectedLibrary, selectedVariant);
+    }
+
+    /// <inheritdoc />
+    public IconSprite GetLibrarySprite(IconCatalog catalog, string libraryName, string variantName)
+    {
+        var library = catalog.SelectLibrary(libraryName);
+        var variant = catalog.SelectVariant(library, variantName);
+        return variant == null ? null : GetLibrarySprite(catalog, library, variant);
     }
 
     /// <inheritdoc />
@@ -104,18 +118,18 @@ public sealed class IconKitPlanner : IIconKitPlanner
         return new IconKitManifest(Convert.ToHexStringLower(SHA256.HashData(content).AsSpan(0, 12)), content);
     }
 
-    /// <inheritdoc />
-    public IconKitIndex GetIndex(IconCatalog catalog, string library, string variant)
-    {
-        var selectedLibrary = catalog.SelectLibrary(library);
-        var selectedVariant = catalog.SelectVariant(selectedLibrary, variant);
-        return selectedVariant == null ? null : GetIndex(catalog, selectedLibrary, selectedVariant);
-    }
-
     private IconKitIndex GetIndex(IconCatalog catalog, IconCatalog.Library library, IconCatalog.Variant variant)
         => catalog.KitIndexes.GetOrAdd(library.Manifest.SystemName + ":" + variant.Manifest.Name,
             static (_, state) => new Lazy<IconKitIndex>(() =>
-                new IconKitIndex(state.Catalog, state.Library, state.Variant, state.Resolver)),
-            (Catalog: catalog, Library: library, Variant: variant, Resolver: _resolver)).Value;
+                new IconKitIndex(state.Catalog, state.Library, state.Variant)),
+            (Catalog: catalog, Library: library, Variant: variant)).Value;
+
+    // Defers complete variant plans until first use, bypassing conceptual mappings.
+    private IconSprite GetLibrarySprite(IconCatalog catalog, IconCatalog.Library library, IconCatalog.Variant variant)
+        => catalog.VariantSprites.GetOrAdd(library.Manifest.SystemName + ":" + variant.Manifest.Name,
+            static (_, state) => new Lazy<IconSprite>(() => new IconSprite(state.Catalog, state.Library, state.Variant, "browser",
+                state.Variant.Names.OrderBy(x => x, StringComparer.Ordinal)
+                    .Select(name => (name, IconInfo.Create(state.Library, state.Variant, name, false), state.Variant)))),
+            (Catalog: catalog, Library: library, Variant: variant)).Value;
 
 }

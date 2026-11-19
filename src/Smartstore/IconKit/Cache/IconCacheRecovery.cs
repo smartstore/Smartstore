@@ -5,13 +5,11 @@ namespace Smartstore.IconKit.Cache;
 
 public sealed class IconCacheRecovery : IIconCacheRecovery
 {
-    private readonly IIconKitPlanner _kitPlanner;
-    private readonly IIconLibrarySpriteService _librarySprites;
+    private readonly IIconSpritePlanner _planner;
 
-    public IconCacheRecovery(IIconKitPlanner kitPlanner, IIconLibrarySpriteService librarySprites)
+    public IconCacheRecovery(IIconSpritePlanner planner)
     {
-        _kitPlanner = kitPlanner;
-        _librarySprites = librarySprites;
+        _planner = planner;
     }
 
     /// <inheritdoc />
@@ -64,7 +62,7 @@ public sealed class IconCacheRecovery : IIconCacheRecovery
         if (kind == "manifest")
         {
             return new(kind, kitName, libraryName, variantName,
-                "kits/manifest-" + _kitPlanner.GetManifest(catalog).Revision + ".json");
+                "kits/manifest-" + _planner.GetManifest(catalog).Revision + ".json");
         }
 
         // Removed sources must not fall back to another library or variant.
@@ -76,13 +74,13 @@ public sealed class IconCacheRecovery : IIconCacheRecovery
 
         if (kind == "browser" && !library.IsProvider)
         {
-            var revision = _librarySprites.GetRevision(catalog, libraryName, variantName);
+            var revision = _planner.GetLibrarySprite(catalog, libraryName, variantName).Revision;
             return new(kind, kitName, libraryName, variantName, $"browser/{libraryName}-{variantName}-{revision}.svg");
         }
 
         if (kind == "kit" && kitName != null && catalog.Kits.ContainsKey(kitName))
         {
-            var index = _kitPlanner.GetIndex(catalog, libraryName, variantName);
+            var index = _planner.GetIndex(catalog, libraryName, variantName);
             if (index.CanGenerate(kitName))
             {
                 return new(kind, kitName, libraryName, variantName, $"kits/{kitName}-{index.Plans[kitName].Value.Revision}.svg");

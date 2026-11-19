@@ -89,7 +89,7 @@ internal class IconEndpoints
                 results = result.Items.Select(x => new
                 {
                     id = x.Value, text = x.Name, address = x.Address, previewAddress = x.PreviewAddress,
-                    library = x.LibraryKey, variant = x.VariantKey, inlineName = x.InlineName, supportsStrokeScaling = x.SupportsStrokeScaling, isDuotone = x.IsDuotone
+                    library = x.LibraryKey, variant = x.VariantKey, supportsStrokeScaling = x.SupportsStrokeScaling, isDuotone = x.IsDuotone
                 }),
                 pagination = new { more = (long)page * pageSize < result.TotalCount },
                 total = result.TotalCount
