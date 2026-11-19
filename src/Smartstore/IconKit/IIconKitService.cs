@@ -53,6 +53,13 @@ public interface IIconKitService
     string? GetUrl(string kitName, string? library = null, string? variant = null);
 
     /// <summary>
+    /// Gets information about existing sprites for all kits, sorted by kit name.
+    /// Uses each kit's default library and variant and includes only its current revision.
+    /// Skips missing files and unavailable selections. Does not create sprites.
+    /// </summary>
+    IReadOnlyList<IconKitFileInfo> GetCachedSpriteFiles();
+
+    /// <summary>
     /// Gets the physical path of an immutable sprite file, writing it only on a cache miss.
     /// Existing historical revisions remain available. Returns null for unknown selections
     /// or an unavailable historical revision, which cannot be reconstructed from current sources.
@@ -188,3 +195,12 @@ public sealed class IconKit
 /// </summary>
 /// <param name="Href">The versioned application-relative sprite URL including the symbol fragment.</param>
 public sealed record IconKitReference(string Href);
+
+/// <summary>
+/// Describes an existing kit sprite without exposing file access.
+/// </summary>
+/// <param name="KitName">The configured kit name.</param>
+/// <param name="DisplayName">The display label, or the kit name when no label is configured.</param>
+/// <param name="FileName">The sprite filename.</param>
+/// <param name="Size">The file size in bytes.</param>
+public sealed record IconKitFileInfo(string KitName, string DisplayName, string FileName, long Size);

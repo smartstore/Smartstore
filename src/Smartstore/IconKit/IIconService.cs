@@ -80,7 +80,21 @@ public interface IIconService
     /// </summary>
     Task<IconSearchResult> SearchAsync(IconCatalog catalog, IconSearchQuery query, CancellationToken cancelToken = default);
 
+    /// <summary>
+    /// Gets existing kit sprite details and cached individual icons for a diagnostic view.
+    /// Individual icons exclude kit members and library logos and are listed once per address.
+    /// Does not generate sprites or populate the icon cache.
+    /// </summary>
+    Task<IconCacheSummary> GetCacheSummaryAsync(CancellationToken cancelToken = default);
+
 }
+
+/// <summary>
+/// Contains the cached resources available for display in diagnostics.
+/// </summary>
+/// <param name="KitFiles">Existing current kit sprites, sorted by kit name.</param>
+/// <param name="CachedIcons">Cached individual icons, sorted by address, excluding kit members and library logos.</param>
+public sealed record IconCacheSummary(IReadOnlyList<IconKitFileInfo> KitFiles, IReadOnlyList<IconSvg> CachedIcons);
 
 public static class IIconServiceExtensions
 {

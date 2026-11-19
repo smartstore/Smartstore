@@ -1,7 +1,4 @@
-﻿using Smartstore.IconKit.Cache;
-using System.IO;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Options;
+﻿using Microsoft.AspNetCore.Mvc;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Security;
 using Smartstore.IconKit;
@@ -13,70 +10,27 @@ namespace Smartstore.DevTools.Controllers;
 
 [Area("Admin")]
 //[Route("module/[area]/[action]/{id?}", Name = "Smartstore.DevTools")]
-public class DevToolsController(IIconCache iconCache, IIconKitService iconKits, IIconService icons, IOptions<IconKitOptions> iconOptions) : ModuleController
+public class DevToolsController : ModuleController
 {
+    private readonly IIconService _icons;
+
+    public DevToolsController(IIconService icons)
+    {
+        _icons = icons;
+    }
+
     [AuthorizeAdmin, Permission(DevToolsPermissions.Read)]
     [LoadSetting]
     public async Task<IActionResult> Configure(ProfilerSettings settings)
     {
         var model = MiniMapper.Map<ProfilerSettings, ConfigurationModel>(settings);
-        var kitFiles = new List<IconKitFileModel>();
-        var contentRoot = Services.ApplicationContext.ContentRoot;
-        var kitDirectory = Path.Combine(iconOptions.Value.CachePath, "kits");
-        foreach (var kit in iconKits.Kits.OrderBy(x => x.Name, StringComparer.Ordinal))
-        {
-            var url = iconKits.GetUrl(kit.Name);
-            if (url == null)
-            {
-                continue;
-            }
+        var summary = await _icons.GetCacheSummaryAsync(HttpContext.RequestAborted);
 
-            // Inspect only the current revision; never generate sprites for diagnostics.
-            var fileName = Uri.UnescapeDataString(Path.GetFileName(url));
-            var file = contentRoot.GetFile(Path.Combine(kitDirectory, fileName));
-            if (file.Exists)
-            {
-                kitFiles.Add(new IconKitFileModel(kit.DisplayName ?? kit.Name, fileName, file.Length));
-            }
-        }
-        model.KitFiles = kitFiles;
+        model.KitFiles = summary.KitFiles
+            .Select(file => new IconKitFileModel(file.DisplayName, file.FileName, file.Size))
+            .ToArray();
+        model.CachedIcons = summary.CachedIcons;
 
-        var kitAddresses = iconKits.GetSourceAddresses();
-        var logoAddresses = new HashSet<string>(StringComparer.Ordinal);
-        var libraries = await icons.GetLibrariesAsync();
-        var logos = libraries.SelectMany(library => library.Variants.Values
-            .Select(variant => variant.Icon ?? library.Icon).Append(library.Icon))
-            .Where(address => address.HasValue()).Distinct(StringComparer.Ordinal);
-        foreach (var logo in logos)
-        {
-            // Resolve metadata only: library aliases and variant fallbacks must match
-            // the canonical cache identity without loading or caching any drawing.
-            var icon = await icons.GetIconAsync(IconExpression.Parse(logo).Address);
-            if (icon != null)
-            {
-                logoAddresses.Add(icon.Address);
-            }
-        }
-
-        var cachedIcons = new Dictionary<string, IconSvg>(StringComparer.Ordinal);
-        await foreach (var entry in iconCache.GetEntriesAsync())
-        {
-            var address = entry.Address.ToString();
-            if (kitAddresses.Contains(address) || logoAddresses.Contains(address) || cachedIcons.ContainsKey(address))
-            {
-                continue;
-            }
-
-            // Entries can expire between enumeration and lookup. Read the cached payload
-            // directly so this diagnostic view does not populate or refresh the icon cache.
-            var svg = await iconCache.GetAsync(entry.Key);
-            if (svg != null)
-            {
-                cachedIcons.TryAdd(svg.Address, svg);
-            }
-        }
-
-        model.CachedIcons = cachedIcons.Values.OrderBy(x => x.Address, StringComparer.Ordinal).ToArray();
         return View(model);
     }
 

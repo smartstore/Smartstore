@@ -130,21 +130,32 @@ public sealed class IconKitService : IIconKitService
     /// <inheritdoc />
     public string GetUrl(string kitName, string library = null, string variant = null)
     {
+        var sprite = GetSpritePlan(_catalogAccessor.Catalog, kitName, library, variant);
+        return sprite == null ? null : BuildUrl(kitName, sprite.Revision);
+    }
+
+    /// <inheritdoc />
+    public IReadOnlyList<IconKitFileInfo> GetCachedSpriteFiles()
+    {
         var catalog = _catalogAccessor.Catalog;
-        if (kitName == null || !catalog.Kits.TryGetValue(kitName, out var kit))
+        var files = new List<IconKitFileInfo>();
+
+        foreach (var kit in catalog.Kits.Values.OrderBy(x => x.Name, StringComparer.Ordinal))
         {
-            return null;
+            var sprite = GetSpritePlan(catalog, kit.Name, null, null);
+            if (sprite == null)
+            {
+                continue;
+            }
+
+            var file = _fileCache.GetFile($"kits/{kit.Name}-{sprite.Revision}.svg");
+            if (file.Exists)
+            {
+                files.Add(new IconKitFileInfo(kit.Name, kit.DisplayName ?? kit.Name, file.Name, file.Length));
+            }
         }
 
-        var selectedLibrary = catalog.SelectLibrary(library ?? kit.DefaultLibrary);
-        var selectedVariant = catalog.SelectVariant(selectedLibrary, variant, kit);
-        if (selectedVariant == null)
-        {
-            return null;
-        }
-
-        var index = GetIndex(catalog, selectedLibrary, selectedVariant);
-        return BuildUrl(kitName, index.Plans[kitName].Value.Revision);
+        return files;
     }
 
     /// <inheritdoc />
@@ -236,6 +247,24 @@ public sealed class IconKitService : IIconKitService
     // Finish tracking published files even if the originating request was cancelled.
     private Task RegisterArtifactAsync(IconCatalog catalog, IconCacheArtifact artifact)
         => _lifecycle.TrackCacheFileAsync(artifact, catalog, CancellationToken.None);
+
+    private IconSprite GetSpritePlan(IconCatalog catalog, string kitName, string library, string variant)
+    {
+        if (kitName == null || !catalog.Kits.TryGetValue(kitName, out var kit))
+        {
+            return null;
+        }
+
+        var selectedLibrary = catalog.SelectLibrary(library ?? kit.DefaultLibrary);
+        var selectedVariant = catalog.SelectVariant(selectedLibrary, variant, kit);
+        if (selectedVariant == null)
+        {
+            return null;
+        }
+
+        var index = GetIndex(catalog, selectedLibrary, selectedVariant);
+        return index.Plans[kitName].Value;
+    }
 
     private string BuildUrl(string kit, string revision)
         => (_httpContextAccessor.HttpContext?.Request.PathBase.Value ?? string.Empty)

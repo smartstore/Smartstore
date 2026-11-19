@@ -97,7 +97,8 @@ public class IconServiceTests
         var recovery = new IconCacheRecovery(planner, sprites);
         var lifecycle = new IconCacheLifecycle(appContext, options, recovery);
         var catalog = new IconCatalogAccessor(appContext, options, lifecycle);
-        var service = new IconService(catalog, cache, resolver, areaResolver, accessor);
+        var kits = new IconKitService(appContext, catalog, lifecycle, planner, options, accessor);
+        var service = new IconService(catalog, cache, kits, resolver, areaResolver, accessor);
         _dependencies.Add(service, (appContext, catalog, lifecycle, options, resolver, sprites, planner));
         _lifecycles.Add(lifecycle);
         return service;

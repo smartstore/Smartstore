@@ -10,6 +10,7 @@ public sealed class IconService : IIconService
 {
     private readonly IIconCatalogAccessor _catalogAccessor;
     private readonly IIconCache _cache;
+    private readonly IIconKitService _kits;
     private readonly IIconResolver _resolver;
     private readonly IIconAreaResolver _areaResolver;
     private readonly IHttpContextAccessor _httpContextAccessor;
@@ -17,12 +18,14 @@ public sealed class IconService : IIconService
     public IconService(
         IIconCatalogAccessor catalogAccessor,
         IIconCache cache,
+        IIconKitService kits,
         IIconResolver resolver,
         IIconAreaResolver areaResolver,
         IHttpContextAccessor httpContextAccessor)
     {
         _catalogAccessor = catalogAccessor;
         _cache = cache;
+        _kits = kits;
         _resolver = resolver;
         _areaResolver = areaResolver;
         _httpContextAccessor = httpContextAccessor;
@@ -157,6 +160,46 @@ public sealed class IconService : IIconService
         }
 
         return Task.FromResult(Search(query, library, variant));
+    }
+
+    /// <inheritdoc />
+    public async Task<IconCacheSummary> GetCacheSummaryAsync(CancellationToken cancelToken = default)
+    {
+        var kitFiles = _kits.GetCachedSpriteFiles();
+        var excluded = _kits.GetSourceAddresses().ToHashSet(StringComparer.Ordinal);
+        var libraries = await GetLibrariesAsync(cancelToken);
+        var logos = libraries.SelectMany(library => library.Variants.Values
+            .Select(variant => variant.Icon ?? library.Icon).Append(library.Icon))
+            .Where(address => address.HasValue()).Distinct(StringComparer.Ordinal);
+
+        foreach (var logo in logos)
+        {
+            // Resolve aliases and fallbacks without loading or caching the logo's drawing.
+            var icon = await GetIconAsync(IconExpression.Parse(logo).Address, cancelToken: cancelToken);
+            if (icon != null)
+            {
+                excluded.Add(icon.Address);
+            }
+        }
+
+        var cachedIcons = new Dictionary<string, IconSvg>(StringComparer.Ordinal);
+        await foreach (var entry in _cache.GetEntriesAsync(cancelToken))
+        {
+            var address = entry.Address.ToString();
+            if (excluded.Contains(address) || cachedIcons.ContainsKey(address))
+            {
+                continue;
+            }
+
+            // Read only existing payloads. An expired entry must not be regenerated for diagnostics.
+            var svg = await _cache.GetAsync(entry.Key, cancelToken);
+            if (svg != null)
+            {
+                cachedIcons.TryAdd(svg.Address, svg);
+            }
+        }
+
+        return new IconCacheSummary(kitFiles, cachedIcons.Values.OrderBy(x => x.Address, StringComparer.Ordinal).ToArray());
     }
 
     private IconInfo Find(IconCatalog catalog, IconAddress address, string area)
