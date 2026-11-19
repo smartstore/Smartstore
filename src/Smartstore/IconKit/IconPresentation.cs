@@ -244,6 +244,9 @@ public readonly record struct IconPresentation
         return result;
     }
 
+    private static bool TryParseFiniteNumber(ReadOnlySpan<char> value, out double result)
+        => double.TryParse(value, NumberStyles.Float, CultureInfo.InvariantCulture, out result) && double.IsFinite(result);
+
     private static bool TryParseBoolean(ReadOnlySpan<char> value, out bool result)
     {
         if (value is "1" or "0")
@@ -310,7 +313,7 @@ public readonly record struct IconPresentation
             seen |= flag;
             switch (key)
             {
-                case "opacity" when double.TryParse(value, NumberStyles.Float, CultureInfo.InvariantCulture, out var opacityValue) && double.IsFinite(opacityValue) && opacityValue >= 0 && opacityValue <= 1:
+                case "opacity" when TryParseFiniteNumber(value, out var opacityValue) && opacityValue >= 0 && opacityValue <= 1:
                     result = result with { Opacity = opacityValue };
                     break;
                 case "flip" when value is "x" or "y" or "xy" or "none":
@@ -319,13 +322,13 @@ public readonly record struct IconPresentation
                 case "size" when IconPresentation.IsValidSize(value):
                     result = result with { Size = value.ToString() };
                     break;
-                case "font-scale" when double.TryParse(value, NumberStyles.Float, CultureInfo.InvariantCulture, out var fontScaleValue) && double.IsFinite(fontScaleValue) && fontScaleValue > 0:
+                case "font-scale" when TryParseFiniteNumber(value, out var fontScaleValue) && fontScaleValue > 0:
                     result = result with { FontScale = fontScaleValue };
                     break;
                 case "fixed-width" when TryParseBoolean(value, out var fixedWidthValue):
                     result = result with { FixedWidth = fixedWidthValue };
                     break;
-                case "color" when value.IndexOfAny([';', '{', '}']) < 0:
+                case "color":
                     result = result with { Color = value.ToString() };
                     break;
                 case "inverse" when TryParseBoolean(value, out var inverseValue):
@@ -334,13 +337,13 @@ public readonly record struct IconPresentation
                 case "animation" when IconPresentation.IsValidAnimation(value):
                     result = result with { Animation = value.ToString() };
                     break;
-                case "animation-duration" when value.IndexOfAny([';', '{', '}']) < 0:
+                case "animation-duration":
                     result = result with { AnimationDuration = value.ToString() };
                     break;
                 case "animation-reverse" when TryParseBoolean(value, out var animationReverseValue):
                     result = result with { AnimationReverse = animationReverseValue };
                     break;
-                case "rotate" when double.TryParse(value, NumberStyles.Float, CultureInfo.InvariantCulture, out var rotateValue) && double.IsFinite(rotateValue):
+                case "rotate" when TryParseFiniteNumber(value, out var rotateValue):
                     result = result with { Rotate = rotateValue };
                     break;
                 case "flip-h" when TryParseBoolean(value, out var flipHorizontalValue):
@@ -352,16 +355,16 @@ public readonly record struct IconPresentation
                 case "mirror-rtl" when TryParseBoolean(value, out var mirrorRtlValue):
                     result = result with { MirrorRtl = mirrorRtlValue };
                     break;
-                case "scale" when double.TryParse(value, NumberStyles.Float, CultureInfo.InvariantCulture, out var scaleValue) && double.IsFinite(scaleValue) && scaleValue > 0:
+                case "scale" when TryParseFiniteNumber(value, out var scaleValue) && scaleValue > 0:
                     result = result with { Scale = scaleValue };
                     break;
-                case "shift-x" when double.TryParse(value, NumberStyles.Float, CultureInfo.InvariantCulture, out var shiftXValue) && double.IsFinite(shiftXValue):
+                case "shift-x" when TryParseFiniteNumber(value, out var shiftXValue):
                     result = result with { ShiftX = shiftXValue };
                     break;
-                case "shift-y" when double.TryParse(value, NumberStyles.Float, CultureInfo.InvariantCulture, out var shiftYValue) && double.IsFinite(shiftYValue):
+                case "shift-y" when TryParseFiniteNumber(value, out var shiftYValue):
                     result = result with { ShiftY = shiftYValue };
                     break;
-                case "stroke-scale" when double.TryParse(value, NumberStyles.Float, CultureInfo.InvariantCulture, out var strokeScaleValue) && double.IsFinite(strokeScaleValue) && strokeScaleValue > 0:
+                case "stroke-scale" when TryParseFiniteNumber(value, out var strokeScaleValue) && strokeScaleValue > 0:
                     result = result with { StrokeScale = strokeScaleValue };
                     break;
                 default:

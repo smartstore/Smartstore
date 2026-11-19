@@ -36,7 +36,7 @@ public sealed class IconCacheRecovery : IIconCacheRecovery
         foreach (var known in knownFiles)
         {
             unknownFiles.Remove(known.File);
-            var current = GetCurrentFile(catalog, known);
+            var current = GetCurrentFile(catalog, known.Kind, known.Library, known.Variant, known.Kit);
             if (current != null && files.Contains(current.File))
             {
                 result.Add(current);
@@ -54,32 +54,38 @@ public sealed class IconCacheRecovery : IIconCacheRecovery
         return result.ToArray();
     }
 
-    private IconCacheArtifact GetCurrentFile(IconCatalog catalog, IconCacheArtifact known)
+    private IconCacheArtifact GetCurrentFile(
+        IconCatalog catalog,
+        string kind,
+        string libraryName = null,
+        string variantName = null,
+        string kitName = null)
     {
-        if (known.Kind == "manifest")
+        if (kind == "manifest")
         {
-            return known with { File = "kits/manifest-" + _kitPlanner.GetManifest(catalog).Revision + ".json" };
+            return new(kind, kitName, libraryName, variantName,
+                "kits/manifest-" + _kitPlanner.GetManifest(catalog).Revision + ".json");
         }
 
-        // Removed libraries or variants must not silently fall back to another selection.
-        var library = catalog.SelectLibrary(known.Library);
-        if (library == null || known.Variant == null || !library.Variants.ContainsKey(known.Variant))
+        // Removed sources must not fall back to another library or variant.
+        var library = catalog.SelectLibrary(libraryName);
+        if (library == null || variantName == null || !library.Variants.ContainsKey(variantName))
         {
             return null;
         }
 
-        if (known.Kind == "browser" && !library.IsProvider)
+        if (kind == "browser" && !library.IsProvider)
         {
-            var revision = _librarySprites.GetRevision(catalog, known.Library, known.Variant);
-            return known with { File = $"browser/{known.Library}-{known.Variant}-{revision}.svg" };
+            var revision = _librarySprites.GetRevision(catalog, libraryName, variantName);
+            return new(kind, kitName, libraryName, variantName, $"browser/{libraryName}-{variantName}-{revision}.svg");
         }
 
-        if (known.Kind == "kit" && known.Kit != null && catalog.Kits.ContainsKey(known.Kit))
+        if (kind == "kit" && kitName != null && catalog.Kits.ContainsKey(kitName))
         {
-            var index = _kitPlanner.GetIndex(catalog, known.Library, known.Variant);
-            if (index.CanGenerate(known.Kit))
+            var index = _kitPlanner.GetIndex(catalog, libraryName, variantName);
+            if (index.CanGenerate(kitName))
             {
-                return known with { File = $"kits/{known.Kit}-{index.Plans[known.Kit].Value.Revision}.svg" };
+                return new(kind, kitName, libraryName, variantName, $"kits/{kitName}-{index.Plans[kitName].Value.Revision}.svg");
             }
         }
 
@@ -89,11 +95,6 @@ public sealed class IconCacheRecovery : IIconCacheRecovery
     private IReadOnlyCollection<IconCacheArtifact> FindUnindexedFiles(IconCatalog catalog, IReadOnlySet<string> files)
     {
         var result = new List<IconCacheArtifact>();
-        if (files.Count == 0)
-        {
-            return result;
-        }
-
         var spritePrefixes = new HashSet<string>(StringComparer.Ordinal);
         bool hasManifest = false;
 
@@ -120,25 +121,15 @@ public sealed class IconCacheRecovery : IIconCacheRecovery
                 var browserPrefix = "browser/" + library.Manifest.SystemName + "-" + variant.Manifest.Name + "-";
                 if (!library.IsProvider && spritePrefixes.Contains(browserPrefix))
                 {
-                    var revision = _librarySprites.GetRevision(catalog, library.Manifest.SystemName, variant.Manifest.Name);
-                    result.Add(new("browser", null, library.Manifest.SystemName, variant.Manifest.Name,
-                        browserPrefix + revision + ".svg"));
+                    result.Add(GetCurrentFile(catalog, "browser", library.Manifest.SystemName, variant.Manifest.Name));
                 }
 
-                if (kitNames.Length == 0)
-                {
-                    continue;
-                }
-
-                // Mixed kits resolve their mappings and fallback variants through the normal index.
-                var index = _kitPlanner.GetIndex(catalog, library.Manifest.SystemName, variant.Manifest.Name);
                 foreach (var name in kitNames)
                 {
-                    if (index.CanGenerate(name))
+                    var current = GetCurrentFile(catalog, "kit", library.Manifest.SystemName, variant.Manifest.Name, name);
+                    if (current != null)
                     {
-                        var sprite = index.Plans[name].Value;
-                        result.Add(new("kit", name, library.Manifest.SystemName, variant.Manifest.Name,
-                            "kits/" + name + "-" + sprite.Revision + ".svg"));
+                        result.Add(current);
                     }
                 }
             }
@@ -147,8 +138,7 @@ public sealed class IconCacheRecovery : IIconCacheRecovery
         // The browser's manifest is another immutable artifact with its own revision.
         if (hasManifest)
         {
-            var manifest = _kitPlanner.GetManifest(catalog);
-            result.Add(new("manifest", null, null, null, "kits/manifest-" + manifest.Revision + ".json"));
+            result.Add(GetCurrentFile(catalog, "manifest"));
         }
 
         return result.Where(x => files.Contains(x.File)).ToArray();

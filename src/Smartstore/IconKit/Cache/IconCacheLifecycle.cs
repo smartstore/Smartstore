@@ -317,11 +317,7 @@ public sealed class IconCacheLifecycle : IIconCacheLifecycle, IAsyncDisposable
 
                 changed |= _index.ObsoleteFiles.Remove(entry.Key);
             }
-            catch (IOException ex)
-            {
-                Logger.Warn(ex, "Could not delete an obsolete icon artifact.");
-            }
-            catch (UnauthorizedAccessException ex)
+            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
             {
                 Logger.Warn(ex, "Could not delete an obsolete icon artifact.");
             }

@@ -222,14 +222,13 @@ public sealed class IconService : IIconService
         // the same fallback resolution as kit planning and browser manifest generation.
         var useSource = !entry.IsEmpty && library == entryLibrary
             && variant == catalog.SelectVariant(entryLibrary, entry.Variant, kit);
-        var resolved = _resolver.Resolve(catalog, new IconAddress(useSource ? entry.Name : address.Name,
+        var info = _resolver.Resolve(catalog, new IconAddress(useSource ? entry.Name : address.Name,
             library.Manifest.SystemName, variant.Manifest.Name, address.SkipMapping || useSource));
-        if (resolved == null)
+        if (info == null)
         {
             return null;
         }
 
-        var info = resolved;
         // Keep the requested kit context separate from the actual artwork identity. A mixed
         // regular kit must stay regular even when this particular symbol came from solid.
         info.Area = area ?? "public";

@@ -6,10 +6,8 @@ using System.Xml.XPath;
 
 namespace Smartstore.IconKit;
 
-// Prepare one XML tree for either immediate sprite composition or cache serialization.
-// Per-render sizing, animation and transforms do not belong here.
 /// <summary>
-/// Validates static SVG sources and prepares XML with configurable stroke fallbacks and CSS variable overrides.
+/// Checks SVG sources and prepares their XML for individual icons or sprites.
 /// </summary>
 internal static partial class IconSvgParser
 {
@@ -27,9 +25,8 @@ internal static partial class IconSvgParser
     /// </summary>
     internal const int MaxLength = 1024 * 1024;
 
-    // Increment when preparation rules change, independently of library package versions.
     /// <summary>
-    /// The preparation format version included in cache revisions independently of source content.
+    /// Included in cache revisions. Increment when SVG preparation rules change.
     /// </summary>
     internal const string Revision = "20";
     private const string _svgNamespace = "http://www.w3.org/2000/svg";
