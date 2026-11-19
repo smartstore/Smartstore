@@ -114,6 +114,8 @@ public sealed class IconKitPlanner : IIconKitPlanner
 
     private IconKitIndex GetIndex(IconCatalog catalog, IconCatalog.Library library, IconCatalog.Variant variant)
         => catalog.KitIndexes.GetOrAdd(library.Manifest.SystemName + ":" + variant.Manifest.Name,
-            _ => new Lazy<IconKitIndex>(() => new IconKitIndex(catalog, library, variant, _resolver))).Value;
+            static (_, state) => new Lazy<IconKitIndex>(() =>
+                new IconKitIndex(state.Catalog, state.Library, state.Variant, state.Resolver)),
+            (Catalog: catalog, Library: library, Variant: variant, Resolver: _resolver)).Value;
 
 }

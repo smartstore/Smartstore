@@ -41,8 +41,9 @@ public sealed class IconLibrarySpriteService : IIconLibrarySpriteService
     // Defers complete variant plans until first use, bypassing conceptual mappings.
     private IconSprite GetSprite(IconCatalog catalog, IconCatalog.Library library, IconCatalog.Variant variant)
         => catalog.VariantSprites.GetOrAdd(library.Manifest.SystemName + ":" + variant.Manifest.Name,
-            _ => new Lazy<IconSprite>(() => new IconSprite(catalog, library, variant, "browser",
-                variant.Names.OrderBy(x => x, StringComparer.Ordinal)
-                    .Select(name => (name, IconInfo.Create(library, variant, name, false), variant))))).Value;
+            static (_, state) => new Lazy<IconSprite>(() => new IconSprite(state.Catalog, state.Library, state.Variant, "browser",
+                state.Variant.Names.OrderBy(x => x, StringComparer.Ordinal)
+                    .Select(name => (name, IconInfo.Create(state.Library, state.Variant, name, false), state.Variant)))),
+            (Catalog: catalog, Library: library, Variant: variant)).Value;
 
 }
