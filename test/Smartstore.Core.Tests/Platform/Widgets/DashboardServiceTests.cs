@@ -14,6 +14,8 @@ using Moq;
 using NUnit.Framework;
 using Smartstore.Core.Common;
 using Smartstore.Core.Identity;
+using Smartstore.Core.Localization;
+using Smartstore.Core.Stores;
 using Smartstore.Core.Widgets.Dashboard;
 using Smartstore.Core.Widgets;
 using Smartstore.Engine;
@@ -161,6 +163,7 @@ public sealed class DashboardServiceTests
             new DashboardMetadata { SystemName = layout.Id });
         var service = new Mock<DashboardService>(
             app.Object,
+            Mock.Of<ICommonServices>(),
             cache,
             NullEventPublisher.Instance,
             Array.Empty<Lazy<IDashboardWidget, DashboardMetadata>>(),
@@ -639,7 +642,19 @@ public sealed class DashboardServiceTests
             new MemoryCache(new MemoryCacheOptions()),
             eventPublisher ?? NullEventPublisher.Instance,
             widgets,
-            providers);
+            providers,
+            CreateCommonServices());
+    }
+
+    private static ICommonServices CreateCommonServices()
+    {
+        var services = new Mock<ICommonServices> { DefaultValue = DefaultValue.Mock };
+        services.Setup(x => x.StoreMappingService.GetAuthorizedStoreIdsAsync(nameof(Customer), It.IsAny<int>()))
+            .ReturnsAsync(new[] { 1 });
+        services.SetupGet(x => x.StoreContext.CurrentStore).Returns(new Store { Id = 1 });
+        services.SetupGet(x => x.WorkContext.WorkingLanguage).Returns(new Language { Id = 1 });
+        services.SetupGet(x => x.WorkContext.CurrentCustomer).Returns(CreateTestCustomer());
+        return services.Object;
     }
 
     private static Customer CreateTestCustomer(int id = 42)

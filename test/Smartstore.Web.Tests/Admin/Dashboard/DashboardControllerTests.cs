@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Abstractions;
 using Microsoft.AspNetCore.Mvc.Filters;
@@ -60,6 +61,7 @@ public class DashboardControllerTests
         widget.Setup(x => x.IsAvailableAsync(It.IsAny<DashboardWidgetContext>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(available);
         var configuration = new PartialViewWidget("Configuration");
+        var renderer = CreateConfigurationRenderer(configuration);
         widget.Setup(x => x.CreateConfigurationWidgetAsync(It.IsAny<DashboardWidgetContext>(), It.IsAny<DashboardWidgetInstance>()))
             .ReturnsAsync(configuration);
         var layout = new DashboardLayout(AdminDashboardLayoutProvider.Id)
@@ -88,13 +90,18 @@ public class DashboardControllerTests
                     .ReturnsAsync(new DashboardLayoutState { Layout = layout, Layer = DashboardLayoutLayer.User, Source = DashboardLayoutLayer.Global });
             });
 
+        using var provider = new ServiceCollection().AddSingleton(renderer.Object).BuildServiceProvider();
+        controller.HttpContext.RequestServices = provider;
+
         var changes = new DashboardLayoutChanges([new("instance", descriptor.SystemName, layout.Widgets[0].Positions, null)]);
         var result = await controller.DashboardConfigure("instance", descriptor.SystemName, DashboardLayoutLayer.User, JsonSerializer.Serialize(changes, SmartJsonOptions.CamelCased));
 
         if (available && configurable)
         {
-            Assert.That(result, Is.TypeOf<PartialViewResult>());
-            Assert.That(((PartialViewResult)result).Model, Is.SameAs(configuration));
+            Assert.That(result, Is.TypeOf<ContentResult>());
+            Assert.That(((ContentResult)result).ContentType, Is.EqualTo("text/html"));
+            Assert.That(((ContentResult)result).Content, Is.EqualTo("<form>Configuration</form>"));
+            renderer.Verify(x => x.InvokeAsync(It.IsAny<WidgetContext>(), configuration), Times.Once);
             widget.Verify(x => x.ValidateSettingsAsync(It.IsAny<JsonObject>(), It.IsAny<CancellationToken>()), Times.Once);
         }
         else
@@ -123,6 +130,7 @@ public class DashboardControllerTests
     {
         var model = new PaymentMethodsDashboardWidgetSettings();
         var configuration = new PartialViewWidget("Configuration", model);
+        var renderer = CreateConfigurationRenderer(configuration);
         var widget = new Mock<IDashboardWidget>();
         widget.SetupGet(x => x.Descriptor).Returns(new DashboardWidgetDescriptor("test-widget", "Test")
         {
@@ -178,6 +186,7 @@ public class DashboardControllerTests
             });
         var services = new ServiceCollection();
         services.AddLogging();
+        services.AddSingleton(renderer.Object);
         services.AddMvcCore(options => options.ModelBinderProviders.Insert(0, new InvariantFloatingPointTypeModelBinderProvider())).AddDataAnnotations();
         services.AddFluentValidationAutoValidation();
         services.AddSingleton(Smartstore.Core.Localization.NullLocalizer.Instance);
@@ -224,7 +233,12 @@ public class DashboardControllerTests
         }
         else
         {
-            Assert.That(((PartialViewResult)result).Model, Is.SameAs(configuration));
+            Assert.That(result, Is.TypeOf<ContentResult>());
+            Assert.That(((ContentResult)result).ContentType, Is.EqualTo("text/html"));
+            Assert.That(((ContentResult)result).Content, Is.EqualTo("<form>Configuration</form>"));
+            renderer.Verify(x => x.InvokeAsync(
+                It.Is<WidgetContext>(context => context.ActionContext.ModelState == controller.ModelState),
+                configuration), Times.Once);
             Assert.That(controller.ModelState[field].Errors, Is.Not.Empty);
             Assert.That(controller.ModelState[field].AttemptedValue, Is.EqualTo(value));
             Assert.That(layout.Widgets.Single().Settings.ToJsonString(), Is.EqualTo(instance.Settings.ToJsonString()));
@@ -526,6 +540,14 @@ public class DashboardControllerTests
             It.IsAny<DashboardLayoutLayer>(),
             It.IsAny<bool>(),
             It.IsAny<CancellationToken>()), Times.Exactly(reset ? 2 : 1));
+    }
+
+    private static Mock<IWidgetInvoker<PartialViewWidget>> CreateConfigurationRenderer(PartialViewWidget configuration)
+    {
+        var renderer = new Mock<IWidgetInvoker<PartialViewWidget>>(MockBehavior.Strict);
+        renderer.Setup(x => x.InvokeAsync(It.IsAny<WidgetContext>(), configuration))
+            .ReturnsAsync(new HtmlString("<form>Configuration</form>"));
+        return renderer;
     }
 
     private static HomeController CreateController(
