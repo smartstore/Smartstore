@@ -25,9 +25,9 @@ public class SmartApplicationContext : IApplicationContext, IServiceProviderCont
 
     public SmartApplicationContext(IHostEnvironment hostEnvironment, IConfiguration configuration, ILogger logger)
     {
-        Guard.NotNull(hostEnvironment, nameof(hostEnvironment));
-        Guard.NotNull(configuration, nameof(configuration));
-        Guard.NotNull(logger, nameof(logger));
+        Guard.NotNull(hostEnvironment);
+        Guard.NotNull(configuration);
+        Guard.NotNull(logger);
 
         HostEnvironment = hostEnvironment;
         Configuration = configuration;

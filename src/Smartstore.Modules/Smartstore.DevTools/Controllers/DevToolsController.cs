@@ -21,6 +21,7 @@ public class DevToolsController(IIconCache iconCache, IIconKitService iconKits, 
     {
         var model = MiniMapper.Map<ProfilerSettings, ConfigurationModel>(settings);
         var kitFiles = new List<IconKitFileModel>();
+        var contentRoot = Services.ApplicationContext.ContentRoot;
         var kitDirectory = Path.Combine(iconOptions.Value.CachePath, "kits");
         foreach (var kit in iconKits.Kits.OrderBy(x => x.Name, StringComparer.Ordinal))
         {
@@ -32,7 +33,7 @@ public class DevToolsController(IIconCache iconCache, IIconKitService iconKits, 
 
             // Inspect only the current revision; never generate sprites for diagnostics.
             var fileName = Uri.UnescapeDataString(Path.GetFileName(url));
-            var file = new FileInfo(Path.Combine(kitDirectory, fileName));
+            var file = contentRoot.GetFile(Path.Combine(kitDirectory, fileName));
             if (file.Exists)
             {
                 kitFiles.Add(new IconKitFileModel(kit.DisplayName ?? kit.Name, fileName, file.Length));

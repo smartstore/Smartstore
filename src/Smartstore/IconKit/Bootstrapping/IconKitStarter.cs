@@ -3,7 +3,6 @@ using Smartstore.Engine;
 using Smartstore.Engine.Builders;
 
 using Smartstore.IconKit;
-using Smartstore.IO;
 
 namespace Smartstore.Bootstrapping;
 
@@ -15,11 +14,7 @@ internal class IconKitStarter : StarterBase
     /// <inheritdoc />
     public override void ConfigureServices(IServiceCollection services, IApplicationContext appContext)
     {
-        services.AddIconKit(options =>
-        {
-            options.SourcePath = PathUtility.Combine(appContext.AppDataRoot.Root, "Icons");
-            options.CachePath = PathUtility.Combine(appContext.AppDataRoot.Root, ".cache", "icons");
-        });
+        services.AddIconKit();
     }
 
     /// <inheritdoc />

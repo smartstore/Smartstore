@@ -19,7 +19,7 @@ public interface IIconCacheLifecycle
     /// <summary>
     /// Starts watching the icon source files. The returned token reports changes to those files.
     /// </summary>
-    IChangeToken StartWatchingSources(IFileSystem sources);
+    IChangeToken StartWatchingSources(IFileSystem sourceFileSystem);
 
     /// <summary>
     /// Adds a generated file to the cache index. May start a cleanup that removes outdated files whose grace period has expired.

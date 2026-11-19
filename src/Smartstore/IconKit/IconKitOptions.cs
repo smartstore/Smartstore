@@ -2,17 +2,17 @@ namespace Smartstore.IconKit;
 
 /// <summary>
 /// Configures icon sources, generated artifacts and HTTP routes.
-/// Relative file paths are resolved against the host's content root.
+/// Folder paths must be relative to the application's content root.
 /// </summary>
 public class IconKitOptions
 {
     /// <summary>
-    /// Gets or sets the directory containing config.json, kit definitions and libraries.
+    /// Gets or sets the relative folder containing config.json, kit definitions and libraries.
     /// </summary>
     public string SourcePath { get; set; } = "App_Data/Icons";
 
     /// <summary>
-    /// Gets or sets the writable directory containing generated kit and browser artifacts.
+    /// Gets or sets the relative folder for generated kit and browser files.
     /// </summary>
     public string CachePath { get; set; } = "App_Data/.cache/icons";
 

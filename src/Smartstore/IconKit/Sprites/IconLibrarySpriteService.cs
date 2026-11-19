@@ -1,15 +1,17 @@
-using Smartstore.IconKit.Sources;
 using Microsoft.Extensions.Options;
+using Smartstore.Engine;
+using Smartstore.IconKit.Sources;
+using Smartstore.IO;
 
 namespace Smartstore.IconKit.Sprites;
 
 public sealed class IconLibrarySpriteService : IIconLibrarySpriteService
 {
-    private readonly IconKitOptions _options;
+    private readonly IFileSystem _fileCache;
 
-    public IconLibrarySpriteService(IOptions<IconKitOptions> options)
+    public IconLibrarySpriteService(IApplicationContext appContext, IOptions<IconKitOptions> options)
     {
-        _options = options.Value;
+        _fileCache = IconFileHelper.CreateFileSystem(appContext, options.Value.CachePath);
     }
 
     /// <inheritdoc />
@@ -31,7 +33,8 @@ public sealed class IconLibrarySpriteService : IIconLibrarySpriteService
         }
 
         var sprite = GetSprite(catalog, library, variant);
-        await sprite.PublishAsync(GetSpritePath(library, variant, sprite.Revision), cancelToken);
+        var file = _fileCache.GetFile("browser/" + library.Manifest.SystemName + "-" + variant.Manifest.Name + "-" + sprite.Revision + ".svg");
+        await sprite.PublishAsync(file, cancelToken);
         return sprite.Revision;
     }
 
@@ -42,7 +45,4 @@ public sealed class IconLibrarySpriteService : IIconLibrarySpriteService
                 variant.Names.OrderBy(x => x, StringComparer.Ordinal)
                     .Select(name => (name, IconInfo.Create(library, variant, name, false), variant))))).Value;
 
-    private string GetSpritePath(IconCatalog.Library library, IconCatalog.Variant variant, string revision)
-        => Path.Combine(_options.CachePath, "browser",
-            library.Manifest.SystemName + "-" + variant.Manifest.Name + "-" + revision + ".svg");
 }

@@ -27,18 +27,17 @@ namespace Smartstore.Web.Tests.Common.TagHelpers;
 public class IconKitRegistrationTests
 {
     [Test]
-    public async Task Registration_Resolves_Paths_And_Preserves_Absolute_Paths()
+    public async Task Registration_Preserves_Content_Root_Relative_Paths()
     {
         var builder = WebApplication.CreateBuilder();
         builder.Services.AddSingleton(Mock.Of<IApplicationContext>());
         builder.Services.AddSingleton(Mock.Of<ICacheManager>());
         builder.Services.AddIconKit(o => o.SourcePath = "App_Data/Icons");
-        var absoluteCache = Path.Combine(Path.GetTempPath(), "iconkit-registration-test");
-        builder.Services.AddIconKit(o => o.CachePath = absoluteCache);
+        builder.Services.AddIconKit(o => o.CachePath = "artifacts/icons");
         await using var app = builder.Build();
         var options = app.Services.GetRequiredService<IOptions<IconKitOptions>>().Value;
-        Assert.That(options.SourcePath, Is.EqualTo(Path.Combine(builder.Environment.ContentRootPath, "App_Data", "Icons")));
-        Assert.That(options.CachePath, Is.EqualTo(absoluteCache));
+        Assert.That(options.SourcePath, Is.EqualTo("App_Data/Icons"));
+        Assert.That(options.CachePath, Is.EqualTo("artifacts/icons"));
         Assert.That(builder.Services.Count(x => x.ServiceType == typeof(IIconService)), Is.EqualTo(1));
         Assert.That(builder.Services.Single(x => x.ServiceType == typeof(IIconCacheLifecycle)).Lifetime, Is.EqualTo(ServiceLifetime.Singleton));
     }

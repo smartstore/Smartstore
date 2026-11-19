@@ -3,7 +3,6 @@ using Smartstore.IconKit.Sources;
 using Smartstore.IconKit.Sprites;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 
 using Smartstore.IconKit;
@@ -19,7 +18,7 @@ public static class IconKitServiceCollectionExtensions
     /// Adds IconKit services. Repeated calls can configure options without duplicating services.
     /// </summary>
     /// <param name="services">The application's service collection.</param>
-    /// <param name="configure">Optional configuration applied before paths are resolved.</param>
+    /// <param name="configure">Optional configuration for icon folders and routes.</param>
     public static IServiceCollection AddIconKit(this IServiceCollection services, Action<IconKitOptions> configure = null)
     {
         Guard.NotNull(services);
@@ -49,21 +48,12 @@ public static class IconKitServiceCollectionExtensions
 
     private sealed class ConfigureIconKitOptions : IPostConfigureOptions<IconKitOptions>
     {
-        private readonly IHostEnvironment _environment;
-
-        public ConfigureIconKitOptions(IHostEnvironment environment)
-        {
-            _environment = environment;
-        }
-
         public void PostConfigure(string name, IconKitOptions options)
         {
             Guard.NotEmpty(options.SourcePath);
             Guard.NotEmpty(options.CachePath);
             Guard.NotEmpty(options.RoutePrefix);
 
-            options.SourcePath = Path.GetFullPath(options.SourcePath, _environment.ContentRootPath);
-            options.CachePath = Path.GetFullPath(options.CachePath, _environment.ContentRootPath);
             options.RoutePrefix = "/" + options.RoutePrefix.Trim('/');
             if (options.RoutePrefix == "/" || options.RoutePrefix.Any(c => char.IsWhiteSpace(c) || "?#{ }\\".Contains(c)))
             {

@@ -103,7 +103,7 @@ public sealed class IconCatalog
     /// </summary>
     internal object ArtifactVersion { get; }
 
-    internal void RefreshSearchMetadata(IFileSystem files, IReadOnlyCollection<IconChange> changes, IChangeToken changeToken)
+    internal void RefreshSearchMetadata(IFileSystem fs, IReadOnlyCollection<IconChange> changes, IChangeToken changeToken)
     {
         foreach (var name in changes.Select(x => x.Library).Distinct(StringComparer.OrdinalIgnoreCase))
         {
@@ -111,7 +111,7 @@ public sealed class IconCatalog
             if (name != null && Libraries.TryGetValue(name, out var library)
                 && library.Manifest.SystemName.Equals(name, StringComparison.OrdinalIgnoreCase))
             {
-                library.RefreshTags(files);
+                library.RefreshTags(fs);
             }
         }
 
@@ -227,10 +227,10 @@ public sealed class IconCatalog
         /// </summary>
         internal Dictionary<string, string[]> Tags => Volatile.Read(ref _tags).Value;
 
-        internal void RefreshTags(IFileSystem files)
+        internal void RefreshTags(IFileSystem fs)
         {
             var root = Manifest.SystemName;
-            Volatile.Write(ref _tags, new Lazy<Dictionary<string, string[]>>(() => LoadTags(files, root)));
+            Volatile.Write(ref _tags, new Lazy<Dictionary<string, string[]>>(() => LoadTags(fs, root)));
         }
 
         /// <summary>

@@ -1,14 +1,14 @@
+using Microsoft.Extensions.Options;
+using Smartstore.Engine;
 using Smartstore.IconKit.Sources;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using System.Text.RegularExpressions;
-using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Primitives;
 using Microsoft.Extensions.FileProviders;
 using Smartstore.IO;
-using Smartstore.Engine;
 using Smartstore.Json;
 using Smartstore.Threading;
 
@@ -24,31 +24,20 @@ public sealed class IconCacheLifecycle : IIconCacheLifecycle, IAsyncDisposable
     private readonly List<(string Filter, IChangeToken Token, IconChange Change)> _watches = [];
     private SourceChangeToken _sourceToken;
     private IconCacheIndex _index;
-    private readonly IFileSystem _cache;
+    private readonly IFileSystem _fileCache;
     private readonly IIconCacheRecovery _recovery;
-    private readonly IDisposable _ownedCacheRoot;
     private object _validatedArtifacts;
     private DateTimeOffset _lastScan;
     private Task _cleanup = Task.CompletedTask;
     private bool _disposed;
 
     public IconCacheLifecycle(
-        IApplicationContext applicationContext,
+        IApplicationContext appContext,
         IOptions<IconKitOptions> options,
         IIconCacheRecovery recovery)
     {
         _recovery = recovery;
-
-        var cachePath = options.Value.CachePath;
-        var cacheRoot = applicationContext.ContentRoot;
-        if (!PathUtility.PathIsWithinDirectory(cachePath, cacheRoot.Root, out _))
-        {
-            // External cache locations can be missing initially; expand from their existing volume.
-            cacheRoot = new LocalFileSystem(Path.GetPathRoot(cachePath));
-            _ownedCacheRoot = (IDisposable)cacheRoot;
-        }
-
-        _cache = new ExpandedFileSystem(Path.GetRelativePath(cacheRoot.Root, cachePath), cacheRoot);
+        _fileCache = IconFileHelper.CreateFileSystem(appContext, options.Value.CachePath);
     }
 
     internal Task PendingCleanup => _cleanup;
@@ -77,9 +66,9 @@ public sealed class IconCacheLifecycle : IIconCacheLifecycle, IAsyncDisposable
     }
 
     /// <inheritdoc />
-    public IChangeToken StartWatchingSources(IFileSystem sources)
+    public IChangeToken StartWatchingSources(IFileSystem sourceFileSystem)
     {
-        Guard.NotNull(sources);
+        Guard.NotNull(sourceFileSystem);
 
         lock (_watchLock)
         {
@@ -93,12 +82,12 @@ public sealed class IconCacheLifecycle : IIconCacheLifecycle, IAsyncDisposable
             // Includes newly installed libraries and changes to variant declarations.
             Watch("*/library.json", IconChangeKind.LibraryManifest);
 
-            foreach (var library in sources.GetDirectoryContents(string.Empty).Where(x => x.IsDirectory))
+            foreach (var library in sourceFileSystem.GetDirectoryContents(string.Empty).Where(x => x.IsDirectory))
             {
                 Watch(library.Name + "/mapping.json", IconChangeKind.Mapping, library.Name);
                 Watch(library.Name + "/metadata.json", IconChangeKind.SearchMetadata, library.Name);
                 var variants = new HashSet<string>(StringComparer.Ordinal);
-                var manifest = sources.GetFileInfo(library.Name + "/library.json");
+                var manifest = sourceFileSystem.GetFileInfo(library.Name + "/library.json");
                 if (manifest.Exists)
                 {
                     using var stream = manifest.CreateReadStream();
@@ -132,7 +121,7 @@ public sealed class IconCacheLifecycle : IIconCacheLifecycle, IAsyncDisposable
                 // Their token keeps the next generation stale until its notification is consumed.
                 _watches.Add(previous.TryGetValue(filter, out var existing)
                     ? existing
-                    : (filter, sources.Watch(filter), new(kind, library, variant)));
+                    : (filter, sourceFileSystem.Watch(filter), new(kind, library, variant)));
             }
         }
     }
@@ -214,7 +203,7 @@ public sealed class IconCacheLifecycle : IIconCacheLifecycle, IAsyncDisposable
         {
             ObjectDisposedException.ThrowIf(_disposed, this);
             EnsureCurrent(snapshot);
-            if (_validatedArtifacts == artifactVersion && _cache.FileExists("index.json"))
+            if (_validatedArtifacts == artifactVersion && _fileCache.FileExists("index.json"))
             {
                 return;
             }
@@ -228,13 +217,13 @@ public sealed class IconCacheLifecycle : IIconCacheLifecycle, IAsyncDisposable
             {
                 ObjectDisposedException.ThrowIf(_disposed, this);
                 EnsureCurrent(snapshot);
-                if (_validatedArtifacts == artifactVersion && _cache.FileExists("index.json"))
+                if (_validatedArtifacts == artifactVersion && _fileCache.FileExists("index.json"))
                 {
                     return;
                 }
 
-                _cache.GetDirectory(string.Empty).Create();
-                if (_index == null || !_cache.FileExists("index.json"))
+                _fileCache.GetDirectory(string.Empty).Create();
+                if (_index == null || !_fileCache.FileExists("index.json"))
                 {
                     _index = LoadIndex();
                 }
@@ -245,7 +234,7 @@ public sealed class IconCacheLifecycle : IIconCacheLifecycle, IAsyncDisposable
 
             // Directory reads and revision calculation do not hold the index lock.
             var files = EnumerateArtifacts().ToDictionary(
-                file => Path.GetRelativePath(_cache.Root, file.PhysicalPath).Replace('\\', '/'),
+                file => Path.GetRelativePath(_fileCache.Root, file.PhysicalPath).Replace('\\', '/'),
                 file => file.LastModified,
                 StringComparer.Ordinal);
             var current = _recovery.GetCurrentFiles(catalog, files.Keys.ToHashSet(StringComparer.Ordinal)).ToList();
@@ -310,7 +299,7 @@ public sealed class IconCacheLifecycle : IIconCacheLifecycle, IAsyncDisposable
 
             try
             {
-                var file = _cache.GetFile(entry.Key);
+                var file = _fileCache.GetFile(entry.Key);
                 if (file.Exists)
                 {
                     await file.DeleteAsync();
@@ -338,9 +327,9 @@ public sealed class IconCacheLifecycle : IIconCacheLifecycle, IAsyncDisposable
     {
         try
         {
-            if (_cache.FileExists("index.json"))
+            if (_fileCache.FileExists("index.json"))
             {
-                var index = JsonSerializer.Deserialize<IconCacheIndex>(_cache.ReadAllText("index.json"), SmartJsonOptions.CamelCased);
+                var index = JsonSerializer.Deserialize<IconCacheIndex>(_fileCache.ReadAllText("index.json"), SmartJsonOptions.CamelCased);
                 if (index?.SchemaVersion != 1 || index.CurrentFiles == null || index.ObsoleteFiles == null)
                 {
                     throw new InvalidDataException("Unsupported icon cache index.");
@@ -374,13 +363,13 @@ public sealed class IconCacheLifecycle : IIconCacheLifecycle, IAsyncDisposable
         // which is recoverable; readers never observe a partly written index.json.
         try
         {
-            await _cache.WriteAllTextAsync("index.pending.json", SmartJsonOptions.CamelCased.SerializeIndented(_index));
-            if (_cache.FileExists("index.json"))
+            await _fileCache.WriteAllTextAsync("index.pending.json", SmartJsonOptions.CamelCased.SerializeIndented(_index));
+            if (_fileCache.FileExists("index.json"))
             {
-                await _cache.GetFile("index.json").DeleteAsync();
+                await _fileCache.GetFile("index.json").DeleteAsync();
             }
 
-            await _cache.GetFile("index.pending.json").MoveToAsync(_cache.GetFile("index.json").SubPath);
+            await _fileCache.GetFile("index.pending.json").MoveToAsync(_fileCache.GetFile("index.json").SubPath);
         }
         catch
         {
@@ -395,7 +384,7 @@ public sealed class IconCacheLifecycle : IIconCacheLifecycle, IAsyncDisposable
     {
         foreach (var folder in new[] { "kits", "browser" })
         {
-            var directory = _cache.GetDirectory(folder);
+            var directory = _fileCache.GetDirectory(folder);
             if (!directory.Exists)
             {
                 continue;
@@ -403,7 +392,7 @@ public sealed class IconCacheLifecycle : IIconCacheLifecycle, IAsyncDisposable
 
             foreach (var file in directory.EnumerateFiles())
             {
-                var path = Path.GetRelativePath(_cache.Root, file.PhysicalPath).Replace('\\', '/');
+                var path = Path.GetRelativePath(_fileCache.Root, file.PhysicalPath).Replace('\\', '/');
                 if (IsArtifactPath(path) && !file.IsSymbolicLink(out _))
                 {
                     yield return file;
@@ -460,15 +449,12 @@ public sealed class IconCacheLifecycle : IIconCacheLifecycle, IAsyncDisposable
             _sourceToken?.Dispose();
         }
 
-        // Recovery reads files outside the index lock. Let it finish before closing their root.
-        using (await _recoveryGate.LockAsync())
-        {
-            _ownedCacheRoot?.Dispose();
-        }
+        // Wait for recovery to finish before shutdown completes.
+        using var recoveryLock = await _recoveryGate.LockAsync();
     }
 
     // Active watchers set one flag. Passive providers are checked at most once a second.
-    private sealed class SourceChangeToken : IChangeToken, IDisposable
+    private sealed class SourceChangeToken : IChangeToken
     {
         private readonly CancellationTokenSource _signal = new();
         private readonly CancellationToken _token;

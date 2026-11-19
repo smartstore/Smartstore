@@ -1,8 +1,10 @@
+using Smartstore.Engine;
 using Smartstore.IconKit.Cache;
 using Smartstore.IconKit.Sources;
 using Smartstore.IconKit.Sprites;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
+using Smartstore.IO;
 
 namespace Smartstore.IconKit;
 
@@ -15,8 +17,10 @@ public sealed class IconBrowser : IIconBrowser
     private readonly IIconCacheLifecycle _lifecycle;
     private readonly IconKitOptions _options;
     private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly IFileSystem _fileCache;
 
     public IconBrowser(
+        IApplicationContext appContext,
         IIconCatalogAccessor catalogAccessor,
         IIconKitService kits,
         IIconService icons,
@@ -32,6 +36,8 @@ public sealed class IconBrowser : IIconBrowser
         _lifecycle = lifecycle;
         _options = options.Value;
         _httpContextAccessor = httpContextAccessor;
+
+        _fileCache = IconFileHelper.CreateFileSystem(appContext, options.Value.CachePath);
     }
 
     /// <inheritdoc />
@@ -105,19 +111,19 @@ public sealed class IconBrowser : IIconBrowser
     {
         var catalog = _catalogAccessor.Catalog;
         var source = SelectSource(catalog, library, variant);
-        if (source.Variant == null || !IconFileCache.IsRevision(revision))
+        if (source.Variant == null || !IconFileHelper.IsValidRevisionHash(revision))
         {
             return null;
         }
 
         library = source.Library.Manifest.SystemName;
         variant = source.Variant.Manifest.Name;
-        var path = Path.Combine(_options.CachePath, "browser", library + "-" + variant + "-" + revision + ".svg");
+        var file = _fileCache.GetFile("browser/" + library + "-" + variant + "-" + revision + ".svg");
 
         // Serve historical files without marking them as the current revision again.
-        if (File.Exists(path))
+        if (file.Exists)
         {
-            return path;
+            return file.PhysicalPath;
         }
 
         if (_librarySprites.GetRevision(catalog, library, variant) != revision)
@@ -126,7 +132,7 @@ public sealed class IconBrowser : IIconBrowser
         }
 
         await PrepareSpriteAsync(catalog, library, variant, cancelToken);
-        return path;
+        return file.PhysicalPath;
     }
 
     private async Task<string> PrepareSpriteAsync(IconCatalog catalog, string library, string variant, CancellationToken cancelToken)

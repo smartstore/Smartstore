@@ -43,7 +43,7 @@ public class IconCacheLifecycleTests
         _context = new Mock<IApplicationContext>();
         _context.SetupGet(x => x.AppDataRoot).Returns(_sources);
         _context.SetupGet(x => x.ContentRoot).Returns(_contentRoot);
-        _options = Options.Create(new IconKitOptions { SourcePath = _sources.Root, CachePath = Path.Combine(_root, "cache") });
+        _options = Options.Create(new IconKitOptions { SourcePath = "sources", CachePath = "cache" });
     }
 
     [TearDown]
@@ -78,7 +78,7 @@ public class IconCacheLifecycleTests
 
     private void Write(string name, int ageMinutes = 0)
     {
-        var path = Path.Combine(_options.Value.CachePath, name);
+        var path = Path.Combine(_root, _options.Value.CachePath, name);
         File.WriteAllText(path, "<svg/>");
         File.SetLastWriteTimeUtc(path, DateTime.UtcNow.AddMinutes(-ageMinutes));
     }
@@ -86,8 +86,8 @@ public class IconCacheLifecycleTests
     private static IconCacheArtifact Artifact(string file = Current, string library = "fontawesome", string variant = "regular")
         => new("kit", "public", library, variant, file);
 
-    private JsonDocument ReadIndex() => JsonDocument.Parse(File.ReadAllText(Path.Combine(_options.Value.CachePath, "index.json")));
-    private bool Exists(string name) => File.Exists(Path.Combine(_options.Value.CachePath, name));
+    private JsonDocument ReadIndex() => JsonDocument.Parse(File.ReadAllText(Path.Combine(_root, _options.Value.CachePath, "index.json")));
+    private bool Exists(string name) => File.Exists(Path.Combine(_root, _options.Value.CachePath, name));
 
     [TestCase(false)]
     [TestCase(true)]
@@ -96,7 +96,7 @@ public class IconCacheLifecycleTests
         Write(Old, 20);
         Write(Current, 60);
         Write("kits/manual.svg", 60);
-        if (corrupt) File.WriteAllText(Path.Combine(_options.Value.CachePath, "index.json"), "{");
+        if (corrupt) File.WriteAllText(Path.Combine(_root, _options.Value.CachePath, "index.json"), "{");
         var lifecycle = Create();
         await TrackAsync(lifecycle, Artifact(), Unchanged, files =>
         {
@@ -155,7 +155,7 @@ public class IconCacheLifecycleTests
             currentFiles = new[] { Artifact() },
             obsoleteFiles = new Dictionary<string, DateTimeOffset> { [Old] = DateTimeOffset.UtcNow.AddMinutes(-20) }
         };
-        File.WriteAllText(Path.Combine(_options.Value.CachePath, "index.json"), JsonSerializer.Serialize(persisted,
+        File.WriteAllText(Path.Combine(_root, _options.Value.CachePath, "index.json"), JsonSerializer.Serialize(persisted,
             new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
 
         var lifecycle = Create();
@@ -175,7 +175,7 @@ public class IconCacheLifecycleTests
         var lifecycle = Create();
         await TrackAsync(lifecycle, Artifact(), Unchanged, _ => new[] { Artifact() });
         await lifecycle.PendingCleanup;
-        File.Delete(Path.Combine(_options.Value.CachePath, "index.json"));
+        File.Delete(Path.Combine(_root, _options.Value.CachePath, "index.json"));
         Write(Old, 20);
         var recovered = false;
         await TrackAsync(lifecycle, Artifact(), Unchanged, files =>
@@ -197,7 +197,7 @@ public class IconCacheLifecycleTests
         var artifacts = new[] { Artifact(), Artifact(Old, "hugeicons", "rounded") };
         await Task.WhenAll(artifacts.Select(x => TrackAsync(lifecycle, x, Unchanged, _ => artifacts)));
         await lifecycle.PendingCleanup;
-        var indexPath = Path.Combine(_options.Value.CachePath, "index.json");
+        var indexPath = Path.Combine(_root, _options.Value.CachePath, "index.json");
         File.SetLastWriteTimeUtc(indexPath, DateTime.UtcNow.AddHours(-1));
         var before = File.GetLastWriteTimeUtc(indexPath);
         await TrackAsync(lifecycle, Artifact(), Unchanged, _ => throw new Exception("Unchanged sources must not be rescanned."));

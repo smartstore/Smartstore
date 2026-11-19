@@ -1,4 +1,5 @@
 using Smartstore.IconKit.Sources;
+using Smartstore.IO;
 using System.Globalization;
 using System.Security.Cryptography;
 using System.Text;
@@ -107,9 +108,9 @@ internal sealed class IconSprite
     /// <summary>
     /// Publishes this sprite once without retaining artwork or filling the individual icon cache.
     /// </summary>
-    /// <param name="path">The immutable destination file.</param>
-    internal Task<string> PublishAsync(string path, CancellationToken cancelToken)
-        => IconFileCache.PublishAsync(path, (stream, token) =>
+    /// <param name="file">The immutable destination file.</param>
+    internal Task<string> PublishAsync(IFile file, CancellationToken cancelToken)
+        => IconFileHelper.GetOrCreateCacheFileAsync(file, (stream, token) =>
         {
             Write(stream, token);
             return ValueTask.CompletedTask;

@@ -1,37 +1,28 @@
-using Smartstore.IconKit.Cache;
 using Microsoft.Extensions.Options;
+using Smartstore.IconKit.Cache;
 using Smartstore.Engine;
 using Smartstore.IO;
 
 namespace Smartstore.IconKit.Sources;
 
-public sealed class IconCatalogAccessor : IIconCatalogAccessor, IDisposable
+public sealed class IconCatalogAccessor : IIconCatalogAccessor
 {
-    private readonly IApplicationContext _applicationContext;
+    private readonly IApplicationContext _appContext;
     private readonly IIconCacheLifecycle _lifecycle;
-    private readonly IFileSystem _files;
-    private readonly IDisposable _ownedSourceRoot;
+    private readonly IFileSystem _sourceFileSystem;
     private readonly Lock _sync = new();
     private readonly List<IconChange> _pendingChanges = [];
     private IconCatalog _catalog;
 
     public IconCatalogAccessor(
-        IApplicationContext applicationContext,
+        IApplicationContext appContext,
         IOptions<IconKitOptions> options,
         IIconCacheLifecycle lifecycle)
     {
-        _applicationContext = applicationContext;
+        _appContext = appContext;
         _lifecycle = lifecycle;
 
-        var sourceRoot = applicationContext.ContentRoot;
-        if (!PathUtility.PathIsWithinDirectory(options.Value.SourcePath, sourceRoot.Root, out _))
-        {
-            // Keep support for explicitly configured source folders outside the application.
-            sourceRoot = new LocalFileSystem(Path.GetDirectoryName(options.Value.SourcePath));
-            _ownedSourceRoot = (IDisposable)sourceRoot;
-        }
-
-        _files = new ExpandedFileSystem(Path.GetRelativePath(sourceRoot.Root, options.Value.SourcePath), sourceRoot);
+        _sourceFileSystem = IconFileHelper.CreateFileSystem(appContext, options.Value.SourcePath);
     }
 
     /// <inheritdoc />
@@ -64,17 +55,17 @@ public sealed class IconCatalogAccessor : IIconCatalogAccessor, IDisposable
             _pendingChanges.AddRange(_lifecycle.CollectChanges());
 
             // Keep pending changes if loading fails, so the next attempt can apply them.
-            var token = _lifecycle.StartWatchingSources(_files);
+            var token = _lifecycle.StartWatchingSources(_sourceFileSystem);
             IconCatalog next;
             if (catalog != null && _pendingChanges.Count > 0
                 && _pendingChanges.All(x => x.Kind == IconChangeKind.SearchMetadata))
             {
-                catalog.RefreshSearchMetadata(_files, _pendingChanges, token);
+                catalog.RefreshSearchMetadata(_sourceFileSystem, _pendingChanges, token);
                 next = catalog;
             }
             else
             {
-                next = IconCatalog.Load(_files, CreateProviders(), _applicationContext.ContentRoot,
+                next = IconCatalog.Load(_sourceFileSystem, CreateProviders(), _appContext.ContentRoot,
                     token, catalog, _pendingChanges);
             }
 
@@ -86,26 +77,21 @@ public sealed class IconCatalogAccessor : IIconCatalogAccessor, IDisposable
         }
     }
 
-    public void Dispose()
-    {
-        _ownedSourceRoot?.Dispose();
-    }
-
     private IEnumerable<IIconProvider> CreateProviders()
     {
-        if (!_applicationContext.IsInstalled)
+        if (!_appContext.IsInstalled)
         {
             yield break;
         }
 
-        var types = _applicationContext.TypeScanner.FindTypes<IIconProvider>()
+        var types = _appContext.TypeScanner.FindTypes<IIconProvider>()
             .OrderBy(x => x.FullName, StringComparer.Ordinal).ToArray();
         if (types.Length == 0)
         {
             yield break;
         }
 
-        using var scope = _applicationContext.Services.BeginLifetimeScope();
+        using var scope = _appContext.Services.BeginLifetimeScope();
         foreach (var type in types)
         {
             var provider = (IIconProvider)scope.ResolveUnregistered(type);

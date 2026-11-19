@@ -35,9 +35,8 @@ namespace Smartstore.Core.Tests.Content.Media.Icons;
 public class IconServiceTests
 {
     private readonly List<IContainer> _providerContainers = [];
-    private readonly List<IDisposable> _ownedFileSystems = [];
-    private readonly List<IconCatalogAccessor> _catalogAccessors = [];
-    private readonly Dictionary<IconService, (IIconCatalogAccessor Catalog, IIconCacheLifecycle Lifecycle, IOptions<IconKitOptions> Options, IIconResolver Resolver, IIconLibrarySpriteService Sprites, IIconKitPlanner Planner)> _dependencies = [];
+    private readonly List<IDisposable> _disposables = [];
+    private readonly Dictionary<IconService, (IApplicationContext AppContext, IIconCatalogAccessor Catalog, IIconCacheLifecycle Lifecycle, IOptions<IconKitOptions> Options, IIconResolver Resolver, IIconLibrarySpriteService Sprites, IIconKitPlanner Planner)> _dependencies = [];
     private readonly List<IconCacheLifecycle> _lifecycles = [];
 
     [Test]
@@ -89,18 +88,17 @@ public class IconServiceTests
         _context.VerifyGet(x => x.Services, Times.Never);
     }
 
-    private IconService CreateService(IApplicationContext context, IIconCache cache,
+    private IconService CreateService(IApplicationContext appContext, IIconCache cache,
         IIconAreaResolver areaResolver, IHttpContextAccessor accessor, IOptions<IconKitOptions> options)
     {
         var resolver = new IconResolver();
-        var sprites = new IconLibrarySpriteService(options);
+        var sprites = new IconLibrarySpriteService(appContext, options);
         var planner = new IconKitPlanner(resolver, options);
         var recovery = new IconCacheRecovery(planner, sprites);
-        var lifecycle = new IconCacheLifecycle(context, options, recovery);
-        var catalog = new IconCatalogAccessor(context, options, lifecycle);
+        var lifecycle = new IconCacheLifecycle(appContext, options, recovery);
+        var catalog = new IconCatalogAccessor(appContext, options, lifecycle);
         var service = new IconService(catalog, cache, resolver, areaResolver, accessor);
-        _catalogAccessors.Add(catalog);
-        _dependencies.Add(service, (catalog, lifecycle, options, resolver, sprites, planner));
+        _dependencies.Add(service, (appContext, catalog, lifecycle, options, resolver, sprites, planner));
         _lifecycles.Add(lifecycle);
         return service;
     }
@@ -108,15 +106,17 @@ public class IconServiceTests
     private IconKitService CreateKitService(IconService service, IHttpContextAccessor accessor)
     {
         var dependencies = _dependencies[service];
-        return new IconKitService(dependencies.Catalog, dependencies.Lifecycle, dependencies.Planner,
+        var kits = new IconKitService(dependencies.AppContext, dependencies.Catalog, dependencies.Lifecycle, dependencies.Planner,
             dependencies.Options, accessor);
+        return kits;
     }
 
     private IconBrowser CreateBrowser(IconService service, IIconKitService kits, IHttpContextAccessor accessor)
     {
         var dependencies = _dependencies[service];
-        return new IconBrowser(dependencies.Catalog, kits, service, dependencies.Sprites,
+        var browser = new IconBrowser(dependencies.AppContext, dependencies.Catalog, kits, service, dependencies.Sprites,
             dependencies.Lifecycle, dependencies.Options, accessor);
+        return browser;
     }
 
     private IconSprite GetSprite(IconCatalog catalog, IconCatalog.Library library, IconCatalog.Variant variant)
@@ -149,8 +149,10 @@ public class IconServiceTests
     public async Task Configured_Cache_And_Route_Prefix_Apply_To_All_Artifacts()
     {
         Write("Icons/kits.json", """{"shared":["cart"]}""");
-        _options.Value.CachePath = Path.Combine(_root, "artifacts");
+        _options.Value.CachePath = "artifacts";
         _options.Value.RoutePrefix = "/assets/glyphs";
+        // Apply options before creating services, as DI does at application startup.
+        _service = CreateService(_context.Object, _cache.Object, new IconAreaResolver(), new HttpContextAccessor(), _options);
         var accessor = new HttpContextAccessor { HttpContext = new DefaultHttpContext() };
         accessor.HttpContext.Request.PathBase = "/shop";
         var kits = CreateKitService(_service, accessor);
@@ -1107,7 +1109,7 @@ public class IconServiceTests
         var before = _service.Catalog;
         var plan = dependencies.Planner.GetIndex(before, "hi", "sr").Plans["shared"].Value;
         var manifest = dependencies.Planner.GetManifest(before);
-        var indexPath = Path.Combine(_options.Value.CachePath, "index.json");
+        var indexPath = Path.Combine(_root, _options.Value.CachePath, "index.json");
         File.SetLastWriteTimeUtc(indexPath, DateTime.UtcNow.AddHours(-1));
         var indexTimestamp = File.GetLastWriteTimeUtc(indexPath);
 
@@ -1175,7 +1177,7 @@ public class IconServiceTests
         files.Setup(x => x.GetDirectoryContents(It.IsAny<string>())).Returns((string path) => _provider.GetDirectoryContents("Icons/" + path));
         files.Setup(x => x.Watch(It.IsAny<string>())).Returns(() => new CancellationChangeToken(_changes.Token));
         _sourceFiles = files.Object;
-        _options = Options.Create(new IconKitOptions { SourcePath = Path.Combine(_root, "Icons"), CachePath = Path.Combine(_root, ".cache", "icons") });
+        _options = Options.Create(new IconKitOptions { SourcePath = "Icons", CachePath = ".cache/icons" });
         _context = new Mock<IApplicationContext>();
         _context.SetupGet(x => x.IsInstalled).Returns(true);
         _context.SetupGet(x => x.TypeScanner).Returns(NullTypeScanner.Instance);
@@ -1187,7 +1189,7 @@ public class IconServiceTests
         appFiles.Setup(x => x.GetFile(It.IsAny<string>())).Returns((string path) => localFiles.GetFile(path));
         appFiles.Setup(x => x.GetFileAsync(It.IsAny<string>())).Returns((string path) => localFiles.GetFileAsync(path));
         appFiles.Setup(x => x.FileExists(It.IsAny<string>())).Returns((string path) => localFiles.FileExists(path));
-        _ownedFileSystems.Add(localFiles);
+        _disposables.Add(localFiles);
         appFiles.Setup(x => x.GetFileInfo(It.IsAny<string>())).Returns((string path) => path.StartsWith("Icons/")
             ? _sourceFiles.GetFileInfo(path[6..]) : _provider.GetFileInfo(path));
         appFiles.Setup(x => x.GetDirectoryContents(It.IsAny<string>())).Returns((string path) => path.StartsWith("Icons")
@@ -1486,13 +1488,11 @@ public class IconServiceTests
     [TearDown]
     public async Task TearDown()
     {
-        foreach (var catalog in _catalogAccessors) catalog.Dispose();
-        _catalogAccessors.Clear();
         _dependencies.Clear();
         foreach (var lifecycle in _lifecycles) await lifecycle.DisposeAsync();
         _lifecycles.Clear();
-        foreach (var files in _ownedFileSystems) files.Dispose();
-        _ownedFileSystems.Clear();
+        foreach (var disposable in _disposables.AsEnumerable().Reverse()) disposable.Dispose();
+        _disposables.Clear();
         foreach (var container in _providerContainers)
         {
             container.Dispose();
@@ -1758,7 +1758,7 @@ public class IconServiceTests
         context.SetupGet(x => x.TypeScanner).Returns(NullTypeScanner.Instance);
         context.SetupGet(x => x.AppDataRoot).Returns(files);
         context.SetupGet(x => x.ContentRoot).Returns(files);
-        _options.Value.SourcePath = files.Root;
+        _options.Value.SourcePath = ".";
         var service = CreateService(context.Object, _cache.Object, new IconAreaResolver(), new HttpContextAccessor(), _options);
         int count = 0;
         for (int skip = 0; ; skip += 500)
@@ -2353,10 +2353,10 @@ public class IconServiceTests
             (removed ? "other" : "cart-01", _svg.Replace("M0 0L1 1", "M0 0L4 4")), ("direct", _svg));
 
         Assert.ThrowsAsync<IOException>(() => kits.GetSpriteFileAsync("shared", oldRevision));
-        var cacheDirectory = Path.Combine(_options.Value.CachePath, "kits");
+        var cacheDirectory = Path.Combine(_root, _options.Value.CachePath, "kits");
         Assert.That(File.Exists(Path.Combine(cacheDirectory, "shared-" + oldRevision + ".svg")), Is.False);
         Assert.That(Directory.GetFiles(cacheDirectory, "*.tmp"), Is.Empty);
-        Assert.That(File.Exists(Path.Combine(_options.Value.CachePath, "index.json")), Is.False);
+        Assert.That(File.Exists(Path.Combine(_root, _options.Value.CachePath, "index.json")), Is.False);
 
         // Once the watcher signals the update, normal resolution generates a fresh revision.
         // A now-missing target can be omitted from the new revision while valid icons remain.
@@ -2804,7 +2804,8 @@ public class IconServiceTests
         using var request = new CancellationTokenSource();
         var path = Path.Combine(_root, ".cache", "icons", "cancelled-request.svg");
         var content = Encoding.UTF8.GetBytes("<svg/>");
-        var result = await IconFileCache.PublishAsync(path, async (stream, token) =>
+        var file = _context.Object.ContentRoot.GetFile(Path.GetRelativePath(_root, path));
+        var result = await IconFileHelper.GetOrCreateCacheFileAsync(file, async (stream, token) =>
         {
             request.Cancel();
             await stream.WriteAsync(content, token);
@@ -2813,6 +2814,29 @@ public class IconServiceTests
         Assert.That(result, Is.EqualTo(path));
         Assert.That(File.ReadAllBytes(path), Is.EqualTo(content));
         Assert.That(Directory.GetFiles(Path.GetDirectoryName(path)), Has.Length.EqualTo(1));
+    }
+
+    [Test]
+    public async Task Artifact_Publication_Preserves_Competing_File_And_Deletes_Only_Temporary_File()
+    {
+        using var root = new LocalFileSystem(_root);
+        var files = new ExpandedFileSystem(".cache/icons", root);
+        var file = files.GetFile("competing.svg");
+        var firstContent = Encoding.UTF8.GetBytes("<svg id=\"first\"/>");
+        var secondContent = Encoding.UTF8.GetBytes("<svg id=\"second\"/>");
+
+        var result = await IconFileHelper.GetOrCreateCacheFileAsync(file, async (stream, token) =>
+        {
+            await stream.WriteAsync(secondContent, token);
+
+            // Another publisher finishes after our initial existence check.
+            using var first = new MemoryStream(firstContent);
+            await file.CreateAsync(first, overwrite: false);
+        }, CancellationToken.None);
+
+        Assert.That(result, Is.EqualTo(file.PhysicalPath));
+        Assert.That(File.ReadAllBytes(result), Is.EqualTo(firstContent));
+        Assert.That(Directory.GetFiles(Path.GetDirectoryName(result)), Is.EqualTo(new[] { result }));
     }
 
     /// <summary>
@@ -3471,12 +3495,12 @@ public class IconServiceTests
             });
 
         var accessor = new HttpContextAccessor();
-        var browser = new IconBrowser(dependencies.Catalog, CreateKitService(_service, accessor), _service,
+        var browser = new IconBrowser(dependencies.AppContext, dependencies.Catalog, CreateKitService(_service, accessor), _service,
             sprites.Object, dependencies.Lifecycle, dependencies.Options, accessor);
         var path = await browser.GetSpriteFileAsync("hi", "sr", revision, cancellation.Token);
 
         Assert.That(File.Exists(path), Is.True);
-        using var index = JsonDocument.Parse(await File.ReadAllTextAsync(Path.Combine(_options.Value.CachePath, "index.json")));
+        using var index = JsonDocument.Parse(await File.ReadAllTextAsync(Path.Combine(_root, _options.Value.CachePath, "index.json")));
         Assert.That(index.RootElement.GetProperty("currentFiles").EnumerateArray()
             .Any(x => x.GetProperty("file").GetString() == "browser/hugeicons-rounded-" + revision + ".svg"), Is.True);
     }

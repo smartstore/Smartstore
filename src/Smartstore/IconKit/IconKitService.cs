@@ -1,8 +1,10 @@
+using Smartstore.Engine;
 using Smartstore.IconKit.Cache;
 using Smartstore.IconKit.Sources;
 using Smartstore.IconKit.Sprites;
 using Microsoft.Extensions.Options;
 using Microsoft.AspNetCore.Http;
+using Smartstore.IO;
 
 namespace Smartstore.IconKit;
 
@@ -13,8 +15,10 @@ public sealed class IconKitService : IIconKitService
     private readonly IIconKitPlanner _planner;
     private readonly IconKitOptions _options;
     private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly IFileSystem _fileCache;
 
     public IconKitService(
+        IApplicationContext appContext,
         IIconCatalogAccessor catalogAccessor,
         IIconCacheLifecycle lifecycle,
         IIconKitPlanner planner,
@@ -26,6 +30,8 @@ public sealed class IconKitService : IIconKitService
         _planner = planner;
         _options = options.Value;
         _httpContextAccessor = httpContextAccessor;
+
+        _fileCache = IconFileHelper.CreateFileSystem(appContext, options.Value.CachePath);
     }
 
     /// <inheritdoc />
@@ -37,16 +43,15 @@ public sealed class IconKitService : IIconKitService
     public async Task<string> GetManifestFileAsync(string revision, CancellationToken cancelToken = default)
     {
         cancelToken.ThrowIfCancellationRequested();
-        if (!IconFileCache.IsRevision(revision))
+        if (!IconFileHelper.IsValidRevisionHash(revision))
         {
             return null;
         }
 
-        var directory = Path.Combine(_options.CachePath, "kits");
-        var path = Path.Combine(directory, "manifest-" + revision + ".json");
-        if (File.Exists(path))
+        var file = _fileCache.GetFile("kits/manifest-" + revision + ".json");
+        if (file.Exists)
         {
-            return path;
+            return file.PhysicalPath;
         }
 
         var catalog = _catalogAccessor.Catalog;
@@ -56,7 +61,7 @@ public sealed class IconKitService : IIconKitService
             return null;
         }
 
-        var published = await IconFileCache.PublishAsync(path, async (stream, token) =>
+        var published = await IconFileHelper.GetOrCreateCacheFileAsync(file, async (stream, token) =>
         {
             await stream.WriteAsync(manifest.Content, token);
             if (catalog.ChangeToken.HasChanged)
@@ -148,18 +153,17 @@ public sealed class IconKitService : IIconKitService
         cancelToken.ThrowIfCancellationRequested();
         // Only revision hashes may enter physical filenames; arbitrary request input must
         // neither escape the cache directory nor trigger generation for invented revisions.
-        if (!IconAddress.IsQualifier(kitName) || !IconFileCache.IsRevision(revision))
+        if (!IconAddress.IsQualifier(kitName) || !IconFileHelper.IsValidRevisionHash(revision))
         {
             return null;
         }
 
-        var directory = Path.Combine(_options.CachePath, "kits");
-        var path = Path.Combine(directory, $"{kitName}-{revision}.svg");
+        var file = _fileCache.GetFile($"kits/{kitName}-{revision}.svg");
         // Retain historical revisions for already rendered pages, even after sources change.
         // Nothing is read into memory and no source plan is needed for an existing file.
-        if (File.Exists(path))
+        if (file.Exists)
         {
-            return path;
+            return file.PhysicalPath;
         }
 
         var catalog = _catalogAccessor.Catalog;
@@ -182,7 +186,7 @@ public sealed class IconKitService : IIconKitService
             }
         }
 
-        var published = await plan.PublishAsync(path, cancelToken);
+        var published = await plan.PublishAsync(file, cancelToken);
         await RegisterArtifactAsync(catalog, new("kit", kitName, plan.LibraryName, plan.VariantName,
             "kits/" + kitName + "-" + plan.Revision + ".svg"));
         return published;
@@ -207,8 +211,8 @@ public sealed class IconKitService : IIconKitService
         var variant = catalog.SelectVariant(library, null, kit);
         var index = GetIndex(catalog, library, variant);
         var sprite = index.Plans[kitName].Value;
-        var path = Path.Combine(_options.CachePath, "kits", kitName + "-" + sprite.Revision + ".svg");
-        await sprite.PublishAsync(path, cancelToken);
+        var file = _fileCache.GetFile("kits/" + kitName + "-" + sprite.Revision + ".svg");
+        await sprite.PublishAsync(file, cancelToken);
         await RegisterArtifactAsync(catalog, new("kit", kitName, sprite.LibraryName, sprite.VariantName,
             "kits/" + kitName + "-" + sprite.Revision + ".svg"));
 
