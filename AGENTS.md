@@ -126,6 +126,11 @@ Beyond formatting:
 - **Logging:** Smartstore property-injects `ILogger`; use `public ILogger Logger { get; set; } = NullLogger.Instance;` instead of adding a logger constructor parameter.
 - **Validation:** guard clauses for arguments; `ArgumentException` family for argument
   errors, domain-specific exceptions for domain errors.
+  Use the existing `Smartstore.Guard` helpers, especially `Guard.NotNull`, for argument validation.
+  Never use `ArgumentNullException.ThrowIfNull` or other `ThrowIf*` helpers on types in the
+  `ArgumentException` family. If no Guard helper fits, use an explicit guard clause.
+  Follow the [argument validation skill](.agents/skills/smartstore-argument-validation/SKILL.md)
+  when writing or reviewing argument guards.
 - **Reuse existing utilities** before writing your own — e.g.
   `Smartstore.Utilities.HashCodeCombiner` instead of an ad-hoc `GetHashCode`.
 
