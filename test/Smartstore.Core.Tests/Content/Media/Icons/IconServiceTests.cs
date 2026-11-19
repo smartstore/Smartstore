@@ -1460,7 +1460,7 @@ public class IconServiceTests
     [Test]
     public void Cache_Recovery_Still_Discovers_Files_Without_Saved_Selections()
     {
-        Write("Icons/kits.json", """{"shared":["cart"],"admin":["direct"]}""");
+        Write("Icons/kits.json", """{"shared":["cart"],"admin":["cart"]}""");
         var dependencies = _dependencies[_service];
         var catalog = dependencies.Catalog.Catalog;
         var library = catalog.DefaultLibrary.Manifest.SystemName;
