@@ -41,17 +41,7 @@ internal class IconEndpoints
     public async Task<IResult> Kit(string kit, string revision, CancellationToken cancelToken)
     {
         var path = await _kits.GetSpriteFileAsync(kit, revision, cancelToken);
-        if (path == null)
-        {
-            Response.Headers.CacheControl = "no-store";
-            return Results.NotFound();
-        }
-
-        Response.Headers.CacheControl = "public,max-age=31536000,immutable";
-        Response.Headers["X-Content-Type-Options"] = "nosniff";
-        // ASP.NET Core handles conditional requests, HEAD and physical file transfer.
-        // The body is never materialized as a managed string or byte array here.
-        return Results.File(path, "image/svg+xml", entityTag: new EntityTagHeaderValue('"' + revision + '"'));
+        return CreateFileResponse(path, revision, "image/svg+xml");
     }
 
     /// <summary>
@@ -61,15 +51,7 @@ internal class IconEndpoints
     public async Task<IResult> Manifest(string revision, CancellationToken cancelToken)
     {
         var path = await _kits.GetManifestFileAsync(revision, cancelToken);
-        if (path == null)
-        {
-            Response.Headers.CacheControl = "no-store";
-            return Results.NotFound();
-        }
-
-        Response.Headers.CacheControl = "public,max-age=31536000,immutable";
-        Response.Headers["X-Content-Type-Options"] = "nosniff";
-        return Results.File(path, "application/json", entityTag: new EntityTagHeaderValue('"' + revision + '"'));
+        return CreateFileResponse(path, revision, "application/json");
     }
 
     /// <summary>
@@ -132,15 +114,7 @@ internal class IconEndpoints
     public async Task<IResult> BrowserSprite(string library, string variant, string revision, CancellationToken cancelToken)
     {
         var path = await _browser.GetSpriteFileAsync(library, variant, revision, cancelToken);
-        if (path == null)
-        {
-            Response.Headers.CacheControl = "no-store";
-            return Results.NotFound();
-        }
-
-        Response.Headers.CacheControl = "public,max-age=31536000,immutable";
-        Response.Headers["X-Content-Type-Options"] = "nosniff";
-        return Results.File(path, "image/svg+xml", entityTag: new EntityTagHeaderValue('"' + revision + '"'));
+        return CreateFileResponse(path, revision, "image/svg+xml");
     }
 
     /// <summary>
@@ -204,5 +178,20 @@ internal class IconEndpoints
         {
             return Results.BadRequest();
         }
+    }
+
+    private IResult CreateFileResponse(string path, string revision, string contentType)
+    {
+        if (path == null)
+        {
+            Response.Headers.CacheControl = "no-store";
+            return Results.NotFound();
+        }
+
+        Response.Headers.CacheControl = "public,max-age=31536000,immutable";
+        Response.Headers["X-Content-Type-Options"] = "nosniff";
+
+        // ASP.NET Core handles HEAD and conditional requests without loading the file into memory.
+        return Results.File(path, contentType, entityTag: new EntityTagHeaderValue('"' + revision + '"'));
     }
 }
