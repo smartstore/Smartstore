@@ -167,32 +167,40 @@ public sealed class IconCacheLifecycle : IIconCacheLifecycle, IAsyncDisposable
                 await SaveIndexAsync();
             }
 
-            if (_cleanup.IsCompleted && DateTimeOffset.UtcNow - _lastScan >= ScanInterval)
-            {
-                _lastScan = DateTimeOffset.UtcNow;
-
-                // Track this one-shot task so DI disposal can await it. No timer or message bus.
-                _cleanup = Task.Run(async () =>
-                {
-                    using (await _gate.LockAsync())
-                    {
-                        if (_disposed || _validatedArtifacts != artifactVersion || sourceSnapshot.HasChanged)
-                        {
-                            return;
-                        }
-
-                        try
-                        {
-                            await CleanupAsync(sourceSnapshot);
-                        }
-                        catch (Exception ex)
-                        {
-                            Logger.Warn(ex, "Icon cache cleanup will retry on a later trigger.");
-                        }
-                    }
-                });
-            }
+            StartCleanupIfDue(sourceSnapshot, artifactVersion);
         }
+    }
+
+    // Called under the index lock so concurrent registrations cannot start competing cleanups.
+    private void StartCleanupIfDue(IChangeToken sourceSnapshot, object artifactVersion)
+    {
+        if (!_cleanup.IsCompleted || DateTimeOffset.UtcNow - _lastScan < ScanInterval)
+        {
+            return;
+        }
+
+        _lastScan = DateTimeOffset.UtcNow;
+
+        // Keep the task so shutdown can wait for it. No periodic timer is needed.
+        _cleanup = Task.Run(async () =>
+        {
+            using (await _gate.LockAsync())
+            {
+                if (_disposed || _validatedArtifacts != artifactVersion || sourceSnapshot.HasChanged)
+                {
+                    return;
+                }
+
+                try
+                {
+                    await CleanupAsync(sourceSnapshot);
+                }
+                catch (Exception ex)
+                {
+                    Logger.Warn(ex, "Icon cache cleanup will retry on a later trigger.");
+                }
+            }
+        });
     }
 
     private async Task EnsureIndexAsync(IconCatalog catalog, CancellationToken cancelToken)
