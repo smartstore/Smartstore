@@ -221,6 +221,7 @@ public sealed class IconCacheLifecycle : IIconCacheLifecycle, IAsyncDisposable
         using (await _recoveryGate.LockAsync())
         {
             IconCacheIndex index;
+            IconCacheArtifact[] knownFiles;
             using (await _gate.LockAsync())
             {
                 ObjectDisposedException.ThrowIf(_disposed, this);
@@ -237,6 +238,7 @@ public sealed class IconCacheLifecycle : IIconCacheLifecycle, IAsyncDisposable
                 }
 
                 index = _index;
+                knownFiles = index.CurrentFiles.ToArray();
                 _validatedArtifacts = null;
             }
 
@@ -245,7 +247,7 @@ public sealed class IconCacheLifecycle : IIconCacheLifecycle, IAsyncDisposable
                 file => Path.GetRelativePath(_fileCache.Root, file.PhysicalPath).Replace('\\', '/'),
                 file => file.LastModified,
                 StringComparer.Ordinal);
-            var current = _recovery.GetCurrentFiles(catalog, files.Keys.ToHashSet(StringComparer.Ordinal)).ToList();
+            var current = _recovery.GetCurrentFiles(catalog, files.Keys.ToHashSet(StringComparer.Ordinal), knownFiles).ToList();
             foreach (var item in current)
             {
                 ValidateArtifact(item);
@@ -439,6 +441,23 @@ public sealed class IconCacheLifecycle : IIconCacheLifecycle, IAsyncDisposable
         }
 
         ValidatePath(item.File);
+
+        var prefix = item.Kind switch
+        {
+            "kit" when IconAddress.IsQualifier(item.Kit) && IconAddress.IsQualifier(item.Library)
+                && IconAddress.IsQualifier(item.Variant) => $"kits/{item.Kit}-",
+            "browser" when IconAddress.IsQualifier(item.Library) && IconAddress.IsQualifier(item.Variant)
+                => $"browser/{item.Library}-{item.Variant}-",
+            "manifest" => "kits/manifest-",
+            _ => null
+        };
+        var extension = item.Kind == "manifest" ? ".json" : ".svg";
+        if (prefix == null || !item.File.StartsWith(prefix, StringComparison.Ordinal)
+            || !item.File.EndsWith(extension, StringComparison.Ordinal)
+            || item.File.Length != prefix.Length + 24 + extension.Length)
+        {
+            throw new InvalidDataException("The icon cache file does not match its saved selection.");
+        }
     }
 
     public async ValueTask DisposeAsync()

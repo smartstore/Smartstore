@@ -15,7 +15,78 @@ public sealed class IconCacheRecovery : IIconCacheRecovery
     }
 
     /// <inheritdoc />
-    public IReadOnlyCollection<IconCacheArtifact> GetCurrentFiles(IconCatalog catalog, IReadOnlySet<string> files)
+    public IReadOnlyCollection<IconCacheArtifact> GetCurrentFiles(
+        IconCatalog catalog,
+        IReadOnlySet<string> files,
+        IReadOnlyCollection<IconCacheArtifact> knownFiles = null)
+    {
+        if (files.Count == 0)
+        {
+            return [];
+        }
+
+        if (knownFiles == null || knownFiles.Count == 0)
+        {
+            return FindUnindexedFiles(catalog, files);
+        }
+
+        var result = new HashSet<IconCacheArtifact>();
+        var unknownFiles = files.ToHashSet(StringComparer.Ordinal);
+
+        foreach (var known in knownFiles)
+        {
+            unknownFiles.Remove(known.File);
+            var current = GetCurrentFile(catalog, known);
+            if (current != null && files.Contains(current.File))
+            {
+                result.Add(current);
+                unknownFiles.Remove(current.File);
+            }
+        }
+
+        // A filename alone does not identify a kit's preferred library and variant.
+        // This also rechecks old files that may be current again after a source rollback.
+        if (unknownFiles.Count > 0)
+        {
+            result.UnionWith(FindUnindexedFiles(catalog, unknownFiles));
+        }
+
+        return result.ToArray();
+    }
+
+    private IconCacheArtifact GetCurrentFile(IconCatalog catalog, IconCacheArtifact known)
+    {
+        if (known.Kind == "manifest")
+        {
+            return known with { File = "kits/manifest-" + _kitPlanner.GetManifest(catalog).Revision + ".json" };
+        }
+
+        // Removed libraries or variants must not silently fall back to another selection.
+        var library = catalog.SelectLibrary(known.Library);
+        if (library == null || known.Variant == null || !library.Variants.ContainsKey(known.Variant))
+        {
+            return null;
+        }
+
+        if (known.Kind == "browser" && !library.IsProvider)
+        {
+            var revision = _librarySprites.GetRevision(catalog, known.Library, known.Variant);
+            return known with { File = $"browser/{known.Library}-{known.Variant}-{revision}.svg" };
+        }
+
+        if (known.Kind == "kit" && known.Kit != null && catalog.Kits.ContainsKey(known.Kit))
+        {
+            var index = _kitPlanner.GetIndex(catalog, known.Library, known.Variant);
+            if (index.CanGenerate(known.Kit))
+            {
+                return known with { File = $"kits/{known.Kit}-{index.Plans[known.Kit].Value.Revision}.svg" };
+            }
+        }
+
+        return null;
+    }
+
+    private IReadOnlyCollection<IconCacheArtifact> FindUnindexedFiles(IconCatalog catalog, IReadOnlySet<string> files)
     {
         var result = new List<IconCacheArtifact>();
         if (files.Count == 0)

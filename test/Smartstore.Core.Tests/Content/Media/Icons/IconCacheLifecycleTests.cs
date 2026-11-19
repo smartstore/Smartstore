@@ -70,8 +70,8 @@ public class IconCacheLifecycleTests
         Func<IReadOnlySet<string>, IReadOnlyCollection<IconCacheArtifact>> recover)
     {
         _recoveries[lifecycle]
-            .Setup(x => x.GetCurrentFiles(It.IsAny<IconCatalog>(), It.IsAny<IReadOnlySet<string>>()))
-            .Returns((IconCatalog _, IReadOnlySet<string> files) => recover(files));
+            .Setup(x => x.GetCurrentFiles(It.IsAny<IconCatalog>(), It.IsAny<IReadOnlySet<string>>(), It.IsAny<IReadOnlyCollection<IconCacheArtifact>>()))
+            .Returns((IconCatalog _, IReadOnlySet<string> files, IReadOnlyCollection<IconCacheArtifact> knownFiles) => recover(files));
 
         return lifecycle.TrackCacheFileAsync(artifact, new IconCatalog(token));
     }
@@ -234,7 +234,7 @@ public class IconCacheLifecycleTests
         using var entered = new ManualResetEventSlim();
         using var release = new ManualResetEventSlim();
         _recoveries[lifecycle]
-            .Setup(x => x.GetCurrentFiles(It.IsAny<IconCatalog>(), It.IsAny<IReadOnlySet<string>>()))
+            .Setup(x => x.GetCurrentFiles(It.IsAny<IconCatalog>(), It.IsAny<IReadOnlySet<string>>(), It.IsAny<IReadOnlyCollection<IconCacheArtifact>>()))
             .Returns(() =>
             {
                 entered.Set();
@@ -269,7 +269,7 @@ public class IconCacheLifecycleTests
         }
 
         await lifecycle.PendingCleanup;
-        _recoveries[lifecycle].Verify(x => x.GetCurrentFiles(It.IsAny<IconCatalog>(), It.IsAny<IReadOnlySet<string>>()), Times.Once);
+        _recoveries[lifecycle].Verify(x => x.GetCurrentFiles(It.IsAny<IconCatalog>(), It.IsAny<IReadOnlySet<string>>(), It.IsAny<IReadOnlyCollection<IconCacheArtifact>>()), Times.Once);
         using var index = ReadIndex();
         Assert.That(index.RootElement.GetProperty("currentFiles").EnumerateArray().Select(x => x.GetProperty("file").GetString()),
             Is.EquivalentTo(new[] { Current, Old }));

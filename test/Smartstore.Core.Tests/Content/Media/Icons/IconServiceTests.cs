@@ -1433,6 +1433,50 @@ public class IconServiceTests
         resolver.Verify(x => x.Resolve(catalog, It.Is<IconAddress>(a => a.Name == "direct"), true), Times.Once);
     }
 
+    [TestCase(false)]
+    [TestCase(true)]
+    public void Cache_Recovery_Uses_Saved_Selection_And_Recalculates_Revision(bool oldRevision)
+    {
+        Write("Icons/kits.json", """{"shared":["cart"]}""");
+        var dependencies = _dependencies[_service];
+        var catalog = dependencies.Catalog.Catalog;
+        var library = catalog.DefaultLibrary.Manifest.SystemName;
+        var variant = catalog.DefaultLibrary.Manifest.DefaultVariant;
+        var index = dependencies.Planner.GetIndex(catalog, library, variant);
+        var current = "kits/shared-" + index.Plans["shared"].Value.Revision + ".svg";
+        var saved = oldRevision ? "kits/shared-" + new string('0', 24) + ".svg" : current;
+        var known = new IconCacheArtifact("kit", "shared", library, variant, saved);
+        var planner = new Mock<IIconKitPlanner>(MockBehavior.Strict);
+        planner.Setup(x => x.GetIndex(catalog, library, variant)).Returns(index);
+        var recovery = new IconCacheRecovery(planner.Object, Mock.Of<IIconLibrarySpriteService>());
+
+        var result = recovery.GetCurrentFiles(catalog, new HashSet<string> { saved, current }, [known]);
+
+        Assert.That(result, Is.EquivalentTo(new[] { known with { File = current } }));
+        planner.Verify(x => x.GetIndex(catalog, library, variant), Times.Once);
+        planner.VerifyNoOtherCalls();
+    }
+
+    [Test]
+    public void Cache_Recovery_Still_Discovers_Files_Without_Saved_Selections()
+    {
+        Write("Icons/kits.json", """{"shared":["cart"],"admin":["direct"]}""");
+        var dependencies = _dependencies[_service];
+        var catalog = dependencies.Catalog.Catalog;
+        var library = catalog.DefaultLibrary.Manifest.SystemName;
+        var variant = catalog.DefaultLibrary.Manifest.DefaultVariant;
+        var index = dependencies.Planner.GetIndex(catalog, library, variant);
+        var shared = "kits/shared-" + index.Plans["shared"].Value.Revision + ".svg";
+        var admin = "kits/admin-" + index.Plans["admin"].Value.Revision + ".svg";
+        var known = new IconCacheArtifact("kit", "shared", library, variant, shared);
+        var recovery = new IconCacheRecovery(dependencies.Planner, dependencies.Sprites);
+
+        var result = recovery.GetCurrentFiles(catalog, new HashSet<string> { shared, admin }, [known]);
+
+        Assert.That(result.Any(x => x.File == shared), Is.True);
+        Assert.That(result.Any(x => x.File == admin), Is.True);
+    }
+
     [Test]
     public void Cache_Recovery_Does_Not_Resolve_Kits_Without_Files()
     {
