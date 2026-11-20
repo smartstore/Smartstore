@@ -336,7 +336,7 @@ public class HomeController : AdminController
             }
         }
 
-        return RedirectToAction(nameof(Index), new { area = "Admin" });
+        return RedirectToAction(nameof(Index), new { area = "Admin", edit = !reset, layer });
     }
 
     /// <summary>
