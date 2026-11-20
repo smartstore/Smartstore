@@ -1012,8 +1012,8 @@ public class SmartDbContextDataSeeder : IDataSeeder<SmartDbContext>
     private static void MigrateCommonResources(LocaleResourcesBuilder builder)
     {
         builder.AddOrUpdate("Admin.System.QueuedEmails.RequeuePendingAttachments",
-            "Please wait until all attachments have been generated before requeuing this email.",
-            "Bitte warten Sie, bis alle Anhänge erstellt wurden, bevor Sie diese E-Mail erneut einreihen.");
+            "Please wait until all attachments have been created before requeuing this email.",
+            "Bitte warten Sie, bis alle Anhänge erstellt sind, bevor Sie diese E-Mail erneut einreihen.");
 
         builder.AddOrUpdate("Admin.Header.Account", "Account", "Konto");
         builder.AddOrUpdate("Admin.Header.ExpandNavigation", "Expand navigation", "Navigation ausklappen");

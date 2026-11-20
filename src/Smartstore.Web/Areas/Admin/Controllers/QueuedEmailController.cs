@@ -291,20 +291,7 @@ public class QueuedEmailController : AdminController
 
         foreach (var attachment in queuedEmail.Attachments)
         {
-            requeuedEmail.Attachments.Add(new()
-            {
-                StorageLocation = attachment.StorageLocation,
-                Path = attachment.Path,
-                MediaFileId = attachment.MediaFileId,
-                Name = attachment.Name,
-                MimeType = attachment.MimeType,
-                IsEmbedded = attachment.IsEmbedded,
-                ContentId = attachment.ContentId,
-                // Blob storage belongs to its attachment and is deleted with the original email.
-                MediaStorage = attachment.StorageLocation == EmailAttachmentStorageLocation.Blob && attachment.MediaStorage != null
-                    ? new MediaStorage { Data = attachment.MediaStorage.Data }
-                    : null
-            });
+            requeuedEmail.Attachments.Add(attachment.Clone());
         }
 
         await _queuedEmailService.QueueEmailAsync(requeuedEmail);

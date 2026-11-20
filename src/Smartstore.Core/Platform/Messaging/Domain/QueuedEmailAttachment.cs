@@ -31,7 +31,7 @@ internal class QueuedEmailAttachmentMap : IEntityTypeConfiguration<QueuedEmailAt
 [Index(nameof(QueuedEmailId), Name = "IX_QueuedEmailId")]
 [Index(nameof(MediaStorageId), Name = "IX_MediaStorageId")]
 [Index(nameof(MediaFileId), Name = "IX_MediaFileId")]
-public partial class QueuedEmailAttachment : BaseEntity, IMediaAware
+public partial class QueuedEmailAttachment : BaseEntity, IMediaAware, ICloneable<QueuedEmailAttachment>
 {
     /// <summary>
     /// Gets or sets the queued email identifier.
@@ -119,6 +119,28 @@ public partial class QueuedEmailAttachment : BaseEntity, IMediaAware
         get => _mediaStorage ?? LazyLoader.Load(this, ref _mediaStorage);
         set => _mediaStorage = value;
     }
+
+    /// <inheritdoc/>
+    public QueuedEmailAttachment Clone()
+    {
+        return new()
+        {
+            StorageLocation = StorageLocation,
+            IsPending = IsPending,
+            Path = Path,
+            MediaFileId = MediaFileId,
+            Name = Name,
+            MimeType = MimeType,
+            IsEmbedded = IsEmbedded,
+            ContentId = ContentId,
+            MediaStorage = StorageLocation == EmailAttachmentStorageLocation.Blob && MediaStorage != null
+                ? new MediaStorage { Data = MediaStorage.Data?.ToArray() }
+                : null
+        };
+    }
+
+    object ICloneable.Clone()
+        => Clone();
 
     [NotMapped]
     int IMediaAware.Size { get; set; }
