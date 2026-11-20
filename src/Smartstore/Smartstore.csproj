@@ -24,14 +24,14 @@
 	</ItemGroup>-->
 	
     <ItemGroup>
-        <PackageReference Include="AngleSharp" Version="1.5.0" />
-        <PackageReference Include="AngleSharp.Css" Version="1.0.0-beta.164" />
+        <PackageReference Include="AngleSharp" Version="1.8.6" />
+        <PackageReference Include="AngleSharp.Css" Version="1.0.2" />
         <PackageReference Include="AsyncKeyedLock" Version="8.1.2" />
         <PackageReference Include="Autofac" Version="9.1.0" />
         <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="11.0.0" />
         <PackageReference Include="Barcoder" Version="3.0.0" />
         <PackageReference Include="CronExpressionDescriptor" Version="2.48.0" />
-        <PackageReference Include="HtmlSanitizer" Version="9.1.893-beta" />
+        <PackageReference Include="HtmlSanitizer" Version="9.2.1039" />
         <PackageReference Include="Humanizer" Version="3.0.10" />
         <PackageReference Include="MailKit" Version="4.17.0" />
         <PackageReference Include="Microsoft.EntityFrameworkCore" Version="11.0.0-rc.3.26522.148" />

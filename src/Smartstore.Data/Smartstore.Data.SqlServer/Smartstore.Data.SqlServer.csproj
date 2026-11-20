@@ -10,7 +10,7 @@
 
 	<ItemGroup>
         <PackageReference Include="Azure.Identity" Version="1.21.0" />
-        <PackageReference Include="Microsoft.Data.SqlClient" Version="7.1.0" />
+        <PackageReference Include="Microsoft.Data.SqlClient" Version="$(SmartstoreSqlClientVersion)" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="11.0.0-rc.3.26522.148" GeneratePathProperty="true" />
         <None Include="$(PkgMicrosoft_EntityFrameworkCore_SqlServer)\lib\net11.0\*.dll" CopyToOutputDirectory="PreserveNewest">
             <Visible>false</Visible>

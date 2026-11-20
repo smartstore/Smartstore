@@ -63,4 +63,10 @@ public class HtmlSanitizerOptions
     /// The HTML attributes that can contain a URI such as "href". When <c>null</c>, uses <see cref="DefaultUriAttributes"/>
     /// </summary>
     public ISet<string>? UriAttributes { get; set; }
+
+    /// <summary>
+    /// The allowed URI schemes such as "http" and "https". When <c>null</c>, no absolute URI schemes are allowed.
+    /// Relative URLs remain allowed. Applies only to attributes included in <see cref="UriAttributes"/>.
+    /// </summary>
+    public ISet<string>? AllowedSchemes { get; set; }
 }

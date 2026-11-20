@@ -2,6 +2,7 @@
 
 	<PropertyGroup>
 		<TargetFramework>net11.0</TargetFramework>
+        <SmartstoreSqlClientVersion>7.1.2</SmartstoreSqlClientVersion>
         <!-- Solution builds reject a global RuntimeIdentifier; CI forwards its RID to application projects here. -->
         <RuntimeIdentifier Condition="'$(SmartstoreBuildRuntime)' != '' And '$(RuntimeIdentifier)' == ''">$(SmartstoreBuildRuntime)</RuntimeIdentifier>
         <!--<RuntimeIdentifiers>win-x64; osx-x64; linux-x64</RuntimeIdentifiers>-->

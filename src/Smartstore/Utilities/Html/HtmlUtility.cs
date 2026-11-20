@@ -61,6 +61,11 @@ public static partial class HtmlUtility
         MergeSets(sanitizerOptions.AllowedAttributes, options.AllowedAttributes ?? HtmlSanitizerOptions.DefaultAllowedAttributes, options.DisallowedAttributes);
         MergeSets(sanitizerOptions.UriAttributes, options.UriAttributes ?? HtmlSanitizerOptions.DefaultUriAttributes, null);
 
+        if (options.AllowedSchemes != null)
+        {
+            MergeSets(sanitizerOptions.AllowedSchemes, options.AllowedSchemes, null);
+        }
+
         if (options.AllowedCssClasses != null)
         {
             MergeSets(sanitizerOptions.AllowedCssClasses, options.AllowedCssClasses, null);
