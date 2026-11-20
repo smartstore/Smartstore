@@ -2,7 +2,7 @@
 
 @model FeedModel
 
-<div class="report sticky-report">
+<div class="report sticky-report newsfeed-report">
     <div class="report-title-row">
         <div class="report-title">@T("Admin.NewsFeed.Title")</div>
     </div>
@@ -34,7 +34,7 @@
 
                 if (Model.NewsFeedCannels.Count > 1)
                 {
-                    <a class="admin-config-group" attr-class='(!isFirst, "collapsed")' data-toggle="collapse" href="#pnl-@(i)" role="button" aria-expanded="@isFirst">
+                    <a class="admin-config-group newsfeed-group" attr-class='(!isFirst, "collapsed")' data-toggle="collapse" href="#pnl-@(i)" role="button" aria-expanded="@isFirst">
                         <span class="title fs-h6 font-weight-medium my-0">@channel.Name</span>
                     </a>
                 }
@@ -50,10 +50,10 @@
                         var showPicture = item.ViewType == "full";
                         var showDescription = item.ViewType != "minimized";
 
-                        <div class="col-12 col-sm-6 col-lg-12">
+                        <div class="col-12 col-sm-6 col-lg-12 newsfeed-column">
                             <div class="cnt-newsfeed-item" attr-class='(item.IsPinned, "pinned")'>
                                 <figure sm-if='item.ThumbnailUrl.HasValue()' class="newsfeed-thumbnail" attr-class='(!showPicture, "d-lg-none")'>
-                                    <img class="file-img" src="@item.ThumbnailUrl" alt="@item.Title" />
+                                    <img class="file-img newsfeed-image" src="@item.ThumbnailUrl" alt="@item.Title" />
                                 </figure>
                                 <div class="newsfeed-item">
                                     <div class="newsfeed-item-title" attr-class='(!showDescription, "mb-0")'>
@@ -70,7 +70,7 @@
                                         <div class="line-clamp-4">
                                             @Html.Raw(item.Short)
                                         </div>
-                                        <a sm-if="item.Link.HasValue()" href="@item.Link" target="NewsfeedWindow" class="more-info">
+                                        <a sm-if="item.Link.HasValue()" href="@item.Link" target="NewsfeedWindow" class="more-info newsfeed-more-info">
                                             @T("Common.MoreInfo").Value.ToLower()...
                                             <icon name="arrow-up-right-01" aria-hidden="true" />
                                         </a>

@@ -83,12 +83,18 @@ $dashboard-row: auto;
         }
     }
 
-    > .table-3 {
+    > .table-3,
+    > .table-4 {
         tr > th,
         tr > td {
             padding-left: 0.25rem !important;
             padding-right: 0.25rem !important;
+        }
+    }
 
+    > .table-3 {
+        tr > th,
+        tr > td {
             &:first-child {
                 width: 50%;
             }
@@ -102,13 +108,7 @@ $dashboard-row: auto;
     > .table-4 {
         tr > th,
         tr > td {
-            padding-left: 0.25rem !important;
-            padding-right: 0.25rem !important;
-
-            &:nth-child(2) {
-                width: 15%;
-            }
-
+            &:nth-child(2),
             &:nth-child(4) {
                 width: 15%;
             }
@@ -123,104 +123,10 @@ $dashboard-row: auto;
     height: 100%;
     overflow: hidden;
 
-    &#orders-report,
-    &#customers-report {
-        display: flex;
-        flex-direction: column;
-
-        .btn-group-toggle {
-            min-width: 0;
-            max-width: 100%;
-
-            > .btn {
-                min-width: 0;
-
-            }
-        }
-
-        > .canvas-container {
-            flex: 1;
-
-            > canvas {
-                position: absolute;
-                top: 0;
-                left: 0;
-            }
-        }
-    }
-
     &.sticky-report {
         position: sticky;
         top: 0.625rem;
         height: auto;
-    }
-
-    .report-title-row,
-    .report-body {
-        padding: var(--report-padding-y) var(--report-padding-x);
-    }
-
-    .report-title-row {
-        padding-bottom: .5rem;
-        align-items: center;
-        display: flex;
-        flex-wrap: nowrap;
-        row-gap: 0.5rem;
-
-        .report-title {
-            font-size: 1.25rem;
-            font-weight: $font-weight-medium;
-        }
-    }
-
-    .incomplete-orders-title {
-        text-align: center;
-        font-weight: $font-weight-medium;
-        font-size: $h5-font-size;
-        color: $gray-500;
-    }
-
-    .incomplete-orders-container {
-        width: 100%;
-        height: 100%;
-        padding-top: 1rem;
-    }
-
-    .incomplete-orders-chart-container {
-        width: 100%;
-        height: 250px;
-        position: relative;
-    }
-
-    .incomplete-orders-chart-text {
-        position: absolute;
-        width: 100%;
-        height: 100%;
-        display: flex;
-        flex-flow: column;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .incomplete-orders-quantity {
-        text-overflow: ellipsis;
-        overflow: hidden;
-        white-space: nowrap;
-        max-width: 50%;
-        font-weight: $font-weight-bold;
-        color: $gray-500;
-        font-size: 1.5rem;
-        padding-bottom: .1em;
-    }
-
-    .incomplete-orders-amount {
-        text-overflow: ellipsis;
-        overflow: hidden;
-        white-space: nowrap;
-        max-width: 50%;
-        font-size: 1.25rem;
-        padding-top: .1rem;
-        color: $gray-700;
     }
 
     .table {
@@ -235,48 +141,6 @@ $dashboard-row: auto;
         }
     }
 
-    .statistics-value {
-        font-size: 1rem;
-    }
-
-    .statistics-attribute {
-        color: var(--gray-600);
-    }
-
-    .statistics-container {
-        width: 100%;
-    }
-
-    .statistics-content {
-        display: flex;
-        width: 100%;
-        overflow: hidden;
-        justify-content: space-between;
-        border: 1px solid rgba($black, 0.05);
-    }
-
-    .statistics-col {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border: 0;
-    }
-
-    .statistics-container-outer {
-        display: flex;
-        justify-content: center;
-    }
-
-    .statistics-container-inner {
-        padding-inline-end: 0.5rem;
-        line-height: 1.5;
-    }
-
-    .statistics-icon {
-        font-size: 1.5rem;
-        color: var(--gray-650);
-    }
-
     .indicator {
         width: 10px;
         min-width: 10px;
@@ -285,59 +149,8 @@ $dashboard-row: auto;
         border-radius: 50%;
     }
 
-    .btn-dashboard {
-        font-size: .75rem;
-        padding: .33rem .66rem;
-    }
-
     .canvas-container {
         position: relative;
-    }
-
-    #orders-chart-legend {
-        & > ul {
-            cursor: pointer;
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-
-        li {
-            display: inline-block;
-            user-select: none;
-
-            &.hidden {
-                color: $text-muted;
-                user-select: none;
-            }
-
-            &.inactive {
-                cursor: initial;
-                text-decoration: line-through;
-            }
-
-            &:not(:last-child) {
-                padding-inline-end: 1rem;
-            }
-        }
-
-        .total-amount {
-            text-decoration: none !important;
-            display: inline-block;
-            user-select: text;
-        }
-
-        .legend {
-            border-radius: 50%;
-            display: inline-block;
-            height: 11px;
-            width: 11px;
-            margin-inline-end: .3rem;
-        }
-
-        .hidden > .legend {
-            background-color: $gray-400 !important;
-        }
     }
 
     .chevron {
@@ -353,109 +166,287 @@ $dashboard-row: auto;
             transform: rotate(180deg);
         }
     }
+}
 
-    @at-root .chart-tooltip {
-        --chart-tooltip-background: #{mix($black, $white, 80%)};
+.report-chart {
+    display: flex;
+    flex-direction: column;
 
-        opacity: 1;
+    > .canvas-container {
+        flex: 1;
+
+        > canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+    }
+}
+
+.report-period-filter {
+    min-width: 0;
+    max-width: 100%;
+
+    > .btn {
+        min-width: 0;
+    }
+}
+
+.report-title-row,
+.report-body {
+    padding: var(--report-padding-y) var(--report-padding-x);
+}
+
+.report-title-row {
+    padding-bottom: .5rem;
+    align-items: center;
+    display: flex;
+    flex-wrap: nowrap;
+    row-gap: 0.5rem;
+}
+
+.report-title {
+    font-size: 1.25rem;
+    font-weight: $font-weight-medium;
+}
+
+.incomplete-orders-title {
+    text-align: center;
+    font-weight: $font-weight-medium;
+    font-size: $h5-font-size;
+    color: $gray-500;
+}
+
+.incomplete-orders-container {
+    width: 100%;
+    height: 100%;
+    padding-top: 1rem;
+}
+
+.incomplete-orders-chart-container {
+    width: 100%;
+    height: 250px;
+    position: relative;
+}
+
+.incomplete-orders-chart-text {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-flow: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.incomplete-orders-quantity {
+    max-width: 50%;
+    font-weight: $font-weight-bold;
+    color: $gray-500;
+    font-size: 1.5rem;
+    padding-bottom: .1em;
+}
+
+.incomplete-orders-amount {
+    max-width: 50%;
+    font-size: 1.25rem;
+    padding-top: .1rem;
+    color: $gray-700;
+}
+
+.statistics-value {
+    font-size: 1rem;
+}
+
+.statistics-attribute {
+    color: var(--gray-600);
+}
+
+.statistics-container {
+    width: 100%;
+}
+
+.statistics-content {
+    display: flex;
+    width: 100%;
+    overflow: hidden;
+    justify-content: space-between;
+    border: 1px solid rgba($black, 0.05);
+}
+
+.statistics-col {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 0;
+}
+
+.statistics-container-outer {
+    display: flex;
+    justify-content: center;
+}
+
+.statistics-container-inner {
+    padding-inline-end: 0.5rem;
+    line-height: 1.5;
+}
+
+.statistics-icon {
+    font-size: 1.5rem;
+    color: var(--gray-650);
+}
+
+.btn-dashboard {
+    font-size: .75rem;
+    padding: .33rem .66rem;
+}
+
+#orders-chart-legend {
+    & > ul {
+        cursor: pointer;
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    li {
+        display: inline-block;
+        user-select: none;
+
+        &.hidden {
+            color: $text-muted;
+        }
+
+        &.inactive {
+            cursor: initial;
+            text-decoration: line-through;
+        }
+
+        &:not(:last-child) {
+            padding-inline-end: 1rem;
+        }
+    }
+
+    .total-amount {
+        text-decoration: none !important;
+        display: inline-block;
+        user-select: text;
+    }
+
+    .legend {
+        border-radius: 50%;
+        display: inline-block;
+        height: 11px;
+        width: 11px;
+        margin-inline-end: .3rem;
+    }
+
+    .hidden > .legend {
+        background-color: $gray-400 !important;
+    }
+}
+
+.chart-tooltip {
+    --chart-tooltip-background: #{mix($black, $white, 80%)};
+
+    opacity: 1;
+    position: absolute;
+    width: max-content;
+    background: var(--chart-tooltip-background);
+    color: $light;
+    border-radius: var(--border-radius-sm);
+    transition: opacity 0.2s ease-in-out;
+    pointer-events: none;
+    transform: translateX(-50%);
+    z-index: 10;
+    padding: 0.4rem 0.7rem 0.5rem 0.7rem;
+
+    &:after {
+        content: "";
         position: absolute;
-        width: max-content;
-        background: var(--chart-tooltip-background);
-        color: $light;
-        border-radius: var(--border-radius-sm);
-        transition: opacity 0.2s ease-in-out;
-        pointer-events: none;
+        width: 0;
+        height: 0;
+        background-color: transparent;
+    }
+
+    &.bottom:after,
+    &.top:not(.right):not(.left):after {
+        border-left: 9px solid transparent;
+        border-right: 9px solid transparent;
         transform: translateX(-50%);
-        z-index: 10;
-        padding: 0.4rem 0.7rem 0.5rem 0.7rem;
+        transition: left 0.1s ease-in-out;
+        inset-inline-start: 50%;
+    }
+
+    &.bottom {
+        transform: translate(-50%, calc(-100% - 15px));
 
         &:after {
-            content: "";
-            position: absolute;
-            width: 0;
-            height: 0;
-            background-color: transparent;
+            border-top: 9px solid var(--chart-tooltip-background);
+            top: calc(100% - 1px);
+            inset-inline-start: auto;
+            left: var(--chart-tooltip-caret-x, 50%);
         }
+    }
 
-        &.bottom:after,
-        &.top:not(.right):not(.left):after {
-            border-left: 9px solid transparent;
-            border-right: 9px solid transparent;
-            transform: translateX(-50%);
-            transition: left 0.1s ease-in-out;
-            inset-inline-start: 50%;
+    &.top:not(.right):not(.left) {
+        transform: translate(-50%, 15px);
+
+        &:after {
+            border-bottom: 9px solid var(--chart-tooltip-background);
+            top: -8px;
         }
+    }
 
-        &.bottom {
-            transform: translate(-50%, calc(-100% - 15px));
+    &.left:not(.bottom):after,
+    &.right:not(.bottom):after {
+        border-top: 9px solid transparent;
+        border-bottom: 9px solid transparent;
+        transform: translateY(-50%);
+        transition: top 0.1s ease-in-out;
+        top: 50%;
+    }
 
-            &:after {
-                border-top: 9px solid var(--chart-tooltip-background);
-                top: calc(100% - 1px);
-                inset-inline-start: auto;
-                left: var(--chart-tooltip-caret-x, 50%);
-            }
+    &.left:not(.bottom) {
+        transform: translate(15px, -50%);
+
+        &:after {
+            border-inline-end: 9px solid var(--chart-tooltip-background);
+            inset-inline-start: -8px;
         }
+    }
 
-        &.top:not(.right):not(.left) {
-            transform: translate(-50%, 15px);
+    &.right:not(.bottom) {
+        transform: translate(calc(-100% - 15px), -50%);
 
-            &:after {
-                border-bottom: 9px solid var(--chart-tooltip-background);
-                top: -8px;
-            }
+        &:after {
+            border-inline-start: 9px solid var(--chart-tooltip-background);
+            inset-inline-start: calc(100% - 1px);
         }
+    }
 
-        &.left:not(.bottom):after,
-        &.right:not(.bottom):after {
-            border-top: 9px solid transparent;
-            border-bottom: 9px solid transparent;
-            transform: translateY(-50%);
-            transition: top 0.1s ease-in-out;
-            top: 50%;
-        }
+    .chart-tooltip-indicator {
+        display: inline-block;
+        width: 11px;
+        height: 11px;
+        border-radius: 50%;
+        margin-bottom: -1px;
+        margin-inline-end: 0.33rem;
+    }
 
-        &.left:not(.bottom) {
-            transform: translate(15px, -50%);
+    .chart-tooltip-title {
+        font-size: $font-size-sm;
+        line-height: initial;
+        font-weight: $font-weight-bold;
+        padding-bottom: 0.2rem;
+    }
 
-            &:after {
-                border-inline-end: 9px solid var(--chart-tooltip-background);
-                inset-inline-start: -8px;
-            }
-        }
+    .chart-tooltip-body {
+        font-size: $font-size-xs;
+        line-height: initial;
 
-        &.right:not(.bottom) {
-            transform: translate(calc(-100% - 15px), -50%);
-
-            &:after {
-                border-inline-start: 9px solid var(--chart-tooltip-background);
-                inset-inline-start: calc(100% - 1px);
-            }
-        }
-
-        .chart-tooltip-indicator {
-            display: inline-block;
-            width: 11px;
-            height: 11px;
-            border-radius: 50%;
-            margin-bottom: -1px;
-            margin-inline-end: 0.33rem;
-        }
-
-        .chart-tooltip-title {
-            font-size: $font-size-sm;
-            line-height: initial;
-            font-weight: $font-weight-bold;
-            padding-bottom: 0.2rem;
-        }
-
-        .chart-tooltip-body {
-            font-size: $font-size-xs;
-            line-height: initial;
-
-            &:not(:last-child) {
-                padding-bottom: 0.1rem;
-            }
+        &:not(:last-child) {
+            padding-bottom: 0.1rem;
         }
     }
 }
@@ -470,20 +461,14 @@ $dashboard-row: auto;
 }
 
 @container (min-width: 450px) {
-    .report .incomplete-orders-container {
+    .incomplete-orders-container {
         width: 50%;
     }
 }
 
 @container (min-width: 1000px) {
-    .report .incomplete-orders-container {
+    .incomplete-orders-container {
         width: 25%;
-    }
-}
-
-@media screen and (min-width: 1600px) {
-    .incomplete-orders-chart-container {
-        height: 300px;
     }
 }
 
@@ -499,27 +484,27 @@ $dashboard-row: auto;
 .news-feed {
     --report-padding-x: 1.25rem;
     --report-padding-y: 1.25rem;
-    .report {
-        background-color: var(--body-bg);
-    }
-
 }
 
-.newsfeed-body {
-    .admin-config-group > .title {
+.newsfeed-report {
+    background-color: var(--body-bg);
+}
+
+.newsfeed-group {
+    > .title {
         padding: .875rem calc(var(--report-padding-x) + 1.25rem) .875rem var(--report-padding-x);
         border-color: var(--gray-200);
         color: var(--body-color);
     }
 
-    .admin-config-group:after {
+    &.admin-config-group:after {
         inset-inline-end: var(--report-padding-x);
     }
+}
 
-    @include media-breakpoint-down(xs) {
-        .col-12 + .col-12 {
-            border-top: 1px solid var(--gray-200);
-        }
+@include media-breakpoint-down(xs) {
+    .newsfeed-column + .newsfeed-column {
+        border-top: 1px solid var(--gray-200);
     }
 }
 
@@ -561,18 +546,18 @@ $dashboard-row: auto;
     color: var(--gray-650);
     font-size: 13px;
     line-height: 1.5;
+}
 
-    .more-info {
-        display: inline-flex;
-        align-items: center;
-        gap: .25rem;
-        line-height: 1;
-        margin-top: .75rem;
-        font-weight: $font-weight-medium;
+.newsfeed-more-info {
+    display: inline-flex;
+    align-items: center;
+    gap: .25rem;
+    line-height: 1;
+    margin-top: .75rem;
+    font-weight: $font-weight-medium;
 
-        > .icon {
-            font-size: 1em;
-        }
+    > .icon {
+        font-size: 1em;
     }
 }
 
@@ -583,12 +568,12 @@ $dashboard-row: auto;
     border-radius: var(--border-radius-md);
     outline: 1px solid color-mix(in srgb, var(--border-color-translucent) 50%, transparent);
     outline-offset: -1px;
+}
 
-    .file-img {
-        object-fit: cover;
-        width: 100%;
-        height: 100%;
-    }
+.newsfeed-image {
+    object-fit: cover;
+    width: 100%;
+    height: 100%;
 }
 
 .btn-newsfeed {

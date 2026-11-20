@@ -8,7 +8,7 @@
     var jsonData = JsonSerializer.Serialize(Model, SmartJsonOptions.Default);
 }
 
-<div class="report chart-colors" id="orders-report">
+<div class="report report-chart chart-colors" id="orders-report">
     <div class="report-title-row flex-wrap">
         <div class="d-flex flex-nowrap flex-grow-1 align-items-baseline">
             <div class="report-title pr-3">@T("Admin.Orders")</div>
@@ -19,7 +19,7 @@
                 <span id="orders-delta-percentage"></span><span id="orders-delta-percentage-chevron" class="chevron pl-1 d-none"></span>
             </div>
         </div>
-        <div class="btn-group btn-group-toggle" data-toggle="buttons">
+        <div class="btn-group btn-group-toggle report-period-filter" data-toggle="buttons">
             <label class="btn btn-secondary btn-dashboard active">
                 <input type="radio" name="orders-toggle" data-period="0" autocomplete="off" checked>
                 <span class="text-truncate">@T("Admin.Report.Today")</span>
