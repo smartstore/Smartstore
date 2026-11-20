@@ -17,15 +17,18 @@ public class QueuedEmailController : AdminController
     private readonly SmartDbContext _db;
     private readonly IDateTimeHelper _dateTimeHelper;
     private readonly IQueuedEmailService _queuedEmailService;
+    private readonly IMediaService _mediaService;
 
     public QueuedEmailController(
         SmartDbContext db,
         IDateTimeHelper dateTimeHelper,
-        IQueuedEmailService queuedEmailService)
+        IQueuedEmailService queuedEmailService,
+        IMediaService mediaService)
     {
         _db = db;
         _dateTimeHelper = dateTimeHelper;
         _queuedEmailService = queuedEmailService;
+        _mediaService = mediaService;
     }
 
     public IActionResult Index()
@@ -256,10 +259,19 @@ public class QueuedEmailController : AdminController
     [HttpPost, ActionName("Edit"), FormValueRequired("requeue")]
     public async Task<IActionResult> Requeue(QueuedEmailModel queuedEmailModel)
     {
-        var queuedEmail = await _db.QueuedEmails.FindByIdAsync(queuedEmailModel.Id, false);
+        var queuedEmail = await _db.QueuedEmails
+            .Include(x => x.Attachments)
+            .ThenInclude(x => x.MediaStorage)
+            .FindByIdAsync(queuedEmailModel.Id, false);
         if (queuedEmail == null)
         {
             return RedirectToAction(nameof(List));
+        }
+
+        if (queuedEmail.Attachments.Any(x => x.IsPending))
+        {
+            NotifyWarning(T("Admin.System.QueuedEmails.RequeuePendingAttachments"));
+            return RedirectToAction(nameof(Edit), new { id = queuedEmail.Id });
         }
 
         var requeuedEmail = new QueuedEmail
@@ -267,6 +279,7 @@ public class QueuedEmailController : AdminController
             Priority = queuedEmail.Priority,
             From = queuedEmail.From,
             To = queuedEmail.To,
+            ReplyTo = queuedEmail.ReplyTo,
             CC = queuedEmail.CC,
             Bcc = queuedEmail.Bcc,
             Subject = queuedEmail.Subject,
@@ -275,6 +288,24 @@ public class QueuedEmailController : AdminController
             EmailAccountId = queuedEmail.EmailAccountId,
             SendManually = queuedEmail.SendManually
         };
+
+        foreach (var attachment in queuedEmail.Attachments)
+        {
+            requeuedEmail.Attachments.Add(new()
+            {
+                StorageLocation = attachment.StorageLocation,
+                Path = attachment.Path,
+                MediaFileId = attachment.MediaFileId,
+                Name = attachment.Name,
+                MimeType = attachment.MimeType,
+                IsEmbedded = attachment.IsEmbedded,
+                ContentId = attachment.ContentId,
+                // Blob storage belongs to its attachment and is deleted with the original email.
+                MediaStorage = attachment.StorageLocation == EmailAttachmentStorageLocation.Blob && attachment.MediaStorage != null
+                    ? new MediaStorage { Data = attachment.MediaStorage.Data }
+                    : null
+            });
+        }
 
         await _queuedEmailService.QueueEmailAsync(requeuedEmail);
 
@@ -360,7 +391,15 @@ public class QueuedEmailController : AdminController
         }
         else if (qea.MediaFileId.HasValue)
         {
-            return RedirectToAction("DownloadFile", "Download", new { downloadId = qea.MediaFileId.Value });
+            var mediaFile = await _mediaService.GetFileByIdAsync(qea.MediaFileId.Value, MediaLoadFlags.AsNoTracking);
+            if (mediaFile != null)
+            {
+                var stream = await mediaFile.OpenReadAsync();
+                if (stream != null)
+                {
+                    return File(stream, qea.MimeType, qea.Name);
+                }
+            }
         }
 
         NotifyError(T("Admin.System.QueuedEmails.CouldNotDownloadAttachment"));
