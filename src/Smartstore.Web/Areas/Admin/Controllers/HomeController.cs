@@ -142,7 +142,6 @@ public class HomeController : AdminController
     [HttpPost, ValidateAntiForgeryToken, Permission(Permissions.Dashboard.Read), RequestSizeLimit(262144)]
     public async Task<IActionResult> DashboardWidget(
         string instanceId,
-        bool refresh = false,
         Dictionary<string, string> parameters = null,
         string changesJson = null,
         DashboardLayoutLayer? layer = null)
@@ -186,7 +185,6 @@ public class HomeController : AdminController
                 state.Layout,
                 instanceId,
                 customer,
-                refresh,
                 parameters,
                 HttpContext.RequestAborted);
 

@@ -18,11 +18,6 @@ public sealed class DashboardRenderItem
     public required DashboardWidgetDescriptor Descriptor { get; init; }
 
     /// <summary>
-    /// Gets the widget's cache duration, or null when manual refresh is not offered.
-    /// </summary>
-    public TimeSpan? CacheDuration { get; init; }
-
-    /// <summary>
     /// Gets the effective policy after widget and layout restrictions have been combined.
     /// </summary>
     public required DashboardWidgetPolicy Policy { get; init; }

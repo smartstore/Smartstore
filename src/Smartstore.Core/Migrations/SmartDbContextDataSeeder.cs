@@ -157,7 +157,7 @@ public class SmartDbContextDataSeeder : IDataSeeder<SmartDbContext>
         builder.AddOrUpdate("Permissions.DisplayName.Personalize", "Customize own dashboard", "Eigenes Dashboard anpassen");
         builder.AddOrUpdate("Permissions.DisplayName.ManageGlobal", "Manage shared dashboard", "Gemeinsames Dashboard verwalten");
 
-        builder.AddOrUpdate("Admin.Dashboard.RefreshFailed", "The widget could not be updated. Please try again.", "Das Widget konnte nicht aktualisiert werden. Bitte versuche es erneut.");
+        builder.AddOrUpdate("Admin.Dashboard.LoadFailed", "The widget could not be updated. Please try again.", "Das Widget konnte nicht aktualisiert werden. Bitte versuche es erneut.");
 
         builder.AddOrUpdate("Permissions.DisplayName.ContactRequests", "Contact requests", "Kontaktanfragen");
         builder.AddOrUpdate("Admin.Dashboard.ContactRequests", "Contact enquiries", "Kontaktanfragen");

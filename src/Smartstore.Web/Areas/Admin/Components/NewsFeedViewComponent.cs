@@ -31,30 +31,32 @@ public class NewsFeedViewComponent : SmartViewComponent
         }
 
         var lang = Services.WorkContext.WorkingLanguage;
-        FeedModel result;
-        try
+        var result = await Services.Cache.GetAsync($"admin:newsfeed{lang.UniqueSeoCode}", async ctx =>
         {
-            var url = "https://smartstore.com/Plugins/NewsFeed/JsonFeed";
-            var client = _httpClientFactory.CreateClient();
+            ctx.ExpiresIn(TimeSpan.FromHours(4));
 
-            client.Timeout = TimeSpan.FromSeconds(30);
+            try
+            {
+                var url = "https://smartstore.com/Plugins/NewsFeed/JsonFeed";
+                var client = _httpClientFactory.CreateClient();
 
-            var formContent = new FormUrlEncodedContent(new KeyValuePair<string, string>[]
-            {
-                new("lang", lang.UniqueSeoCode),
-                new("ip", _webHelper.ClientInfo.IpAddress.ToString()),
-                new("modules", string.Join(',', Services.ApplicationContext.ModuleCatalog.Modules.Select(x => x.Name))),
-                new("id", Services.ApplicationContext.RuntimeInfo.ApplicationIdentifier),
-                new("auth", Services.StoreContext.CurrentStore.GetBaseUrl().TrimEnd('/'))
-            });
+                client.Timeout = TimeSpan.FromSeconds(30);
 
-            var response = await client.PostAsync(url, formContent);
-            if (response.StatusCode != HttpStatusCode.OK)
-            {
-                result = new FeedModel { IsError = true, ErrorMessage = response.ReasonPhrase };
-            }
-            else
-            {
+                var formContent = new FormUrlEncodedContent(new KeyValuePair<string, string>[]
+                {
+                    new("lang", lang.UniqueSeoCode),
+                    new("ip", _webHelper.ClientInfo.IpAddress.ToString()),
+                    new("modules", string.Join(',', Services.ApplicationContext.ModuleCatalog.Modules.Select(x => x.Name))),
+                    new("id", Services.ApplicationContext.RuntimeInfo.ApplicationIdentifier),
+                    new("auth", Services.StoreContext.CurrentStore.GetBaseUrl().TrimEnd('/'))
+                });
+
+                var response = await client.PostAsync(url, formContent);
+                if (response.StatusCode != HttpStatusCode.OK)
+                {
+                    return new FeedModel { IsError = true, ErrorMessage = response.ReasonPhrase };
+                }
+
                 var channels = await response.Content.ReadFromJsonAsync<List<NewsFeedChannelModel>>();
 
                 // Decide to what extent to show news items in each channel
@@ -87,16 +89,16 @@ public class NewsFeedViewComponent : SmartViewComponent
                     }
                 }
 
-                result = new FeedModel
+                return new FeedModel
                 {
                     NewsFeedCannels = channels
                 };
             }
-        }
-        catch (Exception ex)
-        {
-            result = new FeedModel { IsError = true, ErrorMessage = ex.Message };
-        }
+            catch (Exception ex)
+            {
+                return new FeedModel { IsError = true, ErrorMessage = ex.Message };
+            }
+        });
 
         if (!result.NewsFeedCannels.Any() && result.IsError)
         {

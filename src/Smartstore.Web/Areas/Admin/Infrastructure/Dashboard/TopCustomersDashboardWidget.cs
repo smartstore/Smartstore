@@ -40,9 +40,6 @@ public sealed class TopCustomersDashboardWidget(IPermissionService permissions, 
     public override DashboardWidgetDescriptor Descriptor => _descriptor;
 
     /// <inheritdoc />
-    public override TimeSpan? CacheDuration => TimeSpan.FromHours(12);
-
-    /// <inheritdoc />
     public override Task<Widget?> CreateConfigurationWidgetAsync(DashboardWidgetContext context, DashboardWidgetInstance instance)
         => Task.FromResult<Widget?>(new PartialViewWidget("Components/DashboardTopCustomers/Configure", LoadSettings(instance.Settings)));
 

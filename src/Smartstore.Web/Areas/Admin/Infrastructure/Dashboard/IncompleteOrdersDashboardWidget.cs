@@ -12,7 +12,7 @@ namespace Smartstore.Admin.Infrastructure.Dashboard;
 /// Describes and creates the dashboard widget that renders incomplete orders.
 /// </summary>
 [SystemName(SystemName)]
-public sealed class IncompleteOrdersDashboardWidget(IPermissionService permissions, IPageAssetBuilder assets)
+public sealed class IncompleteOrdersDashboardWidget(IPermissionService permissions)
     : DashboardViewComponentWidget<DashboardIncompleteOrdersViewComponent>(permissions, DashboardIncompleteOrdersViewComponent.RequiredPermission)
 {
     /// <summary>
@@ -33,13 +33,4 @@ public sealed class IncompleteOrdersDashboardWidget(IPermissionService permissio
 
     /// <inheritdoc />
     public override DashboardWidgetDescriptor Descriptor => _descriptor;
-
-    /// <inheritdoc />
-    public override Widget CreateWidget(DashboardWidgetContext context, DashboardWidgetInstance instance)
-    {
-        // Register scripts here: CreateWidget runs on cache hits too, while the view and its asset registrations are skipped.
-        assets.AppendScriptFiles("~/bundle/js/chart.js", "~/admin/js/admin.dashboard.js");
-
-        return base.CreateWidget(context, instance);
-    }
 }

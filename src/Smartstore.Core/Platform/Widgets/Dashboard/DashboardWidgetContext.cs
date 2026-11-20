@@ -25,11 +25,6 @@ public sealed class DashboardWidgetContext
     public bool IsEditMode { get; init; }
 
     /// <summary>
-    /// Gets whether this load explicitly requests fresh data from the widget's data source.
-    /// </summary>
-    public bool Refresh { get; init; }
-
-    /// <summary>
     /// Gets transient display parameters. Widgets must validate their own supported parameters.
     /// These values never replace persisted instance settings.
     /// </summary>

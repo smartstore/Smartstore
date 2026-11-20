@@ -4,7 +4,7 @@
 
     Smartstore.Admin = Smartstore.Admin || {};
     Smartstore.Admin.Dashboard = {
-        loadWidget: function (element, refresh = false, parameters = {}) {
+        loadWidget: function (element, parameters = {}) {
             const widget = $(element).closest('.dashboard-widget')[0];
 
             if (!widget || !widget.isConnected) return;
@@ -16,18 +16,15 @@
             const $widget = $(widget);
             const $grid = $widget.closest('[data-dashboard-load-url]');
             const $content = $widget.find('.dashboard-widget-content').first();
-            const $buttons = $widget.find('.dashboard-refresh');
             // Widget-specific controls contribute only transient display parameters.
             const values = Object.assign({}, $widget.data('dashboardParameters'), parameters);
             const $controls = $content.find('input, select, button').filter(':enabled');
             $widget.attr('aria-busy', 'true');
             $controls.prop('disabled', true);
-            $buttons.prop('disabled', true);
 
             const throbber = $widget.children('.dashboard-widget-body')
                 .throbber({ white: true, small: true, message: '', show: false, speed: 0 }).data('throbber');
             throbber?.show();
-            const startedAt = performance.now();
 
             const completion = $.Deferred();
             let succeeded = false;
@@ -36,7 +33,7 @@
                 url: $grid.attr('data-dashboard-load-url'),
                 type: 'POST',
                 dataType: 'html',
-                data: { instanceId: $widget.attr('data-instance-id'), refresh, parameters: values }
+                data: { instanceId: $widget.attr('data-instance-id'), parameters: values }
             });
             pending.set(widget, completion.promise());
             request.always(function (result) {
@@ -52,21 +49,17 @@
                         succeeded = true;
                     }
                     else if (widget.isConnected) {
-                        displayNotification(window.Res.Dashboard.refreshFailed, 'error');
+                        displayNotification(window.Res.Dashboard.loadFailed, 'error');
                     }
                 }
                 finally {
-                    // Keep even fast refreshes visible without delaying the data request or rendering.
-                    window.setTimeout(function () {
-                        throbber?.hide();
-                        pending.delete(widget);
-                        $widget.removeAttr('aria-busy');
-                        $buttons.prop('disabled', false);
-                        $controls.prop('disabled', false);
+                    throbber?.hide();
+                    pending.delete(widget);
+                    $widget.removeAttr('aria-busy');
+                    $controls.prop('disabled', false);
 
-                        if (succeeded) completion.resolve(response);
-                        else completion.reject(request);
-                    }, Math.max(0, 400 - (performance.now() - startedAt)));
+                    if (succeeded) completion.resolve(response);
+                    else completion.reject(request);
                 }
             });
             return completion.promise();
@@ -103,8 +96,4 @@
             });
         }
     };
-
-    $(document).on('click', '.dashboard-refresh', function () {
-        Smartstore.Admin.Dashboard.loadWidget(this, true);
-    });
 })(jQuery);

@@ -645,7 +645,7 @@ $dashboard-row: auto;
     opacity: 0;
     pointer-events: none;
 
-    > .btn:not(.dashboard-refresh) {
+    > .btn {
         --btn-border-radius: 6px;
         --btn-font-weight: #{$font-weight-normal};
         --btn-color: var(--gray-650);

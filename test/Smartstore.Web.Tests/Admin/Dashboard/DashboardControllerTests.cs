@@ -168,14 +168,12 @@ public class DashboardControllerTests
                     It.IsAny<DashboardLayout>(),
                     "instance",
                     It.IsAny<Customer>(),
-                    false,
                     It.IsAny<IReadOnlyDictionary<string, string>>(),
                     It.IsAny<CancellationToken>()))
                     .Returns((
                         DashboardLayout draft,
                         string id,
                         Customer customer,
-                        bool refresh,
                         IReadOnlyDictionary<string, string> parameters,
                         CancellationToken token) =>
                         ValueTask.FromResult(new DashboardRenderItem
@@ -227,7 +225,6 @@ public class DashboardControllerTests
                 layout,
                 "instance",
                 It.IsAny<Customer>(),
-                false,
                 parameters,
                 It.IsAny<CancellationToken>()), Times.Once);
         }
@@ -246,7 +243,6 @@ public class DashboardControllerTests
                 It.IsAny<DashboardLayout>(),
                 It.IsAny<string>(),
                 It.IsAny<Customer>(),
-                It.IsAny<bool>(),
                 It.IsAny<IReadOnlyDictionary<string, string>>(),
                 It.IsAny<CancellationToken>()), Times.Never);
         }
@@ -276,18 +272,17 @@ public class DashboardControllerTests
     [TestCase(false, DashboardLayoutLayer.Global, DashboardLayoutLayer.User)]
     [TestCase(true, DashboardLayoutLayer.Global, DashboardLayoutLayer.Global)]
     [TestCase(true, DashboardLayoutLayer.System, DashboardLayoutLayer.User)]
-    public async Task Refresh_Uses_The_Authorized_Selected_View(bool manageGlobal, DashboardLayoutLayer selected, DashboardLayoutLayer expected)
+    public async Task Widget_Load_Uses_The_Authorized_Selected_View(bool manageGlobal, DashboardLayoutLayer selected, DashboardLayoutLayer expected)
     {
         Mock<IDashboardService> service = null;
         var controller = CreateController(false, manageGlobal, selected, mock => service = mock);
-        var result = await controller.DashboardWidget("missing", true);
+        var result = await controller.DashboardWidget("missing");
         Assert.That(result, Is.TypeOf<NotFoundResult>());
         service.Verify(x => x.GetLayoutStateAsync("admin-dashboard", It.IsAny<Customer>(), expected, false, It.IsAny<CancellationToken>()), Times.Once());
         service.Verify(x => x.PrepareWidgetAsync(
             It.IsAny<DashboardLayout>(),
             "missing",
             It.IsAny<Customer>(),
-            true,
             It.IsAny<IReadOnlyDictionary<string, string>>(),
             It.IsAny<CancellationToken>()), Times.Once());
         service.Verify(x => x.SaveLayoutAsync(
@@ -345,7 +340,6 @@ public class DashboardControllerTests
             It.Is<DashboardLayout>(layout => layout.Widgets.Single().Settings["count"].GetValue<int>() == 12),
             "latest",
             It.IsAny<Customer>(),
-            false,
             It.IsAny<IReadOnlyDictionary<string, string>>(),
             It.IsAny<CancellationToken>()), Times.Once());
         service.Verify(x => x.SaveLayoutAsync(
@@ -376,7 +370,7 @@ public class DashboardControllerTests
     }
 
     [Test]
-    public void Refresh_Endpoint_Requires_Read_Permission_Post_And_Antiforgery()
+    public void Widget_Load_Endpoint_Requires_Read_Permission_Post_And_Antiforgery()
     {
         var method = typeof(HomeController).GetMethod(nameof(HomeController.DashboardWidget));
         Assert.That(method.GetCustomAttribute<HttpPostAttribute>(), Is.Not.Null);

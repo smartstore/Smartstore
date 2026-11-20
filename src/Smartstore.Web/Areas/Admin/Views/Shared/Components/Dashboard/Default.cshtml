@@ -3,7 +3,6 @@
 @model DashboardRenderModel
 @inject IDashboardCssBuilder DashboardCssBuilder
 
-@* INFO: Handles caching invalidation *@
 <script src="~/admin/js/smartstore.dashboard.js" asp-append-version="true" sm-target-zone="scripts" sm-key="dashboard-widgets"></script>
 
 <style sm-target-zone="stylesheets" data-origin="@Model.Layout.Id">
@@ -12,7 +11,7 @@
 
 <script sm-target-zone="scripts">
     window.Res.Dashboard = {
-        refreshFailed: @T("Admin.Dashboard.RefreshFailed").JsValue,
+        loadFailed: @T("Admin.Dashboard.LoadFailed").JsValue,
         invalid: @T("Admin.Dashboard.Editor.Invalid").JsValue,
         removeWidgetConfirm: @T("Admin.Dashboard.Editor.RemoveWidgetConfirm").JsValue,
         cancel: @T("Common.Cancel").JsValue,
@@ -31,7 +30,6 @@
 
     @foreach (var item in Model.Widgets)
     {
-        var canRefresh = !Model.Context.IsEditMode && item.CacheDuration.HasValue;
         var canConfigure = Model.Context.IsEditMode && item.Policy.AllowConfigure;
         var canEdit = Model.Context.IsEditMode && (item.Policy.AllowMove || item.Policy.AllowResize || !item.Policy.IsRequired || canConfigure);
 
@@ -47,14 +45,7 @@
                      attr-aria-label='(item.Policy.AllowMove, T("Admin.Dashboard.Editor.Move").ToString())'
                      attr-aria-hidden='(!item.Policy.AllowMove, "true")'></div>
 
-                <div sm-if="canRefresh || (Model.Context.IsEditMode && (!item.Policy.IsRequired || canConfigure))" class="dashboard-widget-tools">
-                    <button sm-if="canRefresh"
-                            type="button"
-                            class="btn btn-xs btn-light btn-flat btn-icon dashboard-refresh"
-                            title="@T("Common.Refresh")"
-                            aria-label="@T("Common.Refresh")">
-                        <icon name="refresh" />
-                    </button>
+                <div sm-if="Model.Context.IsEditMode && (!item.Policy.IsRequired || canConfigure)" class="dashboard-widget-tools">
                     <button sm-if="canConfigure"
                             type="button"
                             class="btn btn-xs btn-plain btn-flat btn-icon dashboard-configure"

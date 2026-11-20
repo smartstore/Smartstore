@@ -39,7 +39,4 @@ public sealed class NewsFeedDashboardWidget(IPermissionService permissions)
 
     /// <inheritdoc />
     public override DashboardWidgetDescriptor Descriptor => _descriptor;
-
-    /// <inheritdoc />
-    public override TimeSpan? CacheDuration => TimeSpan.FromHours(4);
 }

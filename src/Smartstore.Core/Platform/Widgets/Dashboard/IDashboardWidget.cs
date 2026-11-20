@@ -15,18 +15,6 @@ public interface IDashboardWidget
     DashboardWidgetDescriptor Descriptor { get; }
 
     /// <summary>
-    /// Gets the rendered HTML cache duration. Null disables caching and the manual refresh button.
-    /// A configured duration must be greater than zero.
-    /// </summary>
-    /// <remarks>
-    /// The dashboard caches the complete rendered output; components do not receive cache arguments.
-    /// Cacheable views must not contain request-specific tokens or register assets needed on cache hits.
-    /// </remarks>
-    // TODO (dashboard): Review SupportsRefresh, AllowRefresh and DefaultRefreshInterval;
-    // integrate them into a consistent refresh policy or remove them.
-    TimeSpan? CacheDuration => null;
-
-    /// <summary>
     /// Determines whether the widget is available for the current dashboard request.
     /// </summary>
     /// <param name="context">The current dashboard context.</param>

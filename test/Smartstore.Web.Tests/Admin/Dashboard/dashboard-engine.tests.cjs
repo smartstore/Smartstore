@@ -456,9 +456,9 @@ test('free destinations stay free placements and full-width widgets can exchange
     assert.deepEqual([moved.row, neighbor.row], [1, 2]);
 });
 
-for (const outcome of ['configuration', 'validation', 'configuration-error', 'refresh', 'refresh-render-error', 'refresh-notification-error']) {
+for (const outcome of ['configuration', 'validation', 'configuration-error', 'load', 'load-render-error', 'load-notification-error']) {
     test(`widget request handles ${outcome} without a second request`, () => {
-        const refreshing = outcome.startsWith('refresh');
+        const loading = outcome.startsWith('load');
         function deferred() {
             const done = [], fail = [], always = [];
             let state = 'pending';
@@ -506,7 +506,7 @@ for (const outcome of ['configuration', 'validation', 'configuration-error', 're
             0: { contains() { return true; } },
             first() { return this; }, find() { return controls; },
             html(value) {
-                if (outcome === 'refresh-render-error') throw renderError;
+                if (outcome === 'load-render-error') throw renderError;
 
                 content = value; return this;
             }
@@ -555,7 +555,7 @@ for (const outcome of ['configuration', 'validation', 'configuration-error', 're
         const Chart = { instances: { old: { canvas: {}, destroy() { destroyed++; } } } };
         const sandbox = {
             jQuery: $, Smartstore: {}, document, Chart,
-            window: { Chart, Res: { Dashboard: { invalid: 'invalid', refreshFailed: 'failed' } }, setTimeout(fn) { timers.push(fn); } },
+            window: { Chart, Res: { Dashboard: { invalid: 'invalid', loadFailed: 'failed' } }, setTimeout(fn) { timers.push(fn); } },
             performance: { now() { return 0; } },
             updateControls() {}, $, previewing: false, config: { layer: 'User' },
             widgetsById: new Map([['payments', entry]]), layout: { widgets: [entry] },
@@ -563,7 +563,7 @@ for (const outcome of ['configuration', 'validation', 'configuration-error', 're
             flipConfiguration() { flipped = true; },
             initializeEditControls() { formSteps.push('controls'); }, reinitFormValidator() { formSteps.push('validator'); },
             displayNotification(message) {
-                if (outcome === 'refresh-notification-error') throw notificationError;
+                if (outcome === 'load-notification-error') throw notificationError;
 
                 notifications.push(message);
             }
@@ -572,8 +572,8 @@ for (const outcome of ['configuration', 'validation', 'configuration-error', 're
             __dirname,
             '../../../../src/Smartstore.Web/wwwroot/admin/js/smartstore.dashboard.js'), 'utf8'), sandbox);
 
-        if (refreshing) {
-            sandbox.Smartstore.Admin.Dashboard.loadWidget(widget, true).done(value => { result = value; }).fail(() => { rejected = true; });
+        if (loading) {
+            sandbox.Smartstore.Admin.Dashboard.loadWidget(widget).done(value => { result = value; }).fail(() => { rejected = true; });
         }
         else {
             const editorSource = fs.readFileSync(path.resolve(
@@ -593,10 +593,10 @@ for (const outcome of ['configuration', 'validation', 'configuration-error', 're
         }
 
         assert.equal(requests.length, 1);
-        assert.equal(requests[0].options.url, refreshing ? '/load' : '/configure');
+        assert.equal(requests[0].options.url, loading ? '/load' : '/configure');
         assert.equal(requests[0].options.type, 'POST');
 
-        if (!refreshing) {
+        if (!loading) {
             const fields = new URLSearchParams(requests[0].options.data);
             assert.equal(fields.get('Count'), '3');
             assert.equal(fields.get('apply'), 'true');
@@ -604,21 +604,18 @@ for (const outcome of ['configuration', 'validation', 'configuration-error', 're
             assert.equal(JSON.parse(fields.get('parameters')).period, '30');
         }
 
-        if (outcome === 'refresh-render-error' || outcome === 'refresh-notification-error') {
+        if (outcome === 'load-render-error' || outcome === 'load-notification-error') {
             assert.equal(controls.disabled, true);
             assert.equal(busy, true);
             assert.throws(
-                () => outcome === 'refresh-render-error' ? requests[0].request.resolve('refreshed') : requests[0].request.reject(),
-                error => error === (outcome === 'refresh-render-error' ? renderError : notificationError));
-            assert.equal(controls.disabled, true);
-            assert.equal(rejected, false);
-            timers.forEach(fn => fn());
+                () => outcome === 'load-render-error' ? requests[0].request.resolve('loaded') : requests[0].request.reject(),
+                error => error === (outcome === 'load-render-error' ? renderError : notificationError));
             assert.equal(controls.disabled, false);
             assert.equal(busy, false);
             assert.equal(hidden, true);
             assert.equal(rejected, true);
             assert.equal(result, undefined);
-            sandbox.Smartstore.Admin.Dashboard.loadWidget(widget, true);
+            sandbox.Smartstore.Admin.Dashboard.loadWidget(widget);
             assert.equal(requests.length, 2);
             return;
         }
@@ -634,11 +631,11 @@ for (const outcome of ['configuration', 'validation', 'configuration-error', 're
         }
 
         const response = outcome === 'configuration' ? { settings: { count: 3 }, html: 'updated' }
-            : outcome === 'validation' ? '<span>Invalid count</span>' : 'refreshed';
+            : outcome === 'validation' ? '<span>Invalid count</span>' : 'loaded';
         requests[0].request.resolve(response);
         timers.forEach(fn => fn());
 
-        if (outcome === 'refresh') assert.equal(result, response);
+        if (outcome === 'load') assert.equal(result, response);
         else {
             assert.equal(remembered, outcome === 'configuration' ? 1 : 0);
             assert.equal(flipped, outcome === 'configuration');
@@ -651,7 +648,7 @@ for (const outcome of ['configuration', 'validation', 'configuration-error', 're
         }
 
         assert.equal(requests.length, 1);
-        assert.equal(content, outcome === 'validation' ? 'original' : outcome === 'configuration' ? 'updated' : 'refreshed');
+        assert.equal(content, outcome === 'validation' ? 'original' : outcome === 'configuration' ? 'updated' : 'loaded');
         assert.equal(destroyed, outcome === 'validation' ? 0 : 1);
         assert.deepEqual(notifications, []);
     });

@@ -14,8 +14,6 @@ using Moq;
 using NUnit.Framework;
 using Smartstore.Core.Common;
 using Smartstore.Core.Identity;
-using Smartstore.Core.Localization;
-using Smartstore.Core.Stores;
 using Smartstore.Core.Widgets.Dashboard;
 using Smartstore.Core.Widgets;
 using Smartstore.Engine;
@@ -163,7 +161,6 @@ public sealed class DashboardServiceTests
             new DashboardMetadata { SystemName = layout.Id });
         var service = new Mock<DashboardService>(
             app.Object,
-            Mock.Of<ICommonServices>(),
             cache,
             NullEventPublisher.Instance,
             Array.Empty<Lazy<IDashboardWidget, DashboardMetadata>>(),
@@ -466,16 +463,10 @@ public sealed class DashboardServiceTests
             async () => await service.GetDashboardAsync("admin-dashboard", null));
     }
 
-    [TestCase(null)]
-    [TestCase(1)]
-    [TestCase(12)]
-    [TestCase(0)]
-    [TestCase(-1)]
-    public async Task Single_Widget_Load_Preserves_Settings_And_Passes_Refresh_And_Display_Parameters(int? cacheHours)
+    [Test]
+    public async Task Single_Widget_Load_Preserves_Settings_And_Passes_Display_Parameters()
     {
         var widget = new Mock<IDashboardWidget>();
-        TimeSpan? cacheDuration = cacheHours.HasValue ? TimeSpan.FromHours(cacheHours.Value) : null;
-        widget.SetupGet(x => x.CacheDuration).Returns(cacheDuration);
         widget.SetupGet(x => x.Descriptor).Returns(new TestDashboardWidget().Descriptor);
         widget.Setup(x => x.IsAvailableAsync(It.IsAny<DashboardWidgetContext>(), It.IsAny<CancellationToken>())).ReturnsAsync(true);
         widget.Setup(x => x.ValidateSettingsAsync(It.IsAny<JsonObject>(), It.IsAny<CancellationToken>())).Returns(ValueTask.CompletedTask);
@@ -487,21 +478,12 @@ public sealed class DashboardServiceTests
         var customer = CreateTestCustomer();
         var parameters = new Dictionary<string, string> { ["period"] = "30", ["count"] = "999" };
 
-        if (cacheHours <= 0)
-        {
-            Assert.ThrowsAsync<InvalidOperationException>(
-                async () => await service.PrepareWidgetAsync(layout, instance.Id, customer, true, parameters));
-            widget.Verify(x => x.CreateWidget(It.IsAny<DashboardWidgetContext>(), It.IsAny<DashboardWidgetInstance>()), Times.Never);
-            return;
-        }
-
-        var result = await service.PrepareWidgetAsync(layout, instance.Id, customer, true, parameters);
+        var result = await service.PrepareWidgetAsync(layout, instance.Id, customer, parameters);
 
         Assert.That(result, Is.Not.Null);
-        Assert.That(result!.CacheDuration, Is.EqualTo(cacheDuration));
         Assert.That(result!.Instance.Settings["count"]!.GetValue<int>(), Is.EqualTo(10));
         widget.Verify(x => x.CreateWidget(
-            It.Is<DashboardWidgetContext>(c => c.Refresh && !c.IsEditMode && c.Customer == customer && c.Parameters["period"] == "30"),
+            It.Is<DashboardWidgetContext>(c => !c.IsEditMode && c.Customer == customer && c.Parameters["period"] == "30"),
             It.IsAny<DashboardWidgetInstance>()), Times.Once);
         Assert.That(instance.Settings.ToJsonString(), Is.EqualTo("{\"count\":10}"));
     }
@@ -516,7 +498,7 @@ public sealed class DashboardServiceTests
         var layout = CreateLayout(DashboardLayoutScope.Global, widgets: [CreateInstance()]);
         var service = CreateService([widget.Object], [new TestLayoutProvider(layout)]);
 
-        Assert.That(await service.PrepareWidgetAsync(layout, id, CreateTestCustomer(), true), Is.Null);
+        Assert.That(await service.PrepareWidgetAsync(layout, id, CreateTestCustomer()), Is.Null);
         widget.Verify(x => x.CreateWidget(It.IsAny<DashboardWidgetContext>(), It.IsAny<DashboardWidgetInstance>()), Times.Never);
         widget.Verify(x => x.ValidateSettingsAsync(It.IsAny<JsonObject>(), It.IsAny<CancellationToken>()), Times.Never);
     }
@@ -642,19 +624,7 @@ public sealed class DashboardServiceTests
             new MemoryCache(new MemoryCacheOptions()),
             eventPublisher ?? NullEventPublisher.Instance,
             widgets,
-            providers,
-            CreateCommonServices());
-    }
-
-    private static ICommonServices CreateCommonServices()
-    {
-        var services = new Mock<ICommonServices> { DefaultValue = DefaultValue.Mock };
-        services.Setup(x => x.StoreMappingService.GetAuthorizedStoreIdsAsync(nameof(Customer), It.IsAny<int>()))
-            .ReturnsAsync(new[] { 1 });
-        services.SetupGet(x => x.StoreContext.CurrentStore).Returns(new Store { Id = 1 });
-        services.SetupGet(x => x.WorkContext.WorkingLanguage).Returns(new Language { Id = 1 });
-        services.SetupGet(x => x.WorkContext.CurrentCustomer).Returns(CreateTestCustomer());
-        return services.Object;
+            providers);
     }
 
     private static Customer CreateTestCustomer(int id = 42)

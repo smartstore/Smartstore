@@ -80,7 +80,6 @@ public interface IDashboardService
         DashboardLayout layout,
         string instanceId,
         Customer? customer,
-        bool refresh = false,
         IReadOnlyDictionary<string, string>? parameters = null,
         CancellationToken cancelToken = default);
 

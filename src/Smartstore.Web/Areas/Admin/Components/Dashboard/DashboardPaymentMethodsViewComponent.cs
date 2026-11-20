@@ -50,20 +50,28 @@ public class DashboardPaymentMethodsViewComponent : SmartViewComponent
             StringComparer.OrdinalIgnoreCase);
 
         var authorizedStoreIds = await Services.StoreMappingService.GetAuthorizedStoreIdsAsync(nameof(Customer), Services.WorkContext.CurrentCustomer.Id);
-        var totals = await _db.Orders
-            .AsNoTracking()
-            .ApplyCustomerFilter(authorizedStoreIds)
-            .Where(x => !x.Deleted && !string.IsNullOrEmpty(x.PaymentMethodSystemName))
-            .GroupBy(x => x.PaymentMethodSystemName)
-            .Select(group => new DashboardPaymentMethodTotals
-            {
-                SystemName = group.Key,
-                OrderCount = group.Count(),
-                TotalAmount = group.Sum(x => x.OrderTotal),
-                PaidAmount = group.Sum(x => x.PaymentStatusId == (int)PaymentStatus.Paid ? x.OrderTotal : 0),
-                PaidOrderCount = group.Count(x => x.PaymentStatusId == (int)PaymentStatus.Paid)
-            })
-            .ToListAsync(HttpContext.RequestAborted);
+        var storeKey = authorizedStoreIds.Length == 0 ? "all" : string.Join("-", authorizedStoreIds.Order());
+        var cacheKey = $"admin:dashboard:paymentmethods:{storeKey}";
+
+        var totals = await Services.Cache.GetAsync(cacheKey, async ctx =>
+        {
+            ctx.ExpiresIn(TimeSpan.FromMinutes(5));
+
+            return await _db.Orders
+                .AsNoTracking()
+                .ApplyCustomerFilter(authorizedStoreIds)
+                .Where(x => !x.Deleted && !string.IsNullOrEmpty(x.PaymentMethodSystemName))
+                .GroupBy(x => x.PaymentMethodSystemName)
+                .Select(group => new DashboardPaymentMethodTotals
+                {
+                    SystemName = group.Key,
+                    OrderCount = group.Count(),
+                    TotalAmount = group.Sum(x => x.OrderTotal),
+                    PaidAmount = group.Sum(x => x.PaymentStatusId == (int)PaymentStatus.Paid ? x.OrderTotal : 0),
+                    PaidOrderCount = group.Count(x => x.PaymentStatusId == (int)PaymentStatus.Paid)
+                })
+                .ToListAsync(HttpContext.RequestAborted);
+        });
         var paymentMethodTotals = totals.Where(x => names.ContainsKey(x.SystemName))
             .OrderBy(x => x.SystemName, StringComparer.Ordinal).ToArray();
         var topByQuantity = paymentMethodTotals.OrderByDescending(x => x.OrderCount).Take(count);
