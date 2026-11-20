@@ -10,6 +10,7 @@
 		<NukeTelemetryVersion>1</NukeTelemetryVersion>
 		<NukeExcludeDirectoryBuild>True</NukeExcludeDirectoryBuild>
 		<IsPackable>false</IsPackable>
+        <UseAppHost>false</UseAppHost>
 	</PropertyGroup>
 
 	<ItemGroup>
