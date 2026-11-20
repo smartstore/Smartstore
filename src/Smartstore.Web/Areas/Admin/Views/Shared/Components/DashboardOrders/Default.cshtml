@@ -19,30 +19,30 @@
                 <span id="orders-delta-percentage"></span><span id="orders-delta-percentage-chevron" class="chevron pl-1 d-none"></span>
             </div>
         </div>
-        <div class="btn-group btn-group-toggle flex-wrap" data-toggle="buttons">
+        <div class="btn-group btn-group-toggle" data-toggle="buttons">
             <label class="btn btn-secondary btn-dashboard active">
                 <input type="radio" name="orders-toggle" data-period="0" autocomplete="off" checked>
-                @T("Admin.Report.Today")
+                <span class="text-truncate">@T("Admin.Report.Today")</span>
             </label>
             <label class="btn btn-secondary btn-dashboard">
                 <input type="radio" name="orders-toggle" data-period="1" autocomplete="off">
-                @T("Admin.Report.Yesterday")
+                <span class="text-truncate">@T("Admin.Report.Yesterday")</span>
             </label>
             <label class="btn btn-secondary btn-dashboard">
                 <input type="radio" name="orders-toggle" data-period="2" autocomplete="off">
-                @T("Admin.Report.LastWeek")
+                <span class="text-truncate">@T("Admin.Report.LastWeek")</span>
             </label>
             <label class="btn btn-secondary btn-dashboard">
                 <input type="radio" name="orders-toggle" data-period="3" autocomplete="off">
-                @T("Admin.Report.LastMonth")
+                <span class="text-truncate">@T("Admin.Report.LastMonth")</span>
             </label>
             <label class="btn btn-secondary btn-dashboard">
                 <input type="radio" name="orders-toggle" data-period="4" autocomplete="off">
-                @T("Admin.Report.ThisYear")
+                <span class="text-truncate">@T("Admin.Report.ThisYear")</span>
             </label>
         </div>
     </div>
-    <div class="px-4 pt-2" id="orders-chart-legend"></div>
+    <div class="report-body pt-2 pb-0" id="orders-chart-legend"></div>
     <div class="canvas-container" style="min-height: 380px;">
         <canvas id="orders-chart"></canvas>
     </div>

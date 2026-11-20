@@ -23,44 +23,58 @@ public sealed class DashboardCssBuilder : IDashboardCssBuilder
 
         foreach (var item in model.Widgets)
         {
+            if (item.Instance.Positions.Count == 0)
+            {
+                continue;
+            }
+
+            builder.Append('#').Append(model.Layout.BuildWidgetId(item.Instance.Id)).AppendLine(" {");
+
+            DashboardWidgetPosition? previous = null;
+
             foreach (var position in item.Instance.Positions.OrderBy(position => position.Breakpoint))
             {
-                AppendPosition(builder, model.Layout.BuildWidgetId(item.Instance.Id), position);
+                AppendPosition(builder, position, previous);
+                previous = position;
             }
+
+            builder.AppendLine("}");
         }
 
         return builder.ToString();
     }
 
     /// <summary>
-    /// Appends one grid placement rule to a dashboard stylesheet.
+    /// Appends only the grid axes that differ from the preceding effective placement.
     /// </summary>
-    /// <param name="builder">The stylesheet builder.</param>
-    /// <param name="widgetId">The dashboard-qualified, CSS-safe widget instance identifier.</param>
-    /// <param name="position">The grid position to emit.</param>
     private static void AppendPosition(
         StringBuilder builder,
-        string widgetId,
-        DashboardWidgetPosition position)
+        DashboardWidgetPosition position,
+        DashboardWidgetPosition? previous)
     {
         var breakpoint = position.Breakpoint.ToString().ToLowerInvariant();
-        var columnStart = position.Column + 1;
-        var rowStart = position.Row + 1;
 
-        builder.Append('#').Append(widgetId)
-            .Append(" { --dashboard-column-").Append(breakpoint).Append(": ")
-            .Append(columnStart.ToString(CultureInfo.InvariantCulture))
-            .Append(" / span ")
-            .Append(position.Size.ColumnSpan.ToString(CultureInfo.InvariantCulture))
-            .Append("; --dashboard-row-").Append(breakpoint).Append(": ")
-            .Append(rowStart.ToString(CultureInfo.InvariantCulture));
-
-        if (position.Size.RowSpan.HasValue)
+        if (previous == null || position.Column != previous.Column || position.Size.ColumnSpan != previous.Size.ColumnSpan)
         {
-            builder.Append(" / span ")
-                .Append(position.Size.RowSpan.Value.ToString(CultureInfo.InvariantCulture));
+            builder.Append("    --dashboard-column-").Append(breakpoint).Append(": ")
+                .Append((position.Column + 1).ToString(CultureInfo.InvariantCulture))
+                .Append(" / span ")
+                .Append(position.Size.ColumnSpan.ToString(CultureInfo.InvariantCulture))
+                .AppendLine(";");
         }
 
-        builder.AppendLine("; }");
+        if (previous == null || position.Row != previous.Row || position.Size.RowSpan != previous.Size.RowSpan)
+        {
+            builder.Append("    --dashboard-row-").Append(breakpoint).Append(": ")
+                .Append((position.Row + 1).ToString(CultureInfo.InvariantCulture));
+
+            if (position.Size.RowSpan.HasValue)
+            {
+                builder.Append(" / span ")
+                    .Append(position.Size.RowSpan.Value.ToString(CultureInfo.InvariantCulture));
+            }
+
+            builder.AppendLine(";");
+        }
     }
 }

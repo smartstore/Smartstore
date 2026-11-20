@@ -51,11 +51,11 @@
                         var showDescription = item.ViewType != "minimized";
 
                         <div class="col-12 col-sm-6 col-lg-12">
-                            <div class="cnt-newsfeed-item">
+                            <div class="cnt-newsfeed-item" attr-class='(item.IsPinned, "pinned")'>
                                 <figure sm-if='item.ThumbnailUrl.HasValue()' class="newsfeed-thumbnail" attr-class='(!showPicture, "d-lg-none")'>
                                     <img class="file-img" src="@item.ThumbnailUrl" alt="@item.Title" />
                                 </figure>
-                                <div class="newsfeed-item h-100 py-3 py-lg-@(showDescription ? "3" : "2")" attr-class='(item.IsPinned, "pinned")'>
+                                <div class="newsfeed-item">
                                     <div class="newsfeed-item-title" attr-class='(!showDescription, "mb-0")'>
                                         @if (item.Link.HasValue())
                                         {
@@ -66,12 +66,14 @@
                                             @item.Title
                                         }
                                     </div>
-                                    <div class="newsfeed-item-body small" attr-class='(!showDescription, "d-lg-none")'>
-                                        <div sm-if="item.PublishDate > DateTime.Now.AddMonths(-3)" class="newsfeed-item-date muted">@item.PublishDate.ToHumanizedString()</div>
-                                        <div>
+                                    <div class="newsfeed-item-body" attr-class='(!showDescription, "d-lg-none")'>
+                                        <div class="line-clamp-4">
                                             @Html.Raw(item.Short)
-                                            <a sm-if="item.Link.HasValue()" href="@item.Link" target="NewsfeedWindow" class="more-info">@T("Common.MoreInfo").Value.ToLower()...</a>
                                         </div>
+                                        <a sm-if="item.Link.HasValue()" href="@item.Link" target="NewsfeedWindow" class="more-info">
+                                            @T("Common.MoreInfo").Value.ToLower()...
+                                            <icon name="arrow-up-right-01" aria-hidden="true" />
+                                        </a>
                                     </div>
                                 </div>
                             </div>
@@ -79,7 +81,7 @@
                     }
 
                     <div class="btn-newsfeed" sm-if="@(channel.ButtonText.HasValue() && @channel.ButtonLink.HasValue())">
-                        <a class="btn btn-primary btn-block btn-3d" href="@channel.ButtonLink" target="NewsfeedWindow">
+                        <a class="btn btn-primary btn-block" href="@channel.ButtonLink" target="NewsfeedWindow">
                             <span>@channel.ButtonText</span>
                         </a>
                     </div>

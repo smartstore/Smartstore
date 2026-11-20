@@ -149,9 +149,18 @@ public sealed class DashboardLayoutTests
             Assert.That(layout.BuildWidgetId(instance.Id), Is.EqualTo("admin-dashboard__latest-orders"));
             Assert.That(
                 css,
-                Does.Contain("#admin-dashboard__latest-orders { --dashboard-column-xs: 1 / span 12; --dashboard-row-xs: 6 / span 1; }"));
+                Is.EqualTo(string.Join(Environment.NewLine,
+                    "#admin-dashboard__latest-orders {",
+                    "    --dashboard-column-xs: 1 / span 12;",
+                    "    --dashboard-row-xs: 6 / span 1;",
+                    "    --dashboard-row-md: 5 / span 1;",
+                    "    --dashboard-column-lg: 1 / span 10;",
+                    "    --dashboard-column-xxl: 1 / span 6;",
+                    "    --dashboard-row-xxl: 4 / span 1;",
+                    "}",
+                    string.Empty)));
             Assert.That(css, Does.Not.Contain("#admin-dashboard-grid >"));
-            Assert.That(css, Does.Contain("--dashboard-column-md:"));
+            Assert.That(css, Does.Not.Contain("--dashboard-column-md:"));
             Assert.That(css, Does.Contain("--dashboard-column-lg:"));
             Assert.That(css, Does.Contain("--dashboard-column-xxl:"));
         });
