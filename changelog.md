@@ -173,6 +173,8 @@
 - MegaMenu: Fixed `DependencyResolutionException` caused by `MegaMenuService` when creating Web API keys in the Web API plugin.
 - Fixed a bug that could cause long-running exports to fail with `ObjectDisposedException` when the underlying service scope was disposed while the export was still running.
 - Fixed premature end-of-stream when seeking in database BLOB streams.
+- Fixed missing attachments when requeuing emails.
+- Fixed downloading queued email attachments that reference media files.
 - The multi-store settings for offline payment methods could not be configured.
 - Fixed script error "ce.easing[this.easing] is not a function" on installation page.
 - When adding a group of attribute rules, the attribute that is currently being edited must not be included in the list of product attributes.
