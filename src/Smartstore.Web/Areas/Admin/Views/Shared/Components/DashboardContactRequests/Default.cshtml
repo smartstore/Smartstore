@@ -1,4 +1,3 @@
-@using Smartstore.Core.Security
 @using Smartstore.Admin.Models.Customers
 @model IReadOnlyList<DashboardContactRequestModel>
 
@@ -12,8 +11,6 @@
     }
     else
     {
-        bool canReadMessages = await CommonServices.Permissions.AuthorizeAsync(Permissions.System.Message.Read);
-
         <div class="table-responsive table-dashboard">
             <table class="table small table-hover table-prevent-overflow">
                 <thead>
@@ -28,14 +25,7 @@
                     {
                         <tr>
                             <td class="display-row" title="@request.MessageId">
-                                @if (canReadMessages)
-                                {
-                                    <a asp-area="Admin" asp-controller="QueuedEmail" asp-action="Edit" asp-route-id="@request.MessageId">@request.MessageId</a>
-                                }
-                                else
-                                {
-                                    <span>@request.MessageId</span>
-                                }
+                                <a asp-area="Admin" asp-controller="QueuedEmail" asp-action="Edit" asp-route-id="@request.MessageId">@request.MessageId</a>
                             </td>
                             <td class="display-row">
                                 @if (request.Email.HasValue())

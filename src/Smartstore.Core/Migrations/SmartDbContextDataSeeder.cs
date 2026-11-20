@@ -159,7 +159,6 @@ public class SmartDbContextDataSeeder : IDataSeeder<SmartDbContext>
 
         builder.AddOrUpdate("Admin.Dashboard.LoadFailed", "The widget could not be updated. Please try again.", "Das Widget konnte nicht aktualisiert werden. Bitte versuche es erneut.");
 
-        builder.AddOrUpdate("Permissions.DisplayName.ContactRequests", "Contact requests", "Kontaktanfragen");
         builder.AddOrUpdate("Admin.Dashboard.ContactRequests", "Contact enquiries", "Kontaktanfragen");
         builder.AddOrUpdate("Admin.Dashboard.ContactRequests.Description", "The latest newly recorded contact enquiries with links to their messages.", "Die neuesten ab jetzt erfassten Kontaktanfragen mit Verweisen auf die Nachrichten.");
         builder.AddOrUpdate("Admin.Dashboard.ContactRequests.Empty", "No contact enquiries available. Only newly recorded enquiries whose emails have not been deleted are shown.", "Keine Kontaktanfragen vorhanden. Angezeigt werden nur neu erfasste Anfragen, deren E-Mails noch nicht gelöscht wurden.");
@@ -173,7 +172,6 @@ public class SmartDbContextDataSeeder : IDataSeeder<SmartDbContext>
             "Admin.SalesReport.ByAmount",
             "Admin.Customers.Reports.BestBy.Fields.Customer");
 
-        builder.AddOrUpdate("Permissions.DisplayName.PaymentMethods", "Payment methods", "Zahlungsarten");
         builder.AddOrUpdate("Admin.Dashboard.PaymentMethods", "Payment methods", "Zahlungsarten");
         builder.AddOrUpdate("Admin.Dashboard.PaymentMethods.Description", "Active payment methods ranked by order count or order total, including tax and shipping, across all order dates and statuses.", "Aktive Zahlungsarten nach Bestellanzahl oder Bestellgesamtbetrag einschließlich Steuer und Versand über alle Bestellzeiträume und Bestellstatus hinweg.");
         builder.AddOrUpdate("Admin.Dashboard.PaymentMethods.Name", "Payment method", "Zahlungsart");
@@ -188,17 +186,6 @@ public class SmartDbContextDataSeeder : IDataSeeder<SmartDbContext>
             "Mit diesen Angaben schätzt das Widget die Zahlungsgebühren für alle bezahlten Bestellungen. Änderungen gelten auch für frühere Bestellungen. Steuern und Versand gehören zur Berechnungsgrundlage; Erstattungen werden nicht berücksichtigt.");
 
         builder.AddOrUpdate("Permissions.DisplayName.Dashboard", "Dashboard", "Dashboard");
-        builder.AddOrUpdate("Permissions.DisplayName.Widgets", "Widgets", "Widgets");
-        builder.AddOrUpdate("Permissions.DisplayName.Sales", "Sales", "Verkäufe");
-        builder.AddOrUpdate("Permissions.DisplayName.Customers", "Customers", "Kunden");
-        builder.AddOrUpdate("Permissions.DisplayName.IncompleteOrders", "Incomplete orders", "Unvollständige Bestellungen");
-        builder.AddOrUpdate("Permissions.DisplayName.Orders", "Order statistics", "Bestellstatistik");
-        builder.AddOrUpdate("Permissions.DisplayName.Bestsellers", "Bestsellers", "Bestseller");
-        builder.AddOrUpdate("Permissions.DisplayName.LatestOrders", "Latest orders", "Neueste Bestellungen");
-        builder.AddOrUpdate("Permissions.DisplayName.RegisteredCustomers", "Customer registrations", "Kundenregistrierungen");
-        builder.AddOrUpdate("Permissions.DisplayName.TopCustomers", "Top customers", "Top Kunden");
-        builder.AddOrUpdate("Permissions.DisplayName.StoreReport", "Store statistics", "Shop-Statistiken");
-        builder.AddOrUpdate("Permissions.DisplayName.NewsFeed", "News", "News");
 
         builder.AddOrUpdate("Admin.Dashboard", "Dashboard", "Dashboard");
         builder.AddOrUpdate("Admin.Dashboard.Customize", "Customize dashboard", "Dashboard anpassen");

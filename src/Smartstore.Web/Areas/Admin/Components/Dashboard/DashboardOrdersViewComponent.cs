@@ -7,9 +7,9 @@ namespace Smartstore.Admin.Components;
 public class DashboardOrdersViewComponent : DashboardWidgetViewComponentBase
 {
     /// <summary>
-    /// Gets the widget permission required to display this report.
+    /// Gets the permission required to display this report.
     /// </summary>
-    public const string RequiredPermission = Permissions.Dashboard.Widgets.Sales.Orders;
+    public const string RequiredPermission = Permissions.Order.Read;
 
     private readonly SmartDbContext _db;
 

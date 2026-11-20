@@ -15,7 +15,7 @@ public class DashboardContactRequestsViewComponent : SmartViewComponent
     /// <summary>
     /// Gets the data permission required to display contact messages.
     /// </summary>
-    public const string RequiredPermission = Permissions.Dashboard.Widgets.Customers.ContactRequests;
+    public const string RequiredPermission = Permissions.System.Message.Read;
 
     private readonly SmartDbContext _db;
 

@@ -43,7 +43,7 @@ public sealed class StoreReportDashboardWidget(IPermissionService permissions) :
     public ValueTask<bool> IsAvailableAsync(
         DashboardWidgetContext context,
         CancellationToken cancelToken = default)
-        => new(permissions.AuthorizeAsync(Permissions.Dashboard.Widgets.System.StoreReport, context.Customer));
+        => new(permissions.AuthorizeAsync(Permissions.Configuration.Store.ReadStats, context.Customer));
 
     /// <inheritdoc />
     public Widget CreateWidget(DashboardWidgetContext context, DashboardWidgetInstance instance)

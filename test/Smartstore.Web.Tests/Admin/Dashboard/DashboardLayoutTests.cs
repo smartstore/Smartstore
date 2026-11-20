@@ -105,6 +105,7 @@ public sealed class DashboardLayoutTests
     {
         var provider = new Smartstore.Core.Security.StandardPermissionProvider();
         var names = provider.GetPermissions().Select(x => x.SystemName).ToArray();
+        Assert.That(names.Any(x => x.StartsWith("dashboard.widgets", StringComparison.Ordinal)), Is.False);
         Assert.That(names, Does.Contain(Smartstore.Core.Security.Permissions.Dashboard.Read));
         Assert.That(names, Does.Contain(Smartstore.Core.Security.Permissions.Dashboard.Personalize));
         Assert.That(names, Does.Contain(Smartstore.Core.Security.Permissions.Dashboard.ManageGlobal));

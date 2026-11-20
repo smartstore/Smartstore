@@ -12,7 +12,7 @@ public class NewsFeedViewComponent : SmartViewComponent
     /// <summary>
     /// Gets the permission required to display dashboard news.
     /// </summary>
-    public const string RequiredPermission = Permissions.Dashboard.Widgets.System.NewsFeed;
+    public const string RequiredPermission = Permissions.System.AccessBackend;
 
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly IWebHelper _webHelper;

@@ -16,7 +16,7 @@ public class DashboardPaymentMethodsViewComponent : SmartViewComponent
     /// <summary>
     /// Gets the data permission required to display this report.
     /// </summary>
-    public const string RequiredPermission = Permissions.Dashboard.Widgets.Sales.PaymentMethods;
+    public const string RequiredPermission = Permissions.Order.Read;
 
     private readonly SmartDbContext _db;
     private readonly IPaymentService _paymentService;

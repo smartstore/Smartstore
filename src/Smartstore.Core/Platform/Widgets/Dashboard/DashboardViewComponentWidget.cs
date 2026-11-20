@@ -4,6 +4,7 @@ using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
 using FluentValidation;
+using Microsoft.AspNetCore.Mvc;
 using Smartstore.Core.Security;
 using Smartstore.Json;
 
@@ -14,18 +15,16 @@ namespace Smartstore.Core.Widgets.Dashboard;
 /// </summary>
 /// <typeparam name="TComponent">The MVC view component used to render the widget.</typeparam>
 public abstract class DashboardViewComponentWidget<TComponent> : IDashboardWidget
-    where TComponent : Microsoft.AspNetCore.Mvc.ViewComponent
+    where TComponent : ViewComponent
 {
     private readonly IPermissionService _permissionService;
     private readonly string _requiredPermission;
 
     /// <summary>
-    /// Initializes a widget with the widget permission required by its view component.
+    /// Initializes a widget with the permission required by its view component.
     /// </summary>
-    /// <param name="requiredPermission">The widget permission declared by the view component.</param>
-    protected DashboardViewComponentWidget(
-        IPermissionService permissions,
-        string requiredPermission)
+    /// <param name="requiredPermission">The permission declared by the view component.</param>
+    protected DashboardViewComponentWidget(IPermissionService permissions, string requiredPermission)
     {
         Guard.NotNull(permissions);
         Guard.NotEmpty(requiredPermission);
@@ -37,10 +36,8 @@ public abstract class DashboardViewComponentWidget<TComponent> : IDashboardWidge
     public abstract DashboardWidgetDescriptor Descriptor { get; }
 
     /// <inheritdoc />
-    public virtual ValueTask<bool> IsAvailableAsync(
-        DashboardWidgetContext context,
-        CancellationToken cancelToken = default)
-        => new ValueTask<bool>(_permissionService.AuthorizeAsync(_requiredPermission, context.Customer));
+    public virtual ValueTask<bool> IsAvailableAsync(DashboardWidgetContext context, CancellationToken cancelToken = default)
+        => new(_permissionService.AuthorizeAsync(_requiredPermission, context.Customer));
 
     /// <inheritdoc />
     public virtual Widget CreateWidget(DashboardWidgetContext context, DashboardWidgetInstance instance)
@@ -51,24 +48,19 @@ public abstract class DashboardViewComponentWidget<TComponent> : IDashboardWidge
         => null;
 
     /// <inheritdoc />
-    public virtual Task<Widget?> CreateConfigurationWidgetAsync(
-        DashboardWidgetContext context,
-        DashboardWidgetInstance instance)
+    public virtual Task<Widget?> CreateConfigurationWidgetAsync(DashboardWidgetContext context, DashboardWidgetInstance instance)
         => Task.FromResult<Widget?>(null);
 
     /// <inheritdoc />
-    public virtual JsonObject CreateDefaultSettings()
-        => new();
+    public virtual JsonObject CreateDefaultSettings() 
+        => [];
 
     /// <inheritdoc />
     public virtual ValueTask ValidateSettingsAsync(JsonObject settings, CancellationToken cancelToken = default)
         => ValueTask.CompletedTask;
 
     /// <inheritdoc />
-    public virtual ValueTask<JsonObject> MigrateSettingsAsync(
-        JsonObject settings,
-        int fromVersion,
-        CancellationToken cancelToken = default)
+    public virtual ValueTask<JsonObject> MigrateSettingsAsync(JsonObject settings,int fromVersion, CancellationToken cancelToken = default)
         => ValueTask.FromResult(settings);
 }
 
@@ -78,7 +70,7 @@ public abstract class DashboardViewComponentWidget<TComponent> : IDashboardWidge
 /// <typeparam name="TComponent">The MVC view component used to render the widget.</typeparam>
 /// <typeparam name="TSettings">The widget's settings model.</typeparam>
 public abstract class DashboardViewComponentWidget<TComponent, TSettings> : DashboardViewComponentWidget<TComponent>
-    where TComponent : Microsoft.AspNetCore.Mvc.ViewComponent
+    where TComponent : ViewComponent
     where TSettings : class, new()
 {
     private static readonly JsonSerializerOptions _settingsJsonOptions = new(SmartJsonOptions.CamelCased)
@@ -89,10 +81,7 @@ public abstract class DashboardViewComponentWidget<TComponent, TSettings> : Dash
     private readonly IValidator<TSettings> _settingsValidator;
 
     /// <summary>Initializes a widget with its settings validator.</summary>
-    protected DashboardViewComponentWidget(
-        IPermissionService permissions,
-        string requiredPermission,
-        IValidator<TSettings> settingsValidator)
+    protected DashboardViewComponentWidget(IPermissionService permissions, string requiredPermission, IValidator<TSettings> settingsValidator)
         : base(permissions, requiredPermission)
     {
         _settingsValidator = Guard.NotNull(settingsValidator);
@@ -102,6 +91,7 @@ public abstract class DashboardViewComponentWidget<TComponent, TSettings> : Dash
     protected virtual TSettings LoadSettings(JsonObject settings)
     {
         Guard.NotNull(settings);
+
         try
         {
             return settings.Deserialize<TSettings>(_settingsJsonOptions) ?? new TSettings();

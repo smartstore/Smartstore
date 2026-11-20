@@ -7,9 +7,9 @@ namespace Smartstore.Admin.Components;
 public class DashboardLatestOrdersViewComponent(CustomerSettings customerSettings) : SmartViewComponent
 {
     /// <summary>
-    /// Gets the widget permission required to display this report.
+    /// Gets the permission required to display this report.
     /// </summary>
-    public const string RequiredPermission = Permissions.Dashboard.Widgets.Sales.LatestOrders;
+    public const string RequiredPermission = Permissions.Order.Read;
 
     private readonly CustomerSettings _customerSettings = customerSettings;
 
