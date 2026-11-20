@@ -39,8 +39,8 @@ public static class IPdfConverterExtensions
     /// <param name="output">The stream to write the PDF output to.</param>
     public static async Task GeneratePdfAsync(this IPdfConverter converter, PdfConversionSettings settings, Stream output, CancellationToken cancelToken = default)
     {
-        Guard.NotNull(converter, nameof(converter));
-        Guard.NotNull(output, nameof(output));
+        Guard.NotNull(converter);
+        Guard.NotNull(output);
 
         using (var outStream = await converter.GeneratePdfAsync(settings, cancelToken))
         {

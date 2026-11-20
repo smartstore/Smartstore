@@ -230,11 +230,11 @@ public static class StreamExtensions
 
                 if (async)
                 {
-                    await stream.ReadExactlyAsync(buffer.AsMemory(0, (int)len));
+                    await stream.ReadExactlyAsync(buffer.AsMemory());
                 }
                 else
                 {
-                    stream.ReadExactly(buffer, 0, (int)len);
+                    stream.ReadExactly(buffer, 0, buffer.Length);
                 }
 
                 return buffer;
@@ -247,17 +247,18 @@ public static class StreamExtensions
 
         static async Task<byte[]> ToByteArrayCopy(Stream stream, bool async)
         {
-            using var memStream = new MemoryStream();
+            using var target = new MemoryStream();
+
             if (async)
             {
-                await stream.CopyToAsync(memStream);
+                await stream.CopyToAsync(target);
             }
             else
             {
-                stream.CopyTo(memStream);
+                stream.CopyTo(target);
             }
 
-            return memStream.ToArray();
+            return target.ToArray();
         }
     }
 
