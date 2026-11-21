@@ -285,6 +285,179 @@ public class PriceCalculationServiceTests : ServiceTestBase
     }
 
     [Test]
+    public async Task Store_local_price_remains_fixed_when_exchange_rates_change()
+    {
+        var store = new Store { Id = 159600, Name = "Hungary", Url = "https://test-hu.example/", DefaultCurrencyId = 159601 };
+        var currency = new Currency
+        {
+            Id = 159601,
+            Name = "Hungarian forint",
+            CurrencyCode = "HUF",
+            Rate = 400m,
+            Published = true,
+            RoundNumDecimals = 0
+        };
+        _product.Price = 34.90m;
+
+        DbContext.Stores.Add(store);
+        DbContext.Currencies.Add(currency);
+        DbContext.Products.Add(_product);
+        DbContext.ProductStorePrices.Add(new ProductStorePrice
+        {
+            ProductId = _product.Id,
+            StoreId = store.Id,
+            CurrencyId = currency.Id,
+            Price = 12990m
+        });
+
+        try
+        {
+            await DbContext.SaveChangesAsync();
+
+            async Task<decimal> CalculateAsync(Store currentStore)
+            {
+                var batch = new ProductBatchContext([_product], DbContext, LifetimeScope, currentStore, _customer, false);
+                var options = new PriceCalculationOptions(batch, _customer, currentStore, _language, currency)
+                {
+                    IgnoreDiscounts = true
+                };
+                var result = await _priceCalcService.CalculatePriceAsync(new PriceCalculationContext(_product, options));
+                return result.FinalPrice.Amount;
+            }
+
+            Assert.That(await CalculateAsync(store), Is.EqualTo(12990m));
+
+            currency.Rate = 500m;
+            await DbContext.SaveChangesAsync();
+
+            Assert.That(await CalculateAsync(store), Is.EqualTo(12990m),
+                "Changing the exchange rate must not alter the configured local selling price.");
+
+            currency.Rate = 379.81m;
+            await DbContext.SaveChangesAsync();
+            Assert.That(await CalculateAsync(store), Is.EqualTo(12990m),
+                "Non-integer exchange rates must not introduce rounding drift in native store prices.");
+
+            currency.Rate = 500m;
+            await DbContext.SaveChangesAsync();
+
+            var otherStore = new Store { Id = 159602, Name = "Other", Url = "https://test-other.example/" };
+            Assert.That(await CalculateAsync(otherStore), Is.EqualTo(34.90m * 500m),
+                "Stores without an override must continue using the primary product price.");
+        }
+        finally
+        {
+            DbContext.ProductStorePrices.RemoveRange(DbContext.ProductStorePrices.Where(x => x.ProductId == _product.Id));
+            DbContext.Products.Remove(_product);
+            DbContext.Stores.Remove(store);
+            DbContext.Currencies.Remove(currency);
+            await DbContext.SaveChangesAsync();
+        }
+    }
+
+    [Test]
+    public async Task Store_local_prices_do_not_leak_across_stores()
+    {
+        var storeA = new Store { Id = 159610, Name = "Hungary", Url = "https://hu.example/", DefaultCurrencyId = 159611 };
+        var storeB = new Store { Id = 159612, Name = "Czechia", Url = "https://cz.example/", DefaultCurrencyId = 159613 };
+        var huf = new Currency { Id = 159611, Name = "Forint", CurrencyCode = "HUF", Rate = 400m, Published = true };
+        var czk = new Currency { Id = 159613, Name = "Koruna", CurrencyCode = "CZK", Rate = 25m, Published = true };
+        _product.Price = 34.90m;
+        DbContext.Stores.AddRange(storeA, storeB);
+        DbContext.Currencies.AddRange(huf, czk);
+        DbContext.Products.Add(_product);
+        DbContext.ProductStorePrices.AddRange(
+            new ProductStorePrice { ProductId = _product.Id, StoreId = storeA.Id, CurrencyId = huf.Id, Price = 12990m },
+            new ProductStorePrice { ProductId = _product.Id, StoreId = storeB.Id, CurrencyId = czk.Id, Price = 849m });
+
+        try
+        {
+            await DbContext.SaveChangesAsync();
+
+            async Task<decimal> PriceFor(Store store, Currency currency)
+            {
+                var batch = new ProductBatchContext([_product], DbContext, LifetimeScope, store, _customer, false);
+                var options = new PriceCalculationOptions(batch, _customer, store, _language, currency)
+                {
+                    IgnoreDiscounts = true
+                };
+                var price = await _priceCalcService.CalculatePriceAsync(new PriceCalculationContext(_product, options));
+                return price.FinalPrice.Amount;
+            }
+
+            Assert.That(await PriceFor(storeA, huf), Is.EqualTo(12990m));
+            Assert.That(await PriceFor(storeB, czk), Is.EqualTo(849m));
+
+            // An old HUF price must never be reinterpreted as CZK after changing the store currency.
+            storeA.DefaultCurrencyId = czk.Id;
+            Assert.That(await PriceFor(storeA, czk), Is.EqualTo(34.90m * 25m));
+        }
+        finally
+        {
+            DbContext.ProductStorePrices.RemoveRange(DbContext.ProductStorePrices.Where(x => x.ProductId == _product.Id));
+            DbContext.Products.Remove(_product);
+            DbContext.Stores.RemoveRange(storeA, storeB);
+            DbContext.Currencies.RemoveRange(huf, czk);
+            await DbContext.SaveChangesAsync();
+        }
+    }
+
+    [Test]
+    public async Task Store_local_price_is_applied_to_bundle_parts()
+    {
+        var store = new Store { Id = 159620, Name = "Bundle store", Url = "https://bundle.example/", DefaultCurrencyId = 159621 };
+        var currency = new Currency { Id = 159621, Name = "Bundle currency", CurrencyCode = "HUF", Rate = 5m, Published = true };
+        var part = new Product { Id = 159622, Name = "Part", Price = 2m, Published = true, ProductType = ProductType.SimpleProduct };
+        var bundle = new Product
+        {
+            Id = 159623,
+            Name = "Bundle",
+            Price = 4m,
+            Published = true,
+            ProductType = ProductType.BundledProduct,
+            BundlePerItemPricing = true
+        };
+        DbContext.Stores.Add(store);
+        DbContext.Currencies.Add(currency);
+        DbContext.Products.AddRange(part, bundle);
+        DbContext.ProductStorePrices.Add(new ProductStorePrice
+        {
+            ProductId = part.Id,
+            StoreId = store.Id,
+            CurrencyId = currency.Id,
+            Price = 10m
+        });
+
+        try
+        {
+            await DbContext.SaveChangesAsync();
+
+            var parentBatch = new ProductBatchContext([bundle], DbContext, LifetimeScope, store, _customer, false);
+            var childBatch = new ProductBatchContext([part], DbContext, LifetimeScope, store, _customer, false);
+            var options = new PriceCalculationOptions(parentBatch, _customer, store, _language, currency)
+            {
+                ChildProductsBatchContext = childBatch,
+                IgnoreDiscounts = true
+            };
+            var context = new PriceCalculationContext(bundle, options)
+            {
+                BundleItems = [new ProductBundleItem { Product = part, BundleProduct = bundle, Quantity = 2 }]
+            };
+
+            var price = await _priceCalcService.CalculatePriceAsync(context);
+            Assert.That(price.FinalPrice.Amount, Is.EqualTo(20m));
+        }
+        finally
+        {
+            DbContext.ProductStorePrices.RemoveRange(DbContext.ProductStorePrices.Where(x => x.ProductId == part.Id));
+            DbContext.Products.RemoveRange(part, bundle);
+            DbContext.Stores.Remove(store);
+            DbContext.Currencies.Remove(currency);
+            await DbContext.SaveChangesAsync();
+        }
+    }
+
+    [Test]
     public async Task Can_get_final_product_price()
     {
         var price = await _priceCalcService.CalculatePriceAsync(_priceCalculationContext);

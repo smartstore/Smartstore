@@ -258,6 +258,21 @@ public class ProductModel : ProductOverviewModel, ILocalizedModel<ProductLocaliz
     public int? ComparePriceLabelId { get; set; }
 
     public string PrimaryStoreCurrencyCode { get; set; }
+
+    /// <summary>Optional local-currency prices per store. Blank means use the global product price.</summary>
+    public List<ProductStorePriceModel> StorePrices { get; set; } = [];
+
+    public class ProductStorePriceModel
+    {
+        public int StoreId { get; set; }
+        public int CurrencyId { get; set; }
+        public string StoreName { get; set; }
+        public string CurrencyCode { get; set; }
+        public bool CurrencyChanged { get; set; }
+
+        [LocalizedDisplay("Admin.Catalog.Products.StorePrices.Fields.Price")]
+        public decimal? Price { get; set; }
+    }
     public string BaseDimensionIn { get; set; }
     public string BaseWeightIn { get; set; }
 

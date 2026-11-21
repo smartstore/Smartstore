@@ -567,6 +567,19 @@ public class SmartDbContextDataSeeder : IDataSeeder<SmartDbContext>
         builder.AddOrUpdate("Admin.Common.ColorPalette.AddColor", "Add color", "Farbe hinzufügen");
         builder.AddOrUpdate("Admin.Common.ColorPalette.RemoveColor", "Remove this color field", "Dieses Farbfeld entfernen");
 
+        builder.AddOrUpdate("Admin.Catalog.Products.StorePrices", "Local store prices", "Lokale Shoppreise");
+        builder.AddOrUpdate("Admin.Catalog.Products.StorePrices.Fields.Price",
+            "Price",
+            "Preis",
+            "Optional exact price in this store's default currency. Leave blank to use the global product price.",
+            "Optionaler exakter Preis in der Standardwährung dieses Shops. Leer lassen, um den globalen Produktpreis zu verwenden.");
+        builder.AddOrUpdate("Admin.Catalog.Products.StorePrices.CurrencyChanged",
+            "The store currency changed. The saved price in the previous currency remains stored but is not applied. Enter a new price in the current currency to replace it.",
+            "Die Shopwährung wurde geändert. Der gespeicherte Preis in der vorherigen Währung bleibt erhalten, wird aber nicht angewendet. Geben Sie einen neuen Preis in der aktuellen Währung ein, um ihn zu ersetzen.");
+        builder.AddOrUpdate("Admin.Catalog.Products.StorePrices.Hint",
+            "Optional fixed prices in each store's default currency. These are independent of exchange-rate updates. Discounts, taxes and attribute adjustments still apply.",
+            "Optionale Festpreise in der Standardwährung jedes Shops. Diese sind unabhängig von Wechselkursänderungen. Rabatte, Steuern und Attributzuschläge gelten weiterhin.");
+
         string prefix = "Admin.Catalog.Products.";
 
         builder.Delete(
