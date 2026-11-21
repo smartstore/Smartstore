@@ -11,7 +11,7 @@
 		<CopyRefAssembliesToPublishDirectory>false</CopyRefAssembliesToPublishDirectory>
         <ChecksumAlgorithm>SHA1</ChecksumAlgorithm>
 		<Configurations>Debug;Release;DebugNoRazorCompile</Configurations>
-		<NoWarn>$(NoWarn);1573;1591;1701;1702;CS9216</NoWarn>
+		<NoWarn>$(NoWarn);1573;1591;1701;1702;CS9216;ASPDEPR003</NoWarn>
 	</PropertyGroup>
 
     <PropertyGroup>
