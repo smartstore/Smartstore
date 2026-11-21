@@ -59,7 +59,7 @@ internal class CustomerMap : IEntityTypeConfiguration<Customer>
 /// </summary>
 [Index(nameof(Deleted), Name = "IX_Deleted")]
 [Index(nameof(Email), Name = "IX_Customer_Email")]
-[Index(nameof(Username), Name = "IX_Customer_Username")]
+[Index(nameof(Username), Name = "IX_Customer_Username", IsUnique = true)]
 [Index(nameof(CustomerGuid), Name = "IX_Customer_CustomerGuid")]
 [Index(nameof(IsSystemAccount), Name = "IX_IsSystemAccount")]
 [Index(nameof(SystemName), Name = "IX_SystemName")]
