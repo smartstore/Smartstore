@@ -151,6 +151,7 @@
   - Weight adjustments for preselected products attributes were not taken into account.
   - The images of linked products displayed for variants were too small and distorted.
   - #427 Impossible to download a file uploaded for product attribute after selecting another attribute.
+  - The JSON-LD price must match the displayed, rounded product price.
 - **Product Bundle**
   - A deactivated bundle item should not prevent the bundle from being added to the shopping cart.
   - An empty short description of a bundle item keeps the product short description as fallback, while whitespace explicitly suppresses it.
