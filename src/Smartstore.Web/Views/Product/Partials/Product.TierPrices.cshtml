@@ -18,7 +18,7 @@
     Assets.JsonLd.Product
         .Obj("offers", JsonLdFragment.Create("Offer")
             .Arr("priceSpecification", Model.Take(200).Select(x => JsonLdFragment.Create("UnitPriceSpecification")
-                .Prop("price", x.Price.Amount)
+                .Prop("price", RoundingHelper.Round(x.Price))
                 .Prop("priceCurrency", x.Price.Currency.CurrencyCode)
                 .Obj("eligibleQuantity", JsonLdFragment.Create("QuantitativeValue").Prop("minValue", x.Quantity))
             )));

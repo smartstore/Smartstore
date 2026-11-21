@@ -102,7 +102,7 @@
                 {
                     Assets.JsonLd.Product.Obj("offers", JsonLdFragment.Create("Offer", new
                     {
-                        price = Model.Price.FinalPrice.Amount,
+                        price = roundedPrice,
                         priceCurrency = Model.Price.FinalPrice.Currency.CurrencyCode,
                         availability = Model.IsAvailable ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
                         priceValidUntil = pm.ValidUntilUtc
