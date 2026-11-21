@@ -1,4 +1,6 @@
-﻿using Smartstore.Core.Identity;
+﻿using Smartstore.Core.Checkout.Orders;
+using Smartstore.Core.Checkout.Payment;
+using Smartstore.Core.Identity;
 using Smartstore.Core.Stores;
 using Smartstore.Http;
 using Smartstore.Json;
@@ -23,6 +25,20 @@ public class PayPalHelper : ICookiePublisher
         _storeContext = storeContext;
         _paymentService = paymentService;
         T = localizer;
+    }
+
+    /// <summary>
+    /// Checks whether a PayPal webhook (pending, denied, expired) may set an order back to pending.
+    /// A late or retried event must not reset an order that is already paid, refunded, processing, complete or cancelled.
+    /// </summary>
+    public static bool CanSetOrderPending(OrderStatus orderStatus, PaymentStatus paymentStatus)
+    {
+        if (orderStatus != OrderStatus.Pending)
+        {
+            return false;
+        }
+
+        return paymentStatus is not (PaymentStatus.Paid or PaymentStatus.PartiallyRefunded or PaymentStatus.Refunded);
     }
 
     public Task<bool> IsProviderEnabledAsync(string systemName)

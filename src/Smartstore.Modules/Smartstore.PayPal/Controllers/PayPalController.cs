@@ -901,6 +901,23 @@ public class PayPalController : PublicController
         return Ok();
     }
 
+    /// <summary>
+    /// Sets the order status to <see cref="OrderStatus.Pending"/> unless the order has already moved on
+    /// (e.g. a late or retried webhook for a paid, completed or cancelled order). An ignored event is noted on the order.
+    /// </summary>
+    /// <returns><c>true</c> if the order was set to pending.</returns>
+    private bool SetOrderPending(Order order, string webhookStatus)
+    {
+        if (!PayPalHelper.CanSetOrderPending(order.OrderStatus, order.PaymentStatus))
+        {
+            _db.OrderNotes.Add(order, $"PayPal webhook \"{webhookStatus}\" ignored: order is already {order.OrderStatus}, payment is {order.PaymentStatus}.");
+            return false;
+        }
+
+        order.OrderStatus = OrderStatus.Pending;
+        return true;
+    }
+
     private async Task HandleAuthorizationAsync(Order order, WebhookResource resource)
     {
         var status = resource?.Status.ToLowerInvariant();
@@ -921,7 +938,7 @@ public class PayPalController : PublicController
             case "expired":
             case "pending":
                 order.CaptureTransactionResult = status;
-                order.OrderStatus = OrderStatus.Pending;
+                SetOrderPending(order, status);
                 break;
 
             case "voided":
@@ -954,7 +971,7 @@ public class PayPalController : PublicController
 
             case "pending":
                 order.CaptureTransactionResult = status;
-                order.OrderStatus = OrderStatus.Pending;
+                SetOrderPending(order, status);
                 break;
 
             case "declined":
@@ -984,8 +1001,10 @@ public class PayPalController : PublicController
                     }
                     else
                     {
-                        order.PaymentStatus = PaymentStatus.Pending;
-                        order.OrderStatus = OrderStatus.Pending;
+                        if (SetOrderPending(order, status))
+                        {
+                            order.PaymentStatus = PaymentStatus.Pending;
+                        }
                     }
 
                     order.PaidDateUtc = null;
