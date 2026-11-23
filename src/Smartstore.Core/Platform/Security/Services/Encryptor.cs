@@ -1,15 +1,30 @@
 ﻿using System.Security.Cryptography;
 using System.Text;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Options;
 
 namespace Smartstore.Core.Security;
 
 public partial class Encryptor : IEncryptor
 {
+    /// <summary>
+    /// Algorithm name for creating Identity V3 password hashes.
+    /// </summary>
+    internal const string PBKDF2Algorithm = "PBKDF2";
+
+    /// <summary>
+    /// Base64 prefix distinguishing supported Identity V3 hashes from legacy hexadecimal hashes.
+    /// </summary>
+    private const string IdentityV3Prefix = "AQ";
+
+    private readonly Lazy<PasswordHasher<object>> _passwordHasher;
     private readonly SecuritySettings _securitySettings;
 
     public Encryptor(SecuritySettings securitySettings)
     {
         _securitySettings = securitySettings;
+        _passwordHasher = new Lazy<PasswordHasher<object>>(() =>
+            new PasswordHasher<object>(Options.Create(CreatePasswordHasherOptions())));
     }
 
     public string CreateSaltKey(int size)
@@ -24,7 +39,12 @@ public partial class Encryptor : IEncryptor
 
     public string CreatePasswordHash(string password, string saltkey, string hashAlgorithm = "SHA1")
     {
-        Guard.NotEmpty(hashAlgorithm, nameof(hashAlgorithm));
+        Guard.NotEmpty(hashAlgorithm);
+
+        if (hashAlgorithm.Equals(PBKDF2Algorithm, StringComparison.OrdinalIgnoreCase))
+        {
+            return _passwordHasher.Value.HashPassword(null, password);
+        }
 
         var algorithm = (HashAlgorithm)CryptoConfig.CreateFromName(hashAlgorithm);
         if (algorithm == null)
@@ -33,6 +53,41 @@ public partial class Encryptor : IEncryptor
         var data = string.Concat(password, saltkey).GetBytes();
 
         return BitConverter.ToString(algorithm.ComputeHash(data)).Replace("-", string.Empty);
+    }
+
+    /// <inheritdoc/>
+    public PasswordVerificationResult VerifyPasswordHash(
+        string hashedPassword,
+        string providedPassword,
+        string saltkey,
+        string hashAlgorithm = "SHA1")
+    {
+        Guard.NotNull(hashedPassword);
+        Guard.NotNull(providedPassword);
+        Guard.NotEmpty(hashAlgorithm);
+
+        // Identity V3 starts with "AQ" in Base64; legacy hexadecimal hashes cannot.
+        if (hashedPassword.StartsWith(IdentityV3Prefix, StringComparison.Ordinal))
+        {
+            try
+            {
+                return _passwordHasher.Value.VerifyHashedPassword(null, hashedPassword, providedPassword);
+            }
+            catch (FormatException)
+            {
+                return PasswordVerificationResult.Failed;
+            }
+        }
+
+        if (hashAlgorithm.Equals(PBKDF2Algorithm, StringComparison.OrdinalIgnoreCase))
+        {
+            return PasswordVerificationResult.Failed;
+        }
+
+        string legacyHash = CreatePasswordHash(providedPassword, saltkey, hashAlgorithm);
+        return legacyHash.Length > 0 && legacyHash == hashedPassword
+            ? PasswordVerificationResult.SuccessRehashNeeded
+            : PasswordVerificationResult.Failed;
     }
 
     public string EncryptText(string plainText, string privateKey = null)
@@ -60,6 +115,21 @@ public partial class Encryptor : IEncryptor
     }
 
     #region Utils
+
+    /// <summary>
+    /// Creates the options once, when the password hasher is first needed.
+    /// </summary>
+    /// <remarks>
+    /// Overrides must retain IdentityV3 compatibility for format detection.
+    /// </remarks>
+    protected virtual PasswordHasherOptions CreatePasswordHasherOptions()
+    {
+        return new PasswordHasherOptions
+        {
+            CompatibilityMode = PasswordHasherCompatibilityMode.IdentityV3,
+            IterationCount = 220_000
+        };
+    }
 
     private static SymmetricAlgorithm CreateAlgorithm()
     {

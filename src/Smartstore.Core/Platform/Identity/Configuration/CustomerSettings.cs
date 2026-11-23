@@ -36,7 +36,8 @@ public class CustomerSettings : ISettings
     public PasswordFormat DefaultPasswordFormat { get; set; } = PasswordFormat.Hashed;
 
     /// <summary>
-    /// Gets or sets a customer password format (SHA1, MD5) when passwords are hashed.
+    /// Gets or sets the algorithm used to verify legacy password hashes (for example SHA1).
+    /// Preserve this setting until all legacy hashes have been upgraded.
     /// </summary>
     public string HashedPasswordFormat { get; set; } = "SHA1";
 

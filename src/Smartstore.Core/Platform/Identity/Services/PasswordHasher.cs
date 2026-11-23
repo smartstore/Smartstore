@@ -21,8 +21,7 @@ public class PasswordHasher : IPasswordHasher<Customer>
         switch (user.PasswordFormat)
         {
             case PasswordFormat.Hashed:
-                string saltKey = user.PasswordSalt.NullEmpty() ?? (user.PasswordSalt = _encryptor.CreateSaltKey(5));
-                return _encryptor.CreatePasswordHash(password, saltKey, _customerSettings.HashedPasswordFormat);
+                return _encryptor.CreatePasswordHash(password, null, Encryptor.PBKDF2Algorithm);
             case PasswordFormat.Encrypted:
                 return _encryptor.EncryptText(password);
             default: // Clear
@@ -42,8 +41,11 @@ public class PasswordHasher : IPasswordHasher<Customer>
                 pwd = _encryptor.EncryptText(providedPassword);
                 break;
             case PasswordFormat.Hashed:
-                pwd = _encryptor.CreatePasswordHash(providedPassword, user.PasswordSalt, _customerSettings.HashedPasswordFormat);
-                break;
+                return _encryptor.VerifyPasswordHash(
+                    hashedPassword,
+                    providedPassword,
+                    user.PasswordSalt,
+                    _customerSettings.HashedPasswordFormat);
         }
 
         if (pwd.Length > 0 && pwd == hashedPassword)

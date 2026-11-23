@@ -396,12 +396,10 @@ public partial class InstallationDataSeeder : DataSeeder<SmartDbContext>
     private async Task HashDefaultCustomerPassword(string defaultUserEmail, string defaultUserPassword)
     {
         var encryptor = new Encryptor(new SecuritySettings());
-        var saltKey = encryptor.CreateSaltKey(5);
         var adminUser = await Context.Customers.FirstOrDefaultAsync(x => x.Email == _config.DefaultUserName);
 
-        adminUser.PasswordSalt = saltKey;
         adminUser.PasswordFormat = PasswordFormat.Hashed;
-        adminUser.Password = encryptor.CreatePasswordHash(defaultUserPassword, saltKey, new CustomerSettings().HashedPasswordFormat);
+        adminUser.Password = encryptor.CreatePasswordHash(defaultUserPassword, null, Encryptor.PBKDF2Algorithm);
 
         await Context.SaveChangesAsync();
     }
