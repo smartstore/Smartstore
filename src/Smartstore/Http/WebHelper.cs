@@ -36,7 +36,7 @@ public static partial class WebHelper
     private static readonly CompositeFormat _formatUrl = CompositeFormat.Parse("{0}://{1}{2}");
     private static readonly AsyncLock _asyncLock = new();
     private static readonly Regex _htmlPathPattern = new(@"(?<=(?:href|src)=(?:""|'))(?<url>[^(?:""|')]+)", RegexOptions.IgnoreCase | RegexOptions.Compiled | RegexOptions.Multiline);
-    private static readonly Regex _cssPathPattern = new(@"url\('(?<url>.+)'\)", RegexOptions.IgnoreCase | RegexOptions.Compiled | RegexOptions.Multiline);
+    private static readonly Regex _cssPathPattern = new(@"(?<=url\(')(?<url>[^']+)(?='\))", RegexOptions.IgnoreCase | RegexOptions.Compiled | RegexOptions.Multiline);
     private static readonly ConcurrentDictionary<int, string> _safeLocalHostNames = new();
 
     private static IHttpContextAccessor? HttpContextAccessor
