@@ -74,4 +74,16 @@ public class AsyncLockTests : ServiceTestBase
 
         myLock.ShouldNotBeNull();
     }
+
+    [Test]
+    public async Task Keyed_lock_should_throw_on_timeout()
+    {
+        const string key = nameof(Keyed_lock_should_throw_on_timeout);
+
+        using (await AsyncLock.KeyedAsync(key))
+        {
+            Assert.Throws<TimeoutException>(() => AsyncLock.Keyed(key, TimeSpan.Zero));
+            Assert.ThrowsAsync<TimeoutException>(() => AsyncLock.KeyedAsync(key, TimeSpan.Zero));
+        }
+    }
 }
