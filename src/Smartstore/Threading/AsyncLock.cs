@@ -18,15 +18,10 @@ public sealed class AsyncLock : IHideObjectMembers
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static ILockHandle Keyed(string key, TimeSpan? timeout = null, CancellationToken cancelToken = default)
     {
-        var releaser = _asyncKeyedLock
-            .LockOrNull(key, timeout ?? Timeout.InfiniteTimeSpan, cancelToken);
-
         // LockOrNull returns null when the timeout expires. Do not wrap null in an apparently valid handle,
         // otherwise TryAcquire cannot distinguish a timed-out attempt from an acquired lock.
-        if (releaser == null)
-        {
-            throw new TimeoutException($"Failed to acquire lock on '{key}' within the given timeout.");
-        }
+        var releaser = _asyncKeyedLock.LockOrNull(key, timeout ?? Timeout.InfiniteTimeSpan, cancelToken) 
+            ?? throw new TimeoutException($"Failed to acquire lock on '{key}' within the given timeout.");
 
         return new AsyncLockHandle(releaser);
     }
@@ -34,16 +29,10 @@ public sealed class AsyncLock : IHideObjectMembers
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static async Task<ILockHandle> KeyedAsync(string key, TimeSpan? timeout = null, CancellationToken cancelToken = default)
     {
-        var releaser = await _asyncKeyedLock
-            .LockOrNullAsync(key, timeout ?? Timeout.InfiniteTimeSpan, cancelToken)
-            .ConfigureAwait(false);
-
         // LockOrNullAsync returns null when the timeout expires. TryAcquireAsync relies on the exception
         // to report a failed attempt instead of exposing a no-op handle as an acquired lock.
-        if (releaser == null)
-        {
-            throw new TimeoutException($"Failed to acquire lock on '{key}' within the given timeout.");
-        }
+        var releaser = await _asyncKeyedLock.LockOrNullAsync(key, timeout ?? Timeout.InfiniteTimeSpan, cancelToken)
+            .ConfigureAwait(false) ?? throw new TimeoutException($"Failed to acquire lock on '{key}' within the given timeout.");
 
         return new AsyncLockHandle(releaser);
     }
