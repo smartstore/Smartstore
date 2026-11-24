@@ -23,6 +23,13 @@ $.ajaxSetup({
 	cache: false
 });
 
+// Roxy has its own jQuery instance and does not load Smartstore's AJAX interceptor.
+$.ajaxPrefilter(function (options, originalOptions, xhr) {
+	if (!options.crossDomain && options.type.toUpperCase() === 'POST') {
+		xhr.setRequestHeader('X-XSRF-Token', $('#frmUpload input[name="__RequestVerificationToken"]').val());
+	}
+});
+
 function selectFile(item) {
 	$('#pnlFileList li').removeClass('selected');
 	$(item).addClass('selected');
@@ -281,6 +288,7 @@ function fileUpload(f, i) {
 	fData.append("method", 'ajax');
 	fData.append("d", $('#hdDir').attr('value'));
 	fData.append("files[]", f);
+	fData.append("__RequestVerificationToken", $('#frmUpload input[name="__RequestVerificationToken"]').val());
 	http.upload.addEventListener("progress", function (e) {
 		updateUploadProgress(e, i);
 	}, false);

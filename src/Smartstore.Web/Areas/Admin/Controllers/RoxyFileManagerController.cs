@@ -57,7 +57,7 @@ public class RoxyFileManagerController : AdminController
         return View();
     }
 
-    [IgnoreAntiforgeryToken]
+    [AcceptVerbs("GET", "POST")]
     [Permission(Permissions.Media.Upload)]
     public async Task<IActionResult> ProcessRequest(
         string a = null /* action */,
@@ -68,7 +68,15 @@ public class RoxyFileManagerController : AdminController
         string ext = null /* external */,
         string method = null)
     {
-        var action = (a.NullEmpty() ?? "DIRLIST").ToUpper();
+        var action = (a.NullEmpty() ?? "DIRLIST").ToUpperInvariant();
+
+        // Downloads use iframe navigation; all changes must use an antiforgery-protected POST.
+        if (!HttpMethods.IsPost(Request.Method)
+            && action is not ("DIRLIST" or "FILESLIST" or "DOWNLOAD" or "DOWNLOADDIR"))
+        {
+            Response.Headers.Allow = "POST";
+            return StatusCode(StatusCodes.Status405MethodNotAllowed);
+        }
 
         try
         {

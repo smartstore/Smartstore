@@ -139,6 +139,7 @@
     <iframe name="frmUploadFile" width="0" height="0" style="display:none;border:0;"></iframe>
     <div id="dlgAddFile">
         <form name="addfile" id="frmUpload" method="post" target="frmUploadFile" enctype="multipart/form-data">
+            @Html.AntiForgeryToken()
             <input type="hidden" name="d" id="hdDir" />
             <div class="form">
                 <br />
