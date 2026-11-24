@@ -169,22 +169,22 @@ internal class AdminBundles : IBundleProvider
             cm + "mode/liquid/liquid.scss"));
 
 
-        /* Roxy File Manager--> /bundle/js/filemanager.js
+        /* Fileman--> /bundle/js/filemanager.js
 			------------------------------------------------------*/
-        var roxy = "/lib/roxyfm/js/";
+        var fileman = "/lib/fileman/js/";
         // Script
-        bundles.Add(new ScriptBundle("/bundle/js/roxyfm.js").Include(
-            js + "smartstore.icons.js",
-            roxy + "jquery-2.1.1.min.js",
-            roxy + "jquery-ui-1.10.4.custom.min.js",
-            roxy + "filetypes.js",
-            roxy + "custom.js",
-            roxy + "utils.js",
-            roxy + "main.js",
-            roxy + "file.js",
-            roxy + "directory.js",
-            roxy + "jquery-dateFormat.min.js"));
+        bundles.Add(new ScriptBundle("/bundle/js/fileman.js").Include(
+            lib + "popper/popper.js",
+            lib + "bootstrap/js/bootstrap.js",
+            fileman + "ui.js",
+            fileman + "filetypes.js",
+            fileman + "custom.js",
+            fileman + "utils.js",
+            fileman + "main.js",
+            fileman + "file.js",
+            fileman + "directory.js",
+            fileman + "jquery-dateFormat.min.js"));
         // CSS
-        bundles.Add(new StyleBundle("/bundle/css/roxyfm.css").Include("/lib/roxyfm/css/main.scss"));
+        bundles.Add(new StyleBundle("/bundle/css/fileman.css").Include("/lib/fileman/css/main.scss"));
     }
 }

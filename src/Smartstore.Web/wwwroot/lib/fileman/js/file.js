@@ -33,7 +33,7 @@ $(function () {
 		e.preventDefault();
 		closeMenus('dir');
 		selectFile(this);
-		$(this).tooltip('close');
+		FilemanUI.hidePreviews();
 		var t = e.pageY;
 		var menuEnd = t + $('#menuFile').height() + 30;
 		if (menuEnd > $(window).height()) {
@@ -55,40 +55,23 @@ $(function () {
 		selectFile(this);
 	});
 
-	$(document).on('mouseenter', '.file-item', function (e) {
-		var li = $(this);
 
-		// create draggable
-		if (!li.data('ui-draggable')) {
-			li.draggable({
-				helper: makeDragFile,
-				start: startDragFile,
-				addClasses: false,
-				appendTo: 'body',
-				cursorAt: {
-					left: 10,
-					top: 10
-				},
-				delay: 200
-			});
-		}
-	});
 });
 
 function File(filePath, fileSize, modTime, w, h, mime) {
 	this.fullPath = filePath;
 	this.mime = mime;
-	this.type = RoxyUtils.GetFileType(filePath, mime);
-	this.icon = RoxyIconHints[this.type];
-	this.name = RoxyUtils.GetFilename(filePath);
-	this.ext = RoxyUtils.GetFileExt(filePath);
-	this.path = RoxyUtils.GetPath(filePath);
+	this.type = FilemanUtils.GetFileType(filePath, mime);
+	this.icon = FilemanIconHints[this.type];
+	this.name = FilemanUtils.GetFilename(filePath);
+	this.ext = FilemanUtils.GetFileExt(filePath);
+	this.path = FilemanUtils.GetPath(filePath);
 	this.image = filePath;
 	this.size = fileSize || 0;
 	this.time = modTime;
 	this.width = w || 0;
 	this.height = h || 0;
-	this.thumb = this.type === 'image' ? filePath : RoxyUtils.GetAssetPath("images/blank.gif");
+	this.thumb = this.type === 'image' ? filePath : FilemanUtils.GetAssetPath("images/blank.gif");
 	this.GenerateHtml = function () {
 		var attrs = [
 			'data-mime="' + this.mime + '"',
@@ -102,9 +85,9 @@ function File(filePath, fileSize, modTime, w, h, mime) {
 		var html = [
 			'<li class="file-item' + (this.IsImage() ? ' file-image loaded' : '') + '" ' + attrs.join(' ') + '>',
 			'<div class="file-preview"><img class="thumb" src="' + this.thumb + '"><sm-icon area="admin" class="file-icon icon-fw" name="' + this.icon.name + '" style="color:' + this.icon.color + '"></sm-icon></div>',
-			'<span class="time">' + RoxyUtils.FormatDate(new Date(this.time * 1000)) + '</span>',
+			'<span class="time">' + FilemanUtils.FormatDate(new Date(this.time * 1000)) + '</span>',
 			'<span class="name">' + this.name + '</span>',
-			'<span class="size">' + RoxyUtils.FormatFileSize(this.size) + '</span>',
+			'<span class="size">' + FilemanUtils.FormatFileSize(this.size) + '</span>',
 			'</li>'
 		].join("");
 
@@ -117,11 +100,11 @@ function File(filePath, fileSize, modTime, w, h, mime) {
 		return this.type === 'image';
 	};
 	this.Delete = function (fn) {
-		if (!RoxyFilemanConf.DELETEFILE) {
+		if (!FilemanConfig.DELETEFILE) {
 			alert(t('E_ActionDisabled'));
 			return;
 		}
-		var deleteUrl = RoxyUtils.AddParam(RoxyUtils.GetRootPath(RoxyFilemanConf.DELETEFILE), 'f', this.fullPath);
+		var deleteUrl = FilemanUtils.AddParam(FilemanUtils.GetRootPath(FilemanConfig.DELETEFILE), 'f', this.fullPath);
 		var item = this;
 		$.ajax({
 			url: deleteUrl,
@@ -151,14 +134,14 @@ function File(filePath, fileSize, modTime, w, h, mime) {
 		});
 	};
 	this.Rename = function (newName, fn) {
-		if (!RoxyFilemanConf.RENAMEFILE) {
+		if (!FilemanConfig.RENAMEFILE) {
 			alert(t('E_ActionDisabled'));
 			return false;
 		}
 		if (!newName)
 			return false;
-		var url = RoxyUtils.AddParam(RoxyUtils.GetRootPath(RoxyFilemanConf.RENAMEFILE), 'f', this.fullPath);
-		url = RoxyUtils.AddParam(url, 'n', newName);
+		var url = FilemanUtils.AddParam(FilemanUtils.GetRootPath(FilemanConfig.RENAMEFILE), 'f', this.fullPath);
+		url = FilemanUtils.AddParam(url, 'n', newName);
 		var item = this;
 		var ret = false;
 		$.ajax({
@@ -171,9 +154,9 @@ function File(filePath, fileSize, modTime, w, h, mime) {
 			dataType: 'json',
 			success: function (data) {
 				if (data.res.toLowerCase() === 'ok') {
-					var newPath = RoxyUtils.MakePath(this.path, newName);
-					var fileType = RoxyUtils.GetFileType(newName);
-					var icon = RoxyIconHints[fileType];
+					var newPath = FilemanUtils.MakePath(this.path, newName);
+					var fileType = FilemanUtils.GetFileType(newName);
+					var icon = FilemanIconHints[fileType];
 					var li = $('li[data-path="' + item.fullPath + '"]');
 
 					li.toggleClass('file-image', fileType === 'image');
@@ -194,12 +177,12 @@ function File(filePath, fileSize, modTime, w, h, mime) {
 		return ret;
 	};
 	this.Copy = function (newPath, fn) {
-		if (!RoxyFilemanConf.COPYFILE) {
+		if (!FilemanConfig.COPYFILE) {
 			alert(t('E_ActionDisabled'));
 			return;
 		}
-		var url = RoxyUtils.AddParam(RoxyUtils.GetRootPath(RoxyFilemanConf.COPYFILE), 'f', this.fullPath);
-		url = RoxyUtils.AddParam(url, 'n', newPath);
+		var url = FilemanUtils.AddParam(FilemanUtils.GetRootPath(FilemanConfig.COPYFILE), 'f', this.fullPath);
+		url = FilemanUtils.AddParam(url, 'n', newPath);
 		var item = this;
 		var ret = false;
 		$.ajax({
@@ -234,13 +217,13 @@ function File(filePath, fileSize, modTime, w, h, mime) {
 		return ret;
 	};
 	this.Move = function (newPath, fn) {
-		if (!RoxyFilemanConf.MOVEFILE) {
+		if (!FilemanConfig.MOVEFILE) {
 			alert(t('E_ActionDisabled'));
 			return;
 		}
-		newFullPath = RoxyUtils.MakePath(newPath, this.name);
-		var url = RoxyUtils.AddParam(RoxyUtils.GetRootPath(RoxyFilemanConf.MOVEFILE), 'f', this.fullPath);
-		url = RoxyUtils.AddParam(url, 'n', newFullPath);
+		newFullPath = FilemanUtils.MakePath(newPath, this.name);
+		var url = FilemanUtils.AddParam(FilemanUtils.GetRootPath(FilemanConfig.MOVEFILE), 'f', this.fullPath);
+		url = FilemanUtils.AddParam(url, 'n', newFullPath);
 		var item = this;
 		var ret = false;
 		$.ajax({

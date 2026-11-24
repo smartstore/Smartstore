@@ -14,7 +14,7 @@ namespace Smartstore.Admin.Controllers;
 
 public class RoxyFileManagerController : AdminController
 {
-    private const string ConfigFilePath = "~/lib/roxyfm/conf.json";
+    private const string ConfigFilePath = "~/lib/fileman/conf.json";
 
     private string _fileRoot = null;
     private Dictionary<string, string> _lang = null;
@@ -552,7 +552,7 @@ public class RoxyFileManagerController : AdminController
         if (_lang == null)
         {
             var locFile = _locFileResolver
-                .Resolve(Services.WorkContext.WorkingLanguage.UniqueSeoCode, "~/lib/roxyfm/lang/{lang}.js");
+                .Resolve(Services.WorkContext.WorkingLanguage.UniqueSeoCode, "~/lib/fileman/lang/{lang}.js");
 
             if (locFile == null)
             {

@@ -1,24 +1,23 @@
 ﻿@{
     Layout = null;
 
-    var roxy = "~/lib/roxyfm/";
+    var fileman = "~/lib/fileman/";
 }
 
 <!DOCTYPE html>
 <html>
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Roxy File Manager</title>
+    <title>Fileman</title>
     <meta property="sm:root" content="@Url.Content("~/")" />
     <script>
-         var roxy_root = '@Url.Content("~/admin/roxyfilemanager/")';
-         var roxy_assets_root = '@Url.Content(roxy)';
+         var fileman_root = '@Url.Content("~/admin/roxyfilemanager/")';
+         var fileman_assets_root = '@Url.Content(fileman)';
     </script>
 
     <zone name="stylesheets" preview-tag="meta">
         <link rel="stylesheet" href="~/bundle/css/admin-theme.css" />
-        <link rel="stylesheet" href="~/lib/roxyfm/css/jquery-ui-1.10.4.custom.min.css" />
-        <link rel="stylesheet" href="~/bundle/css/roxyfm.css" />
+        <link rel="stylesheet" href="~/bundle/css/fileman.css" />
     </zone>
 
     <zone name="head_scripts" preview-tag="meta"></zone>
@@ -33,18 +32,20 @@
                         <span>Create</span>
                     </button>
 
-                    <button type="button" class="btn btn-sm btn-light btn-icon ml-auto" id="btnRenameDir" title="Rename directory" onclick="renameDir()" data-lang-v="RenameDir" data-lang-t="T_RenameDir">
-                        <icon name="pen"  />
-                        <span class="d-none">Rename</span>
-                    </button>
-                    <button type="button" class="btn btn-sm btn-light btn-to-danger btn-icon" id="btnDeleteDir" title="Delete selected directory" onclick="deleteDir()" data-lang-v="DeleteDir" data-lang-t="T_DeleteDir">
-                        <icon name="trash" />
-                        <span class="d-none">Delete</span>
-                    </button>
+                    <div class="btn-group ml-auto">
+                        <button type="button" class="btn btn-sm btn-light btn-icon" id="btnRenameDir" title="Rename directory" onclick="renameDir()" data-lang-v="RenameDir" data-lang-t="T_RenameDir">
+                            <icon name="pen"  />
+                            <span class="d-none">Rename</span>
+                        </button>
+                        <button type="button" class="btn btn-sm btn-light btn-to-danger btn-icon" id="btnDeleteDir" title="Delete selected directory" onclick="deleteDir()" data-lang-v="DeleteDir" data-lang-t="T_DeleteDir">
+                            <icon name="trash" />
+                            <span class="d-none">Delete</span>
+                        </button>
+                    </div>
                 </div>
                 <div id="pnlLoadingDirs" class="p-3">
                     <div>Loading directories...</div>
-                    <img src="~/lib/roxyfm/images/loading.gif" title="Loading directory tree, please wait..." />
+                    <img src="~/lib/fileman/images/loading.gif" title="Loading directory tree, please wait..." />
                 </div>
                 <div class="scrollPane">
                     <ul id="pnlDirList" class="mt-2 clearfix"></ul>
@@ -128,7 +129,7 @@
         </tr>
         <tr>
             <td class="bottomLine">
-                &nbsp;&nbsp;&nbsp;<a href="http://www.roxyfileman.com" target="_blank">&copy; 2013 - <span id="copyYear"></span> RoxyFileman</a>
+                <span class="px-2">Fileman</span>
             </td>
             <td class="bottomLine">
                 <div id="pnlStatus">Status bar</div>
@@ -137,19 +138,32 @@
     </table>
     <!-- Forms and other components -->
     <iframe name="frmUploadFile" width="0" height="0" style="display:none;border:0;"></iframe>
-    <div id="dlgAddFile">
-        <form name="addfile" id="frmUpload" method="post" target="frmUploadFile" enctype="multipart/form-data">
-            @Html.AntiForgeryToken()
-            <input type="hidden" name="d" id="hdDir" />
-            <div class="form">
-                <br />
-                <input class="mb-2" type="file" name="files[]" id="fileUploads" onchange="listUploadFiles(this.files)" multiple="multiple" />
-                <div id="uploadResult"></div>
-                <div class="uploadFilesList">
-                    <div id="uploadFilesList"></div>
+    <div id="dlgAddFile" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="dlgAddFileTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="dlgAddFileTitle"></h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="@T("Common.Close")">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
                 </div>
+                <div class="modal-body">
+                    <form name="addfile" id="frmUpload" method="post" target="frmUploadFile" enctype="multipart/form-data">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="d" id="hdDir" />
+                        <div class="form">
+                            <br />
+                            <input class="mb-2" type="file" name="files[]" id="fileUploads" onchange="listUploadFiles(this.files)" multiple="multiple" />
+                            <div id="uploadResult"></div>
+                            <div class="uploadFilesList">
+                                <div id="uploadFilesList"></div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer"></div>
             </div>
-        </form>
+        </div>
     </div>
     <div id="menuFile" class="dropdown-menu">
         <a href="#" class="dropdown-item" onclick="setFile()" data-lang="SelectFile" id="mnuSelectFile">
@@ -219,18 +233,42 @@
             <span>Delete</span>
         </a>
     </div>
-    <div id="pnlRenameFile" class="dialog">
-        <span class="name"></span><br>
-        <input type="text" id="txtFileName" class="form-control">
+    <div id="pnlRenameFile" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="pnlRenameFileTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="pnlRenameFileTitle"></h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="@T("Common.Close")">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <input type="text" id="txtFileName" class="form-control">
+                </div>
+                <div class="modal-footer"></div>
+            </div>
+        </div>
     </div>
-    <div id="pnlDirName" class="dialog">
-        <span class="name"></span><br>
-        <input type="text" id="txtDirName" class="form-control">
+    <div id="pnlDirName" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="pnlDirNameTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="pnlDirNameTitle"></h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="@T("Common.Close")">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <input type="text" id="txtDirName" class="form-control">
+                </div>
+                <div class="modal-footer"></div>
+            </div>
+        </div>
     </div>
-
     <zone name="scripts">
-        <script src="~/bundle/js/roxyfm.js"></script>
-        <script src="~/lib/roxyfm/lang/{lang}.js" charset="utf-8" sm-locale-for="WorkContext.WorkingLanguage"></script>
+        <script src="~/bundle/js/jquery.js"></script>
+        <script src="~/bundle/js/fileman.js"></script>
+        <script src="~/lib/fileman/lang/{lang}.js" charset="utf-8" sm-locale-for="WorkContext.WorkingLanguage"></script>
     </zone>
 
 </body>

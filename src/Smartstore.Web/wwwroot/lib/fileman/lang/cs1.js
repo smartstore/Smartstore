@@ -1,4 +1,4 @@
-RoxyLang = {
+FilemanLang = {
 "CreateDir":"Vytvořit",
 "RenameDir":"Přejmenovat",
 "DeleteDir":"Smazat",

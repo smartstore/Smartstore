@@ -57,10 +57,10 @@ $(function () {
 
 function Directory(fullPath, numDirs, numFiles, name) {
 	this.fullPath = fullPath || '';
-	this.name = name || RoxyUtils.GetFilename(fullPath);
+	this.name = name || FilemanUtils.GetFilename(fullPath);
 	if (!this.name)
 		this.name = 'My files';
-	this.path = RoxyUtils.GetPath(fullPath);
+	this.path = FilemanUtils.GetPath(fullPath);
 	this.dirs = numDirs || 0;
 	this.files = numFiles || 0;
 	this.filesList = [];
@@ -82,28 +82,14 @@ function Directory(fullPath, numDirs, numFiles, name) {
 		}
 	};
 	this.SetEvents = function () {
-		var el = this.GetElement();
-		el.draggable({
-			helper: makeDragDir,
-			start: startDragDir,
-			cursorAt: {
-				left: 10,
-				top: 10
-			},
-			delay: 200
-		});
-		el.find('> .dir-item').droppable({
-			drop: moveObject,
-			over: dragFileOver,
-			out: dragFileOut
-		});
+		this.GetElement().find('> .dir-item').attr('draggable', 'true');
 	};
 	this.GetHtml = function () {
 		var dirClass = (this.dirs > 0 ? "" : " invisible");
 
 		var html = '<li data-path="' + this.fullPath + '" data-name="' + this.name + '" data-dirs="' + this.dirs + '" data-files="' + this.files + '" class="directory">';
 		html += '<div class="d-flex flex-row flex-nowrap align-items-center dir-item"><sm-icon name="chevron-right" area="admin" class="dirPlus' + dirClass + '"></sm-icon>';
-		html += '<img src="' + RoxyUtils.GetAssetPath("images/folder.png") + '" class="dir mr-1"><span class="name">' + this.name + (parseInt(this.files) ? ' (' + this.files + ')' : '') + '</span></div>';
+		html += '<img src="' + FilemanUtils.GetAssetPath("images/folder.png") + '" class="dir mr-1"><span class="name">' + this.name + (parseInt(this.files) ? ' (' + this.files + ')' : '') + '</span></div>';
 		html += '</li>';
 		
 		return html;
@@ -201,10 +187,10 @@ function Directory(fullPath, numDirs, numFiles, name) {
 		var el = this.GetElement();
 		if (newPath) {
 			this.fullPath = newPath;
-			this.name = RoxyUtils.GetFilename(newPath);
+			this.name = FilemanUtils.GetFilename(newPath);
 			if (!this.name)
 				this.name = 'My files';
-			this.path = RoxyUtils.GetPath(newPath);
+			this.path = FilemanUtils.GetPath(newPath);
 		}
 
 		el.attr('data-path', this.fullPath);
@@ -216,14 +202,14 @@ function Directory(fullPath, numDirs, numFiles, name) {
 	};
 	this.LoadAll = function (selectedDir) {
 		var expanded = this.GetExpanded();
-		var dirListURL = RoxyUtils.GetRootPath(RoxyFilemanConf.DIRLIST);
+		var dirListURL = FilemanUtils.GetRootPath(FilemanConfig.DIRLIST);
 		if (!dirListURL) {
 			alert(t('E_ActionDisabled'));
 			return;
 		}
 		$('#pnlLoadingDirs').show();
 		$('#pnlDirList').hide();
-		dirListURL = RoxyUtils.AddParam(dirListURL, 'type', RoxyUtils.GetUrlParam('type'));
+		dirListURL = FilemanUtils.AddParam(dirListURL, 'type', FilemanUtils.GetUrlParam('type'));
 
 		var dir = this;
 		$.ajax({
@@ -248,7 +234,7 @@ function Directory(fullPath, numDirs, numFiles, name) {
 			error: function (data) {
 				$('#pnlLoadingDirs').hide();
 				$('#pnlDirList').show();
-				alert(t('E_LoadingAjax') + ' ' + RoxyFilemanConf.DIRLIST);
+				alert(t('E_LoadingAjax') + ' ' + FilemanConfig.DIRLIST);
 			}
 		});
 	};
@@ -265,12 +251,12 @@ function Directory(fullPath, numDirs, numFiles, name) {
 	this.Create = function (newName, fn) {
 		if (!newName)
 			return false;
-		else if (!RoxyFilemanConf.CREATEDIR) {
+		else if (!FilemanConfig.CREATEDIR) {
 			alert(t('E_ActionDisabled'));
 			return;
 		}
-		var url = RoxyUtils.AddParam(RoxyUtils.GetRootPath(RoxyFilemanConf.CREATEDIR), 'd', this.fullPath);
-		url = RoxyUtils.AddParam(url, 'n', newName);
+		var url = FilemanUtils.AddParam(FilemanUtils.GetRootPath(FilemanConfig.CREATEDIR), 'd', this.fullPath);
+		url = FilemanUtils.AddParam(url, 'n', newName);
 		var item = this;
 		var ret = false;
 		$.ajax({
@@ -284,7 +270,7 @@ function Directory(fullPath, numDirs, numFiles, name) {
 			cache: false,
 			success: function (data) {
 				if (data.res.toLowerCase() === 'ok') {
-					item.LoadAll(RoxyUtils.MakePath(item.fullPath, newName));
+					item.LoadAll(FilemanUtils.MakePath(item.fullPath, newName));
 					fn?.apply(this);
 					ret = true;
 				} else {
@@ -298,11 +284,11 @@ function Directory(fullPath, numDirs, numFiles, name) {
 		return ret;
 	};
 	this.Delete = function (fn) {
-		if (!RoxyFilemanConf.DELETEDIR) {
+		if (!FilemanConfig.DELETEDIR) {
 			alert(t('E_ActionDisabled'));
 			return;
 		}
-		var url = RoxyUtils.AddParam(RoxyUtils.GetRootPath(RoxyFilemanConf.DELETEDIR), 'd', this.fullPath);
+		var url = FilemanUtils.AddParam(FilemanUtils.GetRootPath(FilemanConfig.DELETEDIR), 'd', this.fullPath);
 		var item = this;
 		var ret = false;
 		$.ajax({
@@ -335,12 +321,12 @@ function Directory(fullPath, numDirs, numFiles, name) {
 	this.Rename = function (newName, fn) {
 		if (!newName)
 			return false;
-		else if (!RoxyFilemanConf.RENAMEDIR) {
+		else if (!FilemanConfig.RENAMEDIR) {
 			alert(t('E_ActionDisabled'));
 			return;
 		}
-		var url = RoxyUtils.AddParam(RoxyUtils.GetRootPath(RoxyFilemanConf.RENAMEDIR), 'd', this.fullPath);
-		url = RoxyUtils.AddParam(url, 'n', newName);
+		var url = FilemanUtils.AddParam(FilemanUtils.GetRootPath(FilemanConfig.RENAMEDIR), 'd', this.fullPath);
+		url = FilemanUtils.AddParam(url, 'n', newName);
 		var item = this;
 		var ret = false;
 		$.ajax({
@@ -354,7 +340,7 @@ function Directory(fullPath, numDirs, numFiles, name) {
 			cache: false,
 			success: function (data) {
 				if (data.res.toLowerCase() === 'ok') {
-					var newPath = RoxyUtils.MakePath(item.path, newName);
+					var newPath = FilemanUtils.MakePath(item.path, newName);
 					item.Update(newPath);
 					item.Select();
 					ret = true;
@@ -371,12 +357,12 @@ function Directory(fullPath, numDirs, numFiles, name) {
 		return ret;
 	};
 	this.Copy = function (newPath, fn) {
-		if (!RoxyFilemanConf.COPYDIR) {
+		if (!FilemanConfig.COPYDIR) {
 			alert(t('E_ActionDisabled'));
 			return;
 		}
-		var url = RoxyUtils.AddParam(RoxyUtils.GetRootPath(RoxyFilemanConf.COPYDIR), 'd', this.fullPath);
-		url = RoxyUtils.AddParam(url, 'n', newPath);
+		var url = FilemanUtils.AddParam(FilemanUtils.GetRootPath(FilemanConfig.COPYDIR), 'd', this.fullPath);
+		url = FilemanUtils.AddParam(url, 'n', newPath);
 		var item = this;
 		var ret = false;
 		$.ajax({
@@ -409,12 +395,12 @@ function Directory(fullPath, numDirs, numFiles, name) {
 	this.Move = function (newPath, fn) {
 		if (!newPath)
 			return false;
-		else if (!RoxyFilemanConf.MOVEDIR) {
+		else if (!FilemanConfig.MOVEDIR) {
 			alert(t('E_ActionDisabled'));
 			return;
 		}
-		var url = RoxyUtils.AddParam(RoxyUtils.GetRootPath(RoxyFilemanConf.MOVEDIR), 'd', this.fullPath);
-		url = RoxyUtils.AddParam(url, 'n', newPath);
+		var url = FilemanUtils.AddParam(FilemanUtils.GetRootPath(FilemanConfig.MOVEDIR), 'd', this.fullPath);
+		url = FilemanUtils.AddParam(url, 'n', newPath);
 		var item = this;
 		var ret = false;
 		$.ajax({
@@ -428,7 +414,7 @@ function Directory(fullPath, numDirs, numFiles, name) {
 			cache: false,
 			success: function (data) {
 				if (data.res.toLowerCase() === 'ok') {
-					item.LoadAll(RoxyUtils.MakePath(newPath, item.name));
+					item.LoadAll(FilemanUtils.MakePath(newPath, item.name));
 					fn?.apply(this);
 					ret = true;
 				}
@@ -459,18 +445,11 @@ function Directory(fullPath, numDirs, numFiles, name) {
 		}
 
 		// Set Html
+		FilemanUI.disposePreviews();
 		list.html(html.join(""));
+		list.find('.file-item').attr('draggable', 'true');
 
-		// Bind events
-		list.find('.file-item').tooltip({
-			show: {
-				delay: 700,
-				duration: 100
-			},
-			hide: 200,
-			track: true,
-			content: tooltipContent
-		});
+		FilemanUI.bindPreviews();
 
 		$('#hdDir').val(this.fullPath);
 		$('#pnlLoading').hide();
@@ -486,14 +465,14 @@ function Directory(fullPath, numDirs, numFiles, name) {
 		this.SetSelectedFile(selectedFile);
 	};
 	this.LoadFiles = function (refresh, selectedFile) {
-		if (!RoxyFilemanConf.FILESLIST) {
+		if (!FilemanConfig.FILESLIST) {
 			alert(t('E_ActionDisabled'));
 			return;
 		}
 		var ret = new Array();
-		var fileURL = RoxyUtils.GetRootPath(RoxyFilemanConf.FILESLIST);
-		fileURL = RoxyUtils.AddParam(fileURL, 'd', this.fullPath);
-		fileURL = RoxyUtils.AddParam(fileURL, 'type', RoxyUtils.GetUrlParam('type'));
+		var fileURL = FilemanUtils.GetRootPath(FilemanConfig.FILESLIST);
+		fileURL = FilemanUtils.AddParam(fileURL, 'd', this.fullPath);
+		fileURL = FilemanUtils.AddParam(fileURL, 'type', FilemanUtils.GetUrlParam('type'));
 		var item = this;
 		if (!this.IsListed() || refresh) {
 			$.ajax({
@@ -501,7 +480,7 @@ function Directory(fullPath, numDirs, numFiles, name) {
 				type: 'POST',
 				data: {
 					d: this.fullPath,
-					type: RoxyUtils.GetUrlParam('type')
+					type: FilemanUtils.GetUrlParam('type')
 				},
 				dataType: 'json',
 				async: true,

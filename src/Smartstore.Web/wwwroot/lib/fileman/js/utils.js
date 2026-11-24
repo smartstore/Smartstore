@@ -24,7 +24,7 @@ FileTypes['image'] = new Array('jpg', 'jpeg', 'png', 'gif');
 FileTypes['media'] = new Array('avi', 'flv', 'swf', 'wmv', 'mp3', 'wma', 'mpg', 'mpeg');
 FileTypes['document'] = new Array('doc', 'docx', 'txt', 'rtf', 'pdf', 'xls', 'mdb', 'html', 'htm', 'db');
 
-RoxyLang = {
+FilemanLang = {
 	"CreateDir": "Create",
 	"RenameDir": "Rename",
 	"DeleteDir": "Delete",
@@ -106,7 +106,7 @@ RoxyLang = {
 	"E_UploadingFile": "error"
 };
 
-var RoxyIconHints = {
+var FilemanIconHints = {
 	"pdf": { name: "file-pdf", color: "#F44336" },
 	"word": { name: "file-word", color: "#2B579A" },
 	"document": { name: "file-text", color: "#2B579A" },
@@ -126,16 +126,16 @@ var RoxyIconHints = {
 	"misc": { name: "file", color: "#bbb" }
 };
 
-function RoxyUtils() { }
-RoxyUtils.GetRootPath = function (path) {
-	return roxy_root + (path || "");
+function FilemanUtils() { }
+FilemanUtils.GetRootPath = function (path) {
+	return fileman_root + (path || "");
 };
 
-RoxyUtils.GetAssetPath = function (path) {
-	return roxy_assets_root + path;
+FilemanUtils.GetAssetPath = function (path) {
+	return fileman_assets_root + path;
 };
 
-RoxyUtils.FixPath = function (path) {
+FilemanUtils.FixPath = function (path) {
 	if (!path)
 		return '';
 	var ret = path.replace(/\\/g, '');
@@ -145,10 +145,10 @@ RoxyUtils.FixPath = function (path) {
 	return ret;
 };
 
-RoxyUtils.FormatDate = function (date) {
+FilemanUtils.FormatDate = function (date) {
 	var ret = '';
 	try {
-		ret = $.format.date(date, RoxyFilemanConf.DATEFORMAT);
+		ret = $.format.date(date, FilemanConfig.DATEFORMAT);
 	} catch (ex) {
 		//alert(ex);
 		ret = date.toString();
@@ -157,16 +157,16 @@ RoxyUtils.FormatDate = function (date) {
 	return ret;
 };
 
-RoxyUtils.GetPath = function (path) {
+FilemanUtils.GetPath = function (path) {
 	var ret = '';
-	path = RoxyUtils.FixPath(path);
+	path = FilemanUtils.FixPath(path);
 	if (path.indexOf('/') > -1)
 		ret = path.substring(0, path.lastIndexOf('/'));
 
 	return ret;
 };
 
-RoxyUtils.GetUrlParam = function (varName, url) {
+FilemanUtils.GetUrlParam = function (varName, url) {
 	var ret = '';
 	if (!url)
 		url = self.location.href;
@@ -185,9 +185,9 @@ RoxyUtils.GetUrlParam = function (varName, url) {
 	return ret;
 };
 
-RoxyUtils.GetFilename = function (path) {
+FilemanUtils.GetFilename = function (path) {
 	var ret = path;
-	path = RoxyUtils.FixPath(path);
+	path = FilemanUtils.FixPath(path);
 	if (path.indexOf('/') > -1) {
 		ret = path.substring(path.lastIndexOf('/') + 1);
 	}
@@ -195,7 +195,7 @@ RoxyUtils.GetFilename = function (path) {
 	return ret;
 };
 
-RoxyUtils.MakePath = function () {
+FilemanUtils.MakePath = function () {
 	ret = '';
 	if (arguments && arguments.length > 0) {
 		for (var i = 0; i < arguments.length; i++) {
@@ -203,15 +203,15 @@ RoxyUtils.MakePath = function () {
 			if (i < (arguments.length - 1))
 				ret += '/';
 		}
-		ret = RoxyUtils.FixPath(ret);
+		ret = FilemanUtils.FixPath(ret);
 	}
 
 	return ret;
 };
 
-RoxyUtils.GetFileExt = function (path) {
+FilemanUtils.GetFileExt = function (path) {
 	var ret = '';
-	path = RoxyUtils.GetFilename(path);
+	path = FilemanUtils.GetFilename(path);
 	if (path.indexOf('.') > -1) {
 		ret = path.substring(path.lastIndexOf('.') + 1);
 	}
@@ -219,7 +219,7 @@ RoxyUtils.GetFileExt = function (path) {
 	return ret;
 };
 
-RoxyUtils.FileExists = function (path) {
+FilemanUtils.FileExists = function (path) {
 	var ret = false;
 
 	$.ajax({
@@ -235,16 +235,16 @@ RoxyUtils.FileExists = function (path) {
 	return ret;
 };
 
-RoxyUtils.GetFileIcon = function (path) {
-	ret = 'images/filetypes/unknown.png'; //'images/filetypes/file_extension_' + RoxyUtils.GetFileExt(path).toLowerCase() + '.png';
-	if (fileTypeIcons[RoxyUtils.GetFileExt(path).toLowerCase()]) {
-		ret = 'images/filetypes/' + fileTypeIcons[RoxyUtils.GetFileExt(path).toLowerCase()];
+FilemanUtils.GetFileIcon = function (path) {
+	ret = 'images/filetypes/unknown.png'; //'images/filetypes/file_extension_' + FilemanUtils.GetFileExt(path).toLowerCase() + '.png';
+	if (fileTypeIcons[FilemanUtils.GetFileExt(path).toLowerCase()]) {
+		ret = 'images/filetypes/' + fileTypeIcons[FilemanUtils.GetFileExt(path).toLowerCase()];
 	}
 
-	return RoxyUtils.GetAssetPath(ret);
+	return FilemanUtils.GetAssetPath(ret);
 };
 
-RoxyUtils.GetFileSize = function (path) {
+FilemanUtils.GetFileSize = function (path) {
 	var ret = 0;
 	$.ajax({
 		url: path,
@@ -260,8 +260,8 @@ RoxyUtils.GetFileSize = function (path) {
 	return ret;
 };
 
-RoxyUtils.GetFileType = function (path, mime) {
-	var ext = RoxyUtils.GetFileExt(path).toLowerCase();
+FilemanUtils.GetFileType = function (path, mime) {
+	var ext = FilemanUtils.GetFileExt(path).toLowerCase();
 	var ret;
 
 	switch (ext) {
@@ -366,7 +366,7 @@ RoxyUtils.GetFileType = function (path, mime) {
 
 	if (mime && ret === "misc") {
 		mime = mime.substring(0, mime.indexOf("/"));
-		if (RoxyIconHints[mime]) {
+		if (FilemanIconHints[mime]) {
 			ret = mime;
 		}
 	}
@@ -374,11 +374,11 @@ RoxyUtils.GetFileType = function (path, mime) {
 	return ret;
 };
 
-RoxyUtils.IsImage = function (path) {
-	return RoxyUtils.GetFileType(path) === 'image';
+FilemanUtils.IsImage = function (path) {
+	return FilemanUtils.GetFileType(path) === 'image';
 };
 
-RoxyUtils.FormatFileSize = function (x) {
+FilemanUtils.FormatFileSize = function (x) {
 	var suffix = 'B';
 	if (!x)
 		x = 0;
@@ -394,13 +394,13 @@ RoxyUtils.FormatFileSize = function (x) {
 	return x.toFixed(2) + ' ' + suffix;
 };
 
-RoxyUtils.AddParam = function (url, n, v) {
+FilemanUtils.AddParam = function (url, n, v) {
 	url += (url.indexOf('?') > -1 ? '&' : '?') + n + '=' + encodeURIComponent(v);
 
 	return url;
 };
 
-RoxyUtils.SelectText = function (field_id, start, end) {
+FilemanUtils.SelectText = function (field_id, start, end) {
 	try {
 		var field = document.getElementById(field_id);
 		if (field.createTextRange) {
@@ -419,13 +419,13 @@ RoxyUtils.SelectText = function (field_id, start, end) {
 	} catch (ex) { /**/ }
 };
 
-RoxyFilemanConf = {};
-RoxyUtils.LoadConfig = function (fn) {
+FilemanConfig = {};
+FilemanUtils.LoadConfig = function (fn) {
 	$.ajax({
-		url: RoxyUtils.GetAssetPath('conf.json'),
+		url: FilemanUtils.GetAssetPath('conf.json'),
 		dataType: 'json',
 		success: function (data) {
-			RoxyFilemanConf = data;
+			FilemanConfig = data;
 			fn();
 		},
 		error: function (data) {
@@ -434,7 +434,7 @@ RoxyUtils.LoadConfig = function (fn) {
 	});
 };
 
-RoxyUtils.Translate = function () {
+FilemanUtils.Translate = function () {
 	$('[data-lang-t]').each(function () {
 		var key = $(this).attr('data-lang-t');
 		$(this).prop('title', t(key));
@@ -461,7 +461,7 @@ RoxyUtils.Translate = function () {
 	});
 };
 
-RoxyUtils.GetCookies = function () {
+FilemanUtils.GetCookies = function () {
 	var ret = new Object();
 	var tmp = document.cookie.replace(' ', '');
 	tmp = tmp.split(';');
@@ -476,13 +476,13 @@ RoxyUtils.GetCookies = function () {
 	return ret;
 };
 
-RoxyUtils.GetCookie = function (key) {
-	var tmp = RoxyUtils.GetCookies();
+FilemanUtils.GetCookie = function (key) {
+	var tmp = FilemanUtils.GetCookies();
 
 	return tmp[key] || '';
 };
 
-RoxyUtils.SetCookie = function (key, val, hours, path) {
+FilemanUtils.SetCookie = function (key, val, hours, path) {
 	var expires = new Date();
 	if (hours) {
 		expires.setTime(expires.getTime() + (hours * 3600 * 1000));
@@ -495,7 +495,7 @@ RoxyUtils.SetCookie = function (key, val, hours, path) {
 	document.cookie = key + '=' + encodeURIComponent(val) + '; path=' + path + (hours ? '; expires=' + expires.toGMTString() : '');
 };
 
-RoxyUtils.ToBool = function (val) {
+FilemanUtils.ToBool = function (val) {
 	var ret = false;
 	val = val.toString().toLowerCase();
 	if (val === 'true' || val === 'on' || val === 'yes' || val === '1')
@@ -504,13 +504,13 @@ RoxyUtils.ToBool = function (val) {
 	return ret;
 };
 
-RoxyUtils.UnsetCookie = function (key) {
+FilemanUtils.UnsetCookie = function (key) {
 	document.cookie = key + "=; expires=Thu, 01 Jan 1972 00:00:00 UTC";
 };
 
 function t(tag) {
 	var ret = tag;
-	if (RoxyLang && RoxyLang[tag])
-		ret = RoxyLang[tag];
+	if (FilemanLang && FilemanLang[tag])
+		ret = FilemanLang[tag];
 	return ret;
 }
