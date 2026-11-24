@@ -155,6 +155,10 @@ public partial interface IOrderProcessingService
     /// </summary>
     /// <param name="data">Data required for order recovery.</param>
     /// <returns>Order placement result.</returns>
+    /// <remarks>
+    /// If necessary, the caller should check before calling this method to see if the order has since been 
+    /// created through the regular checkout process.
+    /// </remarks>
     Task<OrderPlacementResult> RecoverOrderAsync(OrderRecoveryData data, CancellationToken cancelToken = default);
 
     /// <summary>
