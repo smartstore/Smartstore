@@ -1,23 +1,8 @@
 /*
-  RoxyFileman - web based file manager. Ready to use with CKEditor, TinyMCE. 
+  Fileman - web based file manager. Ready to use with CKEditor, TinyMCE.
   Can be easily integrated with any other WYSIWYG editor or CMS.
 
-  Copyright (C) 2013, RoxyFileman.com - Lyubomir Arsov. All rights reserved.
-  For licensing, see LICENSE.txt or http://RoxyFileman.com/license
-
-  This program is free software: you can redistribute it and/or modify
-  it under the terms of the GNU General Public License as published by
-  the Free Software Foundation, either version 3 of the License.
-
-  This program is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  GNU General Public License for more details.
-
-  You should have received a copy of the GNU General Public License
-  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-  Contact: Lyubomir Arsov, liubo (at) web-lobby.com
+  Copyright (C) 2013, Lyubomir Arsov. All rights reserved.
 */
 $.ajaxSetup({
 	cache: false
@@ -33,20 +18,20 @@ $.ajaxPrefilter(function (options, originalOptions, xhr) {
 function selectFile(item) {
 	$('#pnlFileList li').removeClass('selected');
 	$(item).addClass('selected');
-	var html = FilemanUtils.GetFilename($(item).attr('data-path'));
+	var html = $('<span class="fwm"></span>').text(FilemanUtils.GetDisplayName($(item).attr('data-path'))).prop('outerHTML');
 	html += ' (' + t('Size') + ': ' + FilemanUtils.FormatFileSize($(item).attr('data-size'));
 	if ($(item).attr('data-w') > 0)
-		html += ', ' + t('Dimensions') + ':' + $(item).attr('data-w') + 'x' + $(item).attr('data-h');
+		html += ', ' + t('Dimensions') + ': ' + $(item).attr('data-w') + 'x' + $(item).attr('data-h');
 	html += ')';
 	$('#pnlStatus').html(html);
 }
 
 function getLastDir() {
-	return FilemanUtils.GetCookie('roxyld');
+	return FilemanUtils.GetCookie('filemanLastDirectory');
 }
 
 function setLastDir(path) {
-	FilemanUtils.SetCookie('roxyld', path, 10);
+	FilemanUtils.SetCookie('filemanLastDirectory', path, 10);
 }
 
 function selectDir(item, indeterm) {
@@ -95,7 +80,7 @@ function showUploadList(files) {
 			'<span class="progressPercent"></span>',
 			'<div class="uploadProgress"><div class="stripes"></div></div>',
 			'</div>',
-			'<a class="removeUpload" onclick="removeUpload(' + i + ')"></a>',
+			'<button type="button" class="removeUpload btn btn-link p-0" title="' + t('DeleteFile') + '" onclick="removeUpload(' + i + ')"><sm-icon name="close" area="admin"></sm-icon></button>',
 			'</div>'
 		].join('');
 		filesPane.append(html);
@@ -478,7 +463,7 @@ function tooltipContent() {
 		}
 		$('<div class="text-center mb-2">').append($('<img class="imgPreview" alt="">').attr('src', url)).appendTo(content);
 	}
-	$('<div>').text(image && !thumbnailView ? f.name : f.fullPath).appendTo(content);
+	$('<div>').text(f.displayName).appendTo(content);
 	var details = t('Size') + ': ' + FilemanUtils.FormatFileSize(f.size);
 	if (image) details += ' ' + t('Dimensions') + ': ' + f.width + 'x' + f.height;
 	$('<span class="filesize">').text(details).appendTo(content);
@@ -556,7 +541,7 @@ function switchView(t) {
 	}
 	$('#hdViewType').val(t);
 	FilemanUI.bindPreviews();
-	FilemanUtils.SetCookie('roxyview', t, 10);
+	FilemanUtils.SetCookie('filemanView', t, 10);
 }
 var clipBoard = null;
 
@@ -810,7 +795,7 @@ $(function () {
 			closeMenus();
 		});
 
-		var viewType = FilemanUtils.GetCookie('roxyview');
+		var viewType = FilemanUtils.GetCookie('filemanView');
 		if (!viewType)
 			viewType = FilemanConfig.DEFAULTVIEW;
 		if (viewType)

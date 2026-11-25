@@ -12,13 +12,13 @@ using Smartstore.Json;
 
 namespace Smartstore.Admin.Controllers;
 
-public class RoxyFileManagerController : AdminController
+public class FileBrowserController : AdminController
 {
     private const string ConfigFilePath = "~/lib/fileman/conf.json";
 
     private string _fileRoot = null;
     private Dictionary<string, string> _lang = null;
-    private Dictionary<string, string> _roxySettings = null;
+    private Dictionary<string, string> _fileBrowserSettings = null;
 
     private readonly IApplicationContext _appContext;
     private readonly IFileSystem _webRoot;
@@ -29,7 +29,7 @@ public class RoxyFileManagerController : AdminController
 
     private readonly AlbumInfo _album;
 
-    public RoxyFileManagerController(
+    public FileBrowserController(
         IApplicationContext appContext,
         IMediaService mediaService,
         IFolderService folderService,
@@ -206,7 +206,7 @@ public class RoxyFileManagerController : AdminController
             rootName = T(fi.Node.Value.ResKey);
         }
 
-        folders.Insert(0, new RoxyFolder
+        folders.Insert(0, new FileBrowserFolder
         {
             Folder = root,
             DisplayName = rootName,
@@ -230,15 +230,15 @@ public class RoxyFileManagerController : AdminController
         return Json(result);
     }
 
-    private async Task<List<RoxyFolder>> ListDirsAsync(string path)
+    private async Task<List<FileBrowserFolder>> ListDirsAsync(string path)
     {
-        var result = new List<RoxyFolder>();
+        var result = new List<FileBrowserFolder>();
 
         await foreach (var dir in _fileSystem.EnumerateDirectoriesAsync(path))
         {
             var subDirs = await ListDirsAsync(dir.SubPath);
 
-            result.Add(new RoxyFolder
+            result.Add(new FileBrowserFolder
             {
                 Folder = dir,
                 SubFolders = subDirs.Count
@@ -567,12 +567,12 @@ public class RoxyFileManagerController : AdminController
 
     private string GetSetting(string name)
     {
-        if (_roxySettings == null)
+        if (_fileBrowserSettings == null)
         {
-            _roxySettings = ParseJson(ConfigFilePath);
+            _fileBrowserSettings = ParseJson(ConfigFilePath);
         }
 
-        if (_roxySettings.TryGetValue(name, out var result))
+        if (_fileBrowserSettings.TryGetValue(name, out var result))
         {
             return result;
         }
@@ -615,7 +615,7 @@ public class RoxyFileManagerController : AdminController
         return (file as MediaFileInfo)?.MimeType ?? MimeTypes.MapNameToMimeType(file.Name);
     }
 
-    internal class RoxyFolder
+    internal class FileBrowserFolder
     {
         public IDirectory Folder { get; set; }
         public string DisplayName { get; set; }

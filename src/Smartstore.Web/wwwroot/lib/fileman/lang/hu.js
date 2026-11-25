@@ -1,4 +1,4 @@
-RoxyLang = {
+FilemanLang = {
 "CreateDir":"Uj mappa",
 "RenameDir":"Atnevezes",
 "DeleteDir":"Torles",

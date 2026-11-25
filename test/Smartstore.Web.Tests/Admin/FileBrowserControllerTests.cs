@@ -19,7 +19,7 @@ using Smartstore.Admin.Controllers;
 namespace Smartstore.Web.Tests.Admin;
 
 [TestFixture]
-public class RoxyFileManagerControllerTests
+public class FileBrowserControllerTests
 {
     [TestCase("COPYDIR")]
     [TestCase("COPYFILE")]
@@ -36,7 +36,7 @@ public class RoxyFileManagerControllerTests
     public async Task Get_cannot_reach_mutating_operations(string action)
     {
         // No media services are supplied: rejection must happen before accessing them.
-        var controller = (RoxyFileManagerController)RuntimeHelpers.GetUninitializedObject(typeof(RoxyFileManagerController));
+        var controller = (FileBrowserController)RuntimeHelpers.GetUninitializedObject(typeof(FileBrowserController));
         controller.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
         controller.Request.Method = "GET";
 
@@ -50,11 +50,11 @@ public class RoxyFileManagerControllerTests
     [Test]
     public void Endpoint_retains_get_and_post_and_inherits_antiforgery_validation()
     {
-        var method = typeof(RoxyFileManagerController).GetMethod(nameof(RoxyFileManagerController.ProcessRequest));
+        var method = typeof(FileBrowserController).GetMethod(nameof(FileBrowserController.ProcessRequest));
         Assert.That(method.GetCustomAttribute<IgnoreAntiforgeryTokenAttribute>(), Is.Null);
-        Assert.That(typeof(RoxyFileManagerController).GetCustomAttribute<IgnoreAntiforgeryTokenAttribute>(true), Is.Null);
+        Assert.That(typeof(FileBrowserController).GetCustomAttribute<IgnoreAntiforgeryTokenAttribute>(true), Is.Null);
         Assert.That(method.GetCustomAttribute<AcceptVerbsAttribute>().HttpMethods, Is.EquivalentTo(new[] { "GET", "POST" }));
-        Assert.That(typeof(RoxyFileManagerController).GetCustomAttribute<AutoValidateAntiforgeryTokenAttribute>(true), Is.Not.Null);
+        Assert.That(typeof(FileBrowserController).GetCustomAttribute<AutoValidateAntiforgeryTokenAttribute>(true), Is.Not.Null);
     }
 
     [TestCase("GET", "none", true)]
@@ -91,7 +91,7 @@ public class RoxyFileManagerControllerTests
             });
         }
 
-        var attribute = typeof(RoxyFileManagerController).GetCustomAttribute<AutoValidateAntiforgeryTokenAttribute>(true);
+        var attribute = typeof(FileBrowserController).GetCustomAttribute<AutoValidateAntiforgeryTokenAttribute>(true);
         var filter = attribute.CreateInstance(provider);
         var context = new AuthorizationFilterContext(
             new ActionContext(http, new RouteData(), new ActionDescriptor(), new ModelStateDictionary()),

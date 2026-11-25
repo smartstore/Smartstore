@@ -177,7 +177,6 @@ internal class AdminBundles : IBundleProvider
             lib + "popper/popper.js",
             lib + "bootstrap/js/bootstrap.js",
             fileman + "ui.js",
-            fileman + "filetypes.js",
             fileman + "custom.js",
             fileman + "utils.js",
             fileman + "main.js",

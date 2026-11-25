@@ -1,23 +1,8 @@
 /*
-  RoxyFileman - web based file manager. Ready to use with CKEditor, TinyMCE. 
+  Fileman - web based file manager. Ready to use with CKEditor, TinyMCE.
   Can be easily integrated with any other WYSIWYG editor or CMS.
 
-  Copyright (C) 2013, RoxyFileman.com - Lyubomir Arsov. All rights reserved.
-  For licensing, see LICENSE.txt or http://RoxyFileman.com/license
-
-  This program is free software: you can redistribute it and/or modify
-  it under the terms of the GNU General Public License as published by
-  the Free Software Foundation, either version 3 of the License.
-
-  This program is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  GNU General Public License for more details.
-
-  You should have received a copy of the GNU General Public License
-  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-  Contact: Lyubomir Arsov, liubo (at) web-lobby.com
+  Copyright (C) 2013, Lyubomir Arsov. All rights reserved.
 */
 
 $(function () {
@@ -64,6 +49,7 @@ function File(filePath, fileSize, modTime, w, h, mime) {
 	this.type = FilemanUtils.GetFileType(filePath, mime);
 	this.icon = FilemanIconHints[this.type];
 	this.name = FilemanUtils.GetFilename(filePath);
+	this.displayName = FilemanUtils.GetDisplayName(filePath);
 	this.ext = FilemanUtils.GetFileExt(filePath);
 	this.path = FilemanUtils.GetPath(filePath);
 	this.image = filePath;
@@ -71,7 +57,7 @@ function File(filePath, fileSize, modTime, w, h, mime) {
 	this.time = modTime;
 	this.width = w || 0;
 	this.height = h || 0;
-	this.thumb = this.type === 'image' ? filePath : FilemanUtils.GetAssetPath("images/blank.gif");
+	this.thumb = this.type === 'image' ? filePath : null;
 	this.GenerateHtml = function () {
 		var attrs = [
 			'data-mime="' + this.mime + '"',
@@ -79,19 +65,18 @@ function File(filePath, fileSize, modTime, w, h, mime) {
 			'data-time="' + this.time + '"',
 			'data-w="' + this.width + '"',
 			'data-h="' + this.height + '"',
-			'data-size="' + this.size + '"',
-			'title="' + this.name + '"'
+			'data-size="' + this.size + '"'
 		];
 		var html = [
 			'<li class="file-item' + (this.IsImage() ? ' file-image loaded' : '') + '" ' + attrs.join(' ') + '>',
-			'<div class="file-preview"><img class="thumb" src="' + this.thumb + '"><sm-icon area="admin" class="file-icon icon-fw" name="' + this.icon.name + '" style="color:' + this.icon.color + '"></sm-icon></div>',
+			'<div class="file-preview">' + (this.thumb ? '<img class="thumb" src="' + this.thumb + '">' : '') + '<sm-icon area="admin" class="file-icon icon-fw" name="' + this.icon.name + '" style="color:' + this.icon.color + '"></sm-icon></div>',
 			'<span class="time">' + FilemanUtils.FormatDate(new Date(this.time * 1000)) + '</span>',
-			'<span class="name">' + this.name + '</span>',
+			'<span class="name"></span>',
 			'<span class="size">' + FilemanUtils.FormatFileSize(this.size) + '</span>',
 			'</li>'
 		].join("");
 
-		return html;
+		return $(html).attr('title', this.displayName).find('.name').text(this.displayName).end().prop('outerHTML');
 	};
 	this.GetElement = function () {
 		return $('li[data-path="' + this.fullPath + '"]');

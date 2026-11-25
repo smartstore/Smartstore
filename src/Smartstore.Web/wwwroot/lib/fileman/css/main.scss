@@ -3,8 +3,7 @@
 @import '../../bootstrap/scss/_functions.scss';
 @import '../../bootstrap/scss/_variables.scss';
 
-$fi-selected-bg: $gray-400;
-$fi-selected-bg: $component-active-bg;
+$fi-selected-bg: var(--gray-200);
 
 body {
 	background-color: #fff;
@@ -76,6 +75,34 @@ ul {
 		opacity: 1;
 	}
 
+	&:not(.thumbView) {
+		.file-item {
+			display: flex;
+			align-items: center;
+		}
+
+		.file-preview {
+			display: flex;
+			align-items: center;
+			flex-shrink: 0;
+		}
+
+		.name {
+			order: 1;
+			flex-grow: 1;
+		}
+
+		.size {
+			order: 2;
+			flex-shrink: 0;
+		}
+
+		.time {
+			order: 3;
+			flex-shrink: 0;
+		}
+	}
+
 	&.thumbView {
 		padding: 3px;
 
@@ -90,10 +117,11 @@ ul {
 			text-align: center;
 			vertical-align: middle;
 			border: 1px solid transparent;
+			border-radius: var(--border-radius-md);
 			position: relative;
 
 			&:hover {
-				background-color: $gray-200;
+				background-color: var(--gray-150);
 			}
 
 			&:hover,
@@ -164,16 +192,6 @@ ul {
 	display: inline-block;
 }
 
-.pnlDragFile, 
-.pnlDragDir {
-	background: #fff;
-	opacity: 0.8;
-	float: left;
-	width: auto !important;
-	z-index: 999999;
-	position: absolute;
-}
-
 #pnlStatus {
 	padding: 5px;
 }
@@ -206,8 +224,8 @@ td.pnlDirs {
 }
 
 #pnlDirList {
-	//width: initial;
 	position: relative;
+	padding-inline: 6px;
 
 	.dir-item {
 		padding: 3px 0.4rem;
@@ -215,11 +233,13 @@ td.pnlDirs {
 		position: relative;
 		float: left;
 		min-width: 100%;
+		border-radius: var(--border-radius-md);
 
 		.dirPlus {
-			font-size: 10px;
-			width: 12px;
-			height: 10px;
+			font-size: 14px;
+			width: 16px;
+			height: 16px;
+			flex-shrink: 0;
 			margin-top: 1px;
 			margin-right: 8px;
 			text-align: center;
@@ -235,7 +255,7 @@ td.pnlDirs {
 		}
 
 		&:hover {
-			background-color: $gray-200;
+			background-color: var(--gray-150);
 		}
 
 		&.selected,
@@ -303,20 +323,13 @@ td.pnlDirs {
 	padding: 3px 0 10px 5px;
 	background-color: $gray-100;
 	border-bottom: 1px solid rgba(0,0,0, 0.1);
-
-	> .btn-group {
-		padding-right: 5px;
-		margin-right: 5px;
-		border-right: 1px solid rgba(0, 0, 0, 0.12);
-	}
-
-	> .btn-group:last-child {
-		padding-right: 0;
-		margin-right: 0;
-		border-right: none;
-	}
 }
 
+
+#txtSearch {
+	width: 16rem;
+	flex-shrink: 0;
+}
 
 #fileUploads {
 	width: 100%;
@@ -383,7 +396,8 @@ td.pnlDirs {
 }
 
 .stripes {
-	background: url('../images/stripes.gif') repeat-x;
+	background-image: linear-gradient(45deg, rgba($white, .5) 25%, transparent 25%, transparent 50%, rgba($white, .5) 50%, rgba($white, .5) 75%, transparent 75%, transparent);
+	background-size: 1rem 1rem;
 	opacity: 0.40;
 	width: 100%;
 	height: 100%;
@@ -417,7 +431,6 @@ td.pnlDirs {
 }
 
 .removeUpload {
-	background: url(../images/sprite.png) no-repeat 6px -421px;
 	position: absolute;
 	right: 0;
 	top: 0;

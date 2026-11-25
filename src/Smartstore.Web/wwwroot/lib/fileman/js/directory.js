@@ -1,23 +1,8 @@
 /*
-  RoxyFileman - web based file manager. Ready to use with CKEditor, TinyMCE. 
+  Fileman - web based file manager. Ready to use with CKEditor, TinyMCE.
   Can be easily integrated with any other WYSIWYG editor or CMS.
 
-  Copyright (C) 2013, RoxyFileman.com - Lyubomir Arsov. All rights reserved.
-  For licensing, see LICENSE.txt or http://RoxyFileman.com/license
-
-  This program is free software: you can redistribute it and/or modify
-  it under the terms of the GNU General Public License as published by
-  the Free Software Foundation, either version 3 of the License.
-
-  This program is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  GNU General Public License for more details.
-
-  You should have received a copy of the GNU General Public License
-  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-  Contact: Lyubomir Arsov, liubo (at) web-lobby.com
+  Copyright (C) 2013, Lyubomir Arsov. All rights reserved.
 */
 
 $(function () {
@@ -55,6 +40,8 @@ $(function () {
 	});
 });
 
+let fileListVersion = 0;
+
 function Directory(fullPath, numDirs, numFiles, name) {
 	this.fullPath = fullPath || '';
 	this.name = name || FilemanUtils.GetFilename(fullPath);
@@ -89,7 +76,7 @@ function Directory(fullPath, numDirs, numFiles, name) {
 
 		var html = '<li data-path="' + this.fullPath + '" data-name="' + this.name + '" data-dirs="' + this.dirs + '" data-files="' + this.files + '" class="directory">';
 		html += '<div class="d-flex flex-row flex-nowrap align-items-center dir-item"><sm-icon name="chevron-right" area="admin" class="dirPlus' + dirClass + '"></sm-icon>';
-		html += '<img src="' + FilemanUtils.GetAssetPath("images/folder.png") + '" class="dir mr-1"><span class="name">' + this.name + (parseInt(this.files) ? ' (' + this.files + ')' : '') + '</span></div>';
+		html += '<sm-icon name="folder" area="admin" class="dir mr-1"></sm-icon><span class="name">' + this.name + (parseInt(this.files) ? ' (' + this.files + ')' : '') + '</span></div>';
 		html += '</li>';
 		
 		return html;
@@ -176,6 +163,7 @@ function Directory(fullPath, numDirs, numFiles, name) {
 	this.SetOpened = function () {
 		var li = this.GetElement();
 		var chevrons = li.children('div').children('.dirPlus');
+		li.children('div').children('.dir').attr('name', this.IsExpanded() ? 'folder-open' : 'folder');
 		if (li.find('li').length < 1)
 			chevrons.addClass('invisible');
 		else if (this.IsExpanded())
@@ -432,24 +420,28 @@ function Directory(fullPath, numDirs, numFiles, name) {
 		$('#pnlEmptyDir').hide();
 		$('#pnlFileList').hide();
 		$('#pnlSearchNoFiles').hide();
-		this.LoadFiles(refresh, selectedFile);
+		this.LoadFiles(refresh, selectedFile, ++fileListVersion);
 	};
-	this.FilesLoaded = function (filesList, selectedFile) {
+	this.FilesLoaded = async function (filesList, selectedFile, version) {
+		if (version !== fileListVersion) return;
+
 		var list = $('#pnlFileList');
 		filesList = this.SortFiles(filesList);
-		
-		var html = [];
-		for (i = 0; i < filesList.length; i++) {
-			var f = filesList[i];
-			html.push(f.GenerateHtml());
-		}
-
-		// Set Html
 		FilemanUI.disposePreviews();
-		list.html(html.join(""));
-		list.find('.file-item').attr('draggable', 'true');
+		list.empty();
+		$('#hdDir').val('');
 
-		FilemanUI.bindPreviews();
+		// Yield between batches so painting and folder changes remain responsive.
+		for (let offset = 0; offset < filesList.length; offset += 50) {
+			await new Promise(resolve => setTimeout(resolve, 0));
+			if (version !== fileListVersion) return;
+
+			var html = [];
+			for (let i = offset; i < Math.min(offset + 50, filesList.length); i++) {
+				html.push(filesList[i].GenerateHtml());
+			}
+			$(html.join('')).attr('draggable', 'true').appendTo(list);
+		}
 
 		$('#hdDir').val(this.fullPath);
 		$('#pnlLoading').hide();
@@ -464,7 +456,7 @@ function Directory(fullPath, numDirs, numFiles, name) {
 		list.show();
 		this.SetSelectedFile(selectedFile);
 	};
-	this.LoadFiles = function (refresh, selectedFile) {
+	this.LoadFiles = function (refresh, selectedFile, version) {
 		if (!FilemanConfig.FILESLIST) {
 			alert(t('E_ActionDisabled'));
 			return;
@@ -486,13 +478,16 @@ function Directory(fullPath, numDirs, numFiles, name) {
 				async: true,
 				cache: false,
 				success: function (files) {
-					for (i = 0; i < files.length; i++) {
+					if (version !== fileListVersion) return;
+					for (let i = 0; i < files.length; i++) {
 						var f = files[i];
 						ret.push(new File(f.p, f.s, f.t, f.w, f.h, f.m));	
 					}
-					item.FilesLoaded(ret, selectedFile);
+					item.FilesLoaded(ret, selectedFile, version);
 				},
 				error: function (data) {
+					if (version !== fileListVersion) return;
+					$('#pnlLoading').hide();
 					alert(t('E_LoadingAjax') + ' ' + fileURL);
 				}
 			});
@@ -501,7 +496,7 @@ function Directory(fullPath, numDirs, numFiles, name) {
 				var li = $(this);
 				ret.push(new File(li.attr('data-path'), li.data('size'), li.data('time'), li.data('w'), li.data('h')));
 			});
-			item.FilesLoaded(ret, selectedFile);
+			item.FilesLoaded(ret, selectedFile, version);
 		}
 
 		return ret;

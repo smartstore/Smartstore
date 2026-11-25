@@ -1,23 +1,8 @@
 ﻿/*
-  RoxyFileman - web based file manager. Ready to use with CKEditor, TinyMCE. 
+  Fileman - web based file manager. Ready to use with CKEditor, TinyMCE.
   Can be easily integrated with any other WYSIWYG editor or CMS.
 
-  Copyright (C) 2013, RoxyFileman.com - Lyubomir Arsov. All rights reserved.
-  For licensing, see LICENSE.txt or http://RoxyFileman.com/license
-
-  This program is free software: you can redistribute it and/or modify
-  it under the terms of the GNU General Public License as published by
-  the Free Software Foundation, either version 3 of the License.
-
-  This program is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  GNU General Public License for more details.
-
-  You should have received a copy of the GNU General Public License
-  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-  Contact: Lyubomir Arsov, liubo (at) web-lobby.com
+  Copyright (C) 2013, Lyubomir Arsov. All rights reserved.
 */
 var FileTypes = new Array();
 FileTypes['image'] = new Array('jpg', 'jpeg', 'png', 'gif');
@@ -195,6 +180,15 @@ FilemanUtils.GetFilename = function (path) {
 	return ret;
 };
 
+FilemanUtils.GetDisplayName = function (path) {
+	var name = FilemanUtils.GetFilename(path);
+	try {
+		return decodeURIComponent(name);
+	} catch {
+		return name;
+	}
+};
+
 FilemanUtils.MakePath = function () {
 	ret = '';
 	if (arguments && arguments.length > 0) {
@@ -233,15 +227,6 @@ FilemanUtils.FileExists = function (path) {
 	});
 
 	return ret;
-};
-
-FilemanUtils.GetFileIcon = function (path) {
-	ret = 'images/filetypes/unknown.png'; //'images/filetypes/file_extension_' + FilemanUtils.GetFileExt(path).toLowerCase() + '.png';
-	if (fileTypeIcons[FilemanUtils.GetFileExt(path).toLowerCase()]) {
-		ret = 'images/filetypes/' + fileTypeIcons[FilemanUtils.GetFileExt(path).toLowerCase()];
-	}
-
-	return FilemanUtils.GetAssetPath(ret);
 };
 
 FilemanUtils.GetFileSize = function (path) {

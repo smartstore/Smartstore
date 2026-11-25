@@ -17,7 +17,7 @@ FilemanLang = {
     "Name": "Name",
     "Size": "Größe",
     "Date": "Datum",
-    "Dimensions": "Dimensionen",
+    "Dimensions": "Abmessungen",
     "Cancel": "Abbrechen",
     "LoadingDirectories": "Ordner laden...",
     "LoadingFiles": "Dateien laden...",

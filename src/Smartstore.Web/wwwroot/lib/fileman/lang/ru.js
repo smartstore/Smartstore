@@ -1,4 +1,4 @@
-﻿RoxyLang = {
+﻿FilemanLang = {
 "CreateDir":"Создать",
 "RenameDir":"Переименовать",
 "DeleteDir":"Удалить",

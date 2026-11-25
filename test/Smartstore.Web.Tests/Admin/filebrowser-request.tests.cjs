@@ -13,7 +13,7 @@ function extractFunction(name) {
     return source.slice(start, end < 0 ? undefined : end);
 }
 
-test('Roxy AJAX sends tokens on same-origin POST only', () => {
+test('FileBrowser AJAX sends tokens on same-origin POST only', () => {
     let prefilter;
     const $ = () => ({ val: () => 'test-token' });
     $.ajaxSetup = () => {};
@@ -46,7 +46,7 @@ test('Direct file upload includes the form token and keeps the existing payload'
             send(body) { this.body = body; }
         },
         FilemanUtils: { GetRootPath: value => value },
-        FilemanConfig: { UPLOAD: '/admin/roxyfilemanager/processrequest?a=UPLOAD' }
+        FilemanConfig: { UPLOAD: '/admin/filebrowser/processrequest?a=UPLOAD' }
     };
     vm.createContext(context);
     vm.runInContext(extractFunction('fileUpload'), context);

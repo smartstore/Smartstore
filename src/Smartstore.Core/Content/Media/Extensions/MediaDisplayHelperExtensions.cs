@@ -16,7 +16,7 @@ public static class MediaDisplayHelperExtensions
         return displayHelper.HttpContext.GetItem("FileManagerUrl", () =>
         {
             var urlHelper = displayHelper.Resolve<IUrlHelper>();
-            var defaultUrl = urlHelper.Action("Index", "RoxyFileManager", new { area = "Admin" });
+            var defaultUrl = urlHelper.Action("Index", "FileBrowser", new { area = "Admin" });
             var message = new FileManagerUrlRequested
             {
                 UrlHelper = urlHelper,
