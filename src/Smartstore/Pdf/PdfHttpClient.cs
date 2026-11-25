@@ -94,7 +94,7 @@ public sealed class PdfHttpClient
                 $"Expected a PDF response from '{url}', received '{mimeType}'.");
         }
 
-        byte[] buffer = await response.Content.ReadAsByteArrayAsync(cancelToken);
+        var buffer = await response.Content.ReadAsByteArrayAsync(cancelToken);
 
         if (buffer.Length == 0)
         {

@@ -26,6 +26,9 @@ internal sealed class QueuedEmailHook : AsyncDbSaveHook<QueuedEmail>
                 .Select(x => (AttachmentId: x.Attachment.Id, x.Work))
                 .ToArray();
 
+            // Do not carry request-bound AsyncLocals into deferred attachment generation.
+            using var flow = ExecutionContext.IsFlowSuppressed() ? default : ExecutionContext.SuppressFlow();
+
             _ = _asyncRunner.RunTask(
                 static (scope, token, state) => GenerateAttachmentsAsync(scope, ((int AttachmentId, AttachmentWork Work)[])state, token),
                 workItems);

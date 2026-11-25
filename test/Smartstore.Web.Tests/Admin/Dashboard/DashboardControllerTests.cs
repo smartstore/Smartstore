@@ -460,7 +460,7 @@ public class DashboardControllerTests
         {
             var redirect = (RedirectToActionResult)result;
             Assert.That(redirect.ActionName, Is.EqualTo(nameof(HomeController.Index)));
-            Assert.That(redirect.RouteValues.ContainsKey("edit"), Is.False);
+            Assert.That(redirect.RouteValues["edit"], Is.False);
         }
         else
         {

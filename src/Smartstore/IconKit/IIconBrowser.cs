@@ -58,7 +58,7 @@ public sealed record IconBrowserResult(string SpriteUrl, int TotalCount, IReadOn
 public sealed record IconBrowserItem(string Name, string Value, string Address, string LibraryKey, string VariantKey, bool SupportsStrokeScaling = false, bool IsDuotone = false, string? PreviewAddress = null, bool IsExternal = false)
 {
     // Keeps kit selections conceptual and library selections literal. Mapping modifiers are baked into sprites.
-    internal static IconBrowserItem Create(IconInfo info, string concept = null, bool isExternal = false)
+    internal static IconBrowserItem Create(IconInfo info, string? concept = null, bool isExternal = false)
     {
         var address = new IconAddress(info.Name, info.LibraryKey, info.VariantKey, skipMapping: true);
         var expression = new IconExpression(address, new IconPresentation
