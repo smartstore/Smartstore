@@ -1,8 +1,9 @@
 ﻿#nullable enable
 
-using Microsoft.Net.Http.Headers;
 using System.Net;
 using System.Net.Sockets;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Net.Http.Headers;
 using Smartstore.Core.Common.Services;
 
 namespace Smartstore.Core.Web;
@@ -14,6 +15,19 @@ namespace Smartstore.Core.Web;
 public abstract class WebClientInfo
 {
     /// <summary>
+    /// Creates client information from the supplied IP address and optional user agent.
+    /// </summary>
+    /// <param name="ipAddress">The client IP address. A missing or invalid address yields <see cref="IPAddress.None"/> and an unknown country.</param>
+    /// <param name="geoCountryLookup">The service used to resolve a valid address when <see cref="Country"/> is first read.</param>
+    /// <param name="userAgent">The user agent, if known.</param>
+    public static WebClientInfo Create(string? ipAddress, IGeoCountryLookup geoCountryLookup, string? userAgent = null)
+    {
+        Guard.NotNull(geoCountryLookup);
+
+        return new IpWebClientInfo(ipAddress, geoCountryLookup, userAgent);
+    }
+
+    /// <summary>
     /// Gets the user agent string associated with the current request or client context.
     /// </summary>
     public abstract string? UserAgent { get; }
@@ -22,16 +36,17 @@ public abstract class WebClientInfo
     /// A unique client identifier based on the current IP address and user agent string.
     /// </summary>
     /// <remarks>The returned identifier can be used to distinguish clients based on their network address and
-    /// browser information. If either the IP address is not set or the user agent is missing, the method returns
+    /// browser information. For HTTP requests it also incorporates the Accept-Language and Sec-CH-UA-Platform headers when available.
+    /// If either the IP address is not set or the user agent is missing, the method returns
     /// null.</remarks>
     /// <returns>A lowercase hash string representing the client identifier if both the IP address and user agent are available;
     /// otherwise, null.</returns>
     public abstract string? ClientIdent { get; }
 
     /// <summary>
-    /// Retrieves the IP address of the remote client making the current HTTP request.
+    /// Gets the IP address of the client.
     /// </summary>
-    /// <remarks>If the remote address is an IPv6 loopback address, it is mapped to the IPv4 loopback address.
+    /// <remarks>For HTTP requests, an IPv6 loopback address is mapped to the IPv4 loopback address.
     /// If the HTTP context or request is unavailable, the method returns <see cref="System.Net.IPAddress.None"/>.</remarks>
     /// <returns>An <see cref="System.Net.IPAddress"/> representing the remote client's IP address. Returns <see
     /// cref="System.Net.IPAddress.None"/> if the address cannot be determined.</returns>
@@ -48,6 +63,50 @@ public abstract class WebClientInfo
     /// <returns>A <see cref="GeoCountryInfo"/> object containing country details for the current IP address; or <see
     /// langword="null"/> if the IP address is not set or no country information is found.</returns>
     public abstract GeoCountryInfo? Country { get; }
+
+    private protected static string? ComputeClientIdent(IPAddress ipAddress, string? userAgent, IHeaderDictionary? headers = null)
+    {
+        if (ipAddress != IPAddress.None && userAgent.HasValue())
+        {
+            // Include Accept-Language: highly user-specific locale setting, virtually
+            // always present in real browsers and differs between users even behind NAT.
+            var acceptLanguage = headers?[HeaderNames.AcceptLanguage].ToString().EmptyNull() ?? string.Empty;
+
+            // Include Sec-CH-UA-Platform: OS platform hint sent by all Chromium-based
+            // browsers. Adds entropy for users sharing IP + browser version.
+            var platform = headers?["Sec-CH-UA-Platform"].ToString().EmptyNull() ?? string.Empty;
+
+            return (ipAddress.ToString() + userAgent + acceptLanguage + platform)
+                .XxHash64()?.ToLowerInvariant();
+        }
+
+        return null;
+    }
+}
+
+internal sealed class IpWebClientInfo : WebClientInfo
+{
+    private readonly Lazy<GeoCountryInfo?> _country;
+
+    public IpWebClientInfo(
+        string? ipAddress,
+        IGeoCountryLookup geoCountryLookup,
+        string? userAgent)
+    {
+        UserAgent = userAgent;
+        IpAddress = IPAddress.TryParse(ipAddress, out var address) ? address : IPAddress.None;
+        _country = new(() => address is null ? null : geoCountryLookup.LookupCountry(address));
+    }
+
+    public override string? UserAgent { get; }
+    public override IPAddress IpAddress { get; }
+    public override Uri? UrlReferrer => null;
+    public override GeoCountryInfo? Country => _country.Value;
+
+    public override string? ClientIdent
+    {
+        get => field ??= ComputeClientIdent(IpAddress, UserAgent);
+    }
 }
 
 internal sealed class DefaultWebClientInfo : WebClientInfo
@@ -105,26 +164,7 @@ internal sealed class DefaultWebClientInfo : WebClientInfo
     {
         CheckNotDisposed();
 
-        var ipAddress = IpAddress;
-        var userAgent = UserAgent.EmptyNull();
-
-        if (ipAddress != IPAddress.None && userAgent.HasValue())
-        {
-            var headers = _helper.HttpContext?.Request?.Headers;
-
-            // Include Accept-Language: highly user-specific locale setting, virtually
-            // always present in real browsers and differs between users even behind NAT.
-            var acceptLanguage = headers?[HeaderNames.AcceptLanguage].ToString().EmptyNull() ?? string.Empty;
-
-            // Include Sec-CH-UA-Platform: OS platform hint sent by all Chromium-based
-            // browsers. Adds entropy for users sharing IP + browser version.
-            var platform = headers?["Sec-CH-UA-Platform"].ToString().EmptyNull() ?? string.Empty;
-
-            return (ipAddress.ToString() + userAgent + acceptLanguage + platform)
-                .XxHash64()?.ToLowerInvariant();
-        }
-
-        return null;
+        return ComputeClientIdent(IpAddress, UserAgent, _helper.HttpContext?.Request?.Headers);
     }
 
     private Uri? GetUrlReferrer()
