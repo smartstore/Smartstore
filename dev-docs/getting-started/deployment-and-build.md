@@ -10,10 +10,9 @@ Build with the .NET 11 SDK selected by `global.json` (11.0.100 or a newer patch)
 Open `Smartstore.slnx` for the platform or `Smartstore.Tools.slnx` for the packaging tools.
 
 The runtime and ASP.NET Core packages use stable .NET 11 releases. The database stack
-currently uses EF Core `11.0.0-rc.3.26522.148`, PostgreSQL provider `11.0.0-rc.3`,
-and MySQL provider `11.0.0-preview.1`. These are prerelease dependencies: PostgreSQL
-requires that exact EF Core RC3 version. Update EF Core and its providers together
-when compatible stable providers become available, and rerun the database tests.
+uses stable EF Core `11.0.0`, PostgreSQL provider `11.0.0` with Npgsql `11.0.0`,
+and MySQL provider `11.0.0`. Update EF Core and its providers together, checking
+their dependency constraints, and rerun the database tests.
 
 ## Option 1 - Publish the entry host project
 

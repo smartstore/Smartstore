@@ -47,11 +47,20 @@ internal class PostgreSqlDbFactory : DbFactory
             Password = password,
             Pooling = true,
             MinPoolSize = 1,
-            MaxPoolSize = 1024,
-            Multiplexing = false
+            MaxPoolSize = 1024
         };
 
         return builder;
+    }
+
+    /// <inheritdoc />
+    public override bool TryNormalizeConnectionString(string connectionString, out string normalizedConnectionString)
+    {
+        // Npgsql 11 removed multiplexing; older Smartstore installations stored this option explicitly.
+        var builder = new DbConnectionStringBuilder { ConnectionString = connectionString };
+        bool changed = builder.Remove("Multiplexing");
+        normalizedConnectionString = changed ? builder.ConnectionString : null;
+        return changed;
     }
 
     public override DataProvider CreateDataProvider(DatabaseFacade database)

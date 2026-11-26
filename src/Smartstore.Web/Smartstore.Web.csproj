@@ -24,7 +24,7 @@
 		<PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.Extensions" Version="6.0.36" />
         <!-- Keep aligned with Smartstore.Data.SqlServer, whose dependencies are not part of the host's restore graph. -->
 		<PackageReference Include="Microsoft.Data.SqlClient" Version="$(SmartstoreSqlClientVersion)" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="11.0.0-rc.3.26522.148">
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="11.0.0">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>

@@ -52,8 +52,8 @@ Architecture follows Domain-Driven Design. See
 
 - **.NET 11 / C#**, **ASP.NET Core 11**, **EF Core 11** (`net11.0`, set centrally in
   `src/Smartstore.Build/Smartstore.Common.props`)
-- EF Core is pinned to `11.0.0-rc.3.26522.148` for the PostgreSQL RC3 provider;
-  the MySQL provider uses `11.0.0-preview.1`. Upgrade these together, not independently.
+- EF Core and the PostgreSQL and MySQL providers use stable `11.0.0` releases.
+  Upgrade EF Core and its providers together, checking their dependency constraints.
 - **Nuke** for build automation (`build.cmd` / `build.ps1` / `build.sh`)
 - Bootstrap (4/5 hybrid), native embedded Dart Sass, jQuery, Select2, Vue.js
 - DotLiquid (Liquid) for email and content templates
