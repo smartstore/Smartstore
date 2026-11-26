@@ -44,6 +44,6 @@ public partial class CheckoutStep(CheckoutHandler handler, string? viewPath = nu
         Guard.NotNull(context);
 
         var md = Handler.Metadata;
-        return context.UrlHelper.Action(md.DefaultAction, md.Controller, md.Area.HasValue() ? new { area = md.Area } : protocol);
+        return context.UrlHelper.Action(md.DefaultAction, md.Controller, md.Area.HasValue() ? new { area = md.Area } : null, protocol);
     }
 }
