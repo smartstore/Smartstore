@@ -78,8 +78,8 @@ function showUploadList(files) {
 			'<div class="fileUpload">',
 			'<div class="fileName">' + f.name + ' (' + FilemanUtils.FormatFileSize(f.size) + ')',
 			'<span class="progressPercent"></span>',
-			'<div class="uploadProgress"><div class="stripes"></div></div>',
 			'</div>',
+			'<div class="progress"><div class="uploadProgress progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"></div></div>',
 			'<button type="button" class="removeUpload btn btn-link p-0" title="' + t('DeleteFile') + '" onclick="removeUpload(' + i + ')"><sm-icon name="close" area="admin"></sm-icon></button>',
 			'</div>'
 		].join('');
@@ -129,7 +129,7 @@ function updateUploadProgress(e, i) {
 	}
 	if (percent > 99)
 		percent = 99;
-	el.find('.uploadProgress').css('width', percent + '%');
+	el.find('.uploadProgress').css('width', percent + '%').attr('aria-valuenow', percent);
 	el.find('.progressPercent').html(' - ' + percent + '%');
 }
 
@@ -144,13 +144,13 @@ function uploadError(e, i) {
 
 function setUploadError(i) {
 	var el = findUploadElement(i);
-	el.find('.uploadProgress').css('width', '100%').addClass('uploadError').removeClass('uploadComplete');
+	el.find('.uploadProgress').css('width', '100%').removeAttr('aria-valuenow').removeClass('progress-bar-animated').addClass('uploadError').removeClass('uploadComplete');
 	el.find('.progressPercent').html(' - <span class="error">' + t('E_UploadingFile') + '</span>');
 }
 
 function setUploadSuccess(i) {
 	var el = findUploadElement(i);
-	el.find('.uploadProgress').css('width', '100%').removeClass('uploadError').addClass('uploadComplete');
+	el.find('.uploadProgress').css('width', '100%').attr('aria-valuenow', 100).removeClass('progress-bar-animated uploadError').addClass('uploadComplete');
 	el.find('.progressPercent').html(' - 100%');
 }
 

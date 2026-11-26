@@ -57,7 +57,7 @@
                 <div class="actions btn-toolbar d-flex flex-wrap gap-2 p-2">
                     <div class="hstack gap-1 border-right pr-2">
                         <button type="button" class="btn btn-sm btn-light" id="btnAddFile" title="Upload files" onclick="addFileClick()" data-lang-v="AddFile" data-lang-t="T_AddFile">
-                            <icon name="plus"  />
+                            <icon name="upload" />
                             <span class="d-none d-lg-inline">Add file</span>
                         </button>
                     </div>
@@ -142,9 +142,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="dlgAddFileTitle"></h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="@T("Common.Close")">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="@T("Common.Close")"></button>
                 </div>
                 <div class="modal-body">
                     <form name="addfile" id="frmUpload" method="post" target="frmUploadFile" enctype="multipart/form-data">
@@ -237,9 +235,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="pnlRenameFileTitle"></h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="@T("Common.Close")">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="@T("Common.Close")"></button>
                 </div>
                 <div class="modal-body">
                     <input type="text" id="txtFileName" class="form-control">
@@ -253,9 +249,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="pnlDirNameTitle"></h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="@T("Common.Close")">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="@T("Common.Close")"></button>
                 </div>
                 <div class="modal-body">
                     <input type="text" id="txtDirName" class="form-control">

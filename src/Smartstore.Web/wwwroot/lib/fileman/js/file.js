@@ -19,16 +19,7 @@ $(function () {
 		closeMenus('dir');
 		selectFile(this);
 		FilemanUI.hidePreviews();
-		var t = e.pageY;
-		var menuEnd = t + $('#menuFile').height() + 30;
-		if (menuEnd > $(window).height()) {
-			offset = menuEnd - $(window).height() + 30;
-			t -= offset;
-		}
-		$('#menuFile').css({
-			top: t + 'px',
-			left: e.pageX + 'px'
-		}).show();
+		FilemanUI.showContextMenu('#menuFile', e);
 
 		return false;
 	});
@@ -76,7 +67,7 @@ function File(filePath, fileSize, modTime, w, h, mime) {
 			'</li>'
 		].join("");
 
-		return $(html).attr('title', this.displayName).find('.name').text(this.displayName).end().prop('outerHTML');
+		return $(html).find('.name').text(this.displayName).end().prop('outerHTML');
 	};
 	this.GetElement = function () {
 		return $('li[data-path="' + this.fullPath + '"]');

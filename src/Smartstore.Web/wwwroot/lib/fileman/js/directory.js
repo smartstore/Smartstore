@@ -11,18 +11,7 @@ $(function () {
 		e.preventDefault();
 		closeMenus('file');
 		selectDir(this, true);
-		var t = e.pageY;
-		var menuEnd = t + $('#menuDir').height() + 30;
-		if (menuEnd > $(window).height()) {
-			offset = menuEnd - $(window).height() + 30;
-			t -= offset;
-		}
-		if (t < 0)
-			t = 0;
-		$('#menuDir').css({
-			top: t + 'px',
-			left: e.pageX + 'px'
-		}).show();
+		FilemanUI.showContextMenu('#menuDir', e);
 
 		return false;
 	});

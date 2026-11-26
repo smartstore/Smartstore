@@ -40,32 +40,97 @@ const FilemanUI = (function ($) {
         modal.modal({ show: true, backdrop: true, keyboard: true });
     }
 
+    let preview;
+    let previewFrame = 0;
+    let pointerX = 0;
+    let pointerY = 0;
+
     function hidePreviews() {
-        $('#pnlFileList .file-item').each(function () {
-            if ($(this).data('bs.popover')) $(this).popover('hide');
-        });
+        cancelAnimationFrame(previewFrame);
+        previewFrame = 0;
+        if (preview) preview.hide();
     }
 
     function disposePreviews() {
-        $('#pnlFileList .file-item').each(function () {
-            if ($(this).data('bs.popover')) $(this).popover('dispose');
+        hidePreviews();
+        $('#pnlFileList').off('.filemanPreview');
+    }
+
+    function positionPreview() {
+        previewFrame = 0;
+        const bounds = preview[0].getBoundingClientRect();
+        const width = document.documentElement.clientWidth;
+        const height = document.documentElement.clientHeight;
+        const gap = 16;
+        const edge = 8;
+        let x = pointerX + gap;
+        let y = pointerY + gap;
+
+        if (x + bounds.width > width - edge) x = pointerX - bounds.width - gap;
+        if (y + bounds.height > height - edge) y = pointerY - bounds.height - gap;
+        preview.css({
+            left: Math.max(edge, Math.min(x, width - bounds.width - edge)),
+            top: Math.max(edge, Math.min(y, height - bounds.height - edge))
         });
+    }
+
+    function movePreview(event) {
+        pointerX = event.clientX;
+        pointerY = event.clientY;
+        if (!previewFrame) previewFrame = requestAnimationFrame(positionPreview);
     }
 
     function bindPreviews() {
         disposePreviews();
-        $('#pnlFileList .file-item').popover({
-            container: 'body',
-            boundary: 'viewport',
-            placement: 'auto',
-            trigger: 'hover',
-            html: true,
-            animation: false,
-            delay: { show: $('#hdViewType').val() === 'thumb' ? 50 : 500, hide: 100 },
-            template: '<div class="popover fileman-preview" role="tooltip"><div class="arrow"></div><div class="popover-body"></div></div>',
-            content: function () {
-                return draggedItem || $('.modal.show').length ? '' : tooltipContent.call(this);
-            }
+        if (!preview) {
+            preview = $('<div class="popover fileman-preview shadow-sm" role="tooltip"><div class="popover-body"></div></div>')
+                .hide().appendTo(document.body);
+            document.addEventListener('scroll', hidePreviews, true);
+            $(window).on('resize.filemanPreview blur.filemanPreview', hidePreviews);
+        }
+
+        $('#pnlFileList')
+            .on('mouseenter.filemanPreview', '.file-item', function (event) {
+                if (draggedItem || $('.modal.show').length) return;
+                const content = tooltipContent.call(this);
+                if (!content) return;
+
+                preview.find('.popover-body').html(content);
+                preview.find('img').on('load', function () {
+                    if (preview.is(':visible')) positionPreview();
+                });
+                pointerX = event.clientX;
+                pointerY = event.clientY;
+                preview.show();
+                positionPreview();
+            })
+            .on('mousemove.filemanPreview', '.file-item', function (event) {
+                if (preview.is(':visible')) movePreview(event);
+            })
+            .on('mouseleave.filemanPreview mousedown.filemanPreview', '.file-item', hidePreviews);
+    }
+
+    function showContextMenu(selector, event) {
+        hidePreviews();
+        const menu = $(selector);
+        const edge = 8;
+        const width = document.documentElement.clientWidth;
+        const height = document.documentElement.clientHeight;
+        menu.css({
+            position: 'fixed',
+            left: 0,
+            top: 0,
+            margin: 0,
+            minWidth: 0,
+            maxWidth: Math.max(0, width - edge * 2),
+            maxHeight: Math.max(0, height - edge * 2),
+            overflow: 'auto'
+        }).show();
+
+        const bounds = menu[0].getBoundingClientRect();
+        menu.css({
+            left: Math.max(edge, Math.min(event.clientX, width - bounds.width - edge)),
+            top: Math.max(edge, Math.min(event.clientY, height - bounds.height - edge))
         });
     }
 
@@ -144,5 +209,5 @@ const FilemanUI = (function ($) {
         });
     }
 
-    return { showDialog, hidePreviews, disposePreviews, bindPreviews, initDragAndDrop, canDrop };
+    return { showDialog, showContextMenu, hidePreviews, disposePreviews, bindPreviews, initDragAndDrop, canDrop };
 })(jQuery);

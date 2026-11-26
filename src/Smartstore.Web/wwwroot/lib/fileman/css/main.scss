@@ -6,435 +6,368 @@
 $fi-selected-bg: var(--gray-200);
 
 body {
-	background-color: #fff;
+    background-color: #fff;
 }
 
 ul {
-	list-style: none;
-	margin: 0;
-	padding: 0;
+    list-style: none;
+    margin: 0;
+    padding: 0;
 }
 
-#wraper { 
-	width: 100%;
-	height: 100%;
+#wraper {
+    width: 100%;
+    height: 100%;
 }
 
-#wraper, 
-#dlgNewDir, 
-#dlgFileProp, 
-#menuDir, 
-#menuFile, 
-#pnlLoadingDirs, 
-#pnlLoading, 
-#pnlEmptyDir, 
-#pnlSearchNoFiles, 
-#pnlFileProp, 
+#wraper,
+#menuDir,
+#menuFile,
+#pnlLoadingDirs,
+#pnlLoading,
+#pnlEmptyDir,
+#pnlSearchNoFiles,
 #pnlDirList ul {
-	display: none;
+    display: none;
 }
 
 #pnlFileList {
-	.selected,
-	.selected:hover {
-		background-color: $fi-selected-bg !important;
-	}
+    .selected,
+    .selected:hover {
+        background-color: $fi-selected-bg !important;
+    }
 
-	.file-preview {
-		float: left;
-		margin-right: 4px;
+    .file-preview {
+        float: inline-start;
+        margin-inline-end: 4px;
 
-		> .thumb {
-			display: none;
-		}
-	}
+        > .thumb {
+            display: none;
+        }
+    }
 
-	li {
-		float: left;
-		padding: 4px 4px 4px 8px;
-		clear: both;
-		width: 99%;
-		cursor: pointer;
-	}
+    li {
+        float: inline-start;
+        padding-block: 4px;
+        padding-inline: 8px 4px;
+        clear: both;
+        width: 99%;
+        cursor: pointer;
+    }
 
-	.size {
-		float: right;
-		margin-left: 22px;
-		white-space: nowrap;
-	}
+    .size,
+    .time {
+        float: inline-end;
+        margin-inline-start: 22px;
+        white-space: nowrap;
+    }
 
-	.time {
-		float: right;
-		margin-left: 22px;
-		width: 130px;
-		white-space: nowrap;
-	}
+    .time {
+        width: 130px;
+    }
 
-	.file-icon {
-		position: relative;
-		opacity: 1;
-	}
+    .file-icon {
+        position: relative;
+        opacity: 1;
+    }
 
-	&:not(.thumbView) {
-		.file-item {
-			display: flex;
-			align-items: center;
-		}
+    &:not(.thumbView) {
+        .file-item {
+            display: flex;
+            align-items: center;
+        }
 
-		.file-preview {
-			display: flex;
-			align-items: center;
-			flex-shrink: 0;
-		}
+        .file-preview {
+            display: flex;
+            align-items: center;
+            flex-shrink: 0;
+        }
 
-		.name {
-			order: 1;
-			flex-grow: 1;
-		}
+        .name {
+            order: 1;
+            flex-grow: 1;
+        }
 
-		.size {
-			order: 2;
-			flex-shrink: 0;
-		}
+        .size {
+            order: 2;
+            flex-shrink: 0;
+        }
 
-		.time {
-			order: 3;
-			flex-shrink: 0;
-		}
-	}
+        .time {
+            order: 3;
+            flex-shrink: 0;
+        }
+    }
 
-	&.thumbView {
-		padding: 3px;
+    &.thumbView {
+        padding: 3px;
 
-		li {
-			//width:140px;
-			//height: 140px;
-			float: left !important;
-			clear: none;
-			margin: 3px;
-			overflow: hidden;
-			padding: 10px;
-			text-align: center;
-			vertical-align: middle;
-			border: 1px solid transparent;
-			border-radius: var(--border-radius-md);
-			position: relative;
+        li {
+            float: inline-start !important;
+            clear: none;
+            margin: 3px;
+            overflow: hidden;
+            padding: 10px;
+            text-align: center;
+            vertical-align: middle;
+            border: 1px solid transparent;
+            border-radius: var(--border-radius-md);
+            position: relative;
 
-			&:hover {
-				background-color: var(--gray-150);
-			}
+            &:hover {
+                background-color: var(--gray-150);
+            }
 
-			&:hover,
-			&.selected {
-				border-color: rgba(#000, 0.08);
-			}
+            &:hover,
+            &.selected {
+                border-color: rgba(#000, 0.08);
+            }
 
-			.file-icon {
-				font-size: 84px;
-			}
+            .file-icon {
+                font-size: 84px;
+            }
 
-			&.file-image {
-				.file-icon {
-					display: none;
-				}
+            &.file-image {
+                .file-icon {
+                    display: none;
+                }
 
-				.thumb {
-					display: inline-block;
-				}
-			}
-		}
+                .thumb {
+                    display: inline-block;
+                }
+            }
+        }
 
-		.time,
-		.size {
-			display: none;
-		}
+        .time,
+        .size {
+            display: none;
+        }
 
-		.file-preview {
-			display: flex;
-			align-items: center;
-			justify-content: center;
-			width: 140px;
-			height: 120px;
-			margin: 0;
-			padding: 0;
-			position: relative;
-			float: none;
+        .file-preview {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 140px;
+            height: 120px;
+            margin: 0;
+            padding: 0;
+            position: relative;
+            float: none;
 
-			> img {
-				max-width: 100%;
-				height: auto;
-			}
+            > img {
+                max-width: 100%;
+                height: auto;
+            }
 
-			> img.thumb {
-				box-shadow: 2px 2px 6px rgba(#000, 0.25);
-			}
-		}
+            > img.thumb {
+                box-shadow: 2px 2px 6px rgba(#000, 0.25);
+            }
+        }
 
-		.name {
-			display: block !important;
-			font-size: 12px;
-			white-space: nowrap;
-			text-overflow: ellipsis;
-			overflow: hidden;
-			//width: 100% !important;
-			position: absolute;
-			left: 4px;
-			right: 4px;
-			bottom: 5px;
-			margin: 0;
-		}
-	}
+        .name {
+            display: block !important;
+            font-size: 12px;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            overflow: hidden;
+            position: absolute;
+            inset-inline: 4px;
+            inset-block-end: 5px;
+            margin: 0;
+        }
+    }
 }
 
 .filesize {
-	font-weight: 600;
-	margin-top: 4px;
-	display: inline-block;
+    font-weight: 600;
+    margin-block-start: 4px;
+    display: inline-block;
 }
 
 #pnlStatus {
-	padding: 5px;
+    padding: 5px;
 }
 
 .scrollPane {
-	width: 100%;
-	height: 400px;
-	overflow: auto;
-	position: relative;
+    width: 100%;
+    height: 400px;
+    overflow: auto;
+    position: relative;
 }
 
 .bottomLine {
-	background: $gray-100;
-	border-top: 1px solid rgba(#000, 0.12);
-	height: 36px;
+    background: $gray-100;
+    border-block-start: 1px solid rgba(#000, 0.12);
+    height: 36px;
 }
-
-input[type=text]::-ms-clear {
-	display: none;
-}
-
 
 td.pnlDirs {
-	width: 260px;
-	border-right: 1px solid rgba(0,0,0, 0.12);
+    width: 260px;
+    border-inline-end: 1px solid rgba(0,0,0, 0.12);
 
-	.scrollPane {
-		width: 260px;
-	}
+    .scrollPane {
+        width: 260px;
+    }
 }
 
 #pnlDirList {
-	position: relative;
-	padding-inline: 6px;
+    --depth: 0;
 
-	.dir-item {
-		padding: 3px 0.4rem;
-		cursor: pointer;
-		position: relative;
-		float: left;
-		min-width: 100%;
-		border-radius: var(--border-radius-md);
+    position: relative;
+    padding-inline: 6px;
 
-		.dirPlus {
-			font-size: 14px;
-			width: 16px;
-			height: 16px;
-			flex-shrink: 0;
-			margin-top: 1px;
-			margin-right: 8px;
-			text-align: center;
-		}
+    // Resolve the next depth on each list item before its child list inherits it.
+    li {
+        --child-depth: calc(var(--depth) + 1);
+    }
 
-		.dir {
-			padding-top: 2px;
-		}
+    ul {
+        --depth: var(--child-depth);
+    }
 
-		.name {
-			white-space: nowrap;
-			display: block;
-		}
+    .dir-item {
+        padding-block: 3px;
+        padding-inline: calc(0.4rem + min(var(--depth), 9) * 1rem) 0.4rem;
+        cursor: pointer;
+        position: relative;
+        float: inline-start;
+        min-width: 100%;
+        border-radius: var(--border-radius-md);
 
-		&:hover {
-			background-color: var(--gray-150);
-		}
+        .dirPlus {
+            font-size: 14px;
+            width: 16px;
+            height: 16px;
+            flex-shrink: 0;
+            margin-block-start: 1px;
+            margin-inline-end: 8px;
+            text-align: center;
+        }
 
-		&.selected,
-		&.selected:hover {
-			background-color: $fi-selected-bg !important;
-		}
+        .dir {
+            padding-block-start: 2px;
+        }
 
-		&.indeterm {
-			background-color: $gray-200 !important;
-		}
+        .name {
+            white-space: nowrap;
+            display: block;
+        }
 
-		&.dragover {
-			background-color: $gray-200 !important;
-		}
-	}
+        &:hover {
+            background-color: var(--gray-150);
+        }
 
-	ul .dir-item {
-		padding-left: 1.4rem;
-	}
+        &.selected,
+        &.selected:hover {
+            background-color: $fi-selected-bg !important;
+        }
 
-	ul ul .dir-item {
-		padding-left: 2.4rem;
-	}
-
-	ul ul ul .dir-item {
-		padding-left: 3.4rem;
-	}
-
-	ul ul ul ul .dir-item {
-		padding-left: 4.4rem;
-	}
-
-	ul ul ul ul ul .dir-item {
-		padding-left: 5.4rem;
-	}
-
-	ul ul ul ul ul ul .dir-item {
-		padding-left: 6.4rem;
-	}
-
-	ul ul ul ul ul ul ul .dir-item {
-		padding-left: 7.4rem;
-	}
-
-	ul ul ul ul ul ul ul ul .dir-item {
-		padding-left: 8.4rem;
-	}
-
-	ul ul ul ul ul ul ul ul ul .dir-item {
-		padding-left: 9.4rem;
-	}
+        &.indeterm,
+        &.dragover {
+            background-color: $gray-200 !important;
+        }
+    }
 }
 
 #pnlLoadingDirs {
-	margin-left: 5px;
+    margin-inline-start: 5px;
 }
-
 
 .imgPreview {
-	max-width: 300px;
+    max-width: 300px;
 }
-
 
 .actions {
-	padding: 3px 0 10px 5px;
-	background-color: $gray-100;
-	border-bottom: 1px solid rgba(0,0,0, 0.1);
+    padding-block: 3px 10px;
+    padding-inline: 5px 0;
+    background-color: $gray-100;
+    border-block-end: 1px solid rgba(0,0,0, 0.1);
 }
 
-
 #txtSearch {
-	width: 16rem;
-	flex-shrink: 0;
+    width: 16rem;
+    flex-shrink: 0;
 }
 
 #fileUploads {
-	width: 100%;
+    width: 100%;
 }
 
 .uploadFilesList {
-	width: 100%;
-	height: 300px;
-	overflow: auto;
-}
+    width: 100%;
+    height: 300px;
+    overflow: auto;
+    font-size: 12px;
 
-#uploadResult {
+    .modal-body & {
+        max-height: 40vh;
+    }
 }
 
 .fileman-preview {
-	max-width: min(90vw, 400px);
-	pointer-events: none;
+    position: fixed;
+    width: max-content;
+    max-height: calc(100vh - 16px);
+    overflow: hidden;
+    max-width: min(90vw, 400px);
+    pointer-events: none;
 
-	.popover-body {
-		overflow-wrap: anywhere;
-	}
+    .popover-body {
+        overflow-wrap: anywhere;
+    }
 
-	.imgPreview {
-		max-width: 100%;
-		max-height: 50vh;
-	}
+    .imgPreview {
+        max-width: 100%;
+        max-height: 50vh;
+    }
 }
 
 .fileman-dragging {
-	opacity: .5;
-}
-
-.modal-body .uploadFilesList {
-	max-height: 40vh;
-}
-
-/* Upload dialog */
-.uploadFilesList {
-	font-size: 12px;
+    opacity: .5;
 }
 
 .fileUpload {
-	margin: 8px 0 0 0;
-	position: relative;
-	border: 1px solid #EEE;
+    margin-block: 8px 0;
+    margin-inline: 0;
+    position: relative;
+    border: 1px solid #EEE;
 
-	.error {
-		font-weight: 600;
-	}
+    .error {
+        font-weight: 600;
+    }
 }
-
-
 
 .fileName {
-	z-index: 2;
-	line-height: 20px;
-	height: 20px;
-	overflow: hidden;
-	padding: 0 13px 0 5px;
+    line-height: 20px;
+    height: 20px;
+    overflow: hidden;
+    padding-block: 0;
+    padding-inline: 5px 25px;
 }
 
-.progressPercent {
-	z-index: 2;
-}
-
-.stripes {
-	background-image: linear-gradient(45deg, rgba($white, .5) 25%, transparent 25%, transparent 50%, rgba($white, .5) 50%, rgba($white, .5) 75%, transparent 75%, transparent);
-	background-size: 1rem 1rem;
-	opacity: 0.40;
-	width: 100%;
-	height: 100%;
-	z-index: -1;
-	position: relative;
+.fileUpload .progress {
+    height: 4px;
+    border-radius: 0;
 }
 
 .uploadProgress {
-	position: absolute;
-	width: 0;
-	height: 100%;
-	top: 0;
-	left: 0;
-	z-index: -1;
-	background: #d3edff;
-	background: linear-gradient(to bottom, #d3edff 0%,#cbebff 47%,#a1dbff 100%);
-}
+    width: 0;
 
-.uploadError {
-	background: #ff8787;
-	background: linear-gradient(to bottom, #ff8787 0%,#ffa3a3 45%,#ff5e5e 100%);
-}
+    &.uploadError {
+        background-color: var(--danger);
+    }
 
-.uploadComplete {
-	background: #dbff87;
-	background: linear-gradient(to bottom, #dbff87 0%,#e0f49c 45%,#bddd49 100%);
-}
-
-.uploadError .stripes, .uploadComplete .stripes {
-	display: none;
+    &.uploadComplete {
+        background-color: var(--success);
+    }
 }
 
 .removeUpload {
-	position: absolute;
-	right: 0;
-	top: 0;
-	height: 100%;
-	width: 20px;
-	cursor: pointer;
+    min-height: 0;
+    position: absolute;
+    inset-inline-end: 0;
+    inset-block-start: 0;
+    height: 20px;
+    width: 20px;
+    cursor: pointer;
 }
