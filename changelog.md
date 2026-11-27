@@ -25,6 +25,8 @@
 - **Administration:** A new collapsible sidebar gives the administration area a modern, uncluttered layout with easy access to its main sections.
 - **Category icons:** Added support for assigning icons to categories, with customizable colors, rotation, mirroring and animations. Icons are displayed in the sidebar category navigation, main-menu dropdowns, MegaMenu, mobile menu and admin category tree.
 - **Media gallery:** Replaced PhotoSwipe with the new Smartstore *Lightbox* for viewing images and videos. A horizontal thumbnail strip lets shoppers jump directly to any image or video, including on mobile devices. Zoom, fullscreen viewing, touch gestures and keyboard controls remain available, with support for right-to-left layouts.
+- **Payone** plugin (commercial)
+  - Provides the Payone payment methods Credit Card, SEPA Direct Debit, PayPal and Wero.
 - **Channable** plugin (commercial)
   - Channable product feed integration with file-based exports in CSV, XML, and JSON formats.
 - (DEV) Added `Smartstore.Packager.Cli` for scriptable packaging of modules and themes, including batch processing and automation-friendly exit codes.
