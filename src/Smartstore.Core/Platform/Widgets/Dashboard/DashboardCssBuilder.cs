@@ -28,7 +28,7 @@ public sealed class DashboardCssBuilder : IDashboardCssBuilder
                 continue;
             }
 
-            builder.Append('#').Append(model.Layout.BuildWidgetId(item.Instance.Id)).AppendLine(" {");
+            builder.AppendLine($"#{model.Layout.BuildWidgetId(item.Instance.Id)} {{");
 
             DashboardWidgetPosition? previous = null;
 
@@ -56,28 +56,22 @@ public sealed class DashboardCssBuilder : IDashboardCssBuilder
 
         if (position.Hidden != (previous?.Hidden ?? false))
         {
-            builder.Append("    --dashboard-display-").Append(breakpoint).Append(": ")
-                .Append(position.Hidden ? "none" : "grid").AppendLine(";");
+            builder.AppendLine($"    --dashboard-display-{breakpoint}: {(position.Hidden ? "none" : "grid")};");
         }
 
         if (previous == null || position.Column != previous.Column || position.Size.ColumnSpan != previous.Size.ColumnSpan)
         {
-            builder.Append("    --dashboard-column-").Append(breakpoint).Append(": ")
-                .Append((position.Column + 1).ToString(CultureInfo.InvariantCulture))
-                .Append(" / span ")
-                .Append(position.Size.ColumnSpan.ToString(CultureInfo.InvariantCulture))
-                .AppendLine(";");
+            builder.AppendLine(CultureInfo.InvariantCulture,
+                $"    --dashboard-column-{breakpoint}: {position.Column + 1} / span {position.Size.ColumnSpan};");
         }
 
         if (previous == null || position.Row != previous.Row || position.Size.RowSpan != previous.Size.RowSpan)
         {
-            builder.Append("    --dashboard-row-").Append(breakpoint).Append(": ")
-                .Append((position.Row + 1).ToString(CultureInfo.InvariantCulture));
+            builder.Append(CultureInfo.InvariantCulture, $"    --dashboard-row-{breakpoint}: {position.Row + 1}");
 
             if (position.Size.RowSpan.HasValue)
             {
-                builder.Append(" / span ")
-                    .Append(position.Size.RowSpan.Value.ToString(CultureInfo.InvariantCulture));
+                builder.Append(CultureInfo.InvariantCulture, $" / span {position.Size.RowSpan.Value}");
             }
 
             builder.AppendLine(";");

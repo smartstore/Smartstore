@@ -125,7 +125,9 @@ public class SmartDbContextDataSeeder : IDataSeeder<SmartDbContext>
         builder.AddOrUpdate("Admin.Dashboard.Editor.HideWidget", "Hide in this view", "In dieser Ansicht ausblenden");
         builder.AddOrUpdate("Admin.Dashboard.Editor.ShowWidget", "Show again", "Wieder einblenden");
         builder.AddOrUpdate("Admin.Dashboard.Editor.RemoveWidget", "Remove from all views", "Aus allen Ansichten entfernen");
-        builder.AddOrUpdate("Admin.Dashboard.Editor.RemoveWidgetConfirm", "Really remove this widget from all responsive views?", "Dieses Widget wirklich aus allen responsiven Ansichten entfernen?");
+        builder.AddOrUpdate("Admin.Dashboard.Editor.RemoveWidgetConfirm", 
+            "Really remove this widget from all responsive views?", 
+            "Dieses Widget wirklich aus allen responsiven Ansichten entfernen?");
         builder.AddOrUpdate("Admin.Dashboard.Editor.ResetConfirm",
             "Remove the customization immediately and return to the default dashboard? Unsaved changes will be discarded.",
             "Die Anpassung jetzt entfernen und zur Dashboard-Vorgabe zurückkehren? Ungespeicherte Änderungen werden verworfen.");
@@ -140,9 +142,15 @@ public class SmartDbContextDataSeeder : IDataSeeder<SmartDbContext>
             "The dashboard could not be reset. Please try again.",
             "Das Dashboard konnte nicht zurückgesetzt werden. Bitte versuche es erneut.");
         builder.AddOrUpdate("Admin.Dashboard.Editor.Saved", "Dashboard saved.", "Dashboard gespeichert.");
-        builder.AddOrUpdate("Admin.Dashboard.Editor.SelectionFailed", "The dashboard was saved, but the view selection could not be saved.", "Das Dashboard wurde gespeichert, die Ansichtsauswahl konnte jedoch nicht gespeichert werden.");
-        builder.AddOrUpdate("Admin.Dashboard.Editor.SaveFailed", "Could not save the dashboard. Your draft is still available.", "Dashboard konnte nicht gespeichert werden. Ihr Entwurf bleibt erhalten.");
-        builder.AddOrUpdate("Admin.Dashboard.Editor.Invalid", "The dashboard changes are invalid or no longer permitted.", "Die Dashboard-Änderungen sind ungültig oder nicht mehr erlaubt.");
+        builder.AddOrUpdate("Admin.Dashboard.Editor.SelectionFailed", 
+            "The dashboard was saved, but the view selection could not be saved.", 
+            "Das Dashboard wurde gespeichert, die Ansichtsauswahl konnte jedoch nicht gespeichert werden.");
+        builder.AddOrUpdate("Admin.Dashboard.Editor.SaveFailed", 
+            "Could not save the dashboard. Your draft is still available.",
+            "Dashboard konnte nicht gespeichert werden. Ihr Entwurf bleibt erhalten.");
+        builder.AddOrUpdate("Admin.Dashboard.Editor.Invalid", 
+            "The dashboard changes are invalid or no longer permitted.", 
+            "Die Dashboard-Änderungen sind ungültig oder nicht mehr erlaubt.");
         builder.AddOrUpdate("Admin.Dashboard.Editor.DiscardConfirm",
             "Discard your unsaved changes?",
             "Deine ungespeicherten Änderungen wirklich verwerfen?");
@@ -161,11 +169,17 @@ public class SmartDbContextDataSeeder : IDataSeeder<SmartDbContext>
         builder.AddOrUpdate("Permissions.DisplayName.Personalize", "Customize own dashboard", "Eigenes Dashboard anpassen");
         builder.AddOrUpdate("Permissions.DisplayName.ManageGlobal", "Manage shared dashboard", "Gemeinsames Dashboard verwalten");
 
-        builder.AddOrUpdate("Admin.Dashboard.LoadFailed", "The widget could not be updated. Please try again.", "Das Widget konnte nicht aktualisiert werden. Bitte versuche es erneut.");
+        builder.AddOrUpdate("Admin.Dashboard.LoadFailed", 
+            "The widget could not be updated. Please try again.", 
+            "Das Widget konnte nicht aktualisiert werden. Bitte versuche es erneut.");
 
         builder.AddOrUpdate("Admin.Dashboard.ContactRequests", "Contact enquiries", "Kontaktanfragen");
-        builder.AddOrUpdate("Admin.Dashboard.ContactRequests.Description", "The latest newly recorded contact enquiries with links to their messages.", "Die neuesten ab jetzt erfassten Kontaktanfragen mit Verweisen auf die Nachrichten.");
-        builder.AddOrUpdate("Admin.Dashboard.ContactRequests.Empty", "No contact enquiries available. Only newly recorded enquiries whose emails have not been deleted are shown.", "Keine Kontaktanfragen vorhanden. Angezeigt werden nur neu erfasste Anfragen, deren E-Mails noch nicht gelöscht wurden.");
+        builder.AddOrUpdate("Admin.Dashboard.ContactRequests.Description", 
+            "The latest newly recorded contact enquiries with links to their messages.", 
+            "Die neuesten ab jetzt erfassten Kontaktanfragen mit Verweisen auf die Nachrichten.");
+        builder.AddOrUpdate("Admin.Dashboard.ContactRequests.Empty",
+            "No contact enquiries available. Only newly recorded enquiries whose emails have not been deleted are shown.", 
+            "Keine Kontaktanfragen vorhanden. Angezeigt werden nur neu erfasste Anfragen, deren E-Mails noch nicht gelöscht wurden.");
 
         builder.AddOrUpdate("Admin.Dashboard.Labels.ByQuantity", "By quantity", "Nach Anzahl");
         builder.AddOrUpdate("Admin.Dashboard.Labels.ByAmount", "By amount", "Nach Betrag");
@@ -177,7 +191,9 @@ public class SmartDbContextDataSeeder : IDataSeeder<SmartDbContext>
             "Admin.Customers.Reports.BestBy.Fields.Customer");
 
         builder.AddOrUpdate("Admin.Dashboard.PaymentMethods", "Payment methods", "Zahlungsarten");
-        builder.AddOrUpdate("Admin.Dashboard.PaymentMethods.Description", "Active payment methods ranked by order count or order total, including tax and shipping, across all order dates and statuses.", "Aktive Zahlungsarten nach Bestellanzahl oder Bestellgesamtbetrag einschließlich Steuer und Versand über alle Bestellzeiträume und Bestellstatus hinweg.");
+        builder.AddOrUpdate("Admin.Dashboard.PaymentMethods.Description",
+            "Active payment methods ranked by order count or order total, including tax and shipping, across all order dates and statuses.", 
+            "Aktive Zahlungsarten nach Bestellanzahl oder Bestellgesamtbetrag einschließlich Steuer und Versand über alle Bestellzeiträume und Bestellstatus hinweg.");
         builder.AddOrUpdate("Admin.Dashboard.PaymentMethods.Name", "Payment method", "Zahlungsart");
         builder.AddOrUpdate("Admin.Dashboard.PaymentMethods.OrderCount", "Orders", "Bestellungen");
         builder.AddOrUpdate("Admin.Dashboard.PaymentMethods.DisplaySettings", "Display", "Anzeige");
