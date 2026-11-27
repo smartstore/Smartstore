@@ -46,7 +46,9 @@ public abstract class PriceCalculator : IPriceCalculator
                 + $" Please fix product with ID {context.Product.Id}.");
         }
 
-        var childCalculatorContext = new CalculatorContext(context, childProduct.Price)
+        var childBatch = context.Options.ChildProductsBatchContext ?? context.Options.BatchContext;
+        var childBasePrice = await childBatch.GetEffectiveBasePriceAsync(childProduct, context.Options.CurrencyService);
+        var childCalculatorContext = new CalculatorContext(context, childBasePrice)
         {
             Product = childProduct,
             Options = context.Options.Clone()

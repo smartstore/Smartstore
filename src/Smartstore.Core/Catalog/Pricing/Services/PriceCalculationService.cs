@@ -279,7 +279,9 @@ public partial class PriceCalculationService : IPriceCalculationService
 
         // Collect calculators
         var calculators = _calculatorFactory.GetCalculators(context);
-        var calculatorContext = new CalculatorContext(context, product.Price);
+        context.Options.CurrencyService = _currencyService;
+        var basePrice = await context.Options.BatchContext.GetEffectiveBasePriceAsync(product, _currencyService);
+        var calculatorContext = new CalculatorContext(context, basePrice);
 
         // Run all collected calculators
         await _calculatorFactory.RunCalculators(calculators, calculatorContext);
@@ -292,14 +294,14 @@ public partial class PriceCalculationService : IPriceCalculationService
         var product = context.Product;
         var retailPrice = (decimal?)null;
         var hasComparePrice = product.ComparePrice > 0;
-        var hasDiscount = context.DiscountAmount > 0 || context.AppliedTierPrice != null || (context.OfferPrice.HasValue && context.OfferPrice < product.Price);
+        var hasDiscount = context.DiscountAmount > 0 || context.AppliedTierPrice != null || (context.OfferPrice.HasValue && context.OfferPrice < context.RegularPrice);
 
         PriceLabel comparePriceLabel = null;
 
         if (hasComparePrice)
         {
             comparePriceLabel = _priceLabelService.GetComparePriceLabel(product);
-            if (comparePriceLabel.IsRetailPrice && product.ComparePrice > product.Price)
+            if (comparePriceLabel.IsRetailPrice && product.ComparePrice > context.RegularPrice)
             {
                 if (product.ProductType != ProductType.BundledProduct || !product.BundlePerItemPricing)
                 {

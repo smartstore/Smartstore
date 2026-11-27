@@ -38,7 +38,7 @@ public class LowestPriceCalculator : IPriceCalculator
             lowestPrice = product.LowestAttributeCombinationPrice.Value;
         }
 
-        if (lowestPrice == decimal.Zero && product.Price == decimal.Zero)
+        if (lowestPrice == decimal.Zero && context.RegularPrice == decimal.Zero)
         {
             // Do not display 0 as lowest price.
             forceApply = true;

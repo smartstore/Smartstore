@@ -25,7 +25,9 @@ public class TierPriceCalculator : IPriceCalculator
             var tierPrices = await context.GetTierPricesAsync();
 
             // Put minimum tier price to context because it's required for discount calculation.
-            var (amount, tp) = GetMinimumTierPrice(product, tierPrices, context.Quantity);
+            var (amount, tp) = context.RegularPrice == product.Price
+                ? GetMinimumTierPrice(product, tierPrices, context.Quantity)
+                : GetMinimumTierPrice(product, tierPrices, context.Quantity, context.RegularPrice);
             context.MinTierPrice = amount;
             tierPriceEntity = tp;
 
@@ -72,6 +74,9 @@ public class TierPriceCalculator : IPriceCalculator
     }
 
     protected virtual (decimal? Amount, TierPrice TierPrice) GetMinimumTierPrice(Product product, IEnumerable<TierPrice> tierPrices, int quantity)
+        => GetMinimumTierPrice(product, tierPrices, quantity, product.Price);
+
+    protected virtual (decimal? Amount, TierPrice TierPrice) GetMinimumTierPrice(Product product, IEnumerable<TierPrice> tierPrices, int quantity, decimal basePrice)
     {
         var amount = (decimal?)null;
         var tierPrice = (TierPrice)null;
@@ -90,11 +95,11 @@ public class TierPriceCalculator : IPriceCalculator
             }
             else if (tp.CalculationMethod == TierPriceCalculationMethod.Percental)
             {
-                amount = product.Price - (product.Price / 100m * tp.Price);
+                amount = basePrice - (basePrice / 100m * tp.Price);
             }
             else
             {
-                amount = product.Price - tp.Price;
+                amount = basePrice - tp.Price;
             }
 
             tierPrice = tp;
