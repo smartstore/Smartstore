@@ -60,7 +60,7 @@ public class DefaultDbHookProcessor : IDbHookProcessor
 
         var processedHooks = new Multimap<IDbSaveHook, IHookedEntity>();
 
-        // Determine whether ALL entities in the batch share the same type and state.
+        // Determine whether ALL entities in the batch share the same type, state and context type.
         // If so, work with the hooks for the first entity, don't bother repetitive
         // resolution of the very same hooks.
         TryGetSharedHooks(entries, stage, minHookImportance, out var sharedHooks);
@@ -152,7 +152,9 @@ public class DefaultDbHookProcessor : IDbHookProcessor
 
             for (var i = 1; i < entries.Length; i++)
             {
-                if (entries[i].InitialState != entry.InitialState || entries[i].EntityType != entry.EntityType)
+                if (entries[i].InitialState != entry.InitialState
+                    || entries[i].EntityType != entry.EntityType
+                    || entries[i].DbContext?.GetType() != entry.DbContext?.GetType())
                 {
                     return false;
                 }
