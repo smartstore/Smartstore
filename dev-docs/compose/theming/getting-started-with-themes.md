@@ -110,34 +110,32 @@ For more information, see [Bootstrap](https://getbootstrap.com/docs/4.6/layout/o
 
 ## Icon Libraries
 
-### Font Awesome
-
-Font Awesome is an icon library that provides high quality, scalable font icons for use in websites and applications. The icons can be easily embedded using CSS classes and are available in different styles and sizes.
-
-One of the advantages of Font Awesome is that the icons are scalable, so they look good and fit well on different screen resolutions. In addition, the icons can be customized with CSS to match the design of the website. Font Awesome offers a wide range of icons for different areas such as social media, user interfaces, signs and much more.
-
-Font Awesome is fully integrated into Smartstore and can be used in all Razor views and CSS declarations.
-
 {% hint style="info" %}
-For more information, see [Font Awesome](https://fontawesome.com/icons).
+**Changed in Smartstore 7:** Icon Kit replaces the previous icon rendering system with a shared SVG system for Razor views and browser components. Existing themes and plugins using Font Awesome markup or Bootstrap icon helpers need migration. See [Migrate existing icons](../../framework/content/icons.md#migrate-existing-icons) for replacement examples and mapping tables.
 {% endhint %}
 
-#### Legacy font icons
+Use Icon Kit to add SVG icons to your theme's Razor views and client-side templates. HugeIcons Free (Stroke Rounded) is the default library; Font Awesome Free and Bootstrap Icons are also included. You can adjust their appearance and change the frontend's icon library through configuration. See [Icons](../../framework/content/icons.md) for examples, configuration and migration guidance.
 
-Remaining font-based icons use the bundled Font Awesome Free stylesheet. The legacy
-`.fal` and `.far` classes fall back to solid, except for icons available as regular.
-The old Pro theme switch and hosted CSS kit integration have been removed.
+### HugeIcons
 
-New icons use the SVG icon framework. Install licensed Pro SVG sources as a separate
-library that replaces Font Awesome Free; configure variants in library metadata.
-See the [icon framework documentation](../../../src/Smartstore.Web/App_Data/Icons/README.md#replacing-a-library).
+HugeIcons Free (Stroke Rounded) is Smartstore's default icon library for the frontend and backend. Its SVG icons are rendered through Icon Kit and can be styled using the shared size, color and presentation options.
+
+{% hint style="info" %}
+For more information about the library, see [HugeIcons](https://hugeicons.com/).
+{% endhint %}
+
+### Font Awesome
+
+Font Awesome Free is available through Icon Kit, including Regular, Solid and Brands. Use the SVG Tag Helper or Web Component instead of legacy font-icon CSS classes. Licensed Font Awesome Pro SVGs can be installed separately; see [Add Font Awesome Pro](../../framework/content/icons.md#add-font-awesome-pro).
+
+{% hint style="info" %}
+For more information about the library, see [Font Awesome](https://fontawesome.com/icons).
+{% endhint %}
 
 ### Bootstrap Icons
 
-_Bootstrap Icons_ is a free, high quality, open source icon library with over 1,800 icons. It can be used in HTML and CSS code to add graphical elements to websites and mobile applications.
-
-_Bootstrap Icons_ is only available in Smartstore's backend, as the CSS for the frontend should remain as lightweight as possible.
+Bootstrap Icons is available through Icon Kit in both the frontend and backend. Select its drawings by name or use an explicit library address, as described in [Icons](../../framework/content/icons.md).
 
 {% hint style="info" %}
-For more information, see [Bootstrap Icons](https://icons.getbootstrap.com/).
+For more information about the library, see [Bootstrap Icons](https://icons.getbootstrap.com/).
 {% endhint %}

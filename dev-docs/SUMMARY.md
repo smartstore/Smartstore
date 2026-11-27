@@ -35,6 +35,7 @@
   * [Templating](framework/platform/templating.md)
 * [Content](framework/content/README.md)
   * [Imaging](framework/content/imaging.md)
+  * [Icons](framework/content/icons.md)
   * [Localization](framework/content/localization.md)
   * [Media](framework/content/media-system-and-imaging.md)
   * [Menus](framework/content/menus.md)
