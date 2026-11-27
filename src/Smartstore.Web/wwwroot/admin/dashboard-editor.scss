@@ -90,10 +90,6 @@ $dashboard-resize-handle-size: 10px;
     border: $border-width dashed var(--gray-400);
 }
 
-.dashboard-moving .dashboard-grid-cell {
-    visibility: hidden;
-}
-
 .dashboard-grid-preview {
     background: rgba($primary, .12);
 }
@@ -101,4 +97,11 @@ $dashboard-resize-handle-size: 10px;
 // Pointer capture must not let hovered controls replace the active drag cursor.
 .dashboard-dragging * {
     cursor: inherit !important;
+}
+
+// Preview widths share the layout thresholds; xs uses a representative phone width.
+@each $breakpoint, $width in $grid-breakpoints {
+    [data-dashboard-breakpoint="#{$breakpoint}"] {
+        --dashboard-preview-width: #{if($width == 0, 375px, $width)};
+    }
 }

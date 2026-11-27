@@ -13,6 +13,11 @@ public sealed record DashboardWidgetPosition
     public DashboardBreakpoint Breakpoint { get; init; }
 
     /// <summary>
+    /// Gets whether the widget is hidden at this responsive placement.
+    /// </summary>
+    public bool Hidden { get; init; }
+
+    /// <summary>
     /// Gets the zero-based grid column at which the widget starts.
     /// </summary>
     public int Column { get; init; }

@@ -726,6 +726,37 @@ public class DashboardLayoutPersistenceTests : ServiceTestBase
     private Task Save(DashboardLayoutState state, bool reset = false)
         => _service.SaveLayoutAsync(state.Layout, _customer, state.Layer, reset);
 
+    [TestCase(DashboardLayoutLayer.User)]
+    [TestCase(DashboardLayoutLayer.Global)]
+    public async Task Hidden_Position_Roundtrips_And_Css_Restores_Visibility(DashboardLayoutLayer layer)
+    {
+        var state = await State(layer);
+        var instance = state.Layout.Widgets.Single();
+        state.Layout.Widgets[0] = instance with
+        {
+            Positions = Enum.GetValues<DashboardBreakpoint>().Select(tier => instance.GetPosition(tier) with
+            {
+                Breakpoint = tier,
+                Hidden = tier == DashboardBreakpoint.Sm
+            }).ToArray()
+        };
+        await Save(state);
+        var saved = await State(layer);
+        Assert.That(saved.Layout.Widgets.Single().Positions.Where(p => p.Hidden).Select(p => p.Breakpoint),
+            Is.EqualTo(new[] { DashboardBreakpoint.Sm }));
+        var model = await _service.PrepareDashboardAsync(saved.Layout, _customer);
+        Assert.That(model.Widgets, Has.Count.EqualTo(1));
+        var css = new DashboardCssBuilder().Build(model);
+        Assert.That(css, Does.Contain("--dashboard-display-sm: none;"));
+        Assert.That(css, Does.Contain("--dashboard-display-md: grid;"));
+        saved.Layout.Widgets[0] = saved.Layout.Widgets[0] with
+        {
+            Positions = saved.Layout.Widgets[0].Positions.Select(p => p with { Hidden = false }).ToArray()
+        };
+        await Save(saved);
+        Assert.That((await State(layer)).Layout.Widgets.Single().Positions.Any(p => p.Hidden), Is.False);
+    }
+
     /// <summary>
     /// Personal layouts require no physical file path.
     /// </summary>

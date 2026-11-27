@@ -193,6 +193,15 @@
 
         const config = JSON.parse(editorData.textContent);
         const container = document.getElementById(config.layout.id + '-grid');
+        const viewport = container.parentElement;
+        const breakpointButtons = [...document.querySelectorAll('[data-dashboard-breakpoint]')];
+        const previewStorageKey = `dashboard-preview:${config.layout.id}:${config.layer}`;
+        let previewBreakpoint = '';
+        try {
+            previewBreakpoint = sessionStorage.getItem(previewStorageKey) || '';
+            sessionStorage.removeItem(previewStorageKey);
+        }
+        catch { /* Use automatic width when tab storage is unavailable. */ }
         const scrollContainer = document.getElementById('content');
         const form = document.getElementById('dashboard-draft-form');
         const elements = new Map();
@@ -211,7 +220,7 @@
         let interaction;
         let undo = [];
         let redo = [];
-        const currentBreakpoint = () => ResponsiveBootstrapToolkit.current();
+        const currentBreakpoint = () => getComputedStyle(container).getPropertyValue('--dashboard-breakpoint').trim();
         let breakpoint = currentBreakpoint();
         const position = (widget, tier = breakpoint) => widget.positions
             .filter(position => breakpoints.indexOf(position.breakpoint) <= breakpoints.indexOf(tier))
@@ -229,7 +238,7 @@
             }
         }
 
-        const visible = () => layout.widgets.filter(widget => renderedIds.has(widget.id));
+        const visible = (tier = breakpoint) => layout.widgets.filter(widget => renderedIds.has(widget.id) && !position(widget, tier).hidden);
         const columns = (tier = breakpoint) => layoutRules.get(tier).columnCount;
         function bounds(widget) {
             const el = elements.get(widget.id);
@@ -250,7 +259,7 @@
         layout.rowCounts = {};
         layout.rowMinimums = {};
         function gridItems(tier = breakpoint) {
-            return visible().filter(widget => !isNews(widget)).map(widget => {
+            return visible(tier).filter(widget => !isNews(widget)).map(widget => {
                 const descriptor = config.widgets.find(choice => choice.systemName === widget.widgetSystemName);
                 return { ...structuredClone(position(widget, tier)), id: widget.id, locked: !widget.allowMove,
                     resizable: !!elements.get(widget.id).querySelector('[data-dashboard-resize="height"]'),
@@ -333,7 +342,7 @@
             if (!news) return;
 
             for (const tier of breakpoints) {
-                const bottom = Math.max(0, ...layout.widgets.filter(widget => !isNews(widget)).map(widget => {
+                const bottom = Math.max(0, ...visible(tier).filter(widget => !isNews(widget)).map(widget => {
                     const p = position(widget, tier);
                     return p.row + (p.size.rowSpan || 1);
                 }));
@@ -342,10 +351,15 @@
                 p.size.rowSpan = layoutRules.get(tier).hasNewsRail ? Math.max(1, bottom) : 1;
             }
         }
-        function render(updateToolbar = true) {
+        function render(updateToolbar = true, animateLayout = false) {
+            const previousRects = animateLayout && !window.matchMedia('(prefers-reduced-motion: reduce)').matches
+                ? new Map([...elements].filter(([, el]) => el.isConnected && el.style.display !== 'none')
+                    .map(([id, el]) => [id, el.getBoundingClientRect()]))
+                : null;
             updateNewsPositions();
 
             for (const [id, el] of elements) {
+                el.getAnimations().forEach(animation => animation.cancel());
                 const widget = widgetsById.get(id);
 
                 if (!widget) { el.remove(); continue; }
@@ -353,11 +367,29 @@
                 if (!el.isConnected) container.appendChild(el);
 
                 const p = position(widget);
+                el.style.display = p.hidden ? 'none' : 'grid';
                 el.style.gridColumn = `${p.column + 1} / span ${p.size.columnSpan}`;
                 el.style.gridRow = `${p.row + 1} / span ${p.size.rowSpan || 1}`;
             }
 
             drawGrid();
+
+            if (previousRects) {
+                for (const widget of visible()) {
+                    const el = elements.get(widget.id);
+                    const previous = previousRects.get(widget.id);
+                    const current = el.getBoundingClientRect();
+                    const x = previous ? previous.left - current.left : 0;
+                    const y = previous ? previous.top - current.top : 0;
+
+                    if (!previous || x || y) {
+                        el.animate([
+                            { transform: `translate(${x}px, ${y}px)`, opacity: previous ? 1 : 0 },
+                            { transform: 'translate(0, 0)', opacity: 1 }
+                        ], { duration: 240, easing: 'ease-out' });
+                    }
+                }
+            }
 
             if (updateToolbar) updateControls();
         }
@@ -375,6 +407,10 @@
             updateControls();
         }
         function updateControls() {
+            document.querySelectorAll('[data-show-widget]').forEach(button => {
+                const widget = widgetsById.get(button.dataset.showWidget);
+                button.hidden = !widget || !position(widget).hidden;
+            });
             $('#dashboard-undo').prop('disabled', !undo.length);
             $('#dashboard-redo').prop('disabled', !redo.length);
             $(form.elements.save).prop('disabled', !dirty || previewing || leaving);
@@ -667,6 +703,7 @@
                         undo = history.undo;
                         redo = history.redo;
                         dirty = history.dirty;
+                        previewBreakpoint = history.previewBreakpoint || '';
 
                         if (history.addedWidget) {
                             const previousWidgets = history.undo.at(-1)?.layout.widgets;
@@ -719,11 +756,18 @@
                 try {
                     sessionStorage.setItem('dashboard-history:' + token, JSON.stringify({
                         addedWidget: command === 'add' ? widget : null,
-                        layer: config.layer, undo, redo, dirty, rowCounts: layout.rowCounts, rowMinimums: layout.rowMinimums
+                        previewBreakpoint, layer: config.layer, undo, redo, dirty, rowCounts: layout.rowCounts, rowMinimums: layout.rowMinimums
                     }));
                     url.searchParams.set('dashboardHistory', token);
                 }
                 catch { /* Continue without transferred history when storage is unavailable. */ }
+            }
+
+            if (!action && command !== 'reset') {
+                try {
+                    sessionStorage.setItem(previewStorageKey, previewBreakpoint);
+                }
+                catch { /* Saving the layout must also work without tab storage. */ }
             }
 
             form.action = url.href;
@@ -774,8 +818,28 @@
             const state = from[from.length - 1];
             const settingsChanged = state.layout.widgets.filter(widget =>
                 !_.isEqual(widget.settings, widgetsById.get(widget.id)?.settings));
+            const restoresWidget = state.layout.widgets.some(widget => {
+                const current = widgetsById.get(widget.id);
+                return !position(widget).hidden && (!current || position(current).hidden);
+            });
+            const disappearing = layout.widgets.filter(widget => {
+                const next = state.layout.widgets.find(item => item.id === widget.id);
+                return elements.get(widget.id)?.isConnected && !position(widget).hidden && (!next || position(next).hidden);
+            });
             const missing = state.layout.widgets.some(w => !elements.has(w.id));
-            const apply = () => {
+            const apply = async () => {
+                if (disappearing.length && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                    previewing = true;
+                    updateControls();
+                    try {
+                        await Promise.all(disappearing.map(widget => elements.get(widget.id).animate(
+                            [{ opacity: 1 }, { opacity: 0 }],
+                            { duration: 140, easing: 'ease-out', fill: 'forwards' }).finished));
+                    }
+                    catch { return; }
+                    finally { previewing = false; updateControls(); }
+                }
+
                 to.push(previous);
                 from.pop();
                 setLayout(structuredClone(state.layout));
@@ -785,7 +849,7 @@
                     // Restored widgets may not be rendered on this page. Use their normal server lifecycle.
                     submit(config.previewUrl, null, null, true);
                 }
-                else render();
+                else render(true, restoresWidget || disappearing.length > 0);
             };
 
             if (!missing && settingsChanged.length) {
@@ -811,10 +875,10 @@
                     });
                 });
                 Promise.allSettled(requests).then(results => {
-                    if (results.every(result => result.status === 'fulfilled')) apply();
+                    if (results.every(result => result.status === 'fulfilled')) return apply();
                 }).finally(() => { previewing = false; updateControls(); });
             }
-            else apply();
+            else return apply();
         }
         $('#dashboard-undo').on('click', () => historyStep(undo, redo));
         $('#dashboard-redo').on('click', () => historyStep(redo, undo));
@@ -830,17 +894,56 @@
             if (key === 'y' || event.shiftKey) historyStep(redo, undo);
             else historyStep(undo, redo);
         });
-        $(container).on('click', '.dashboard-remove', function () {
+        $(container).on('click', '.dashboard-hide', async function () {
+            if (previewing || leaving) return;
+
             const el = this.closest('[data-instance-id]');
+            const widget = widgetsById.get(el.dataset.instanceId);
+            if (widget.isRequired) return;
+
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                previewing = true;
+                updateControls();
+                try {
+                    await el.animate([{ opacity: 1 }, { opacity: 0 }], {
+                        duration: 140, easing: 'ease-out', fill: 'forwards'
+                    }).finished;
+                }
+                catch { return; }
+                finally { previewing = false; updateControls(); }
+            }
+
+            const before = capture();
+            position(widget).hidden = true;
+            arrange(); render(false, true); remember(before);
+        });
+        $(container).on('click', '.dashboard-remove', function () {
+            if (previewing || leaving) return;
+
+            const el = this.closest('[data-instance-id]');
+            if (widgetsById.get(el.dataset.instanceId).isRequired) return;
+
             confirm2({
                 message: window.Res.Dashboard.removeWidgetConfirm,
                 icon: { type: 'delete' },
-                callback: accepted => {
-                    if (!accepted) return;
+                callback: async accepted => {
+                    if (!accepted || previewing || leaving) return;
+
+                    if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                        previewing = true;
+                        updateControls();
+                        try {
+                            await el.animate([{ opacity: 1 }, { opacity: 0 }], {
+                                duration: 140, easing: 'ease-out', fill: 'forwards'
+                            }).finished;
+                        }
+                        catch { return; }
+                        finally { previewing = false; updateControls(); }
+                    }
 
                     const before = capture();
                     setLayout({ ...layout, widgets: layout.widgets.filter(w => w.id !== el.dataset.instanceId) });
-                    arrange(); render(false); remember(before);
+                    arrange(); render(false, true); remember(before);
                 }
             });
         });
@@ -978,16 +1081,61 @@
                 }
             });
         });
+        $('[data-show-widget]').on('click', function () {
+            const widget = widgetsById.get(this.dataset.showWidget);
+            if (!widget || !position(widget).hidden) return;
+
+            const before = capture();
+            position(widget).hidden = false;
+            arrange(widget.id);
+            render(false, true);
+            remember(before);
+        });
         $('[data-add-widget]').on('click', function () {
             remember(capture(), true);
             submit(config.previewUrl, 'add', this.dataset.addWidget, true);
         });
-        window.addEventListener('resize', () => {
+        function selectBreakpoint(button) {
             finish(true);
+            previewBreakpoint = button.dataset.dashboardBreakpoint;
+            viewport.style.maxWidth = previewBreakpoint === 'xxl' ? '' : getComputedStyle(button).getPropertyValue('--dashboard-preview-width').trim();
+            breakpointButtons.forEach(item => {
+                const selected = item === button;
+                item.classList.toggle('active', selected);
+                item.setAttribute('aria-checked', String(selected));
+            });
+            document.getElementById('dashboard-breakpoint-toggle').replaceChildren(
+                ...[...button.children].map(child => child.cloneNode(true)));
             breakpoint = currentBreakpoint();
+            if (!previewBreakpoint) {
+                document.getElementById('dashboard-breakpoint-toggle').querySelector('span').textContent += ' · ' + breakpoint.toUpperCase();
+            }
             render();
+        }
+        breakpointButtons.forEach(button => button.addEventListener('click', () => selectBreakpoint(button)));
+        selectBreakpoint(breakpointButtons.find(button => button.dataset.dashboardBreakpoint === previewBreakpoint) || breakpointButtons[0]);
+        viewport.classList.remove('invisible');
+
+        let viewportWidth = viewport.getBoundingClientRect().width;
+        const resizeObserver = new ResizeObserver(() => {
+            const parentStyle = getComputedStyle(viewport.parentElement);
+            const availableWidth = viewport.parentElement.clientWidth - parseFloat(parentStyle.paddingLeft) - parseFloat(parentStyle.paddingRight);
+            breakpointButtons.forEach(button => {
+                const width = parseFloat(getComputedStyle(button).getPropertyValue('--dashboard-preview-width')) || 0;
+                button.disabled = width > availableWidth;
+            });
+            if (breakpointButtons.some(button => button.disabled && button.dataset.dashboardBreakpoint === previewBreakpoint)) {
+                selectBreakpoint(breakpointButtons[0]);
+            }
+
+            const width = viewport.getBoundingClientRect().width;
+            if (width === viewportWidth) return;
+
+            viewportWidth = width;
+            selectBreakpoint(breakpointButtons.find(button => button.dataset.dashboardBreakpoint === previewBreakpoint));
         });
-        render();
+        resizeObserver.observe(viewport);
+        resizeObserver.observe(viewport.parentElement);
 
         if (addedWidgetId) {
             const scrollToAddedWidget = () => requestAnimationFrame(() => {

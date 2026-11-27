@@ -122,7 +122,10 @@ public class SmartDbContextDataSeeder : IDataSeeder<SmartDbContext>
         builder.AddOrUpdate("Admin.Dashboard.Editor.Dashboard.User", "My dashboard", "Mein Dashboard");
         builder.AddOrUpdate("Admin.Dashboard.Editor.Customize", "Customize dashboard", "Dashboard anpassen");
         builder.AddOrUpdate("Admin.Dashboard.Editor.View", "Dashboard view", "Dashboard-Ansicht");
-        builder.AddOrUpdate("Admin.Dashboard.Editor.RemoveWidgetConfirm", "Really remove this widget?", "Dieses Widget wirklich entfernen?");
+        builder.AddOrUpdate("Admin.Dashboard.Editor.HideWidget", "Hide in this view", "In dieser Ansicht ausblenden");
+        builder.AddOrUpdate("Admin.Dashboard.Editor.ShowWidget", "Show again", "Wieder einblenden");
+        builder.AddOrUpdate("Admin.Dashboard.Editor.RemoveWidget", "Remove from all views", "Aus allen Ansichten entfernen");
+        builder.AddOrUpdate("Admin.Dashboard.Editor.RemoveWidgetConfirm", "Really remove this widget from all responsive views?", "Dieses Widget wirklich aus allen responsiven Ansichten entfernen?");
         builder.AddOrUpdate("Admin.Dashboard.Editor.ResetConfirm",
             "Remove the customization immediately and return to the default dashboard? Unsaved changes will be discarded.",
             "Die Anpassung jetzt entfernen und zur Dashboard-Vorgabe zurückkehren? Ungespeicherte Änderungen werden verworfen.");
@@ -152,6 +155,7 @@ public class SmartDbContextDataSeeder : IDataSeeder<SmartDbContext>
             "Anzahl angezeigter Elemente",
             "Show between 1 and 50 items.",
             "Zeigt zwischen 1 und 50 Elemente an.");
+        builder.AddOrUpdate("Admin.Dashboard.Editor.PreviewWidth", "Layout width", "Layoutbreite");
         builder.AddOrUpdate("Admin.Dashboard.Editor.Width", "Change widget width", "Widget-Breite ändern");
         builder.AddOrUpdate("Admin.Dashboard.Editor.Height", "Change widget row span", "Widget-Zeilenspanne ändern");
         builder.AddOrUpdate("Permissions.DisplayName.Personalize", "Customize own dashboard", "Eigenes Dashboard anpassen");

@@ -36,6 +36,49 @@
                 <input type="hidden" name="widgetSystemName" />
                 <div class="hstack gap-2 text-nowrap" role="toolbar" aria-label="@T(editorKey + "Customize")">
                     <div class="dropdown">
+                        <button id="dashboard-breakpoint-toggle"
+                                type="button"
+                                class="btn btn-light dropdown-toggle"
+                                data-toggle="dropdown"
+                                aria-haspopup="true"
+                                aria-expanded="false"
+                                aria-controls="dashboard-breakpoints"
+                                title="@T(editorKey + "PreviewWidth")">
+                            <icon name="hi:computer" />
+                            <span>@T("Common.Auto")</span>
+                        </button>
+                        <div id="dashboard-breakpoints"
+                             class="dropdown-menu dropdown-menu-right"
+                             role="menu"
+                             aria-labelledby="dashboard-breakpoint-toggle">
+
+                            <h6 class="dropdown-header">@T(editorKey + "PreviewWidth")</h6>
+                            <button type="button" class="dropdown-item active" data-dashboard-breakpoint="" role="menuitemradio" aria-checked="true">
+                                <icon name="hi:computer" />
+                                <span>@T("Common.Auto")</span>
+                            </button>
+
+                            @foreach (var breakpoint in Enum.GetValues<DashboardBreakpoint>())
+                            {
+                                var icon = breakpoint switch
+                                {
+                                    DashboardBreakpoint.Xs or DashboardBreakpoint.Sm => "hi:smart-phone-01",
+                                    DashboardBreakpoint.Md => "hi:tablet-01",
+                                    DashboardBreakpoint.Lg => "hi:laptop",
+                                    _ => "hi:computer"
+                                };
+                                <button type="button"
+                                        class="dropdown-item"
+                                        data-dashboard-breakpoint="@breakpoint.ToString().ToLowerInvariant()"
+                                        role="menuitemradio"
+                                        aria-checked="false">
+                                    <icon name="@icon" />
+                                    <span>@breakpoint.ToString().ToUpperInvariant()</span>
+                                </button>
+                            }
+                        </div>
+                    </div>
+                    <div class="dropdown">
                         <button id="dashboard-picker-toggle"
                                 type="button"
                                 class="btn btn-light dropdown-toggle"
@@ -47,6 +90,13 @@
                             <span>@T(editorKey + "Widgets")</span>
                         </button>
                         <div id="dashboard-picker" class="dropdown-menu dropdown-menu-right" aria-labelledby="dashboard-picker-toggle">
+                            @foreach (var item in Model.Dashboard.Widgets.Where(item => !item.Policy.IsRequired))
+                            {
+                                <button type="button" class="dropdown-item" data-show-widget="@item.Instance.Id" hidden>
+                                    <icon name="@(item.Descriptor.IconName ?? "widgets")" />
+                                    <span>@T(editorKey + "ShowWidget"): @item.Descriptor.Title.Resolve(T)</span>
+                                </button>
+                            }
                             @foreach (var group in Model.WidgetGroups)
                             {
                                 if (group.MenuId.HasValue())

@@ -55,11 +55,13 @@ public sealed record DashboardEditorLayoutRule(
 /// <param name="WidgetSystemName">The widget type used to update the picker.</param>
 /// <param name="Positions">The responsive placements.</param>
 /// <param name="AllowMove">Whether the editor allows moving the widget.</param>
+/// <param name="IsRequired">Whether the widget must remain visible at every breakpoint.</param>
 public sealed record DashboardEditorWidget(
     string Id,
     string WidgetSystemName,
     IReadOnlyCollection<DashboardWidgetPosition> Positions,
     bool AllowMove,
+    bool IsRequired,
     JsonObject Settings = null);
 
 /// <summary>

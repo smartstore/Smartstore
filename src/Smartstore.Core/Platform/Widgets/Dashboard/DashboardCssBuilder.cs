@@ -54,6 +54,12 @@ public sealed class DashboardCssBuilder : IDashboardCssBuilder
     {
         var breakpoint = position.Breakpoint.ToString().ToLowerInvariant();
 
+        if (position.Hidden != (previous?.Hidden ?? false))
+        {
+            builder.Append("    --dashboard-display-").Append(breakpoint).Append(": ")
+                .Append(position.Hidden ? "none" : "grid").AppendLine(";");
+        }
+
         if (previous == null || position.Column != previous.Column || position.Size.ColumnSpan != previous.Size.ColumnSpan)
         {
             builder.Append("    --dashboard-column-").Append(breakpoint).Append(": ")

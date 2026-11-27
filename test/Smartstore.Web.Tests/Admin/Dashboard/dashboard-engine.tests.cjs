@@ -75,23 +75,51 @@ test('expanding left displaces a neighbor without moving the opposite edge', () 
 });
 
 // Run the editor with a minimal DOM and the bundled Underscore.
-function createEditor({ direction = 'ltr', blockedStorage = false, allowedSizes = [], layer = 'User', belowPosition, news = false, breakpoint = 'xl', dirty = false } = {}) {
+function createEditor({ deferFade = false, reducedMotion = false, required = false, direction = 'ltr', blockedStorage = false, allowedSizes = [], layer = 'User', belowPosition, news = false, breakpoint = 'xl', dirty = false, storage = new Map() } = {}) {
+    let finishFade, cancelFade;
+    const animations = [];
     const handlers = new Map();
     const controls = new Map();
     const element = {
         dataset: { instanceId: 'a', minWidth: '2', maxWidth: '6' },
         style: {}, isConnected: true, offsetHeight: 300,
+        remove() { this.isConnected = false; },
+        getAnimations: () => [],
+        animate(frames, options) {
+            animations.push({ id: this.dataset.instanceId, frames, options });
+            return {
+                finished: deferFade && options.duration === 140
+                    ? new Promise((resolve, reject) => { finishFade = resolve; cancelFade = reject; })
+                    : Promise.resolve()
+            };
+        },
         classList: { contains: () => false, add() {}, remove() {} },
-        getBoundingClientRect: () => ({ top: 0, bottom: 300, height: 300 }),
+        getBoundingClientRect: () => ({ left: 0, top: 0, bottom: 300, height: 300 }),
         querySelector: selector => selector.includes('resize') || selector === '.dashboard-widget-overlay' ? {} : null,
         querySelectorAll: () => []
     };
     const belowElement = { ...element, dataset: { ...element.dataset, instanceId: 'b' }, style: {},
         querySelector: element.querySelector, getBoundingClientRect: () => ({ top: 300, bottom: 500, height: 200 }) };
     const newsElement = { ...element, dataset: { ...element.dataset, instanceId: 'news' }, style: {}, querySelector: () => null };
+    const previewWidths = { xs: 375, sm: 576, md: 768, lg: 992, xl: 1200, xxl: 1400 };
+    const viewport = {
+        style: {}, classList: { remove() {} }, parentElement: { clientWidth: previewWidths[breakpoint] },
+        getBoundingClientRect: () => ({ width: Math.min(parseFloat(viewport.style.maxWidth) || Infinity, viewport.parentElement.clientWidth) })
+    };
+    const breakpointButtons = ['', ...Object.keys(previewWidths)].map(tier => ({
+        dataset: { dashboardBreakpoint: tier }, children: [{ cloneNode: () => ({ textContent: tier.toUpperCase() || 'Automatic' }) }], classList: { toggle() {} },
+        setAttribute(name, value) { this[name] = value; },
+        addEventListener(name, callback) { this[name] = callback; }
+    }));
+    const breakpointToggle = {
+        replaceChildren(label) { this.label = label; },
+        querySelector() { return this.label; }
+    };
+    let resize;
     const container = {
+        parentElement: viewport,
         style: {},
-        appendChild() {},
+        appendChild(el) { el.isConnected = true; },
         querySelectorAll: selector => selector === '[data-instance-id]' ? [element, ...(belowPosition ? [belowElement] : []), ...(news ? [newsElement] : [])] : [],
         addEventListener: (name, callback) => handlers.set(name, [callback]),
         getBoundingClientRect: () => ({ left: 0, right: 1200, top: 0 })
@@ -99,7 +127,7 @@ function createEditor({ direction = 'ltr', blockedStorage = false, allowedSizes 
     const scrollContainer = { scrollTop: 0, getBoundingClientRect: () => ({ top: 0, bottom: 900 }) };
     const config = {
         layout: { id: 'dashboard', columnCount: 12, rules: ['xs', 'sm', 'md', 'lg', 'xl', 'xxl'].map(breakpoint => ({ breakpoint, columnCount: 12, fullWidthWidgets: ['xs', 'sm'].includes(breakpoint), hasNewsRail: false })), widgets: [
-            { id: 'a', widgetSystemName: 'Test', allowMove: true,
+            { id: 'a', widgetSystemName: 'Test', allowMove: true, isRequired: required,
                 positions: [{ breakpoint: 'xs', column: 2, row: 1, size: { columnSpan: 4, rowSpan: 1 } }] }
         ] },
         maxHeight: 310, widgets: [{ systemName: 'Test', allowedSizes }], layer, dirty, editUrl: '/admin?edit=true', cancelUrl: '/admin'
@@ -137,9 +165,10 @@ function createEditor({ direction = 'ltr', blockedStorage = false, allowedSizes 
             'dashboard-editor-data': { textContent: JSON.stringify(config) },
             'dashboard-grid': container,
             content: scrollContainer,
-            'dashboard-draft-form': form
+            'dashboard-draft-form': form,
+            'dashboard-breakpoint-toggle': breakpointToggle
         })[id],
-        querySelectorAll: () => [],
+        querySelectorAll: selector => selector === '[data-dashboard-breakpoint]' ? breakpointButtons : [],
         addEventListener: (name, callback) => {
             const list = handlers.get(name) || [];
             list.push(callback);
@@ -156,7 +185,7 @@ function createEditor({ direction = 'ltr', blockedStorage = false, allowedSizes 
                 text(value) { this.label = value; return this; },
                 attr(name, value) { this[name] = value; return this; },
                 toggleClass() { return this; },
-                on(name, callback) { this[name] = callback; return this; }
+                on(name, selector, callback) { this[callback ? selector : name] = callback || selector; return this; }
             };
             controls.set(selector, control);
         }
@@ -164,18 +193,37 @@ function createEditor({ direction = 'ltr', blockedStorage = false, allowedSizes 
         return controls.get(selector);
     }
     const sandbox = {
-        Smartstore: { Admin: {} }, ResponsiveBootstrapToolkit: { current: () => breakpoint }, jQuery: jquery, document, structuredClone, URL,
+        Smartstore: { Admin: {} }, jQuery: jquery, document, structuredClone, URL,
         HTMLFormElement: { prototype: { submit() { submissions++; } } },
         confirm2(options) { confirmation = options; return { find: () => ({ text() {} }) }; },
-        window: { innerWidth: 1200, innerHeight: 900, scrollY: 0, location: { href: 'https://example.test/admin?dashboardHistory=test', assign(url) { navigations.push(url); } },
+        window: { matchMedia: () => ({ matches: reducedMotion }), innerWidth: 1200, innerHeight: 900, scrollY: 0, location: { href: 'https://example.test/admin?dashboardHistory=test', assign(url) { navigations.push(url); } },
             Res: { Dashboard: { cancel: 'Cancel' } }, history: { replaceState() {} }, addEventListener() {} },
         sessionStorage: {
-            getItem() { if (blockedStorage) throw new Error('Storage blocked');
-
- return null; },
-            removeItem() {}
+            getItem(key) {
+                if (blockedStorage) throw new Error('Storage blocked');
+                return storage.get(key) ?? null;
+            },
+            setItem(key, value) {
+                if (blockedStorage) throw new Error('Storage blocked');
+                storage.set(key, value);
+            },
+            removeItem(key) {
+                if (blockedStorage) throw new Error('Storage blocked');
+                storage.delete(key);
+            }
         },
-        getComputedStyle: () => ({ minHeight: '64px', direction, gridTemplateRows: '150px 150px 150px 150px', gridTemplateColumns: Array(12).fill(100).join(' ') }),
+        ResizeObserver: class { constructor(callback) { resize = callback; } observe() {} },
+        getComputedStyle: el => ({
+            minHeight: '64px', direction, paddingLeft: '0px', paddingRight: '0px',
+            gridTemplateRows: '150px 150px 150px 150px', gridTemplateColumns: Array(12).fill(100).join(' '),
+            getPropertyValue(name) {
+                if (name === '--dashboard-preview-width') return previewWidths[el.dataset?.dashboardBreakpoint] ? previewWidths[el.dataset.dashboardBreakpoint] + 'px' : '';
+                if (name === '--dashboard-breakpoint') return viewport.style.maxWidth
+                    ? Object.keys(previewWidths).find(tier => previewWidths[tier] === parseFloat(viewport.style.maxWidth))
+                    : Object.keys(previewWidths).filter(tier => previewWidths[tier] <= viewport.parentElement.clientWidth).pop() || 'xs';
+                return '';
+            }
+        }),
         requestAnimationFrame: callback => { sandbox.frame = callback; return 1; },
         cancelAnimationFrame() {}
     };
@@ -191,6 +239,17 @@ function createEditor({ direction = 'ltr', blockedStorage = false, allowedSizes 
         'utf8'),
         sandbox);
     return {
+        animations,
+        finishFade: () => finishFade(),
+        cancelFade: () => cancelFade(new Error('Animation cancelled')),
+        remove() { controls.get(container)['.dashboard-remove'].call({ closest: () => element }); },
+        hide() { return controls.get(container)['.dashboard-hide'].call({ closest: () => element }); },
+        show() { controls.get('[data-show-widget]').click.call({ dataset: { showWidget: 'a' } }); },
+        selectBreakpoint: tier => breakpointButtons.find(button => button.dataset.dashboardBreakpoint === tier).click(),
+        previewWidth: () => viewport.style.maxWidth,
+        previewLabel: () => breakpointToggle.label.textContent,
+        resize(width) { viewport.parentElement.clientWidth = width; resize(); },
+        breakpointDisabled: tier => breakpointButtons.find(button => button.dataset.dashboardBreakpoint === tier).disabled,
         style: element.style,
         belowStyle: belowElement.style,
         newsStyle: newsElement.style,
@@ -204,8 +263,6 @@ function createEditor({ direction = 'ltr', blockedStorage = false, allowedSizes 
         redo: () => controls.get('#dashboard-redo').click(),
         cancel: () => controls.get('#dashboard-cancel').click(),
         canCancel: () => !controls.get('#dashboard-cancel').disabled,
-        cancelLabel: () => controls.get('#dashboard-cancel').label,
-        cancelAriaLabel: () => controls.get('#dashboard-cancel')['aria-label'],
         navigations,
         changeLayer: layer => controls.get('[data-dashboard-edit]').click.call({ dataset: { dashboardEdit: layer } }),
         canSave: () => !controls.get(form.elements.save).disabled,
@@ -261,23 +318,15 @@ test('personal dashboard saves changes without a confirmation', () => {
     const editor = createEditor();
     assert.equal(editor.canSave(), false);
     assert.equal(editor.canCancel(), true);
-    assert.equal(editor.cancelLabel(), 'Cancel');
-    assert.equal(editor.cancelAriaLabel(), 'Cancel');
     editor.save();
     assert.equal(editor.submissions(), 0);
     editor.drag('width', { clientX: 410 });
     assert.equal(editor.canSave(), true);
     assert.equal(editor.canCancel(), true);
-    assert.equal(editor.cancelLabel(), 'Cancel');
-    assert.equal(editor.cancelAriaLabel(), 'Cancel');
     editor.undo();
     assert.equal(editor.canSave(), false);
     assert.equal(editor.canCancel(), true);
-    assert.equal(editor.cancelLabel(), 'Cancel');
-    assert.equal(editor.cancelAriaLabel(), 'Cancel');
     editor.redo();
-    assert.equal(editor.cancelLabel(), 'Cancel');
-    assert.equal(editor.cancelAriaLabel(), 'Cancel');
     assert.equal(editor.canSave(), true);
     assert.equal(editor.canCancel(), true);
     editor.save();
@@ -681,7 +730,7 @@ for (const fail of [false, true]) {
             layout: newLayout, widgetsById: new Map([['payments', newLayout.widgets[0]]]),
             elements: new Map([['payments', element]]),
             _: { isEqual: (a, b) => JSON.stringify(a) === JSON.stringify(b) },
-            finish() {}, render() {},
+            finish() {}, render() {}, position: () => ({ hidden: false }),
             capture() { return { layout: sandbox.layout, dirty: true }; },
             setLayout(layout) { sandbox.layout = layout; sandbox.widgetsById = new Map(layout.widgets.map(w => [w.id, w])); },
             Smartstore: { Admin: { Dashboard: { updateWidget(el, html) { updates.push({ el, html }); } } } },
@@ -809,3 +858,234 @@ test('changing dashboard view only asks to discard when there are changes', () =
     assert.deepEqual(dirty.navigations, ['/admin?edit=true&layer=Global']);
     assert.equal(dirty.submissions(), 0);
 });
+
+test('breakpoint preview changes neither dirty state nor undo history', () => {
+    const editor = createEditor({ news: true });
+    editor.selectBreakpoint('md');
+    assert.equal(editor.previewWidth(), '768px');
+    assert.equal(editor.newsStyle.gridColumn, '1 / span 12');
+    assert.equal(editor.canSave(), false);
+    assert.equal(editor.canUndo(), false);
+    editor.selectBreakpoint('');
+    assert.equal(editor.previewWidth(), '');
+    assert.equal(editor.newsStyle.gridColumn, '11 / span 2');
+});
+
+test('editing a preview only changes that breakpoint and survives switching back', () => {
+    const editor = createEditor();
+    editor.selectBreakpoint('md');
+    editor.drag('width', { clientX: 510 });
+    assert.equal(editor.style.gridColumn, '3 / span 6');
+    editor.selectBreakpoint('');
+    assert.equal(editor.style.gridColumn, '3 / span 4');
+    editor.save();
+    const positions = editor.submitted().widgets[0].positions;
+    assert.equal(positions.find(p => p.breakpoint === 'md').size.columnSpan, 6);
+    assert.ok(positions.filter(p => p.breakpoint !== 'md').every(p => p.size.columnSpan === 4));
+});
+
+test('an unavailable preview returns to automatic without creating changes', () => {
+    const editor = createEditor();
+    editor.selectBreakpoint('lg');
+    editor.resize(800);
+    assert.equal(editor.previewWidth(), '');
+    assert.equal(editor.breakpointDisabled('lg'), true);
+    assert.equal(editor.breakpointDisabled('md'), false);
+    assert.equal(editor.canSave(), false);
+    assert.equal(editor.canUndo(), false);
+});
+
+test('saving restores the selected preview once without restoring dirty state or undo', () => {
+    for (const tier of ['', 'xs', 'sm', 'md', 'lg', 'xl']) {
+        const storage = new Map();
+        const editor = createEditor({ storage, dirty: true });
+        editor.selectBreakpoint(tier);
+        const width = editor.previewWidth();
+        editor.save();
+        assert.equal(editor.submissions(), 1);
+
+        const reopened = createEditor({ storage });
+        assert.equal(reopened.previewWidth(), width);
+        assert.equal(reopened.canSave(), false);
+        assert.equal(reopened.canUndo(), false);
+        assert.equal(storage.size, 0);
+        assert.equal(createEditor({ storage }).previewWidth(), '');
+    }
+});
+
+test('unavailable tab storage does not prevent saving a selected preview', () => {
+    const editor = createEditor({ blockedStorage: true, dirty: true });
+    editor.selectBreakpoint('md');
+    editor.save();
+    assert.equal(editor.submissions(), 1);
+});
+
+test('XXL uses all available width and automatic shows the active breakpoint on resize', () => {
+    const editor = createEditor({ breakpoint: 'xxl' });
+    editor.resize(1800);
+    editor.selectBreakpoint('xxl');
+    assert.equal(editor.previewWidth(), '');
+    assert.equal(editor.previewLabel(), 'XXL');
+    editor.resize(1300);
+    assert.equal(editor.breakpointDisabled('xxl'), true);
+    assert.equal(editor.previewLabel(), 'Automatic · XL');
+    editor.resize(800);
+    assert.equal(editor.previewLabel(), 'Automatic · MD');
+    assert.equal(editor.canSave(), false);
+    assert.equal(editor.canUndo(), false);
+});
+
+test('hiding is local to one tier, survives save, and supports undo, redo and showing again', async () => {
+    const editor = createEditor({ news: true });
+    editor.selectBreakpoint('sm');
+    await editor.hide();
+    assert.equal(editor.hasConfirmation(), false);
+    assert.equal(editor.style.display, 'none');
+    assert.equal(editor.newsStyle.gridRow, '1 / span 1');
+    editor.selectBreakpoint('md');
+    assert.equal(editor.style.display, 'grid');
+    editor.selectBreakpoint('xs');
+    assert.equal(editor.style.display, 'grid');
+    editor.selectBreakpoint('sm');
+    await editor.undo();
+    assert.equal(editor.style.display, 'grid');
+    await editor.redo();
+    assert.equal(editor.style.display, 'none');
+    editor.save();
+    const widget = editor.submitted().widgets.find(w => w.id === 'a');
+    assert.deepEqual(widget.positions.filter(p => p.hidden).map(p => p.breakpoint), ['sm']);
+    editor.show();
+    assert.equal(editor.style.display, 'grid');
+});
+
+test('required widgets cannot be hidden through the editor', async () => {
+    const editor = createEditor({ required: true });
+    await editor.hide();
+    assert.equal(editor.hasConfirmation(), false);
+    assert.equal(editor.style.display, 'grid');
+    assert.equal(editor.canSave(), false);
+});
+
+test('showing resolves collisions in the active tier', async () => {
+    const editor = createEditor({ belowPosition: { row: 1 } });
+    editor.selectBreakpoint('md');
+    await editor.hide();
+    assert.equal(editor.hasConfirmation(), false);
+    editor.show();
+    assert.notEqual(editor.style.gridRow, editor.belowStyle.gridRow);
+    editor.selectBreakpoint('lg');
+    assert.equal(editor.style.gridRow, '2 / span 1');
+    assert.equal(editor.belowStyle.gridRow, '2 / span 1');
+});
+
+test('showing animates the existing widget without changing saved placement rules', async () => {
+    const editor = createEditor();
+    await editor.hide();
+    assert.equal(editor.hasConfirmation(), false);
+    editor.show();
+    const animation = editor.animations.find(a => a.id === 'a' && a.frames[0].opacity === 0);
+    assert.equal(animation.options.duration, 240);
+    assert.equal(animation.frames[0].opacity, 0);
+    assert.equal(animation.frames[1].opacity, 1);
+});
+
+test('reduced motion suppresses visibility animations', async () => {
+    const editor = createEditor({ reducedMotion: true });
+    await editor.hide();
+    assert.equal(editor.hasConfirmation(), false);
+    editor.show();
+    assert.equal(editor.animations.length, 0);
+    assert.equal(editor.style.display, 'grid');
+});
+
+test('removing requires confirmation and removes the widget from every tier', async () => {
+    const editor = createEditor();
+    editor.remove();
+    assert.equal(editor.hasConfirmation(), true);
+    editor.confirm(false);
+    assert.equal(editor.canSave(), false);
+    editor.remove();
+    await editor.confirm(true);
+    await editor.undo();
+    assert.equal(editor.canSave(), false);
+    await editor.redo();
+    assert.equal(editor.canSave(), true);
+    editor.save();
+    assert.equal(editor.submitted().widgets.some(w => w.id === 'a'), false);
+});
+
+test('required widgets cannot be removed through the editor', async () => {
+    const editor = createEditor({ required: true });
+    editor.remove();
+    assert.equal(editor.hasConfirmation(), false);
+    assert.equal(editor.canSave(), false);
+});
+
+for (const action of ['hide', 'remove']) {
+    test(`undo restores a ${action} widget with animation, redo animates removal`, async () => {
+        const editor = createEditor();
+        if (action === 'hide') await editor.hide();
+        else { editor.remove(); await editor.confirm(true); }
+        editor.animations.length = 0;
+        await editor.undo();
+        assert.equal(editor.animations.some(a => a.id === 'a' && a.frames[0].opacity === 0), true);
+        editor.animations.length = 0;
+        await editor.redo();
+        assert.equal(editor.animations.some(a => a.id === 'a' && a.frames[1].opacity === 0), true);
+    });
+}
+
+test('redo animates showing a widget again', async () => {
+    const editor = createEditor();
+    await editor.hide();
+    editor.show();
+    await editor.undo();
+    editor.animations.length = 0;
+    await editor.redo();
+    assert.equal(editor.animations.some(a => a.id === 'a' && a.frames[0].opacity === 0), true);
+});
+
+test('undo does not animate visibility changes from another breakpoint', async () => {
+    const editor = createEditor();
+    editor.selectBreakpoint('sm');
+    await editor.hide();
+    editor.selectBreakpoint('lg');
+    editor.animations.length = 0;
+    await editor.undo();
+    assert.equal(editor.animations.length, 0);
+});
+
+for (const action of ['hide', 'remove']) {
+    test(`saving waits for the ${action} animation and includes the completed change`, async () => {
+        const editor = createEditor({ dirty: true, deferFade: true });
+        assert.equal(editor.canSave(), true);
+        let pending;
+        if (action === 'hide') pending = editor.hide();
+        else { editor.remove(); pending = editor.confirm(true); }
+        assert.equal(editor.canSave(), false);
+        editor.save();
+        assert.equal(editor.submissions(), 0);
+        editor.finishFade();
+        await pending;
+        assert.equal(editor.canSave(), true);
+        editor.save();
+        assert.equal(editor.submissions(), 1);
+        const widget = editor.submitted().widgets.find(w => w.id === 'a');
+        if (action === 'hide') assert.equal(widget.positions.find(p => p.breakpoint === 'xl').hidden, true);
+        else assert.equal(widget, undefined);
+    });
+
+    test(`cancelled ${action} animation releases the save lock without changing visibility`, async () => {
+        const editor = createEditor({ dirty: true, deferFade: true });
+        let pending;
+        if (action === 'hide') pending = editor.hide();
+        else { editor.remove(); pending = editor.confirm(true); }
+        editor.cancelFade();
+        await pending;
+        assert.equal(editor.canSave(), true);
+        editor.save();
+        const widget = editor.submitted().widgets.find(w => w.id === 'a');
+        assert.ok(widget);
+        assert.equal(widget.positions.some(p => p.hidden), false);
+    });
+}

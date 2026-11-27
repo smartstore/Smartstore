@@ -35,6 +35,7 @@ public static class DashboardEditorMapper
                 item.Instance.WidgetSystemName,
                 item.Instance.Positions,
                 item.Policy.AllowMove,
+                item.Policy.IsRequired,
                 item.Policy.AllowConfigure ? item.Instance.Settings : null))
             .ToArray();
 
@@ -151,6 +152,7 @@ public static class DashboardEditorMapper
             var occupiedPositions = layout.Widgets
                 .Where(widget => widget != newsWidget)
                 .Select(widget => widget.GetPosition(rule.Breakpoint))
+                .Where(position => !position.Hidden)
                 .ToArray();
 
             // The first available row is either zero or the bottom edge of an existing rectangle.

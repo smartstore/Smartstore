@@ -45,6 +45,24 @@ public sealed class DashboardLayoutTests
         });
     }
 
+    [Test]
+    public void Insertion_Ignores_Hidden_Placements_Only_At_Their_Tier()
+    {
+        var layout = new DashboardLayout("test")
+        {
+            Widgets = [new DashboardWidgetInstance("test", "test")
+            {
+                Positions = Enum.GetValues<DashboardBreakpoint>().Select(tier => new DashboardWidgetPosition
+                {
+                    Breakpoint = tier, Hidden = tier == DashboardBreakpoint.Sm, Size = new DashboardWidgetSize(12, 2)
+                }).ToArray()
+            }]
+        };
+        var positions = DashboardEditorMapper.GetInsertionPositions(layout, new DashboardWidgetSize(12));
+        Assert.That(positions.Single(p => p.Breakpoint == DashboardBreakpoint.Sm).Row, Is.Zero);
+        Assert.That(positions.Where(p => p.Breakpoint != DashboardBreakpoint.Sm).All(p => p.Row == 2), Is.True);
+    }
+
     /// <summary>
     /// Reuses holes independently at each breakpoint and appends when the requested width does not fit.
     /// </summary>

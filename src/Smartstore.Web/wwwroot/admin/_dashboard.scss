@@ -3,13 +3,20 @@
 // Named positions inherit from the preceding tier; Bootstrap owns the pixel thresholds.
 $dashboard-column: auto;
 $dashboard-row: auto;
+$dashboard-display: grid;
 
 @each $breakpoint in map-keys($grid-breakpoints) {
     $dashboard-column: var(--dashboard-column-#{$breakpoint}, #{$dashboard-column});
     $dashboard-row: var(--dashboard-row-#{$breakpoint}, #{$dashboard-row});
+    $dashboard-display: var(--dashboard-display-#{$breakpoint}, #{$dashboard-display});
 
-    @include media-breakpoint-up($breakpoint) {
+    @container dashboard (min-width: #{map-get($grid-breakpoints, $breakpoint)}) {
+        .dashboard-container > [id$="-grid"] {
+            --dashboard-breakpoint: #{$breakpoint};
+        }
+
         .dashboard-widget {
+            --dashboard-display: #{$dashboard-display};
             grid-column: $dashboard-column;
             grid-row: $dashboard-row;
         }
@@ -33,11 +40,17 @@ $dashboard-row: auto;
     }
 
     // The desktop news rail must not impose fixed-width columns on stacked layouts.
-    @include media-breakpoint-down(md) {
+    @container dashboard (width < #{map-get($grid-breakpoints, lg)}) {
         #admin-dashboard-grid {
             grid-template-columns: repeat(12, minmax(0, 1fr)) !important;
         }
     }
+}
+
+.dashboard-container {
+    container: dashboard / inline-size;
+    width: 100%;
+    margin-inline: auto;
 }
 
 .chart-colors {
@@ -502,9 +515,27 @@ $dashboard-row: auto;
     }
 }
 
-@include media-breakpoint-down(xs) {
+@container dashboard (width < #{map-get($grid-breakpoints, sm)}) {
     .newsfeed-column + .newsfeed-column {
         border-top: 1px solid var(--gray-200);
+    }
+}
+
+@container dashboard (#{map-get($grid-breakpoints, sm)} <= width < #{map-get($grid-breakpoints, lg)}) {
+    .newsfeed-items {
+        --gutter-x: #{map-get($spacers, 3)};
+        --gutter-y: #{map-get($spacers, 3)};
+        padding: map-get($spacers, 3);
+    }
+
+    .newsfeed-column {
+        width: 50%;
+    }
+}
+
+@container dashboard (min-width: #{map-get($grid-breakpoints, lg)}) {
+    .newsfeed-rail-hidden {
+        display: none;
     }
 }
 
@@ -515,12 +546,12 @@ $dashboard-row: auto;
     &.pinned {
         background-color: rgba(var(--primary-rgb), .05);
 
-        @include media-breakpoint-between(sm, md) {
+        @container dashboard (#{map-get($grid-breakpoints, sm)} <= width < #{map-get($grid-breakpoints, lg)}) {
             border-radius: var(--border-radius-md);
         }
     }
 
-    @include media-breakpoint-up(lg) {
+    @container dashboard (min-width: #{map-get($grid-breakpoints, lg)}) {
         border-bottom: 1px solid var(--gray-200);
     }
 }
@@ -586,7 +617,7 @@ $dashboard-row: auto;
 }
 
 .dashboard-widget {
-    display: grid;
+    display: var(--dashboard-display, grid);
     border-radius: var(--border-radius-lg);
 }
 

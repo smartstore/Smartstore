@@ -22,97 +22,106 @@
     };
 </script>
 
-<div id="@(Model.Layout.Id)-grid"
-     data-dashboard-load-url="@Url.Action("DashboardWidget", "Home", new { area = "Admin" })"
-     style="display: grid; grid-template-columns: @Model.Layout.GridTemplateColumns; column-gap: @Model.Layout.ColumnGap; row-gap: @Model.Layout.RowGap; grid-auto-rows: @Model.Layout.GridAutoRows;">
+<div class="dashboard-container" attr-class='(Model.Context.IsEditMode, "invisible")'>
+    <div id="@(Model.Layout.Id)-grid"
+         data-dashboard-load-url="@Url.Action("DashboardWidget", "Home", new { area = "Admin" })"
+         style="display: grid; grid-template-columns: @Model.Layout.GridTemplateColumns; column-gap: @Model.Layout.ColumnGap; row-gap: @Model.Layout.RowGap; grid-auto-rows: @Model.Layout.GridAutoRows;">
     
-     <zone name="dashboard_top"></zone>
+         <zone name="dashboard_top"></zone>
 
-    @foreach (var item in Model.Widgets)
-    {
-        var canConfigure = Model.Context.IsEditMode && item.Policy.AllowConfigure;
-        var canEdit = Model.Context.IsEditMode && (item.Policy.AllowMove || item.Policy.AllowResize || !item.Policy.IsRequired || canConfigure);
+        @foreach (var item in Model.Widgets)
+        {
+            var canConfigure = Model.Context.IsEditMode && item.Policy.AllowConfigure;
+            var canEdit = Model.Context.IsEditMode && (item.Policy.AllowMove || item.Policy.AllowResize || !item.Policy.IsRequired || canConfigure);
 
-        <div id="@Model.Layout.BuildWidgetId(item.Instance.Id)"
-             class="dashboard-widget @item.Descriptor.CssClass"
-             attr-class='(canConfigure, "dashboard-widget-configurable")'
-             data-instance-id="@item.Instance.Id"
-             attr-data-min-width='(Model.Context.IsEditMode, item.Descriptor.MinSize.ColumnSpan.ToString())'
-             attr-data-max-width='(Model.Context.IsEditMode, item.Descriptor.MaxSize.ColumnSpan.ToString())'>
-            <div class="dashboard-widget-body">
-                <div sm-if="canEdit"
-                     class="dashboard-widget-overlay"
-                     attr-aria-label='(item.Policy.AllowMove, T("Admin.Dashboard.Editor.Move").ToString())'
-                     attr-aria-hidden='(!item.Policy.AllowMove, "true")'></div>
+            <div id="@Model.Layout.BuildWidgetId(item.Instance.Id)"
+                 class="dashboard-widget @item.Descriptor.CssClass"
+                 attr-class='(canConfigure, "dashboard-widget-configurable")'
+                 data-instance-id="@item.Instance.Id"
+                 attr-data-min-width='(Model.Context.IsEditMode, item.Descriptor.MinSize.ColumnSpan.ToString())'
+                 attr-data-max-width='(Model.Context.IsEditMode, item.Descriptor.MaxSize.ColumnSpan.ToString())'>
+                <div class="dashboard-widget-body">
+                    <div sm-if="canEdit"
+                         class="dashboard-widget-overlay"
+                         attr-aria-label='(item.Policy.AllowMove, T("Admin.Dashboard.Editor.Move").ToString())'
+                         attr-aria-hidden='(!item.Policy.AllowMove, "true")'></div>
 
-                <div sm-if="Model.Context.IsEditMode && (!item.Policy.IsRequired || canConfigure)" class="dashboard-widget-tools">
-                    <button sm-if="canConfigure"
-                            type="button"
-                            class="btn btn-xs btn-plain btn-flat btn-icon dashboard-configure"
-                            title="@T("Admin.Dashboard.Editor.Configure")"
-                            aria-label="@T("Admin.Dashboard.Editor.Configure")"
-                            aria-expanded="false">
-                        <icon name="hi:settings-01" />
-                    </button>
-                    <button sm-if="Model.Context.IsEditMode && !item.Policy.IsRequired"
-                            type="button"
-                            class="btn btn-xs btn-plain btn-flat btn-icon btn-destructive dashboard-remove"
-                            title="@T("Common.Remove")"
-                            aria-label="@T("Common.Remove")">
-                        <icon name="trash" />
-                    </button>
-                </div>
-
-                @if (Model.Context.IsEditMode && item.Policy.AllowResize)
-                {
-                    <button sm-if="item.Policy.AllowMove"
-                            type="button"
-                            class="dashboard-resize"
-                            tabindex="-1"
-                            data-dashboard-resize="width-start"
-                            aria-label="@T("Admin.Dashboard.Editor.Width")"></button>
-                    <button type="button"
-                            class="dashboard-resize"
-                            tabindex="-1"
-                            data-dashboard-resize="width"
-                            aria-label="@T("Admin.Dashboard.Editor.Width")"></button>
-                    <button type="button"
-                            class="dashboard-resize"
-                            tabindex="-1"
-                            data-dashboard-resize="height"
-                            aria-label="@T("Admin.Dashboard.Editor.Height")"></button>
-                    <button sm-if="item.Policy.AllowMove"
-                            type="button"
-                            class="dashboard-resize"
-                            tabindex="-1"
-                            data-dashboard-resize="height-start"
-                            aria-label="@T("Admin.Dashboard.Editor.Height")"></button>
-                }
-                <div class="dashboard-widget-content" attr-inert='(canEdit, "inert")'>
-                    @await item.Widget.InvokeAsync(ViewContext)
-                </div>
-            </div>
-
-            @if (canConfigure) 
-            {
-                <form class="dashboard-widget-config card"
-                      data-configuration-url="@Url.Action("DashboardConfigure", "Home", new { area = "Admin", widgetSystemName = item.Instance.WidgetSystemName })"
-                      novalidate
-                      inert>
-                    <div class="card-header">
-                        <h5 class="card-title mb-0">@item.Descriptor.Title.Resolve(T)</h5>
-                        <div class="d-flex gap-2 ml-auto">
-                            <button type="button" class="btn btn-sm btn-light dashboard-config-cancel">@T("Common.Cancel")</button>
-                            <button type="submit" class="btn btn-sm btn-primary">
-                                <icon name="check" />
-                                <span>@T("Admin.Common.Save")</span>
-                            </button>
-                        </div>
+                    <div sm-if="Model.Context.IsEditMode && (!item.Policy.IsRequired || canConfigure)" class="dashboard-widget-tools">
+                        <button sm-if="canConfigure"
+                                type="button"
+                                class="btn btn-xs btn-plain btn-flat btn-icon dashboard-configure"
+                                title="@T("Admin.Dashboard.Editor.Configure")"
+                                aria-label="@T("Admin.Dashboard.Editor.Configure")"
+                                aria-expanded="false">
+                            <icon name="hi:settings-01" />
+                        </button>
+                        <button sm-if="Model.Context.IsEditMode && !item.Policy.IsRequired"
+                                type="button"
+                                class="btn btn-xs btn-plain btn-flat btn-icon dashboard-hide"
+                                title="@T("Admin.Dashboard.Editor.HideWidget")"
+                                aria-label="@T("Admin.Dashboard.Editor.HideWidget")">
+                            <icon name="eye-off" />
+                        </button>
+                        <button sm-if="Model.Context.IsEditMode && !item.Policy.IsRequired"
+                                type="button"
+                                class="btn btn-xs btn-plain btn-flat btn-icon btn-destructive dashboard-remove"
+                                title="@T("Admin.Dashboard.Editor.RemoveWidget")"
+                                aria-label="@T("Admin.Dashboard.Editor.RemoveWidget")">
+                            <icon name="trash" />
+                        </button>
                     </div>
-                    <div class="card-body"></div>
-                </form>
-            }
-        </div>
-    }
-    <zone name="dashboard_bottom"></zone>
+
+                    @if (Model.Context.IsEditMode && item.Policy.AllowResize)
+                    {
+                        <button sm-if="item.Policy.AllowMove"
+                                type="button"
+                                class="dashboard-resize"
+                                tabindex="-1"
+                                data-dashboard-resize="width-start"
+                                aria-label="@T("Admin.Dashboard.Editor.Width")"></button>
+                        <button type="button"
+                                class="dashboard-resize"
+                                tabindex="-1"
+                                data-dashboard-resize="width"
+                                aria-label="@T("Admin.Dashboard.Editor.Width")"></button>
+                        <button type="button"
+                                class="dashboard-resize"
+                                tabindex="-1"
+                                data-dashboard-resize="height"
+                                aria-label="@T("Admin.Dashboard.Editor.Height")"></button>
+                        <button sm-if="item.Policy.AllowMove"
+                                type="button"
+                                class="dashboard-resize"
+                                tabindex="-1"
+                                data-dashboard-resize="height-start"
+                                aria-label="@T("Admin.Dashboard.Editor.Height")"></button>
+                    }
+                    <div class="dashboard-widget-content" attr-inert='(canEdit, "inert")'>
+                        @await item.Widget.InvokeAsync(ViewContext)
+                    </div>
+                </div>
+
+                @if (canConfigure)
+                {
+                    <form class="dashboard-widget-config card"
+                          data-configuration-url="@Url.Action("DashboardConfigure", "Home", new { area = "Admin", widgetSystemName = item.Instance.WidgetSystemName })"
+                          novalidate
+                          inert>
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">@item.Descriptor.Title.Resolve(T)</h5>
+                            <div class="d-flex gap-2 ml-auto">
+                                <button type="button" class="btn btn-sm btn-light dashboard-config-cancel">@T("Common.Cancel")</button>
+                                <button type="submit" class="btn btn-sm btn-primary">
+                                    <icon name="check" />
+                                    <span>@T("Admin.Common.Save")</span>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="card-body"></div>
+                    </form>
+                }
+            </div>
+        }
+        <zone name="dashboard_bottom"></zone>
+    </div>
 </div>

@@ -39,7 +39,7 @@
                     </a>
                 }
 
-                <div id="pnl-@(i)" class="collapse row g-0 g-sm-3 g-lg-0 p-0 p-sm-3 p-lg-0" attr-class='(isFirst, "show")' data-parent="#news-feed-accordion">
+                <div id="pnl-@(i)" class="collapse row g-0 newsfeed-items" attr-class='(isFirst, "show")' data-parent="#news-feed-accordion">
                     @foreach (var item in channel.NewsFeedItems)
                     {
                         if (item.ViewType == "hidden")
@@ -50,9 +50,9 @@
                         var showPicture = item.ViewType == "full";
                         var showDescription = item.ViewType != "minimized";
 
-                        <div class="col-12 col-sm-6 col-lg-12 newsfeed-column">
+                        <div class="col-12 newsfeed-column">
                             <div class="cnt-newsfeed-item" attr-class='(item.IsPinned, "pinned")'>
-                                <figure sm-if='item.ThumbnailUrl.HasValue()' class="newsfeed-thumbnail" attr-class='(!showPicture, "d-lg-none")'>
+                                <figure sm-if='item.ThumbnailUrl.HasValue()' class="newsfeed-thumbnail" attr-class='(!showPicture, "newsfeed-rail-hidden")'>
                                     <img class="file-img newsfeed-image" src="@item.ThumbnailUrl" alt="@item.Title" />
                                 </figure>
                                 <div class="newsfeed-item">
@@ -66,7 +66,7 @@
                                             @item.Title
                                         }
                                     </div>
-                                    <div class="newsfeed-item-body" attr-class='(!showDescription, "d-lg-none")'>
+                                    <div class="newsfeed-item-body" attr-class='(!showDescription, "newsfeed-rail-hidden")'>
                                         <div class="line-clamp-4">
                                             @Html.Raw(item.Short)
                                         </div>
